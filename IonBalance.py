@@ -34,6 +34,10 @@ import string
 H_mass_fraction = 0.76
 mH = 1.67e-24
 
+# set fractions to 0 for values lower than 1e-7, 
+# which is the lowest value in SD93.
+fraction_zero_point = 1.e-7
+
 ionTableStore = {}
 
 # Reads in comma separated ionization balance tables from 
@@ -76,7 +80,9 @@ def add_ion_fraction_field(atom,ion):
     if not ionTableStore.has_key(field):
         ionTable = IonBalanceTable(tableFile)
         ionTableStore[field] = {'fraction': copy.deepcopy(ionTable.ion_fraction[ion-1]),
-                                'temperature': copy.deepcopy(ionTable.temperature)}
+                                'temperature': copy.deepcopy(ionTable.temperature),
+                                't_min': ionTable.temperature.min(),
+                                't_max': ionTable.temperature.max()}
         del ionTable
 
     lagos.add_field(field,function=_ion_fraction_field,units=r"")
@@ -167,8 +173,8 @@ def _ion_fraction_field(field,data):
     temperature = ionTableStore[field.name]['temperature']
 
     logTemp = na.log10(data["Temperature"])
-    logTemp = na.maximum(logTemp,4.0)
-    logTemp = na.minimum(logTemp,8.0)
+    logTemp = na.maximum(logTemp, ionTableStore[field.name]['t_min'])
+    logTemp = na.minimum(logTemp, ionTableStore[field.name]['t_max'])
 
     index = ((len(temperature)-1) * \
                  (logTemp - temperature[0]) / \
@@ -182,6 +188,7 @@ def _ion_fraction_field(field,data):
 
     fraction = m * (logTemp - temperature[index]) + ionFraction[index]
     fraction = 10**fraction
+    fraction[fraction <= fraction_zero_point] = 0.0
 
     return fraction
 
