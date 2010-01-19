@@ -26,10 +26,11 @@ License:
 
 import yt.lagos as lagos
 import numpy as na
+import string
+import roman
+import h5py
 import copy
 import os
-import roman
-import string
 
 H_mass_fraction = 0.76
 mH = 1.67e-24
@@ -43,13 +44,16 @@ ionTableStore = {}
 # Reads in comma separated ionization balance tables from 
 # Sutherland & Dopita (1993).
 class IonBalanceTable(object):
-    def __init__(self, filename):
+    def __init__(self, filename, atom=None):
         self.filename = filename
         self.temperature = []
         self.ion_fraction = []
-        self._load_table()
+        if atom is None:
+            self._load_ascii_table()
+        else:
+            self._load_hdf5_table(atom)
 
-    def _load_table(self):
+    def _load_ascii_table(self):
         "Read in comma separated Sutherland & Dopita (1993) ion balance table."
         f = open(self.filename)
         for line in f.xreadlines():
@@ -64,6 +68,13 @@ class IonBalanceTable(object):
         self.ion_fraction = na.array(self.ion_fraction)
         self.ion_fraction = na.transpose(self.ion_fraction)
         f.close()
+
+    def _load_hdf5_table(self, atom):
+        "Read in ion balance table from hdf5."
+        input = h5py.File(self.filename, 'r')
+        self.ion_fraction = input[atom].value
+        self.temperature = input[atom].attrs['Temperature']
+        input.close()
 
 def add_ion_fraction_field(atom,ion):
     """
