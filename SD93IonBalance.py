@@ -43,7 +43,7 @@ ionTableStore = {}
 
 # Reads in comma separated ionization balance tables from 
 # Sutherland & Dopita (1993).
-class IonBalanceTable(object):
+class SD93IonBalanceTable(object):
     def __init__(self, filename, atom=None):
         self.filename = filename
         self.temperature = []
@@ -76,16 +76,16 @@ class IonBalanceTable(object):
         self.temperature = input[atom].attrs['Temperature']
         input.close()
 
-def add_ion_fraction_field(atom,ion):
+def add_SD93_ion_fraction_field(atom,ion):
     """
     Add ion fraction field to yt.
-    For example, add_ion_fraction_field('O',6) creates a field 
+    For example, add_SD93_ion_fraction_field('O',6) creates a field 
     called OVI_Ion_Fraction.
     """
     atom = string.capitalize(atom)
-    field = "%s%s_eq_Ion_Fraction" % (atom,roman.toRoman(ion))
+    field = "%s%s_SD93_eq_Ion_Fraction" % (atom,roman.toRoman(ion))
 
-    tableFile = "%s/tables/%s_ion_balance.txt" % (os.path.dirname(__file__),
+    tableFile = "%s/SD93_tables/%s_ion_balance.txt" % (os.path.dirname(__file__),
                                                   string.lower(atom))
 
     if not ionTableStore.has_key(field):
@@ -98,42 +98,42 @@ def add_ion_fraction_field(atom,ion):
 
     lagos.add_field(field,function=_ion_fraction_field,units=r"")
 
-def add_ion_number_density_field(atom,ion):
+def add_SD93_ion_number_density_field(atom,ion):
     """
     Add ion number density field to yt.
-    For example, add_ion_number_density_field('O',6) creates a field 
+    For example, add_SD93_ion_number_density_field('O',6) creates a field 
     called OVI_NumberDensity.
     """
     atom = string.capitalize(atom)
-    field = "%s%s_eq_NumberDensity" % (atom,roman.toRoman(ion))
-    add_ion_fraction_field(atom,ion)
+    field = "%s%s_SD93_eq_NumberDensity" % (atom,roman.toRoman(ion))
+    add_SD93_ion_fraction_field(atom,ion)
     lagos.add_field(field,function=_ion_number_density,
                     convert_function=_convert_ion_number_density,
                     units=r"cm^{-3}",projected_units=r"cm^{-2}")
 
-def add_ion_density_field(atom,ion):
+def add_SD93_ion_density_field(atom,ion):
     """
     Add ion mass density field to yt.
-    For example, add_ion_density_field('O',6) creates a field 
+    For example, add_SD93_ion_density_field('O',6) creates a field 
     called OVI_Density.
     """
     atom = string.capitalize(atom)
-    field = "%s%s_eq_Density" % (atom,roman.toRoman(ion))
-    add_ion_number_density_field(atom,ion)
+    field = "%s%s_SD93_eq_Density" % (atom,roman.toRoman(ion))
+    add_SD93_ion_number_density_field(atom,ion)
     lagos.add_field(field,function=_ion_density,
                     convert_function=_convert_ion_density,
                     units=r"g cm^{-3}",projected_units=r"g cm^{-2}")
 
-def add_ion_mass_field(atom,ion):
+def add_SD93_ion_mass_field(atom,ion):
     """
     Add ion mass fields (g and Msun) to yt.
-    For example, add_ion_density_field('O',6) creates a field 
+    For example, add_SD93_ion_density_field('O',6) creates a field 
     called OVI_Density.
     """
     atom = string.capitalize(atom)
-    field = "%s%s_eq_Mass" % (atom,roman.toRoman(ion))
-    field_msun = "%s%s_eq_MassMsun" % (atom,roman.toRoman(ion))
-    add_ion_density_field(atom,ion)
+    field = "%s%s_SD93_eq_Mass" % (atom,roman.toRoman(ion))
+    field_msun = "%s%s_SD93_eq_MassMsun" % (atom,roman.toRoman(ion))
+    add_SD93_ion_density_field(atom,ion)
     lagos.add_field(field,function=_ion_mass, units=r"g")
     lagos.add_field(field_msun,function=_ion_mass, 
                     convert_function=_convertCellMassMsun, 
@@ -146,7 +146,7 @@ def _ion_mass(field,data):
     else:
         atom = species[0]
 
-    densityField = "%s_eq_Density" % species
+    densityField = "%s_SD93_eq_Density" % species
     return data[densityField] * data['CellVolume']
 
 def _convertCellMassMsun(data):
@@ -159,7 +159,7 @@ def _ion_density(field,data):
     else:
         atom = species[0]
 
-    numberDensityField = "%s_eq_NumberDensity" % species
+    numberDensityField = "%s_SD93_eq_NumberDensity" % species
     return atomicMass[atom] * data[numberDensityField]
 
 def _convert_ion_density(data):
@@ -172,7 +172,7 @@ def _ion_number_density(field,data):
     else:
         atom = species[0]
 
-    fractionField = "%s_eq_Ion_Fraction" % species
+    fractionField = "%s_SD93_eq_Ion_Fraction" % species
     return solarAbundance[atom] * data[fractionField] * data['Metallicity'] * \
         data['Density']
 
