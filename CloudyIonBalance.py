@@ -38,6 +38,7 @@ to_nH = H_mass_fraction / mH
 # set fractions to 0 for values lower than 1e-7, 
 # which is what is used in Sutherland & Dopita (1993).
 fraction_zero_point = 1.e-7
+zero_out_value = -30.
 
 Cloudy_table_store = {}
 
@@ -50,26 +51,11 @@ class CloudyIonBalanceTable(object):
         self.ion_fraction = []
         self._load_hdf5_table(atom)
 
-    def _load_ascii_table(self):
-        "Read in comma separated Sutherland & Dopita (1993) ion balance table."
-        f = open(self.filename)
-        for line in f.xreadlines():
-            line.strip()
-            if (line[0] != '#'):
-                onLine = line.split(',')
-                self.temperature.append(float(onLine.pop(0)))
-                for q in range(len(onLine)):
-                    onLine[q] = -1.0 * float(onLine[q])
-                self.ion_fraction.append(onLine)
-        self.temperature = na.array(self.temperature)
-        self.ion_fraction = na.array(self.ion_fraction)
-        self.ion_fraction = na.transpose(self.ion_fraction)
-        f.close()
-
     def _load_hdf5_table(self, atom):
         "Read in ion balance table from hdf5."
         input = h5py.File(self.filename, 'r')
         self.ion_fraction = input[atom].value
+        self.ion_fraction[self.ion_fraction < na.log10(fraction_zero_point)] = zero_out_value
         for par in range(1, len(self.ion_fraction.shape) - 1):
             name = "Parameter%d" % par
             self.parameters.append(input[atom].attrs[name])
