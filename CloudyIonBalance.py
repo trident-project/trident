@@ -180,6 +180,8 @@ def _ion_fraction_field(field,data):
                                               truncate=True)
     fraction = na.power(10, interp(data))
     fraction[fraction <= fraction_zero_point] = 0.0
+    if (fraction > 1.0).any():
+        print "WARNING! An ion fraction greater than 1 was calculated.  This is wrong!"
     return fraction
 
 # Taken from Cloudy documentation.
