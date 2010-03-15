@@ -38,6 +38,7 @@ mH = 1.67e-24
 # set fractions to 0 for values lower than 1e-7, 
 # which is the lowest value in SD93.
 fraction_zero_point = 1.e-7
+zero_out_value = -30.
 
 SD93_table_store = {}
 
@@ -73,6 +74,7 @@ class SD93IonBalanceTable(object):
         "Read in ion balance table from hdf5."
         input = h5py.File(self.filename, 'r')
         self.ion_fraction = input[atom].value
+        self.ion_fraction[self.ion_fraction < na.log10(fraction_zero_point)] = zero_out_value
         self.temperature = input[atom].attrs['Temperature']
         input.close()
 
@@ -178,28 +180,19 @@ def _ion_number_density(field,data):
 def _convert_ion_number_density(data):
     return (H_mass_fraction / mH)
 
-def _ion_fraction_field(field,data):
+def _ion_fraction_field(field, data):
     ionFraction = SD93_table_store[field.name]['fraction']
-    temperature = SD93_table_store[field.name]['temperature']
 
-    logTemp = na.log10(data["Temperature"])
-    logTemp = na.maximum(logTemp, SD93_table_store[field.name]['t_min'])
-    logTemp = na.minimum(logTemp, SD93_table_store[field.name]['t_max'])
+    data['log_T'] = na.log10(data['Temperature'])
+    bds = na.array([SD93_table_store[field.name]['t_min'], 
+                    SD93_table_store[field.name]['t_max']])
 
-    index = ((len(temperature)-1) * \
-                 (logTemp - temperature[0]) / \
-                 (temperature[-1] - temperature[0]))
+    interp = lagos.UnilinearFieldInterpolator(ionFraction, bds, 'log_T', truncate=True)
 
-    index = index.astype('int64')
-    index = na.minimum(index,(len(temperature)-2))
-
-    m = (ionFraction[index+1] - ionFraction[index]) / \
-        (temperature[index+1] - temperature[index])
-
-    fraction = m * (logTemp - temperature[index]) + ionFraction[index]
-    fraction = 10**fraction
+    fraction = na.power(10, interp(data))
     fraction[fraction <= fraction_zero_point] = 0.0
-
+    if (fraction > 1.0).any():
+        print "WARNING! An ion fraction greater than 1 was calculated.  This is wrong!"
     return fraction
 
 # Taken from Cloudy documentation.
