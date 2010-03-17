@@ -62,7 +62,7 @@ class CloudyIonBalanceTable(object):
         self.parameters.append(input[atom].attrs['Temperature'])
         input.close()
 
-def add_Cloudy_ion_fraction_field(atom,ion):
+def add_Cloudy_ion_fraction_field(atom, ion, data_file='cloudy_ion_balance.h5'):
     """
     Add ion fraction field to yt.
     For example, add_Cloudy_ion_fraction_field('O',6) creates a field 
@@ -71,7 +71,7 @@ def add_Cloudy_ion_fraction_field(atom,ion):
     atom = string.capitalize(atom)
     field = "%s%s_Cloudy_eq_Ion_Fraction" % (atom,roman.toRoman(ion))
 
-    tableFile = "%s/tables/cloudy_ion_balance.h5" % os.path.dirname(__file__)
+    tableFile = "%s/tables/%s" % (os.path.dirname(__file__), data_file)
 
     if not Cloudy_table_store.has_key(field):
         ionTable = CloudyIonBalanceTable(tableFile, atom)
@@ -81,7 +81,7 @@ def add_Cloudy_ion_fraction_field(atom,ion):
 
     lagos.add_field(field,function=_ion_fraction_field,units=r"")
 
-def add_Cloudy_ion_number_density_field(atom,ion):
+def add_Cloudy_ion_number_density_field(atom, ion, **kwargs):
     """
     Add ion number density field to yt.
     For example, add_Cloudy_ion_number_density_field('O',6) creates a field 
@@ -89,12 +89,12 @@ def add_Cloudy_ion_number_density_field(atom,ion):
     """
     atom = string.capitalize(atom)
     field = "%s%s_Cloudy_eq_NumberDensity" % (atom,roman.toRoman(ion))
-    add_Cloudy_ion_fraction_field(atom,ion)
+    add_Cloudy_ion_fraction_field(atom,ion, **kwargs)
     lagos.add_field(field,function=_ion_number_density,
                     convert_function=_convert_ion_number_density,
                     units=r"cm^{-3}",projected_units=r"cm^{-2}")
 
-def add_Cloudy_ion_density_field(atom,ion):
+def add_Cloudy_ion_density_field(atom, ion, **kwargs):
     """
     Add ion mass density field to yt.
     For example, add_Cloudy_ion_density_field('O',6) creates a field 
@@ -102,12 +102,12 @@ def add_Cloudy_ion_density_field(atom,ion):
     """
     atom = string.capitalize(atom)
     field = "%s%s_Cloudy_eq_Density" % (atom,roman.toRoman(ion))
-    add_Cloudy_ion_number_density_field(atom,ion)
+    add_Cloudy_ion_number_density_field(atom,ion, **kwargs)
     lagos.add_field(field,function=_ion_density,
                     convert_function=_convert_ion_density,
                     units=r"g cm^{-3}",projected_units=r"g cm^{-2}")
 
-def add_Cloudy_ion_mass_field(atom,ion):
+def add_Cloudy_ion_mass_field(atom, ion, **kwargs):
     """
     Add ion mass fields (g and Msun) to yt.
     For example, add_Cloudy_ion_density_field('O',6) creates a field 
@@ -116,7 +116,7 @@ def add_Cloudy_ion_mass_field(atom,ion):
     atom = string.capitalize(atom)
     field = "%s%s_Cloudy_eq_Mass" % (atom,roman.toRoman(ion))
     field_msun = "%s%s_Cloudy_eq_MassMsun" % (atom,roman.toRoman(ion))
-    add_Cloudy_ion_density_field(atom,ion)
+    add_Cloudy_ion_density_field(atom,ion, **kwargs)
     lagos.add_field(field,function=_ion_mass, units=r"g")
     lagos.add_field(field_msun,function=_ion_mass, 
                     convert_function=_convertCellMassMsun, 
