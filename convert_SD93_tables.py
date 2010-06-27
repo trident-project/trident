@@ -1,4 +1,4 @@
-import IonBalance as IB
+import SD93IonBalance as IB
 import numpy as na
 import string
 import h5py
@@ -11,7 +11,7 @@ output = h5py.File(output_file,'w')
 for file in ascii_files:
     prefix = file.find("_ion_balance.txt")
     if prefix > 0:
-        i_table = IB.IonBalanceTable(file, input='ascii')
+        i_table = IB.SD93IonBalanceTable(file)
         element = file[prefix-2:prefix]
         if not element[0].isalpha(): element = element[1]
         element = string.capitalize(element)
