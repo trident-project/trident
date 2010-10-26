@@ -23,7 +23,8 @@ License:
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import yt.lagos as lagos
+from yt.data_objects.field_info_container import add_field
+from yt.utilities.linear_interpolators import TrilinearFieldInterpolator
 import numpy as na
 import string
 import roman
@@ -79,7 +80,7 @@ def add_Cloudy_ion_fraction_field(atom, ion, data_file='cloudy_ion_balance.h5'):
                                      'parameters': copy.deepcopy(ionTable.parameters)}
         del ionTable
 
-    lagos.add_field(field,function=_ion_fraction_field,units=r"")
+    add_field(field,function=_ion_fraction_field,units=r"")
 
 def add_Cloudy_ion_number_density_field(atom, ion, **kwargs):
     """
@@ -90,9 +91,9 @@ def add_Cloudy_ion_number_density_field(atom, ion, **kwargs):
     atom = string.capitalize(atom)
     field = "%s%s_Cloudy_eq_NumberDensity" % (atom,roman.toRoman(ion))
     add_Cloudy_ion_fraction_field(atom,ion, **kwargs)
-    lagos.add_field(field,function=_ion_number_density,
-                    convert_function=_convert_ion_number_density,
-                    units=r"cm^{-3}",projected_units=r"cm^{-2}")
+    add_field(field,function=_ion_number_density,
+              convert_function=_convert_ion_number_density,
+              units=r"cm^{-3}",projected_units=r"cm^{-2}")
 
 def add_Cloudy_ion_density_field(atom, ion, **kwargs):
     """
@@ -103,9 +104,9 @@ def add_Cloudy_ion_density_field(atom, ion, **kwargs):
     atom = string.capitalize(atom)
     field = "%s%s_Cloudy_eq_Density" % (atom,roman.toRoman(ion))
     add_Cloudy_ion_number_density_field(atom,ion, **kwargs)
-    lagos.add_field(field,function=_ion_density,
-                    convert_function=_convert_ion_density,
-                    units=r"g cm^{-3}",projected_units=r"g cm^{-2}")
+    add_field(field,function=_ion_density,
+              convert_function=_convert_ion_density,
+              units=r"g cm^{-3}",projected_units=r"g cm^{-2}")
 
 def add_Cloudy_ion_mass_field(atom, ion, **kwargs):
     """
@@ -117,10 +118,10 @@ def add_Cloudy_ion_mass_field(atom, ion, **kwargs):
     field = "%s%s_Cloudy_eq_Mass" % (atom,roman.toRoman(ion))
     field_msun = "%s%s_Cloudy_eq_MassMsun" % (atom,roman.toRoman(ion))
     add_Cloudy_ion_density_field(atom,ion, **kwargs)
-    lagos.add_field(field,function=_ion_mass, units=r"g")
-    lagos.add_field(field_msun,function=_ion_mass, 
-                    convert_function=_convertCellMassMsun, 
-                    units=r"M_{\odot}")
+    add_field(field,function=_ion_mass, units=r"g")
+    add_field(field_msun,function=_ion_mass, 
+              convert_function=_convertCellMassMsun, 
+              units=r"M_{\odot}")
 
 def _ion_mass(field,data):
     species = field.name.split("_")[0]
@@ -176,8 +177,9 @@ def _ion_fraction_field(field,data):
     bds = na.array([n_param[0], n_param[-1], z_param[0], z_param[-1], 
                     t_param[0], t_param[-1]])
 
-    interp = lagos.TrilinearFieldInterpolator(ionFraction, bds, ['log_nH', 'redshift', 'log_T'],
-                                              truncate=True)
+    interp = TrilinearFieldInterpolator(ionFraction, bds, 
+                                        ['log_nH', 'redshift', 'log_T'],
+                                        truncate=True)
     fraction = na.power(10, interp(data))
     fraction[fraction <= fraction_zero_point] = 0.0
     if (fraction > 1.0).any():

@@ -24,7 +24,8 @@ License:
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import yt.lagos as lagos
+from yt.data_objects.field_info_container import add_field
+from yt.utilities.linear_interpolators import UnilinearFieldInterpolator
 import numpy as na
 import string
 import roman
@@ -97,7 +98,7 @@ def add_SD93_ion_fraction_field(atom,ion):
                                    't_max': ionTable.temperature.max()}
         del ionTable
 
-    lagos.add_field(field,function=_ion_fraction_field,units=r"")
+    add_field(field,function=_ion_fraction_field,units=r"")
 
 def add_SD93_ion_number_density_field(atom,ion):
     """
@@ -108,9 +109,9 @@ def add_SD93_ion_number_density_field(atom,ion):
     atom = string.capitalize(atom)
     field = "%s%s_SD93_eq_NumberDensity" % (atom,roman.toRoman(ion))
     add_SD93_ion_fraction_field(atom,ion)
-    lagos.add_field(field,function=_ion_number_density,
-                    convert_function=_convert_ion_number_density,
-                    units=r"cm^{-3}",projected_units=r"cm^{-2}")
+    add_field(field,function=_ion_number_density,
+              convert_function=_convert_ion_number_density,
+              units=r"cm^{-3}",projected_units=r"cm^{-2}")
 
 def add_SD93_ion_density_field(atom,ion):
     """
@@ -121,9 +122,9 @@ def add_SD93_ion_density_field(atom,ion):
     atom = string.capitalize(atom)
     field = "%s%s_SD93_eq_Density" % (atom,roman.toRoman(ion))
     add_SD93_ion_number_density_field(atom,ion)
-    lagos.add_field(field,function=_ion_density,
-                    convert_function=_convert_ion_density,
-                    units=r"g cm^{-3}",projected_units=r"g cm^{-2}")
+    add_field(field,function=_ion_density,
+              convert_function=_convert_ion_density,
+              units=r"g cm^{-3}",projected_units=r"g cm^{-2}")
 
 def add_SD93_ion_mass_field(atom,ion):
     """
@@ -135,10 +136,10 @@ def add_SD93_ion_mass_field(atom,ion):
     field = "%s%s_SD93_eq_Mass" % (atom,roman.toRoman(ion))
     field_msun = "%s%s_SD93_eq_MassMsun" % (atom,roman.toRoman(ion))
     add_SD93_ion_density_field(atom,ion)
-    lagos.add_field(field,function=_ion_mass, units=r"g")
-    lagos.add_field(field_msun,function=_ion_mass, 
-                    convert_function=_convertCellMassMsun, 
-                    units=r"M_{\odot}")
+    add_field(field,function=_ion_mass, units=r"g")
+    add_field(field_msun,function=_ion_mass, 
+              convert_function=_convertCellMassMsun, 
+              units=r"M_{\odot}")
 
 def _ion_mass(field,data):
     species = field.name.split("_")[0]
@@ -187,7 +188,7 @@ def _ion_fraction_field(field, data):
     bds = na.array([SD93_table_store[field.name]['t_min'], 
                     SD93_table_store[field.name]['t_max']])
 
-    interp = lagos.UnilinearFieldInterpolator(ionFraction, bds, 'log_T', truncate=True)
+    interp = UnilinearFieldInterpolator(ionFraction, bds, 'log_T', truncate=True)
 
     fraction = na.power(10, interp(data))
     fraction[fraction <= fraction_zero_point] = 0.0
