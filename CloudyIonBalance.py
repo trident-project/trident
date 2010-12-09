@@ -157,8 +157,10 @@ def _ion_number_density(field,data):
         atom = species[0]
 
     fractionField = "%s_Cloudy_eq_Ion_Fraction" % species
-    return solarAbundance[atom] * data[fractionField] * data['Metallicity'] * \
+    field = solarAbundance[atom] * data[fractionField] * data['Metallicity'] * \
         data['Density']
+    field[field <= 0.0] = 1.e-50
+    return field
 
 def _convert_ion_number_density(data):
     return (H_mass_fraction / mH)
@@ -170,7 +172,7 @@ def _ion_fraction_field(field,data):
     t_param = Cloudy_table_store[field.name]['parameters'][2]
 
     data['log_nH'] = na.log10(data['Density'] * to_nH)
-    data['redshift'] = data.pf.parameters['CosmologyCurrentRedshift'] * \
+    data['redshift'] = data.pf.current_redshift * \
         na.ones(data['Density'].shape, dtype=data['Density'].dtype)
     data['log_T'] = na.log10(data['Temperature'])
 
