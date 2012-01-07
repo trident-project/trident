@@ -157,8 +157,11 @@ def _ion_number_density(field,data):
         atom = species[0]
 
     fractionField = "%s_Cloudy_eq_Ion_Fraction" % species
-    field = solarAbundance[atom] * data[fractionField] * data['Metallicity'] * \
-        data['Density']
+    if atom == 'H' or atom == 'He':
+        field = solarAbundance[atom] * data[fractionField] * data['Density']
+    else:    
+        field = solarAbundance[atom] * data[fractionField] * data['Metallicity'] * \
+            data['Density']
     field[field <= 0.0] = 1.e-50
     return field
 
