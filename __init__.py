@@ -1,3 +1,6 @@
+from roman import \
+     fromRoman, \
+     toRoman
 from SD93IonBalance import \
     add_SD93_ion_fraction_field, \
     add_SD93_ion_number_density_field, \
