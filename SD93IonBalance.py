@@ -185,8 +185,8 @@ def _ion_fraction_field(field, data):
     ionFraction = SD93_table_store[field.name]['fraction']
 
     data['log_T'] = na.log10(data['Temperature'])
-    bds = na.array([SD93_table_store[field.name]['t_min'], 
-                    SD93_table_store[field.name]['t_max']])
+    bds = (SD93_table_store[field.name]['t_min'], 
+           SD93_table_store[field.name]['t_max'])
 
     interp = UnilinearFieldInterpolator(ionFraction, bds, 'log_T', truncate=True)
 
