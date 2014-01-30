@@ -1,8 +1,10 @@
 import h5py
 import numpy as np
+import os
 
 from yt.analysis_modules.absorption_spectrum.api import \
       AbsorptionSpectrum
+from yt.funcs import mylog
       
 atomic_mass = {'H': 1.00794, 'He': 4.002602, 'Li': 6.941,
                'Be': 9.012182, 'B': 10.811, 'C': 12.0107,
@@ -17,7 +19,7 @@ atomic_mass = {'H': 1.00794, 'He': 4.002602, 'Li': 6.941,
 
 class SpectrumGenerator(AbsorptionSpectrum):
     def __init__(self, lambda_min, lambda_max, n_lambda):
-        AbsorptionSpectrum.__init__(lambda_min, lambda_max, n_lambda)
+        AbsorptionSpectrum.__init__(self, lambda_min, lambda_max, n_lambda)
 
     def _get_qso_spectrum(self, redshift=0.0, filename=None):
         """
@@ -43,10 +45,10 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
     def add_qso_spectrum(self, flux_field=None,
                          redshift=0.0, filename=None):
-        if flux_field=None:
+        if flux_field is None:
             flux_field = self.flux_field
-        qso_spectrum = get_qso_spectrum(redshift=redshift,
-                                        filename=filename)
+        qso_spectrum = self._get_qso_spectrum(redshift=redshift,
+                                              filename=filename)
         flux_field *= qso_spectrum
 
     def add_gaussian_noise(self, snr, n_bins=None, out=None):
@@ -58,7 +60,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                out=out)
         return out
 
-    def load_line_list(filename=None):
+    def load_line_list(self, filename=None):
         if filename is None:
             filename = os.path.join(os.path.dirname(__file__), "data",
                                     "Nist_elem_list.txt")
@@ -77,35 +79,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
             if element[1].isupper():
                 element = element[:1]        
             field = "%s_Cloudy_eq_NumberDensity_post" % ion
-            sp.add_line(label, field, wavelength,
-                        f_value, gamma, atomic_mass[element])
-        print "Load %d lines from %s." % (len(self.line_list), filename)
-
-if __name__ == "__main__":
-    my_flux = get_qso_spectrum(900, 1800, 900)
-    #line_list = load_line_list("short_list.txt")
-    line_list = load_line_list()
-
-    # Create spectrum object: lambda_min, lambda_max, number of bins
-    lambda_min = 800 # angstroms
-    lambda_max = 2000
-    n_lambda = 10000
-    sp = AbsorptionSpectrum(lambda_min, lambda_max, n_lambda)
-    for line in line_list:
-
-    wavelength, flux = sp.make_spectrum("mod_lightray_123456789.h5",
-                                        output_file='spectrum.h5', 
-                                        line_list_file='lines.txt')
-
-    SNR = 30
-    qso_flux = np.ones(n_lambda)
-    add_qso_spectrum(wavelength, qso_flux, redshift=0.5)
-    add_qso_spectrum(wavelength, flux, redshift=0.5)
-    add_gaussian_noise(SNR, n_lambda, out=flux)
-    np.clip(flux, 0, flux.max(), out=flux)
-
-    from matplotlib import pyplot
-    pyplot.plot(wavelength, flux)
-    pyplot.plot(wavelength, qso_flux)
-    pyplot.savefig("noise_qso.png")
-    #pyplot.show()
+            self.add_line(label, field, float(wavelength),
+                          float(f_value), float(gamma),
+                          atomic_mass[element])
+        mylog.info("Load %d lines from %s." % (len(self.line_list), filename))
