@@ -81,5 +81,5 @@ class SpectrumGenerator(AbsorptionSpectrum):
             field = "%s_Cloudy_eq_NumberDensity_post" % ion
             self.add_line(label, field, float(wavelength),
                           float(f_value), float(gamma),
-                          atomic_mass[element])
+                          atomic_mass[element], label_threshold=1e3)
         mylog.info("Load %d lines from %s." % (len(self.line_list), filename))
