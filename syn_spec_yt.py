@@ -60,6 +60,14 @@ class SpectrumGenerator(AbsorptionSpectrum):
                out=out)
         return out
 
+    def load_spectrum(self, filename=None):
+        if not filename.endswith(".h5"):
+            raise RuntimeError("Only hdf5 format supported for loading spectra.")
+        in_file = h5py.File(filename, "r")
+        self.lambda_bins = in_file['wavelength'].value
+        self.flux_field = in_file['flux'].value
+        in_file.close()
+    
     def load_line_list(self, filename=None):
         if filename is None:
             filename = os.path.join(os.path.dirname(__file__), "data",
@@ -78,8 +86,54 @@ class SpectrumGenerator(AbsorptionSpectrum):
             element = ion[:2]
             if element[1].isupper():
                 element = element[:1]        
-            field = "%s_Cloudy_eq_NumberDensity_post" % ion
+
+            if "Ly" in list_ion:
+                field = "%s_NumberDensity" % ion
+            else:
+                field = "%s_Cloudy_eq_NumberDensity_post" % ion
+                
+            #field = "%s_Cloudy_eq_NumberDensity_post" % ion
             self.add_line(label, field, float(wavelength),
                           float(f_value), float(gamma),
                           atomic_mass[element], label_threshold=1e3)
         mylog.info("Load %d lines from %s." % (len(self.line_list), filename))
+
+    def _write_spectrum_ascii(self, filename):
+        print "Writing spectrum to ascii file: %s." % filename
+        f = open(filename, 'w')
+        f.write("# wavelength[A] flux rootflux\n")
+        for i in xrange(self.lambda_bins.size):
+            f.write("%e %e %e\n" % (self.lambda_bins[i],
+                                    self.flux_field[i], 
+                                    self.flux_field[i]**0.5))
+        f.close()
+
+    def _write_spectrum_fits(self, filename):
+        """
+        Write spectrum to a fits file.
+        """
+        try:
+            import pyfits
+        except:
+            print "Could not import the pyfits module.  Please install pyfits."
+            return
+
+        print "Writing spectrum to fits file: %s." % filename
+        col1 = pyfits.Column(name='wavelength', format='E', array=self.lambda_bins)
+        col2 = pyfits.Column(name='flux', format='E', array=self.flux_field)
+        col3 = pyfits.Column(name='rootflux', format='E', array=self.flux_field**0.5)
+        cols = pyfits.ColDefs([col1, col2, col3])
+        tbhdu = pyfits.new_table(cols)
+        tbhdu.writeto(filename, clobber=True)
+
+    def _write_spectrum_hdf5(self, filename):
+        """
+        Write spectrum to an hdf5 file.
+
+        """
+        print "Writing spectrum to hdf5 file: %s." % filename
+        output = h5py.File(filename, 'w')
+        output.create_dataset('wavelength', data=self.lambda_bins)
+        output.create_dataset('flux', data=self.flux_field)
+        output.create_dataset('rootflux', data=self.flux_field**0.5)
+        output.close()
