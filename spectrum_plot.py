@@ -45,5 +45,5 @@ def plot_spectrum(wavelength, flux, filename):
         my_axes.xaxis.set_label_text("$\\lambda$ [$\\AA$]")
         my_axes.yaxis.set_label_text("relative flux")
         my_axes.set_xlim(wavelength.min(), wavelength.max())
-        my_axes.set_ylim(0, 1.1)
+        my_axes.set_ylim(0, flux.max()*1.1)
         pyplot.savefig(filename)

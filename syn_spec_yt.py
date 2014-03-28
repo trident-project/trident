@@ -43,6 +43,36 @@ class SpectrumGenerator(AbsorptionSpectrum):
         my_flux = slope * (self.lambda_bins - qso_lambda[index]) + qso_flux[index]
         return my_flux
 
+    def _get_milky_way_foreground(self, filename=None):
+        """
+        Read in the composite QSO spectrum and return an interpolated version 
+        to fit the desired wavelength interval and binning.
+        """
+
+        if filename is None:
+            filename = os.path.join(os.path.dirname(__file__), "data",
+                                    "superstack.dat")
+
+        data = np.loadtxt(filename)
+        MW_lambda = data[:, 0]
+        MW_flux = data[:, 1]
+
+        index = np.digitize(self.lambda_bins, MW_lambda)
+        np.clip(index, 1, MW_lambda.size - 1, out=index)
+        slope = (MW_flux[index] - MW_flux[index - 1]) / \
+          (MW_lambda[index] - MW_lambda[index - 1])
+        my_flux = slope * (self.lambda_bins - MW_lambda[index]) + MW_flux[index]
+        # just set values that go beyond the data to 1
+        my_flux[self.lambda_bins > 1799.9444] = 1.0
+        return my_flux
+
+    def add_milky_way_foreground(self, flux_field=None,
+                                 filename=None):
+        if flux_field is None:
+            flux_field = self.flux_field
+        MW_spectrum = self._get_milky_way_foreground(filename=filename)
+        flux_field *= MW_spectrum
+
     def add_qso_spectrum(self, flux_field=None,
                          redshift=0.0, filename=None):
         if flux_field is None:
