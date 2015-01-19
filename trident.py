@@ -118,7 +118,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                 element = element[:1]        
 
             if "Ly" in list_ion:
-                field = "%s_NumberDensity" % ion
+                field = "%s_number_density" % ion
             else:
                 field = "%s_Cloudy_eq_NumberDensity_post" % ion
                 
