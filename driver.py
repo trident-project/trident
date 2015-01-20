@@ -4,7 +4,7 @@ import matplotlib as mpl
 
 mpl.rcParams['font.family'] = 'serif'
 
-from syn_spec_yt import SpectrumGenerator
+from trident import SpectrumGenerator
 from spectrum_plot import plot_spectrum
 
 if __name__ == "__main__":
