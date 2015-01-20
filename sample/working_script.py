@@ -1,18 +1,11 @@
 # Example of a currently working script using trident to generate a COS 
 # spectrum from a non-cosmological dataset
 
-import yt
 import trident as tri
 import h5py as h5
-from yt.analysis_modules.cosmological_observation.api import LightRay
 import matplotlib.pyplot as plt
-import mpl_toolkits.axisartist as AA
-from mpl_toolkits.axes_grid1 import host_subplot
-import math
 import numpy as np
-import sys
-from CloudyIonBalance import *
-
+import os
 
 # Load the dataset and define the coordinates of the start/end of the ray
 fn = 'enzo_cosmology_plus/RD0009/RD0009'
@@ -26,7 +19,7 @@ ray_end = [1,1,1]
 # fields of our dataset at redshift_start = redshift_end = 0.0.  Include true 
 # HI to trump over Cloudy estimation of HI.  Save LightRay to ray.h5 and 
 # ray.txt
-lr = LightRay(fn, 'Enzo', 0.0, 0.0)
+lr = tri.LightRay(fn, 'Enzo', 0.0, 0.0)
 lr.make_light_ray(seed=12345, start_position=ray_start, end_position=ray_end,
                   fields=['temperature', 'density', 'H_number_density', 'metallicity'],
                   #fields=['temperature', 'density', 'metallicity'],
@@ -69,11 +62,12 @@ for key in lr.keys():
 for key in atom_ion_count.keys():
     for i in range(atom_ion_count[key]):
         #print "%s: %i of %i" %(key, i+1, atom_ion_count[key])
-        add_Cloudy_ion_number_density_field(data, key, i+1, data_file="/Users/chummels/src/modified_ion_balance/cloudy_ion_balance.h5")
+        tri.add_Cloudy_ion_number_density_field(data, key, i+1, \
+            data_file="../data/ion_balance/cloudy_ion_balance.h5")
 lr.close()
 mod_fn = "mod_ray.h5"
 if os.path.isfile(mod_fn): os.remove(mod_fn)
-f = h5py.File(mod_fn)
+f = h5.File(mod_fn)
 for key in data.keys():
     f.create_dataset(key, dtype="float64", data=data[key])
 f.close()

@@ -7,7 +7,14 @@ http://trident-project.org
 http://yt-project.org
 """
 
-from modified_ion_balance.cloudy_ion_balance import \
-    add_Cloudy_ion_number_density_field 
-
+# Import all structures from trident.py
 from trident import *
+
+# Import modified_ion_balance functions
+from modified_ion_balance.cloudy_ion_balance import \
+    add_Cloudy_ion_number_density_field, \
+    add_Cloudy_ion_density_field, \
+    add_Cloudy_ion_fraction_field
+
+# Import yt's LightRay class
+from yt.analysis_modules.cosmological_observation.api import LightRay
