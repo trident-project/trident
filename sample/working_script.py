@@ -6,7 +6,6 @@ import trident as tri
 import h5py as h5
 from yt.analysis_modules.cosmological_observation.api import LightRay
 import matplotlib.pyplot as plt
-#from syn_spec_yt import SpectrumGenerator
 import mpl_toolkits.axisartist as AA
 from mpl_toolkits.axes_grid1 import host_subplot
 import math
@@ -94,5 +93,6 @@ sg.make_spectrum("mod_ray.h5", output_file="spec.h5",
 sg.add_qso_spectrum(redshift=1.0)
 sg.add_milky_way_foreground()
 sg.add_gaussian_noise(10)
+sg.apply_lsf('COS')
 #sg.flux_field.clip(0, sg.flux_field.max(), out=sg.flux_field)
 tri.plot_spectrum(sg.lambda_bins, sg.flux_field, 'spec.png')

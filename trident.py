@@ -1,7 +1,6 @@
 import h5py
 import numpy as np
 import os
-
 from yt.analysis_modules.absorption_spectrum.api import \
       AbsorptionSpectrum
 from yt.funcs import mylog
@@ -93,14 +92,12 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
     def apply_lsf(self, instrument, flux_field=None):
         instruments = {"COS":"avg_COS.txt"}
-        filename = os.path.join(os.path.dirname(__file__), "data",
-                                "lsf_kernels",
-                                instruments[instruments])
         if flux_field is None:
             flux_field = self.flux_field
         if instrument in instruments:
-            old_flux = copy.deepcopy(self.flux_field)
-            lsf_file = open(resources_dir+instruments[instrument],'r')
+            lsf_filename = os.path.join(os.path.dirname(__file__), "data",
+                                        "lsf_kernels", instruments[instrument])
+            lsf_file = open(lsf_filename, 'r')
             lsf_kernel = []
             for line in lsf_file:
                 lsf_kernel.append(float(line.split()[1]))
@@ -108,7 +105,6 @@ class SpectrumGenerator(AbsorptionSpectrum):
             lsf_file.close()
         else:
             raise RuntimeError("You have not chosen a valid instrument for your LSF.")
-        
 
     def load_spectrum(self, filename=None):
         if not filename.endswith(".h5"):
