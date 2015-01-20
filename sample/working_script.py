@@ -16,6 +16,8 @@ from CloudyIonBalance import *
 
 # Load the dataset and define the coordinates of the start/end of the ray
 fn = 'enzo_cosmology_plus/RD0009/RD0009'
+fn = '/Users/chummels/src/yt-data/enzo_cosmology_plus/RD0009/RD0009'
+fn = '/Users/chummels/src/yt-data/enzo_cosmology_plus/AMRCosmology.enzo'
 #ds = yt.load(fn)
 ray_start = [0,0,0]
 ray_end = [1,1,1]
