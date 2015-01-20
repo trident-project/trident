@@ -81,7 +81,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                               filename=filename)
         flux_field *= qso_spectrum
 
-    def add_gaussian_noise(self, snr, n_bins=None, out=None):
+    def add_gaussian_noise(self, snr, n_bins=None, out=None, seed=None):
+        np.random.seed(seed)
         if n_bins is None:
             n_bins = self.lambda_bins.size
         if out is None:

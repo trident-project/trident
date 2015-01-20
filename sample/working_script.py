@@ -17,7 +17,7 @@ from CloudyIonBalance import *
 # Load the dataset and define the coordinates of the start/end of the ray
 fn = 'enzo_cosmology_plus/RD0009/RD0009'
 fn = '/Users/chummels/src/yt-data/enzo_cosmology_plus/RD0009/RD0009'
-fn = '/Users/chummels/src/yt-data/enzo_cosmology_plus/AMRCosmology.enzo'
+fn = 'enzo_cosmology_plus/AMRCosmology.enzo'
 #ds = yt.load(fn)
 ray_start = [0,0,0]
 ray_end = [1,1,1]
@@ -69,7 +69,7 @@ for key in lr.keys():
 for key in atom_ion_count.keys():
     for i in range(atom_ion_count[key]):
         #print "%s: %i of %i" %(key, i+1, atom_ion_count[key])
-        add_Cloudy_ion_number_density_field(data, key, i+1, data_file="/Users/chummels/src/modified_ion_balance/cloudy_ion_balance.h5")
+        add_Cloudy_ion_number_density_field(data, key, i+1, data_file="/Users/devinsilvia/Research/code/modified_ion_balance/cloudy_ion_balance.h5")
 lr.close()
 mod_fn = "mod_ray.h5"
 if os.path.isfile(mod_fn): os.remove(mod_fn)
@@ -81,9 +81,9 @@ f.close()
 # Now use the mod_ray h5 file to actually generate an absorption spectrum
 # Set dlambda consistent with COS (need to do this with .set_instrument() 
 # function based on spectral resolution R
-lambda_min = 1000
-lambda_max = 1800
-dlambda = 0.07
+lambda_min = 1200
+lambda_max = 1400
+dlambda = 0.01
 n_lambda = (lambda_max - lambda_min) / dlambda + 1
 sg = tri.SpectrumGenerator(lambda_min, lambda_max, n_lambda)
 sg.load_line_list(filename=None) 
