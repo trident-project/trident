@@ -6,7 +6,7 @@ import trident as tri
 import h5py as h5
 from yt.analysis_modules.cosmological_observation.api import LightRay
 import matplotlib.pyplot as plt
-from syn_spec_yt import SpectrumGenerator
+#from syn_spec_yt import SpectrumGenerator
 import mpl_toolkits.axisartist as AA
 from mpl_toolkits.axes_grid1 import host_subplot
 import math
@@ -84,7 +84,7 @@ lambda_min = 1000
 lambda_max = 1800
 dlambda = 0.07
 n_lambda = (lambda_max - lambda_min) / dlambda + 1
-sg = SpectrumGenerator(lambda_min, lambda_max, n_lambda)
+sg = tri.SpectrumGenerator(lambda_min, lambda_max, n_lambda)
 sg.load_line_list(filename=None) 
 ## THINGS GET HERE BEFORE BREAKING.
 sg.make_spectrum("mod_ray.h5", output_file="spec.h5",
@@ -95,4 +95,4 @@ sg.add_qso_spectrum(redshift=1.0)
 sg.add_milky_way_foreground()
 sg.add_gaussian_noise(10)
 #sg.flux_field.clip(0, sg.flux_field.max(), out=sg.flux_field)
-plot_spectrum(sg.lambda_bins, sg.flux_field, 'spec.png')
+tri.plot_spectrum(sg.lambda_bins, sg.flux_field, 'spec.png')
