@@ -174,8 +174,9 @@ def _ion_number_density(field,data):
     if atom == 'H' or atom == 'He':
         field = solarAbundance[atom] * data[fractionField] * data['density']
     else:    
-        field = solarAbundance[atom] * data[fractionField] * data['metallicity'] * \
-            data['density']
+        field = solarAbundance[atom] * data[fractionField] * \
+                data['metallicity'].in_units('Zsun') * \
+                data['density']
     field[field <= 0.0] = 1.e-50
     return field * to_nH
 

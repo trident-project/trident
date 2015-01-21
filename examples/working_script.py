@@ -30,14 +30,6 @@ lr.make_light_ray(seed=12345, start_position=ray_start, end_position=ray_end,
 # Cloudy approximations of ions.
 lr = h5.File("ray.h5")
 
-# Update the yt LightRay object to incorporate ionic species
-# Because of a bug in 3.0's LightRay, we have to div all the metallicity values
-# by 0.0204 before continuing.  This should eventually go away.
-metal = np.array(lr['metallicity'])
-metal/=0.0204
-del lr['metallicity']
-lr['metallicity'] = metal
-
 # The code below is applying the modified_ion_balance correction to the ray.h5
 # file to create a mod_ray.h5 file which has all of the desired ion
 # fields included for it.  i've added this code inline so as to create a single
