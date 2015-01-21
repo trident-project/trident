@@ -72,7 +72,7 @@ def add_field(data, field, function=None):
 
     data[field] = new_field
 
-def add_Cloudy_ion_fraction_field(data, atom, ion, data_file='cloudy_ion_balance.h5'):
+def add_Cloudy_ion_fraction_field(data, atom, ion, data_file=None):
     """
     Add ion fraction field to yt.
     For example, add_Cloudy_ion_fraction_field('O',6) creates a field 
@@ -81,7 +81,9 @@ def add_Cloudy_ion_fraction_field(data, atom, ion, data_file='cloudy_ion_balance
     atom = string.capitalize(atom)
     field = u"%s%s_Cloudy_eq_Ion_Fraction_post" % (atom,roman.toRoman(ion))
 
-    #tableFile = "%s/tables/%s" % (os.path.dirname(__file__), data_file)
+    if data_file is None:
+        data_file = os.path.join(os.path.split(os.path.dirname(__file__))[0],
+                                 "data", "ion_balance", "cloudy_ion_balance.h5")
     tableFile = data_file
 
     if not Cloudy_table_store.has_key(field):
