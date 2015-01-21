@@ -14,12 +14,18 @@ have mercurial installed, you can do this with:
 
 $ hg clone https://bitbucket.org/trident-project/trident
 
+$ cd trident
+
+$ pip install roman
+
+$ python setup.py develop
+
 
 In addition, you will need a data file for running Trident.  Get the 
 following file and put it in the trident/data/ion_balance/ 
 directory:
 
-$ wget http://chummels.org/trident/cloudy_ion_balance.h5 <path/to/trident/repo>/data/ion_balance
+$ wget http://chummels.org/trident/cloudy_ion_balance.h5 data/ion_balance
 
 
 Now you should be ready to go.  To test your installation, you can go into
