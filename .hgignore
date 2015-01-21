@@ -1,4 +1,4 @@
 syntax: glob
 *.pyc
 cloudy_ion_balance.h5
-Trident.egg-info
+trident.egg-info
