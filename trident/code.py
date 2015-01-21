@@ -28,7 +28,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         """
 
         if filename is None:
-            filename = os.path.join(os.path.dirname(__file__), "data",
+            filename = os.path.join(os.path.dirname(__file__), "..", "data",
                                     "hstrq_sdss.asc")
 
         data = np.loadtxt(filename)
@@ -50,7 +50,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         """
 
         if filename is None:
-            filename = os.path.join(os.path.dirname(__file__), "data",
+            filename = os.path.join(os.path.dirname(__file__), "..", "data",
                                     "superstack.dat")
 
         data = np.loadtxt(filename)
@@ -96,7 +96,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         if flux_field is None:
             flux_field = self.flux_field
         if instrument in instruments:
-            lsf_filename = os.path.join(os.path.dirname(__file__), "data",
+            lsf_filename = os.path.join(os.path.dirname(__file__), "..", "data",
                                         "lsf_kernels", instruments[instrument])
             lsf_file = open(lsf_filename, 'r')
             lsf_kernel = []
@@ -117,7 +117,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
     
     def load_line_list(self, filename=None):
         if filename is None:
-            filename = os.path.join(os.path.dirname(__file__), "data",
+            filename = os.path.join(os.path.dirname(__file__), "..", "data",
                                     "Nist_elem_list.txt")
         for line in file(filename).readlines():
             online = line.split()
