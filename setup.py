@@ -9,10 +9,9 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup(
-    name = "Trident",
-    version = "0.0.1",
+    name = "trident",
+    version = "0.1",
     author = "Cameron Hummels, Devin Silvia, Britton Smith",
-    author_email = "trident.proj@gmail.com",
     description = ("Synthetic spectrum generator for simulation data"),
     license = "BSD",
     keywords = "spectra",

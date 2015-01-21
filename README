@@ -14,16 +14,20 @@ have mercurial installed, you can do this with:
 
 $ hg clone https://bitbucket.org/trident-project/trident
 
+$ cd trident
+
+$ python setup.py develop
+
 
 In addition, you will need a data file for running Trident.  Get the 
 following file and put it in the trident/data/ion_balance/ 
 directory:
 
-$ wget http://chummels.org/trident/cloudy_ion_balance.h5 <path/to/trident/repo>/data/ion_balance
+$ wget http://chummels.org/trident/cloudy_ion_balance.h5 data/ion_balance
 
 
 Now you should be ready to go.  To test your installation, you can go into
-the sample directory and run the working_example.py file.  You will require
+the example directory and run the working_example.py file.  You will require
 the enzo_cosmology_plus yt public dataset in order for this example to work.
 To get it and test it, run:
 
@@ -31,7 +35,7 @@ $ wget http://yt-project.org/data/enzo_cosmology_plus.tar.gz .
 
 $ tar -zxvf enzo_cosmology_plus.tar.gz
 
-$ cp <path/to/trident/repo>/sample/working_example.py enzo_cosmology_plus
+$ cp <path/to/trident/repo>/example/working_example.py enzo_cosmology_plus
 
 $ cd enzo_cosmology_plus
 
