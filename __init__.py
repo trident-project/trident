@@ -8,7 +8,7 @@ http://yt-project.org
 """
 
 # Import all structures from trident.py
-from trident import *
+from code import *
 
 # Import modified_ion_balance functions
 from modified_ion_balance.cloudy_ion_balance import \
