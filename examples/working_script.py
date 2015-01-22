@@ -59,8 +59,7 @@ for key in lr.keys():
 for key in atom_ion_count.keys():
     for i in range(atom_ion_count[key]):
         #print "%s: %i of %i" %(key, i+1, atom_ion_count[key])
-        tri.add_Cloudy_ion_number_density_field(data, key, i+1, \
-            data_file="../data/ion_balance/cloudy_ion_balance.h5")
+        tri.add_Cloudy_ion_number_density_field(data, key, i+1)
 lr.close()
 mod_fn = "mod_ray.h5"
 if os.path.isfile(mod_fn): os.remove(mod_fn)
