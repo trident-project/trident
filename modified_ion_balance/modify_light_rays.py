@@ -3,6 +3,7 @@ import numpy as np
 import glob as glob
 from CloudyIonBalance import *
 import sys
+from yt.units.yt_array import YTArray
 
 
 def add_ion_field(data):
@@ -33,7 +34,10 @@ for file_name in fns:
 
     for key in lr.keys():
 
-        data[key] = lr[key].value
+        # Read in the data fields as YTArrays preserving the units output
+        # in the hdf5 "units" attribute for each array
+        # By default these are all in cgs, but we need metallicity in Zsun
+        data[key] = YTArray(lr[key].value, lr[key].attrs['units'])
 
     for key in atom_ion_count.keys():
         for i in range(atom_ion_count[key]):

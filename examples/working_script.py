@@ -6,6 +6,7 @@ import h5py as h5
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+from yt.units.yt_array import YTArray
 
 # Load the dataset and define the coordinates of the start/end of the ray
 fn = 'enzo_cosmology_plus/RD0009/RD0009'
@@ -49,7 +50,11 @@ atom_ion_count = {'H': 2, 'He': 3, 'Li': 4,
                   'Mn': 26, 'Fe': 27}
 data = {}
 for key in lr.keys():
-    data[key] = lr[key].value
+    #data[key] = lr[key].value
+    # Read in the data fields as YTArrays preserving the units output
+    # in the hdf5 "units" attribute for each array
+    # By default these are all in cgs, but we need metallicity in Zsun
+    data[key] = YTArray(lr[key].value, lr[key].attrs['units'])
 
 for key in atom_ion_count.keys():
     for i in range(atom_ion_count[key]):
