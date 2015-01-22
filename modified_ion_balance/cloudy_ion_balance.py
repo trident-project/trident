@@ -82,8 +82,8 @@ def add_Cloudy_ion_fraction_field(data, atom, ion, data_file=None):
     field = u"%s%s_Cloudy_eq_Ion_Fraction_post" % (atom,roman.toRoman(ion))
 
     if data_file is None:
-        data_file = os.path.join(os.path.split(os.path.dirname(__file__))[0],
-                                 "data", "ion_balance", "cloudy_ion_balance.h5")
+        data_file = os.path.join(os.path.dirname(__file__), "..", "data",
+                                 "ion_balance", "cloudy_ion_balance.h5")
     tableFile = data_file
 
     if not Cloudy_table_store.has_key(field):
