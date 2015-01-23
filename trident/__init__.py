@@ -16,5 +16,9 @@ from modified_ion_balance.cloudy_ion_balance import \
     add_Cloudy_ion_density_field, \
     add_Cloudy_ion_fraction_field
 
+from modified_ion_balance.modify_light_rays import \
+    add_ion_fields_to_ray, \
+    add_ion_fields_to_file
+
 # Import yt's LightRay class
 from yt.analysis_modules.cosmological_observation.api import LightRay
