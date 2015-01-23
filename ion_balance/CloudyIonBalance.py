@@ -23,7 +23,7 @@ License:
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-#from yt.data_objects.field_info_container import add_field
+from yt.data_objects.field_info_container import add_field
 from yt.utilities.linear_interpolators import TrilinearFieldInterpolator
 import numpy as na
 import string
@@ -63,28 +63,16 @@ class CloudyIonBalanceTable(object):
         self.parameters.append(input[atom].attrs['Temperature'])
         input.close()
 
-def add_field(data, field, function=None):
-
-    if function == None:
-        print "sigh. try again."
-
-    new_field = function(field, data)
-
-    data[field] = new_field
-
-def add_Cloudy_ion_fraction_field(data, atom, ion, data_file=None):
+def add_Cloudy_ion_fraction_field(atom, ion, data_file='cloudy_ion_balance.h5'):
     """
     Add ion fraction field to yt.
     For example, add_Cloudy_ion_fraction_field('O',6) creates a field 
     called OVI_Ion_Fraction.
     """
     atom = string.capitalize(atom)
-    field = u"%s%s_Cloudy_eq_Ion_Fraction_post" % (atom,roman.toRoman(ion))
+    field = "%s%s_Cloudy_eq_Ion_Fraction" % (atom,roman.toRoman(ion))
 
-    if data_file is None:
-        data_file = os.path.join(os.path.dirname(__file__), "..", "data",
-                                 "ion_balance", "cloudy_ion_balance.h5")
-    tableFile = data_file
+    tableFile = "%s/tables/%s" % (os.path.dirname(__file__), data_file)
 
     if not Cloudy_table_store.has_key(field):
         ionTable = CloudyIonBalanceTable(tableFile, atom)
@@ -92,22 +80,20 @@ def add_Cloudy_ion_fraction_field(data, atom, ion, data_file=None):
                                      'parameters': copy.deepcopy(ionTable.parameters)}
         del ionTable
 
-    #add_field(field,function=_ion_fraction_field,units=r"")
-    add_field(data, field, function=_ion_fraction_field)
+    add_field(field,function=_ion_fraction_field,units=r"")
 
-def add_Cloudy_ion_number_density_field(data, atom, ion, **kwargs):
+def add_Cloudy_ion_number_density_field(atom, ion, **kwargs):
     """
     Add ion number density field to yt.
     For example, add_Cloudy_ion_number_density_field('O',6) creates a field 
     called OVI_NumberDensity.
     """
     atom = string.capitalize(atom)
-    field = u"%s%s_Cloudy_eq_NumberDensity_post" % (atom,roman.toRoman(ion))
-    add_Cloudy_ion_fraction_field(data, atom, ion, **kwargs)
-    add_field(data, field, function=_ion_number_density)
-    #add_field(field,function=_ion_number_density,
-    #          convert_function=_convert_ion_number_density,
-    #          units=r"cm^{-3}",projected_units=r"cm^{-2}")
+    field = "%s%s_Cloudy_eq_NumberDensity" % (atom,roman.toRoman(ion))
+    add_Cloudy_ion_fraction_field(atom,ion, **kwargs)
+    add_field(field,function=_ion_number_density,
+              convert_function=_convert_ion_number_density,
+              units=r"cm^{-3}",projected_units=r"cm^{-2}")
 
 def add_Cloudy_ion_density_field(atom, ion, **kwargs):
     """
@@ -138,64 +124,60 @@ def add_Cloudy_ion_mass_field(atom, ion, **kwargs):
               units=r"M_{\odot}")
 
 def _ion_mass(field,data):
-    species = field.split("_")[0]
+    species = field.name.split("_")[0]
     if species[1] == string.lower(species[1]):
         atom = species[0:2]
     else:
         atom = species[0]
 
     densityField = "%s_Cloudy_eq_Density" % species
-    return data[densityField] * data[('index', 'cell_volume')]
+    return data[densityField] * data['CellVolume']
 
 def _convertCellMassMsun(data):
     return 5.027854e-34 # g^-1
 
 def _ion_density(field,data):
-    species = field.split("_")[0]
+    species = field.name.split("_")[0]
     if species[1] == string.lower(species[1]):
         atom = species[0:2]
     else:
         atom = species[0]
 
-    numberDensityField = "%s_Cloudy_eq_NumberDensity_post" % species
+    numberDensityField = "%s_Cloudy_eq_NumberDensity" % species
     return atomicMass[atom] * data[numberDensityField]
 
 def _convert_ion_density(data):
     return mH
 
 def _ion_number_density(field,data):
-    species = field.split("_")[0]
+    species = field.name.split("_")[0]
     if species[1] == string.lower(species[1]):
         atom = species[0:2]
     else:
         atom = species[0]
 
-    fractionField = "%s_Cloudy_eq_Ion_Fraction_post" % species
+    fractionField = "%s_Cloudy_eq_Ion_Fraction" % species
     if atom == 'H' or atom == 'He':
-        field = solarAbundance[atom] * data[fractionField] * data['density']
+        field = solarAbundance[atom] * data[fractionField] * data['Density']
     else:    
-        field = solarAbundance[atom] * data[fractionField] * \
-                data['metallicity'].in_units('Zsun') * \
-                data['density']
+        field = solarAbundance[atom] * data[fractionField] * data['Metallicity'] * \
+            data['Density']
     field[field <= 0.0] = 1.e-50
-    return field * to_nH
+    return field
 
 def _convert_ion_number_density(data):
     return (H_mass_fraction / mH)
 
 def _ion_fraction_field(field,data):
-    ionFraction = Cloudy_table_store[field]['fraction']
-    n_param = Cloudy_table_store[field]['parameters'][0]
-    z_param = Cloudy_table_store[field]['parameters'][1]
-    t_param = Cloudy_table_store[field]['parameters'][2]
+    ionFraction = Cloudy_table_store[field.name]['fraction']
+    n_param = Cloudy_table_store[field.name]['parameters'][0]
+    z_param = Cloudy_table_store[field.name]['parameters'][1]
+    t_param = Cloudy_table_store[field.name]['parameters'][2]
 
-    data['log_nH'] = na.log10(data['density'] * to_nH)
-    data['log_nH'] = na.clip(data['log_nH'], n_param[0], n_param[-1])
-    #data['redshift'] = data.pf.current_redshift * \
-    #    na.ones(data['Density'].shape, dtype=data['Density'].dtype)
-    #data['redshift'] = na.zeros(data['Density'].shape)
-    data['log_T'] = na.log10(data['temperature'])
-    data['log_T'] = na.clip(data['log_T'], t_param[0], t_param[-1])
+    data['log_nH'] = na.log10(data['Density'] * to_nH)
+    data['redshift'] = data.pf.current_redshift * \
+        na.ones(data['Density'].shape, dtype=data['Density'].dtype)
+    data['log_T'] = na.log10(data['Temperature'])
 
     bds = na.array([n_param[0], n_param[-1], z_param[0], z_param[-1], 
                     t_param[0], t_param[-1]])
@@ -207,12 +189,6 @@ def _ion_fraction_field(field,data):
     fraction[fraction <= fraction_zero_point] = 0.0
     if (fraction > 1.0).any():
         print "WARNING! An ion fraction greater than 1 was calculated.  This is wrong!"
-        #filter = fraction > 1
-        fraction[fraction > 1.0] = 1.0
-        #print data['log_nH'][filter], data['log_T'][filter], data['redshift'][filter]
-        #import pdb
-        #pdb.set_trace()
-        #raise RuntimeError
     return fraction
 
 # Taken from Cloudy documentation.
