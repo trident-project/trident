@@ -5,8 +5,6 @@ import trident as tri
 
 # Load the dataset and define the coordinates of the start/end of the ray
 fn = 'enzo_cosmology_plus/RD0009/RD0009'
-fn = 'enzo_cosmology_plus/AMRCosmology.enzo'
-#ds = yt.load(fn)
 ray_start = [0,0,0]
 ray_end = [1,1,1]
 
@@ -14,10 +12,9 @@ ray_end = [1,1,1]
 # fields of our dataset at redshift_start = redshift_end = 0.0.  Include true 
 # HI to trump over Cloudy estimation of HI.  Save LightRay to ray.h5 and 
 # ray.txt and use it internally as "ray"
-lr = tri.LightRay(fn, 'Enzo', 0.0, 0.0)
+lr = tri.LightRay(fn)
 ray = lr.make_light_ray(seed=12345, start_position=ray_start, end_position=ray_end,
                   fields=['temperature', 'density', 'H_number_density', 'metallicity'],
-                  #fields=['temperature', 'density', 'metallicity'],
                   solution_filename="ray.txt", data_filename="ray.h5",
                   get_los_velocity=True)
 
