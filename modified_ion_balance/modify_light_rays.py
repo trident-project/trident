@@ -36,7 +36,7 @@ def _add_ion_fields(ray, data_filename, ion_fields, verbose, save_filename):
     return ray
 
 def add_ion_fields_to_ray(ray, 
-                          data_filename="../data/ion_balance/cloudy_ion_balance.h5",
+                          data_filename=None,
                           ion_fields=None, verbose=False, save_filename=None):
     """
     This function modifies a LightRay object to add in ion fields as tabulated
