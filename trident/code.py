@@ -18,8 +18,31 @@ atomic_mass = {'H': 1.00794, 'He': 4.002602, 'Li': 6.941,
                'Ni': 58.6934, 'Cu': 63.546, 'Zn': 65.409}
 
 class SpectrumGenerator(AbsorptionSpectrum):
-    def __init__(self, lambda_min, lambda_max, n_lambda):
+    def __init__(self, lambda_min, lambda_max, n_lambda, line_list=None):
+        """
+        SpectrumGenerator is a subclass of yt's AbsorptionSpectrum class
+        with additional functionality like line lists, adding spectral 
+        templates, and plotting.
+
+        Parameters
+        ----------
+
+        lambda_min, lambda_max : float
+        The wavelength extrema in angstroms
+
+        n_lambda : int
+        The number of wavelength bins in the spectrum
+
+        line_list : string, optional
+        A text file listing the various lines to deposit in the spectrum.
+        File is 4 tab-delimited columns of name (e.g. MgII), wavelength in
+        angstroms, gamma of transition, and f-value of transition.  See
+        example datasets in trident/data/line_lists for examples.
+
+        """
         AbsorptionSpectrum.__init__(self, lambda_min, lambda_max, n_lambda)
+        # Load a line list by default if one is provided
+        self.load_line_list(line_list)
 
     def _get_qso_spectrum(self, redshift=0.0, filename=None):
         """
@@ -29,7 +52,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
         if filename is None:
             filename = os.path.join(os.path.dirname(__file__), "..", "data",
-                                    "hstrq_sdss.asc")
+                                    "spectral_templates", 
+                                    "qso_background_COS_HST.txt")
 
         data = np.loadtxt(filename)
         qso_lambda = data[:, 0]
@@ -51,7 +75,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
         if filename is None:
             filename = os.path.join(os.path.dirname(__file__), "..", "data",
-                                    "superstack.dat")
+                                    "spectral_templates", 
+                                    "mw_foreground_COS.txt")
 
         data = np.loadtxt(filename)
         MW_lambda = data[:, 0]
@@ -118,6 +143,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
     def load_line_list(self, filename=None):
         if filename is None:
             filename = os.path.join(os.path.dirname(__file__), "..", "data",
+                                    "line_lists",
                                     "Nist_elem_list.txt")
         for line in file(filename).readlines():
             online = line.split()
