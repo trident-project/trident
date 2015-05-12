@@ -222,6 +222,13 @@ class SpectrumGenerator(AbsorptionSpectrum):
         output.create_dataset('rootflux', data=self.flux_field**0.5)
         output.close()
 
+    def make_flat_spectrum(self):
+        """
+        Makes a flat spectrum devoid of any lines.
+        """
+        self.flux_field = np.ones(self.lambda_bins.size)
+        return (self.lambda_bins, self.flux_field)
+
 def plot_spectrum(wavelength, flux, filename):
     # number of rows and columns
     n_rows = 1
