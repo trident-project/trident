@@ -5,6 +5,7 @@ from yt.analysis_modules.absorption_spectrum.api import \
       AbsorptionSpectrum
 from yt.funcs import mylog
 from matplotlib import pyplot
+import sys
       
 atomic_mass = {'H': 1.00794, 'He': 4.002602, 'Li': 6.941,
                'Be': 9.012182, 'B': 10.811, 'C': 12.0107,
@@ -145,6 +146,16 @@ class SpectrumGenerator(AbsorptionSpectrum):
             filename = os.path.join(os.path.dirname(__file__), "..", "data",
                                     "line_lists",
                                     "Nist_elem_list.txt")
+        else:
+            # check to see if file exists, if not, check in 
+            # trident/data/line_lists
+            if not os.path.isfile(filename):
+                filename = os.path.join(os.path.dirname(__file__), "..", 
+                                        "data", "line_lists", filename)
+            if not os.path.isfile(filename):
+                sys.exit('line_list %s is not found in local directory or in '
+                         'trident/data/line_lists' % (filename.split('/')[-1]))
+
         for line in file(filename).readlines():
             online = line.split()
             if line.startswith("#") or "--" in line or len(online) != 4: continue
