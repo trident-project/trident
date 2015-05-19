@@ -29,7 +29,6 @@ from yt.utilities.linear_interpolators import TrilinearFieldInterpolator, \
 from yt.utilities.physical_constants import mh
 import numpy as na
 import string
-import roman
 import h5py
 import copy
 import os
