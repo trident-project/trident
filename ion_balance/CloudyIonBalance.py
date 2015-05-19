@@ -24,7 +24,8 @@ License:
 """
 
 from yt.fields.local_fields import add_field
-from yt.utilities.linear_interpolators import TrilinearFieldInterpolator
+from yt.utilities.linear_interpolators import TrilinearFieldInterpolator, \
+                                              UnilinearFieldInterpolator
 from yt.utilities.physical_constants import mh
 import numpy as na
 import string
@@ -32,6 +33,7 @@ import roman
 import h5py
 import copy
 import os
+import pdb
 
 H_mass_fraction = 0.76
 to_nH = H_mass_fraction / mh
@@ -41,11 +43,11 @@ to_nH = H_mass_fraction / mh
 fraction_zero_point = 1.e-7
 zero_out_value = -30.
 
-Cloudy_table_store = {}
+table_store = {}
 
 # Reads in comma separated ionization balance tables from 
 # Sutherland & Dopita (1993).
-class CloudyIonBalanceTable(object):
+class IonBalanceTable(object):
     def __init__(self, filename, atom=None):
         self.filename = filename
         self.parameters = []
@@ -63,92 +65,80 @@ class CloudyIonBalanceTable(object):
         self.parameters.append(input[atom].attrs['Temperature'])
         input.close()
 
-def add_Cloudy_ion_fraction_field(atom, ion, data_file='cloudy_ion_balance.h5'):
+def add_ion_fraction_field(atom, ion, model, data_file=None):
     """
     Add ion fraction field to yt.
-    For example, add_Cloudy_ion_fraction_field('O',6) creates a field 
-    called OVI_Ion_Fraction.
+    For example, add_ion_fraction_field('O',6) creates a field 
+    called OVI_"model"_ion_fraction.
     """
     atom = string.capitalize(atom)
-    field = "%s%s_Cloudy_eq_Ion_Fraction" % (atom,roman.toRoman(ion))
+    field = "%s_p%s_%s_ion_fraction" % (atom, ion-1, model)
+
+    if data_file is None:
+        data_file = "%s_ion_balance.h5" %model
 
     tableFile = "%s/tables/%s" % (os.path.dirname(__file__), data_file)
 
-    if not Cloudy_table_store.has_key(field):
-        ionTable = CloudyIonBalanceTable(tableFile, atom)
-        Cloudy_table_store[field] = {'fraction': copy.deepcopy(ionTable.ion_fraction[ion-1]),
-                                     'parameters': copy.deepcopy(ionTable.parameters)}
+    if not table_store.has_key(field):
+        ionTable = IonBalanceTable(tableFile, atom)
+        table_store[field] = {'fraction': copy.deepcopy(ionTable.ion_fraction[ion-1]),
+                              'parameters': copy.deepcopy(ionTable.parameters)}
         del ionTable
 
     add_field(field,function=_ion_fraction_field, units="")
 
-def add_Cloudy_ion_number_density_field(atom, ion, **kwargs):
+def add_ion_number_density_field(atom, ion, model, **kwargs):
     """
     Add ion number density field to yt.
-    For example, add_Cloudy_ion_number_density_field('O',6) creates a field 
-    called OVI_NumberDensity.
+    For example, add_ion_number_density_field('O',6) creates a field 
+    called OVI_"model"_number_density.
     """
     atom = string.capitalize(atom)
-    field = "%s%s_Cloudy_eq_NumberDensity" % (atom,roman.toRoman(ion))
-    add_Cloudy_ion_fraction_field(atom,ion, **kwargs)
+    field = "%s_p%s_%s_number_density" % (atom, ion-1, model)
+    add_ion_fraction_field(atom, ion, model, **kwargs)
     add_field(field,function=_ion_number_density,
               units="1.0/cm**3")
 
-def add_Cloudy_ion_density_field(atom, ion, **kwargs):
+def add_ion_density_field(atom, ion, model, **kwargs):
     """
     Add ion mass density field to yt.
-    For example, add_Cloudy_ion_density_field('O',6) creates a field 
-    called OVI_Density.
+    For example, add_ion_density_field('O',6) creates a field 
+    called OVI_"model"_density.
     """
     atom = string.capitalize(atom)
-    field = "%s%s_Cloudy_eq_Density" % (atom,roman.toRoman(ion))
-    add_Cloudy_ion_number_density_field(atom,ion, **kwargs)
+    field = "%s_p%s_%s_density" % (atom, ion-1, model)
+    add_ion_number_density_field(atom, ion, model, **kwargs)
     add_field(field,function=_ion_density,
               units="g/cm**3")
 
-def add_Cloudy_ion_mass_field(atom, ion, **kwargs):
+def add_ion_mass_field(atom, ion, model, **kwargs):
     """
     Add ion mass fields (g and Msun) to yt.
-    For example, add_Cloudy_ion_density_field('O',6) creates a field 
-    called OVI_Density.
+    For example, add_ion_density_field('O',6) creates a field 
+    called OVI_"model"_mass.
     """
     atom = string.capitalize(atom)
-    field = "%s%s_Cloudy_eq_Mass" % (atom,roman.toRoman(ion))
-    field_msun = "%s%s_Cloudy_eq_MassMsun" % (atom,roman.toRoman(ion))
-    add_Cloudy_ion_density_field(atom,ion, **kwargs)
+    field = "%s_p%s_%s_mass" % (atom, ion-1, model)
+    add_ion_density_field(atom, ion, model, **kwargs)
     add_field(field,function=_ion_mass, units=r"g")
-    add_field(field_msun,function=_ion_mass, 
-              units="Msun")
 
 def _ion_mass(field,data):
-    species = field.name[1].split("_")[0]
-    if species[1] == string.lower(species[1]):
-        atom = species[0:2]
-    else:
-        atom = species[0]
-
-    densityField = "%s_Cloudy_eq_Density" % species
+    atom = field.name[1].split("_")[0]
+    prefix = field.name[1].split("_mass")[0]
+    densityField = "%s_density" % prefix
     return data[densityField] * data['cell_volume']
 
 def _ion_density(field,data):
-    species = field.name[1].split("_")[0]
-    if species[1] == string.lower(species[1]):
-        atom = species[0:2]
-    else:
-        atom = species[0]
-
-    numberDensityField = "%s_Cloudy_eq_NumberDensity" % species
+    atom = field.name[1].split("_")[0]
+    prefix = field.name[1].split("_number_density")[0]
+    numberDensityField = "%s_number_density" % prefix
     # the "mh" makes sure that the units work out
     return atomicMass[atom] * data[numberDensityField] * mh
 
 def _ion_number_density(field,data):
-    species = field.name[1].split("_")[0]
-    if species[1] == string.lower(species[1]):
-        atom = species[0:2]
-    else:
-        atom = species[0]
-
-    fractionField = "%s_Cloudy_eq_Ion_Fraction" % species
+    atom = field.name[1].split("_")[0]
+    prefix = field.name[1].split("_number_density")[0]
+    fractionField = "%s_ion_fraction" % prefix
     if atom == 'H' or atom == 'He':
         field = solarAbundance[atom] * data[fractionField] * \
                 data['density']
@@ -167,10 +157,6 @@ def _ion_number_density(field,data):
     return field * to_nH
 
 def _ion_fraction_field(field,data):
-    ionFraction = Cloudy_table_store[field.name[1]]['fraction']
-    n_param = Cloudy_table_store[field.name[1]]['parameters'][0]
-    z_param = Cloudy_table_store[field.name[1]]['parameters'][1]
-    t_param = Cloudy_table_store[field.name[1]]['parameters'][2]
 
     def _log_nH(field, data):
         return na.log10(data['density'] * to_nH)
@@ -185,12 +171,30 @@ def _ion_fraction_field(field,data):
         return na.log10(data['temperature'])
     data.ds.add_field('log_T', function=_log_T, units="")
 
-    bds = na.array([n_param[0], n_param[-1], z_param[0], z_param[-1], 
+    n_parameters = len(table_store[field.name[1]]['parameters'])
+
+    if n_parameters == 1:
+        ionFraction = table_store[field.name[1]]['fraction']
+        t_param = table_store[field.name[1]]['parameters'][0]
+        bds = (t_param[0], t_param[-1])
+        
+        interp = UnilinearFieldInterpolator(ionFraction, bds, 'log_T', truncate=True)
+
+    elif n_parameters == 3:
+        ionFraction = table_store[field.name[1]]['fraction']
+        n_param = table_store[field.name[1]]['parameters'][0]
+        z_param = table_store[field.name[1]]['parameters'][1]
+        t_param = table_store[field.name[1]]['parameters'][2]
+        bds = na.array([n_param[0], n_param[-1], z_param[0], z_param[-1], 
                     t_param[0], t_param[-1]])
 
-    interp = TrilinearFieldInterpolator(ionFraction, bds, 
-                                        ['log_nH', 'redshift', 'log_T'],
-                                        truncate=True)
+        interp = TrilinearFieldInterpolator(ionFraction, bds, 
+                                            ['log_nH', 'redshift', 'log_T'],
+                                            truncate=True)
+
+    else:
+        raise RuntimeError("This data file format is not supported.")
+
     fraction = na.power(10, interp(data))
     fraction[fraction <= fraction_zero_point] = 0.0
     if (fraction > 1.0).any():
