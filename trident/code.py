@@ -5,6 +5,7 @@ from yt.analysis_modules.absorption_spectrum.api import \
       AbsorptionSpectrum
 from yt.funcs import mylog
 from matplotlib import pyplot
+import sys
       
 atomic_mass = {'H': 1.00794, 'He': 4.002602, 'Li': 6.941,
                'Be': 9.012182, 'B': 10.811, 'C': 12.0107,
@@ -18,8 +19,31 @@ atomic_mass = {'H': 1.00794, 'He': 4.002602, 'Li': 6.941,
                'Ni': 58.6934, 'Cu': 63.546, 'Zn': 65.409}
 
 class SpectrumGenerator(AbsorptionSpectrum):
-    def __init__(self, lambda_min, lambda_max, n_lambda):
+    def __init__(self, lambda_min, lambda_max, n_lambda, line_list=None):
+        """
+        SpectrumGenerator is a subclass of yt's AbsorptionSpectrum class
+        with additional functionality like line lists, adding spectral 
+        templates, and plotting.
+
+        Parameters
+        ----------
+
+        lambda_min, lambda_max : float
+        The wavelength extrema in angstroms
+
+        n_lambda : int
+        The number of wavelength bins in the spectrum
+
+        line_list : string, optional
+        A text file listing the various lines to deposit in the spectrum.
+        File is 4 tab-delimited columns of name (e.g. MgII), wavelength in
+        angstroms, gamma of transition, and f-value of transition.  See
+        example datasets in trident/data/line_lists for examples.
+
+        """
         AbsorptionSpectrum.__init__(self, lambda_min, lambda_max, n_lambda)
+        # Load a line list by default if one is provided
+        self.load_line_list(line_list)
 
     def _get_qso_spectrum(self, redshift=0.0, filename=None):
         """
@@ -29,7 +53,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
         if filename is None:
             filename = os.path.join(os.path.dirname(__file__), "..", "data",
-                                    "hstrq_sdss.asc")
+                                    "spectral_templates", 
+                                    "qso_background_COS_HST.txt")
 
         data = np.loadtxt(filename)
         qso_lambda = data[:, 0]
@@ -51,7 +76,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
         if filename is None:
             filename = os.path.join(os.path.dirname(__file__), "..", "data",
-                                    "superstack.dat")
+                                    "spectral_templates", 
+                                    "mw_foreground_COS.txt")
 
         data = np.loadtxt(filename)
         MW_lambda = data[:, 0]
@@ -118,7 +144,18 @@ class SpectrumGenerator(AbsorptionSpectrum):
     def load_line_list(self, filename=None):
         if filename is None:
             filename = os.path.join(os.path.dirname(__file__), "..", "data",
+                                    "line_lists",
                                     "Nist_elem_list.txt")
+        else:
+            # check to see if file exists, if not, check in 
+            # trident/data/line_lists
+            if not os.path.isfile(filename):
+                filename = os.path.join(os.path.dirname(__file__), "..", 
+                                        "data", "line_lists", filename)
+            if not os.path.isfile(filename):
+                sys.exit('line_list %s is not found in local directory or in '
+                         'trident/data/line_lists' % (filename.split('/')[-1]))
+
         for line in file(filename).readlines():
             online = line.split()
             if line.startswith("#") or "--" in line or len(online) != 4: continue
@@ -184,6 +221,13 @@ class SpectrumGenerator(AbsorptionSpectrum):
         output.create_dataset('flux', data=self.flux_field)
         output.create_dataset('rootflux', data=self.flux_field**0.5)
         output.close()
+
+    def make_flat_spectrum(self):
+        """
+        Makes a flat spectrum devoid of any lines.
+        """
+        self.flux_field = np.ones(self.lambda_bins.size)
+        return (self.lambda_bins, self.flux_field)
 
 def plot_spectrum(wavelength, flux, filename):
     # number of rows and columns
