@@ -68,7 +68,7 @@ def add_ion_fraction_field(atom, ion, model, data_file=None):
     """
     Add ion fraction field to yt.
     For example, add_ion_fraction_field('O',6) creates a field 
-    called OVI_"model"_ion_fraction.
+    called O_p5_"model"_ion_fraction.
     """
     atom = string.capitalize(atom)
     field = "%s_p%s_%s_ion_fraction" % (atom, ion-1, model)
@@ -90,7 +90,7 @@ def add_ion_number_density_field(atom, ion, model, **kwargs):
     """
     Add ion number density field to yt.
     For example, add_ion_number_density_field('O',6) creates a field 
-    called OVI_"model"_number_density.
+    called O_p5_"model"_number_density.
     """
     atom = string.capitalize(atom)
     field = "%s_p%s_%s_number_density" % (atom, ion-1, model)
@@ -102,7 +102,7 @@ def add_ion_density_field(atom, ion, model, **kwargs):
     """
     Add ion mass density field to yt.
     For example, add_ion_density_field('O',6) creates a field 
-    called OVI_"model"_density.
+    called O_p5_"model"_density.
     """
     atom = string.capitalize(atom)
     field = "%s_p%s_%s_density" % (atom, ion-1, model)
@@ -114,7 +114,7 @@ def add_ion_mass_field(atom, ion, model, **kwargs):
     """
     Add ion mass fields (g and Msun) to yt.
     For example, add_ion_density_field('O',6) creates a field 
-    called OVI_"model"_mass.
+    called O_p5_"model"_mass.
     """
     atom = string.capitalize(atom)
     field = "%s_p%s_%s_mass" % (atom, ion-1, model)
