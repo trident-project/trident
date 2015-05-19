@@ -24,8 +24,9 @@ License:
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from yt.data_objects.field_info_container import add_field
+from yt.fields.local_fields import add_field
 from yt.utilities.linear_interpolators import UnilinearFieldInterpolator
+from yt.utilities.physical_constants import mh
 import numpy as na
 import string
 import roman
@@ -34,7 +35,7 @@ import copy
 import os
 
 H_mass_fraction = 0.76
-mH = 1.67e-24
+to_nH = H_mass_fraction / mh
 
 # set fractions to 0 for values lower than 1e-7, 
 # which is the lowest value in SD93.
@@ -110,8 +111,7 @@ def add_SD93_ion_number_density_field(atom,ion):
     field = "%s%s_SD93_eq_NumberDensity" % (atom,roman.toRoman(ion))
     add_SD93_ion_fraction_field(atom,ion)
     add_field(field,function=_ion_number_density,
-              convert_function=_convert_ion_number_density,
-              units=r"cm^{-3}",projected_units=r"cm^{-2}")
+              units="1.0/cm**3")
 
 def add_SD93_ion_density_field(atom,ion):
     """
@@ -123,8 +123,7 @@ def add_SD93_ion_density_field(atom,ion):
     field = "%s%s_SD93_eq_Density" % (atom,roman.toRoman(ion))
     add_SD93_ion_number_density_field(atom,ion)
     add_field(field,function=_ion_density,
-              convert_function=_convert_ion_density,
-              units=r"g cm^{-3}",projected_units=r"g cm^{-2}")
+              units="g/cm**3")
 
 def add_SD93_ion_mass_field(atom,ion):
     """
@@ -138,55 +137,63 @@ def add_SD93_ion_mass_field(atom,ion):
     add_SD93_ion_density_field(atom,ion)
     add_field(field,function=_ion_mass, units=r"g")
     add_field(field_msun,function=_ion_mass, 
-              convert_function=_convertCellMassMsun, 
-              units=r"M_{\odot}")
+              units="Msun")
 
 def _ion_mass(field,data):
-    species = field.name.split("_")[0]
+    species = field.name[1].split("_")[0]
     if species[1] == string.lower(species[1]):
         atom = species[0:2]
     else:
         atom = species[0]
 
     densityField = "%s_SD93_eq_Density" % species
-    return data[densityField] * data['CellVolume']
-
-def _convertCellMassMsun(data):
-    return 5.027854e-34 # g^-1
+    return data[densityField] * data['cell_volume']
 
 def _ion_density(field,data):
-    species = field.name.split("_")[0]
+    species = field.name[1].split("_")[0]
     if species[1] == string.lower(species[1]):
         atom = species[0:2]
     else:
         atom = species[0]
 
     numberDensityField = "%s_SD93_eq_NumberDensity" % species
-    return atomicMass[atom] * data[numberDensityField]
-
-def _convert_ion_density(data):
-    return mH
+    # the "mh" makes sure that the units work out
+    return atomicMass[atom] * data[numberDensityField] * mh
 
 def _ion_number_density(field,data):
-    species = field.name.split("_")[0]
+    species = field.name[1].split("_")[0]
     if species[1] == string.lower(species[1]):
         atom = species[0:2]
     else:
         atom = species[0]
 
     fractionField = "%s_SD93_eq_Ion_Fraction" % species
-    return solarAbundance[atom] * data[fractionField] * data['Metallicity'] * \
-        data['Density']
-
-def _convert_ion_number_density(data):
-    return (H_mass_fraction / mH)
+    if atom == 'H' or atom == 'He':
+        field = solarAbundance[atom] * data[fractionField] * \
+                data['density']
+    else:
+        field = data.ds.quan(solarAbundance[atom], "1.0/Zsun") * \
+                data[fractionField] * data['metallicity'] * \
+                data['density']
+                # Ideally we'd like to use the following line
+                # but it is very slow to compute.
+                # If we get H_nuclei_density spread up
+                # then we will want to remove the "to_nH" below
+                # (this applies above as well)
+                #data['H_nuclei_density']
+    field[field <= 0.0] = 1.e-50
+    # the "to_nH", does the final conversion to number density
+    return field * to_nH
 
 def _ion_fraction_field(field, data):
-    ionFraction = SD93_table_store[field.name]['fraction']
+    ionFraction = SD93_table_store[field.name[1]]['fraction']
 
-    data['log_T'] = na.log10(data['Temperature'])
-    bds = (SD93_table_store[field.name]['t_min'], 
-           SD93_table_store[field.name]['t_max'])
+    def _log_T(field, data):
+        return na.log10(data['temperature'])
+    data.ds.add_field('log_T', function=_log_T, units="")
+
+    bds = (SD93_table_store[field.name[1]]['t_min'], 
+           SD93_table_store[field.name[1]]['t_max'])
 
     interp = UnilinearFieldInterpolator(ionFraction, bds, 'log_T', truncate=True)
 

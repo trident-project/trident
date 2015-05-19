@@ -23,8 +23,9 @@ License:
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from yt.data_objects.field_info_container import add_field
+from yt.fields.local_fields import add_field
 from yt.utilities.linear_interpolators import TrilinearFieldInterpolator
+from yt.utilities.physical_constants import mh
 import numpy as na
 import string
 import roman
@@ -33,8 +34,7 @@ import copy
 import os
 
 H_mass_fraction = 0.76
-mH = 1.67e-24
-to_nH = H_mass_fraction / mH
+to_nH = H_mass_fraction / mh
 
 # set fractions to 0 for values lower than 1e-7, 
 # which is what is used in Sutherland & Dopita (1993).
@@ -80,7 +80,7 @@ def add_Cloudy_ion_fraction_field(atom, ion, data_file='cloudy_ion_balance.h5'):
                                      'parameters': copy.deepcopy(ionTable.parameters)}
         del ionTable
 
-    add_field(field,function=_ion_fraction_field,units=r"")
+    add_field(field,function=_ion_fraction_field, units="")
 
 def add_Cloudy_ion_number_density_field(atom, ion, **kwargs):
     """
@@ -92,8 +92,7 @@ def add_Cloudy_ion_number_density_field(atom, ion, **kwargs):
     field = "%s%s_Cloudy_eq_NumberDensity" % (atom,roman.toRoman(ion))
     add_Cloudy_ion_fraction_field(atom,ion, **kwargs)
     add_field(field,function=_ion_number_density,
-              convert_function=_convert_ion_number_density,
-              units=r"cm^{-3}",projected_units=r"cm^{-2}")
+              units="1.0/cm**3")
 
 def add_Cloudy_ion_density_field(atom, ion, **kwargs):
     """
@@ -105,8 +104,7 @@ def add_Cloudy_ion_density_field(atom, ion, **kwargs):
     field = "%s%s_Cloudy_eq_Density" % (atom,roman.toRoman(ion))
     add_Cloudy_ion_number_density_field(atom,ion, **kwargs)
     add_field(field,function=_ion_density,
-              convert_function=_convert_ion_density,
-              units=r"g cm^{-3}",projected_units=r"g cm^{-2}")
+              units="g/cm**3")
 
 def add_Cloudy_ion_mass_field(atom, ion, **kwargs):
     """
@@ -120,37 +118,31 @@ def add_Cloudy_ion_mass_field(atom, ion, **kwargs):
     add_Cloudy_ion_density_field(atom,ion, **kwargs)
     add_field(field,function=_ion_mass, units=r"g")
     add_field(field_msun,function=_ion_mass, 
-              convert_function=_convertCellMassMsun, 
-              units=r"M_{\odot}")
+              units="Msun")
 
 def _ion_mass(field,data):
-    species = field.name.split("_")[0]
+    species = field.name[1].split("_")[0]
     if species[1] == string.lower(species[1]):
         atom = species[0:2]
     else:
         atom = species[0]
 
     densityField = "%s_Cloudy_eq_Density" % species
-    return data[densityField] * data['CellVolume']
-
-def _convertCellMassMsun(data):
-    return 5.027854e-34 # g^-1
+    return data[densityField] * data['cell_volume']
 
 def _ion_density(field,data):
-    species = field.name.split("_")[0]
+    species = field.name[1].split("_")[0]
     if species[1] == string.lower(species[1]):
         atom = species[0:2]
     else:
         atom = species[0]
 
     numberDensityField = "%s_Cloudy_eq_NumberDensity" % species
-    return atomicMass[atom] * data[numberDensityField]
-
-def _convert_ion_density(data):
-    return mH
+    # the "mh" makes sure that the units work out
+    return atomicMass[atom] * data[numberDensityField] * mh
 
 def _ion_number_density(field,data):
-    species = field.name.split("_")[0]
+    species = field.name[1].split("_")[0]
     if species[1] == string.lower(species[1]):
         atom = species[0:2]
     else:
@@ -158,26 +150,40 @@ def _ion_number_density(field,data):
 
     fractionField = "%s_Cloudy_eq_Ion_Fraction" % species
     if atom == 'H' or atom == 'He':
-        field = solarAbundance[atom] * data[fractionField] * data['Density']
+        field = solarAbundance[atom] * data[fractionField] * \
+                data['density']
     else:    
-        field = solarAbundance[atom] * data[fractionField] * data['Metallicity'] * \
-            data['Density']
+        field = data.ds.quan(solarAbundance[atom], "1.0/Zsun") * \
+                data[fractionField] * data['metallicity'] * \
+                data['density']
+                # Ideally we'd like to use the following line
+                # but it is very slow to compute.
+                # If we get H_nuclei_density spread up
+                # then we will want to remove the "to_nH" below
+                # (this applies above as well)
+                #data['H_nuclei_density']
     field[field <= 0.0] = 1.e-50
-    return field
-
-def _convert_ion_number_density(data):
-    return (H_mass_fraction / mH)
+    # the "to_nH", does the final conversion to number density
+    return field * to_nH
 
 def _ion_fraction_field(field,data):
-    ionFraction = Cloudy_table_store[field.name]['fraction']
-    n_param = Cloudy_table_store[field.name]['parameters'][0]
-    z_param = Cloudy_table_store[field.name]['parameters'][1]
-    t_param = Cloudy_table_store[field.name]['parameters'][2]
+    ionFraction = Cloudy_table_store[field.name[1]]['fraction']
+    n_param = Cloudy_table_store[field.name[1]]['parameters'][0]
+    z_param = Cloudy_table_store[field.name[1]]['parameters'][1]
+    t_param = Cloudy_table_store[field.name[1]]['parameters'][2]
 
-    data['log_nH'] = na.log10(data['Density'] * to_nH)
-    data['redshift'] = data.pf.current_redshift * \
-        na.ones(data['Density'].shape, dtype=data['Density'].dtype)
-    data['log_T'] = na.log10(data['Temperature'])
+    def _log_nH(field, data):
+        return na.log10(data['density'] * to_nH)
+    data.ds.add_field('log_nH', function=_log_nH, units="")
+
+    def _redshift(field, data):
+        return data.ds.current_redshift * \
+            na.ones(data['density'].shape, dtype=data['density'].dtype)
+    data.ds.add_field('redshift', function=_redshift, units="")
+
+    def _log_T(field, data):
+        return na.log10(data['temperature'])
+    data.ds.add_field('log_T', function=_log_T, units="")
 
     bds = na.array([n_param[0], n_param[-1], z_param[0], z_param[-1], 
                     t_param[0], t_param[-1]])
