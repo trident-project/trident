@@ -159,16 +159,19 @@ def _ion_fraction_field(field,data):
 
     def _log_nH(field, data):
         return na.log10(data['density'] * to_nH)
-    data.ds.add_field('log_nH', function=_log_nH, units="")
+    if 'log_nH' not in data.ds.derived_field_list:
+        data.ds.add_field('log_nH', function=_log_nH, units="")
 
     def _redshift(field, data):
         return data.ds.current_redshift * \
             na.ones(data['density'].shape, dtype=data['density'].dtype)
-    data.ds.add_field('redshift', function=_redshift, units="")
+    if 'redshift' not in data.ds.derived_field_list:
+        data.ds.add_field('redshift', function=_redshift, units="")
 
     def _log_T(field, data):
         return na.log10(data['temperature'])
-    data.ds.add_field('log_T', function=_log_T, units="")
+    if 'log_T' not in data.ds.derived_field_list:
+        data.ds.add_field('log_T', function=_log_T, units="")
 
     n_parameters = len(table_store[field.name[1]]['parameters'])
 
