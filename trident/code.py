@@ -134,12 +134,15 @@ class SpectrumGenerator(AbsorptionSpectrum):
             if element[1].isupper():
                 element = element[:1]        
 
-            if "Ly" in list_ion:
-                field = "H_number_density" 
-            else:
-                field = "%s_Cloudy_eq_NumberDensity_post" % ion
+            # # This is how things should work if there are H_number_density
+            # # fields, but I cam commenting it out for now and we'll just
+            # # use the post-processed fields
+            # if "Ly" in list_ion:
+            #     field = "H_number_density" 
+            # else:
+            #     field = "%s_Cloudy_eq_NumberDensity_post" % ion
                 
-            #field = "%s_Cloudy_eq_NumberDensity_post" % ion
+            field = "%s_Cloudy_eq_NumberDensity_post" % ion
             self.add_line(label, field, float(wavelength),
                           float(f_value), float(gamma),
                           atomic_mass[element], label_threshold=1e3)
