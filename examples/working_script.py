@@ -31,7 +31,6 @@ lambda_max = 1400
 dlambda = 0.01
 n_lambda = (lambda_max - lambda_min) / dlambda + 1
 sg = tri.SpectrumGenerator(lambda_min, lambda_max, n_lambda)
-sg.load_line_list(filename=None) 
 sg.make_spectrum("mod_ray.h5", output_file="spec.h5",
                 line_list_file="line_list.txt")
 
