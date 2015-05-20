@@ -172,7 +172,11 @@ class SpectrumGenerator(AbsorptionSpectrum):
                 element = element[:1]        
 
             if "Ly" in list_ion:
-                field = "H_number_density" 
+                field = "%s_Cloudy_eq_NumberDensity_post" % "HI"
+                # Temporarily use the Cloudy field for HI datasets.
+                # Needs to be generalized to be used when any non-eq
+                # field is present to override Cloudy
+                #field = "H_number_density" 
             else:
                 field = "%s_Cloudy_eq_NumberDensity_post" % ion
                 
