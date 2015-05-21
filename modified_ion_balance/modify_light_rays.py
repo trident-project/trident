@@ -30,7 +30,13 @@ def _add_ion_fields(ray, data_filename, ion_fields, verbose, save_filename):
         if os.path.isfile(save_filename): os.remove(save_filename)
         out_file = h5py.File(save_filename, "w")
         for key in ray.keys():
-            out_file.create_dataset(key, dtype="float64", data=ray[key])
+            # If our field is a tuple, then just use the final element as the 
+            # key name
+            if isinstance(key, tuple):
+                keyname = key[1]
+            else:
+                keyname = key
+            out_file.create_dataset(keyname, dtype="float64", data=ray[key])
         out_file.close()
 
     return ray
