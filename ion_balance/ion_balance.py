@@ -129,7 +129,7 @@ def _ion_mass(field,data):
 
 def _ion_density(field,data):
     atom = field.name[1].split("_")[0]
-    prefix = field.name[1].split("_number_density")[0]
+    prefix = field.name[1].split("_density")[0]
     numberDensityField = "%s_number_density" % prefix
     # the "mh" makes sure that the units work out
     return atomicMass[atom] * data[numberDensityField] * mh
