@@ -63,7 +63,7 @@ class CloudyIonBalanceTable(object):
         self.parameters.append(input[atom].attrs['Temperature'])
         input.close()
 
-def add_Cloudy_ion_fraction_field(atom, ion, data_file='cloudy_ion_balance.h5'):
+def add_Cloudy_ion_fraction_field(atom, ion, data_file='default.h5'):
     """
     Add ion fraction field to yt.
     For example, add_Cloudy_ion_fraction_field('O',6) creates a field 

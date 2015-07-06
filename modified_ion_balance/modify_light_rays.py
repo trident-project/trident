@@ -52,7 +52,7 @@ def add_ion_fields_to_ray(ray,
                            save_filename)
     
 def add_ion_fields_to_file(filename,
-                           data_filename="../data/ion_balance/cloudy_ion_balance.h5",
+                           data_filename="../data/ion_balance/default.h5",
                            ion_fields=None, verbose=False, save_filename=None):
     """
     This function modifies a LightRay object contained in an hdf5 file to add 

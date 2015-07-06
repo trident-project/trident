@@ -34,6 +34,10 @@ Low-Res (205MB)
 
 $ wget http://trident-project.org/data/ion_balance/hm2012_lr.h5 data/ion_balance
 
+Then create a symbolic link at default.h5, so trident knows which one is active:
+
+$ ln -s data/ion_balance/hm2012_hr.h5 data/ion_balance/default.h5
+
 
 Now you should be ready to go.  To test your installation, you can go into
 the examples directory and run the working_script.py file.  You will require
