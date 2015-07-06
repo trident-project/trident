@@ -3,7 +3,7 @@ import numpy as np
 import os
 from yt.analysis_modules.absorption_spectrum.api import \
       AbsorptionSpectrum
-from yt.funcs import mylog
+from yt.funcs import mylog, YTArray
 from matplotlib import pyplot
 import sys
       
@@ -57,7 +57,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                     "qso_background_COS_HST.txt")
 
         data = np.loadtxt(filename)
-        qso_lambda = data[:, 0]
+        qso_lambda = YTArray(data[:, 0], 'angstrom')
         qso_lambda += qso_lambda * redshift
         qso_flux = data[:, 1]
 
@@ -80,7 +80,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                     "mw_foreground_COS.txt")
 
         data = np.loadtxt(filename)
-        MW_lambda = data[:, 0]
+        MW_lambda = YTArray(data[:, 0], 'angstrom')
         MW_flux = data[:, 1]
 
         index = np.digitize(self.lambda_bins, MW_lambda)
@@ -174,12 +174,11 @@ class SpectrumGenerator(AbsorptionSpectrum):
             # # This is how things should work if there are H_number_density
             # # fields, but I cam commenting it out for now and we'll just
             # # use the post-processed fields
-            # if "Ly" in list_ion:
-            #     field = "H_number_density" 
-            # else:
-            #     field = "%s_Cloudy_eq_NumberDensity_post" % ion
+            if "Ly" in list_ion:
+                field = "H_number_density" 
+            else:
+                field = "%s_Cloudy_eq_NumberDensity_post" % ion
                 
-            field = "%s_Cloudy_eq_NumberDensity_post" % ion
             self.add_line(label, field, float(wavelength),
                           float(f_value), float(gamma),
                           atomic_mass[element], label_threshold=1e3)
@@ -297,7 +296,7 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png", title=None,
     my_axes = pyplot.axes((left_side, bottom_side, panel_width, panel_height))
 
     # Are we overplotting several spectra?  or just one?
-    if not isinstance(wavelength, list) and isinstance(flux, list):
+    if not (isinstance(wavelength, list) and isinstance(flux, list)):
         wavelengths = [wavelength]
         fluxs = [flux]
         if label is not None: labels = [label] 
@@ -322,9 +321,9 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png", title=None,
         if title is not None:
             pyplot.title(title)
             
-    my_axes.set_xlim(wavelength.min(), wavelength.max())
+    #my_axes.set_xlim(wavelength.min(), wavelength.max())
     my_axes.set_ylim(0, 1.1)
     my_axes.xaxis.set_label_text("$\\lambda$ [$\\AA$]")
     my_axes.yaxis.set_label_text("Relative Flux")
-    if isinstance(wavelengths, list): pyplot.legend()
+    if label is not None: pyplot.legend()
     pyplot.savefig(filename)

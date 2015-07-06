@@ -16,8 +16,10 @@ ray_end = [1,1,1]
 # ray.txt and use it internally as "ray"
 lr = tri.LightRay(fn, 'Enzo', 0.0, 0.0)
 ray = lr.make_light_ray(seed=12345, start_position=ray_start, end_position=ray_end,
-                  fields=['temperature', 'density', 'H_number_density', 'metallicity'],
-                  #fields=['temperature', 'density', 'metallicity'],
+                  fields=[('gas', 'temperature'), 
+                          ('gas', 'density'), 
+                          ('gas', 'H_number_density'), 
+                          ('gas', 'metallicity')],
                   solution_filename="ray.txt", data_filename="ray.h5",
                   get_los_velocity=True)
 
@@ -33,6 +35,7 @@ n_lambda = (lambda_max - lambda_min) / dlambda + 1
 sg = tri.SpectrumGenerator(lambda_min, lambda_max, n_lambda)
 sg.make_spectrum("mod_ray.h5", output_file="spec.h5",
                 line_list_file="line_list.txt")
+#sg.make_flat_spectrum()
 
 # "Final" spectrum with added quasar, MW background, and gaussian noise (SNR=30)
 sg.add_qso_spectrum(redshift=1.0)
