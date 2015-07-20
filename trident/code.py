@@ -18,8 +18,10 @@ atomic_mass = {'H': 1.00794, 'He': 4.002602, 'Li': 6.941,
                'Mn': 54.938049, 'Fe': 55.845, 'Co': 58.933200,
                'Ni': 58.6934, 'Cu': 63.546, 'Zn': 65.409}
 
+
 class SpectrumGenerator(AbsorptionSpectrum):
-    def __init__(self, lambda_min, lambda_max, n_lambda, line_list=None):
+    def __init__(self, instrument=None, lambda_min=None, lambda_max=None, 
+                 n_lambda=None, dlambda=None, line_list=None):
         """
         SpectrumGenerator is a subclass of yt's AbsorptionSpectrum class
         with additional functionality like line lists, adding spectral 
@@ -41,7 +43,16 @@ class SpectrumGenerator(AbsorptionSpectrum):
         example datasets in trident/data/line_lists for examples.
 
         """
-        AbsorptionSpectrum.__init__(self, lambda_min, lambda_max, n_lambda)
+        if instrument is None:
+            instrument = 'COS'
+            print "No instrument specified, defaulting to COS"
+        self.set_instrument(instrument)
+        print "Setting instrument to %s" % self.instrument.name
+
+        AbsorptionSpectrum.__init__(self, 
+                                    self.instrument.lambda_min,
+                                    self.instrument.lambda_max,
+                                    self.instrument.n_lambda)
         # Load a line list by default if one is provided
         self.load_line_list(line_list)
 
@@ -231,6 +242,47 @@ class SpectrumGenerator(AbsorptionSpectrum):
         self.flux_field = np.ones(self.lambda_bins.size)
         return (self.lambda_bins, self.flux_field)
 
+    def set_instrument(self, instrument):
+        """
+        Sets the appropriate range of wavelengths and binsize for the
+        output spectrum as well as the line spread function. 
+
+        set_instrument accepts either the name of a valid instrument or 
+        a fully specified Instrument object.
+
+        Valid instruments are: %s
+        """ % valid_instruments.keys()
+
+        if isinstance(instrument, str):
+            if instrument not in valid_instruments:
+                sys.exit("set_instrument accepts only Instrument objects or ",
+                         "the names of valid instruments: ", 
+                         valid_instruments.keys())
+            self.instrument = valid_instruments[instrument]
+        elif isinstance(instrument, Instrument):
+            self.instrument = instrument
+        else:
+            sys.exit("set_instrument accepts only Instrument objects or ",
+                     "the names of valid instruments: ", 
+                     valid_instruments.keys())
+
+class Instrument():
+    """
+    An instrument template for specifying a spectrograph/telescope pair
+    """
+    def __init__(self, lambda_min, lambda_max, n_lambda=None,
+                 dlambda=None, lsf_kernel=None, name=None):
+        self.lambda_min = lambda_min
+        self.lambda_max = lambda_max
+        self.lsf_kernel = lsf_kernel
+        if n_lambda is None and dlambda is None:
+            sys.exit("Either n_lambda or dlambda must be set to specify the binsize")
+        elif dlambda is not None:
+            n_lambda = (lambda_max - lambda_min) / dlambda
+        self.n_lambda = n_lambda
+        if name is not None:
+            self.name = name
+    
 def plot_spectrum(wavelength, flux, filename="spectrum.png", title=None,
                   label=None, stagger=0.2):
     """
@@ -327,3 +379,17 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png", title=None,
     my_axes.yaxis.set_label_text("Relative Flux")
     if label is not None: pyplot.legend()
     pyplot.savefig(filename)
+
+# Valid instruments
+valid_instruments = \
+    {'COS' : 
+       Instrument(1200, 1400, dlambda=0.01, lsf_kernel='avg_COS.txt', name='COS'),
+     'HIRES' :
+       Instrument(1200, 1400, dlambda=0.01, name='HIRES'),
+     'UVES' :
+       Instrument(1200, 1400, dlambda=0.01, name='UVES'),
+     'MODS' :
+       Instrument(1200, 1400, dlambda=0.01, name='MODS'),
+     'SDSS' :
+       Instrument(1200, 1400, dlambda=0.01, name='SDSS')}
+

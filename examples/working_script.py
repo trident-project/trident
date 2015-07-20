@@ -6,7 +6,6 @@ import trident as tri
 # Load the dataset and define the coordinates of the start/end of the ray
 fn = 'enzo_cosmology_plus/RD0009/RD0009'
 fn = 'enzo_cosmology_plus/AMRCosmology.enzo'
-#ds = yt.load(fn)
 ray_start = [0,0,0]
 ray_end = [1,1,1]
 
@@ -26,13 +25,7 @@ ray = lr.make_light_ray(seed=12345, start_position=ray_start, end_position=ray_e
 ray = tri.add_ion_fields_to_ray(ray, save_filename="mod_ray.h5")
 
 # Now use the mod_ray h5 file to actually generate an absorption spectrum
-# Set dlambda consistent with COS (need to do this with .set_instrument() 
-# function based on spectral resolution R
-lambda_min = 1200
-lambda_max = 1400
-dlambda = 0.01
-n_lambda = (lambda_max - lambda_min) / dlambda + 1
-sg = tri.SpectrumGenerator(lambda_min, lambda_max, n_lambda)
+sg = tri.SpectrumGenerator('COS')
 sg.make_spectrum("mod_ray.h5", output_file="spec.h5",
                 line_list_file="line_list.txt")
 #sg.make_flat_spectrum()
