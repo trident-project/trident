@@ -33,7 +33,7 @@ sg.make_spectrum("mod_ray.h5", output_file="spec.h5",
 # "Final" spectrum with added quasar, MW background, and gaussian noise (SNR=30)
 sg.add_qso_spectrum(redshift=1.0)
 sg.add_milky_way_foreground()
-sg.apply_lsf('COS')
+sg.apply_lsf()
 sg.add_gaussian_noise(10)
 #sg.flux_field.clip(0, sg.flux_field.max(), out=sg.flux_field)
 tri.plot_spectrum(sg.lambda_bins, sg.flux_field, 'spec.png')

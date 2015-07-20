@@ -128,21 +128,28 @@ class SpectrumGenerator(AbsorptionSpectrum):
                out=out)
         return out
 
-    def apply_lsf(self, instrument, flux_field=None):
-        instruments = {"COS":"avg_COS.txt"}
-        if flux_field is None:
-            flux_field = self.flux_field
-        if instrument in instruments:
-            lsf_filename = os.path.join(os.path.dirname(__file__), "..", "data",
-                                        "lsf_kernels", instruments[instrument])
-            lsf_file = open(lsf_filename, 'r')
-            lsf_kernel = []
-            for line in lsf_file:
-                lsf_kernel.append(float(line.split()[1]))
-            self.flux_field = np.convolve(lsf_kernel,flux_field,'same')
-            lsf_file.close()
+    def apply_lsf(self, function=None, width=None, filename=None):
+        """
+        Apply the LSF to the flux_field of the spectrum.
+        If an instrument already supplies a valid filename and no keywords
+        are supplied, it is used by default.  Otherwise, the user can 
+        specify a filename of a user-defined kernel or a function+width
+        for a kernel.  Valid functions are: "boxcar" and "gaussian".
+        """
+        # if nothing is specified, then use the Instrument-defined kernel
+        if function is None and width is None and filename is None:
+            if self.instrument.lsf_kernel is None:
+                raise RuntimeError("To apply a line spread function, you "
+                                   "must specify one or use an instrument "
+                                   "where one is defined.")
+            else:
+                print "Applying default line spread function for %s." % \
+                       self.instrument.name
+                lsf = LSF(filename=self.instrument.lsf_kernel)
         else:
-            raise RuntimeError("You have not chosen a valid instrument for your LSF.")
+            print "Applying specified line spread function."
+            lsf = LSF(function=function, width=width, filename=filename)
+        self.flux_field = np.convolve(lsf.kernel,self.flux_field,'same')
 
     def load_spectrum(self, filename=None):
         if not filename.endswith(".h5"):
@@ -164,8 +171,9 @@ class SpectrumGenerator(AbsorptionSpectrum):
                 filename = os.path.join(os.path.dirname(__file__), "..", 
                                         "data", "line_lists", filename)
             if not os.path.isfile(filename):
-                sys.exit('line_list %s is not found in local directory or in '
-                         'trident/data/line_lists' % (filename.split('/')[-1]))
+                raise RuntimeError("line_list %s is not found in local "
+                                   "directory or in trident/data/line_lists " 
+                                   % (filename.split('/')[-1]))
 
         for line in file(filename).readlines():
             online = line.split()
@@ -255,16 +263,16 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
         if isinstance(instrument, str):
             if instrument not in valid_instruments:
-                sys.exit("set_instrument accepts only Instrument objects or ",
-                         "the names of valid instruments: ", 
-                         valid_instruments.keys())
+                raise RuntimeError("set_instrument accepts only Instrument "
+                                   "objects or the names of valid "
+                                   "instruments: ", valid_instruments.keys())
             self.instrument = valid_instruments[instrument]
         elif isinstance(instrument, Instrument):
             self.instrument = instrument
         else:
-            sys.exit("set_instrument accepts only Instrument objects or ",
-                     "the names of valid instruments: ", 
-                     valid_instruments.keys())
+            raise RuntimeError("set_instrument accepts only Instrument "
+                               "objects or the names of valid instruments: ",
+                               valid_instruments.keys())
 
 class Instrument():
     """
@@ -276,13 +284,62 @@ class Instrument():
         self.lambda_max = lambda_max
         self.lsf_kernel = lsf_kernel
         if n_lambda is None and dlambda is None:
-            sys.exit("Either n_lambda or dlambda must be set to specify the binsize")
+            raise RuntimeError("Either n_lambda or dlambda must be set to "
+                               "specify the binsize")
         elif dlambda is not None:
             n_lambda = (lambda_max - lambda_min) / dlambda
         self.n_lambda = n_lambda
         if name is not None:
             self.name = name
-    
+
+class LSF():
+    """
+    Line Spread Function class
+
+    The user must define either a filename or a function and a width
+
+    Parameters
+    ----------
+
+    function : string, optional
+        the function defining the LSF kernel.
+        valid functions are "boxcar" or "gaussian"
+
+    width : int, optional
+        the width of the LSF kernel
+
+    filename : string , optional
+        the filename of a textfile for a user-specified kernel. each line
+        in the textfile is the non-normalized flux value of the kernel
+    """
+    def __init__(self, function=None, width=None, filename=None):
+        self.kernel = []
+        # if filename is defined, use it
+        if filename is not None:
+            # Check to see if the file is in the local dir
+            if os.path.isfile(filename):
+                lsf_file = open(filename, 'r')
+            # otherwise use the file in the lsf_kernels dir
+            else:
+                filename2 = os.path.join(os.path.dirname(__file__), "..", 
+                                         "data", "lsf_kernels", filename)
+                if os.path.isfile(filename2):
+                    lsf_file = open(filename2, 'r')
+                else:
+                    sys.exit("filename must be in local directory or in",
+                             "trident/data/lsf_kernels directory")
+            for line in lsf_file:
+                self.kernel.append(float(line.split()[1]))
+            lsf_file.close()
+        elif function is not None and width is not None:                    
+            if function == 'boxcar':
+               self.kernel = np.ones(width) 
+            #XXX Define more functional forms
+            #elif function == 'gaussian':
+            #   self.kernel = np.gaussian(width)
+        else:
+            sys.exit("Either filename OR function+width must be specified.")
+
 def plot_spectrum(wavelength, flux, filename="spectrum.png", title=None,
                   label=None, stagger=0.2):
     """
