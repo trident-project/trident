@@ -13,7 +13,7 @@ ray_end = [1,1,1]
 # fields of our dataset at redshift_start = redshift_end = 0.0.  Include true 
 # HI to trump over Cloudy estimation of HI.  Save LightRay to ray.h5 and 
 # ray.txt and use it internally as "ray"
-lr = tri.LightRay(fn, 'Enzo', 0.0, 0.0)
+lr = tri.LightRay(fn, 'Enzo', 0.0, 0.2)
 ray = lr.make_light_ray(seed=12345, start_position=ray_start, end_position=ray_end,
                   fields=[('gas', 'temperature'), 
                           ('gas', 'density'), 
@@ -31,7 +31,7 @@ sg.make_spectrum("mod_ray.h5", output_file="spec.h5",
 #sg.make_flat_spectrum()
 
 # "Final" spectrum with added quasar, MW background, and gaussian noise (SNR=30)
-sg.add_qso_spectrum(redshift=1.0)
+sg.add_qso_spectrum(redshift=0.2)
 sg.add_milky_way_foreground()
 sg.apply_lsf()
 sg.add_gaussian_noise(10)

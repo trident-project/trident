@@ -21,7 +21,7 @@ atomic_mass = {'H': 1.00794, 'He': 4.002602, 'Li': 6.941,
 
 class SpectrumGenerator(AbsorptionSpectrum):
     def __init__(self, instrument=None, lambda_min=None, lambda_max=None, 
-                 n_lambda=None, dlambda=None, line_list=None):
+                 n_lambda=None, dlambda=None, lsf_kernel=None, line_list=None):
         """
         SpectrumGenerator is a subclass of yt's AbsorptionSpectrum class
         with additional functionality like line lists, adding spectral 
@@ -43,9 +43,15 @@ class SpectrumGenerator(AbsorptionSpectrum):
         example datasets in trident/data/line_lists for examples.
 
         """
-        if instrument is None:
+        if instrument is None and lambda_min is None:
             instrument = 'COS'
-            print "No instrument specified, defaulting to COS"
+            print "No parameters specified, defaulting to COS instrument"
+        elif instrument is None:
+            instrument = Instrument(lambda_min=lambda_min, 
+                                    lambda_max=lambda_max,
+                                    n_lambda=n_lambda,
+                                    dlambda=dlambda,
+                                    lsf_kernel=lsf_kernel, name="Custom")
         self.set_instrument(instrument)
         print "Setting instrument to %s" % self.instrument.name
 
@@ -340,8 +346,9 @@ class LSF():
         else:
             sys.exit("Either filename OR function+width must be specified.")
 
-def plot_spectrum(wavelength, flux, filename="spectrum.png", title=None,
-                  label=None, stagger=0.2):
+def plot_spectrum(wavelength, flux, filename="spectrum.png", 
+                  lambda_min=None, lambda_max=None, title=None, label=None, 
+                  stagger=0.2):
     """
     Plot a spectrum or a collection of spectra and save to disk
 
@@ -430,8 +437,11 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png", title=None,
         if title is not None:
             pyplot.title(title)
             
-    #my_axes.set_xlim(wavelength.min(), wavelength.max())
-    my_axes.set_ylim(0, 1.1)
+    if lambda_min is None and lambda_max is None:
+        my_axes.set_xlim(wavelength.min(), wavelength.max())
+    else:
+        my_axes.set_xlim(lambda_min, lambda_max)
+    my_axes.set_ylim(0, 2)
     my_axes.xaxis.set_label_text("$\\lambda$ [$\\AA$]")
     my_axes.yaxis.set_label_text("Relative Flux")
     if label is not None: pyplot.legend()
@@ -440,7 +450,7 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png", title=None,
 # Valid instruments
 valid_instruments = \
     {'COS' : 
-       Instrument(1200, 1400, dlambda=0.01, lsf_kernel='avg_COS.txt', name='COS'),
+       Instrument(1150, 1450, dlambda=0.005, lsf_kernel='avg_COS.txt', name='COS'),
      'HIRES' :
        Instrument(1200, 1400, dlambda=0.01, name='HIRES'),
      'UVES' :
