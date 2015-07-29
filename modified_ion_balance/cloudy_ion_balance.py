@@ -83,7 +83,7 @@ def add_Cloudy_ion_fraction_field(data, atom, ion, data_file=None):
 
     if data_file is None:
         data_file = os.path.join(os.path.dirname(__file__), "..", "data",
-                                 "ion_balance", "cloudy_ion_balance.h5")
+                                 "ion_balance", "default.h5")
     tableFile = data_file
 
     if not Cloudy_table_store.has_key(field):
@@ -172,11 +172,19 @@ def _ion_number_density(field,data):
 
     fractionField = "%s_Cloudy_eq_Ion_Fraction_post" % species
     if atom == 'H' or atom == 'He':
-        field = solarAbundance[atom] * data[fractionField] * data['density']
+        if 'density' in data:
+            field = solarAbundance[atom] * data[fractionField] * data['density']
+        else:
+            field = solarAbundance[atom] * data[fractionField] * data[('gas', 'density')]
     else:    
-        field = solarAbundance[atom] * data[fractionField] * \
-                data['metallicity'].in_units('Zsun') * \
-                data['density']
+        if 'density' in data:
+            field = solarAbundance[atom] * data[fractionField] * \
+                    data['metallicity'].in_units('Zsun') * \
+                    data['density']
+        else:
+            field = solarAbundance[atom] * data[fractionField] * \
+                    data[('gas', 'metallicity')].in_units('Zsun') * \
+                    data[('gas', 'density')]
     field[field <= 0.0] = 1.e-50
     return field * to_nH
 
@@ -189,12 +197,18 @@ def _ion_fraction_field(field,data):
     z_param = Cloudy_table_store[field]['parameters'][1]
     t_param = Cloudy_table_store[field]['parameters'][2]
 
-    data['log_nH'] = na.log10(data['density'] * to_nH)
+    if 'density' in data:
+        data['log_nH'] = na.log10(data['density'] * to_nH)
+    else:
+        data['log_nH'] = na.log10(data[('gas', 'density')] * to_nH)
+
     data['log_nH'] = na.clip(data['log_nH'], n_param[0], n_param[-1])
-    #data['redshift'] = data.pf.current_redshift * \
-    #    na.ones(data['Density'].shape, dtype=data['Density'].dtype)
-    #data['redshift'] = na.zeros(data['Density'].shape)
-    data['log_T'] = na.log10(data['temperature'])
+
+    if 'temperature' in data:
+        data['log_T'] = na.log10(data['temperature'])
+    else:
+        data['log_T'] = na.log10(data[('gas', 'temperature')])
+
     data['log_T'] = na.clip(data['log_T'], t_param[0], t_param[-1])
 
     bds = na.array([n_param[0], n_param[-1], z_param[0], z_param[-1], 

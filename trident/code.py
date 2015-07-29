@@ -3,7 +3,7 @@ import numpy as np
 import os
 from yt.analysis_modules.absorption_spectrum.api import \
       AbsorptionSpectrum
-from yt.funcs import mylog
+from yt.funcs import mylog, YTArray
 from matplotlib import pyplot
 import sys
       
@@ -18,8 +18,10 @@ atomic_mass = {'H': 1.00794, 'He': 4.002602, 'Li': 6.941,
                'Mn': 54.938049, 'Fe': 55.845, 'Co': 58.933200,
                'Ni': 58.6934, 'Cu': 63.546, 'Zn': 65.409}
 
+
 class SpectrumGenerator(AbsorptionSpectrum):
-    def __init__(self, lambda_min, lambda_max, n_lambda, line_list=None):
+    def __init__(self, instrument=None, lambda_min=None, lambda_max=None, 
+                 n_lambda=None, dlambda=None, lsf_kernel=None, line_list=None):
         """
         SpectrumGenerator is a subclass of yt's AbsorptionSpectrum class
         with additional functionality like line lists, adding spectral 
@@ -41,7 +43,22 @@ class SpectrumGenerator(AbsorptionSpectrum):
         example datasets in trident/data/line_lists for examples.
 
         """
-        AbsorptionSpectrum.__init__(self, lambda_min, lambda_max, n_lambda)
+        if instrument is None and lambda_min is None:
+            instrument = 'COS'
+            print "No parameters specified, defaulting to COS instrument"
+        elif instrument is None:
+            instrument = Instrument(lambda_min=lambda_min, 
+                                    lambda_max=lambda_max,
+                                    n_lambda=n_lambda,
+                                    dlambda=dlambda,
+                                    lsf_kernel=lsf_kernel, name="Custom")
+        self.set_instrument(instrument)
+        print "Setting instrument to %s" % self.instrument.name
+
+        AbsorptionSpectrum.__init__(self, 
+                                    self.instrument.lambda_min,
+                                    self.instrument.lambda_max,
+                                    self.instrument.n_lambda)
         # Load a line list by default if one is provided
         self.load_line_list(line_list)
 
@@ -57,7 +74,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                     "qso_background_COS_HST.txt")
 
         data = np.loadtxt(filename)
-        qso_lambda = data[:, 0]
+        qso_lambda = YTArray(data[:, 0], 'angstrom')
         qso_lambda += qso_lambda * redshift
         qso_flux = data[:, 1]
 
@@ -80,7 +97,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                     "mw_foreground_COS.txt")
 
         data = np.loadtxt(filename)
-        MW_lambda = data[:, 0]
+        MW_lambda = YTArray(data[:, 0], 'angstrom')
         MW_flux = data[:, 1]
 
         index = np.digitize(self.lambda_bins, MW_lambda)
@@ -117,21 +134,28 @@ class SpectrumGenerator(AbsorptionSpectrum):
                out=out)
         return out
 
-    def apply_lsf(self, instrument, flux_field=None):
-        instruments = {"COS":"avg_COS.txt"}
-        if flux_field is None:
-            flux_field = self.flux_field
-        if instrument in instruments:
-            lsf_filename = os.path.join(os.path.dirname(__file__), "..", "data",
-                                        "lsf_kernels", instruments[instrument])
-            lsf_file = open(lsf_filename, 'r')
-            lsf_kernel = []
-            for line in lsf_file:
-                lsf_kernel.append(float(line.split()[1]))
-            self.flux_field = np.convolve(lsf_kernel,flux_field,'same')
-            lsf_file.close()
+    def apply_lsf(self, function=None, width=None, filename=None):
+        """
+        Apply the LSF to the flux_field of the spectrum.
+        If an instrument already supplies a valid filename and no keywords
+        are supplied, it is used by default.  Otherwise, the user can 
+        specify a filename of a user-defined kernel or a function+width
+        for a kernel.  Valid functions are: "boxcar" and "gaussian".
+        """
+        # if nothing is specified, then use the Instrument-defined kernel
+        if function is None and width is None and filename is None:
+            if self.instrument.lsf_kernel is None:
+                raise RuntimeError("To apply a line spread function, you "
+                                   "must specify one or use an instrument "
+                                   "where one is defined.")
+            else:
+                print "Applying default line spread function for %s." % \
+                       self.instrument.name
+                lsf = LSF(filename=self.instrument.lsf_kernel)
         else:
-            raise RuntimeError("You have not chosen a valid instrument for your LSF.")
+            print "Applying specified line spread function."
+            lsf = LSF(function=function, width=width, filename=filename)
+        self.flux_field = np.convolve(lsf.kernel,self.flux_field,'same')
 
     def load_spectrum(self, filename=None):
         if not filename.endswith(".h5"):
@@ -153,8 +177,9 @@ class SpectrumGenerator(AbsorptionSpectrum):
                 filename = os.path.join(os.path.dirname(__file__), "..", 
                                         "data", "line_lists", filename)
             if not os.path.isfile(filename):
-                sys.exit('line_list %s is not found in local directory or in '
-                         'trident/data/line_lists' % (filename.split('/')[-1]))
+                raise RuntimeError("line_list %s is not found in local "
+                                   "directory or in trident/data/line_lists " 
+                                   % (filename.split('/')[-1]))
 
         for line in file(filename).readlines():
             online = line.split()
@@ -174,12 +199,11 @@ class SpectrumGenerator(AbsorptionSpectrum):
             # # This is how things should work if there are H_number_density
             # # fields, but I cam commenting it out for now and we'll just
             # # use the post-processed fields
-            # if "Ly" in list_ion:
-            #     field = "H_number_density" 
-            # else:
-            #     field = "%s_Cloudy_eq_NumberDensity_post" % ion
+            if "Ly" in list_ion:
+                field = "H_number_density" 
+            else:
+                field = "%s_Cloudy_eq_NumberDensity_post" % ion
                 
-            field = "%s_Cloudy_eq_NumberDensity_post" % ion
             self.add_line(label, field, float(wavelength),
                           float(f_value), float(gamma),
                           atomic_mass[element], label_threshold=1e3)
@@ -232,13 +256,130 @@ class SpectrumGenerator(AbsorptionSpectrum):
         self.flux_field = np.ones(self.lambda_bins.size)
         return (self.lambda_bins, self.flux_field)
 
-def plot_spectrum(wavelength, flux, filename):
+    def set_instrument(self, instrument):
+        """
+        Sets the appropriate range of wavelengths and binsize for the
+        output spectrum as well as the line spread function. 
+
+        set_instrument accepts either the name of a valid instrument or 
+        a fully specified Instrument object.
+
+        Valid instruments are: %s
+        """ % valid_instruments.keys()
+
+        if isinstance(instrument, str):
+            if instrument not in valid_instruments:
+                raise RuntimeError("set_instrument accepts only Instrument "
+                                   "objects or the names of valid "
+                                   "instruments: ", valid_instruments.keys())
+            self.instrument = valid_instruments[instrument]
+        elif isinstance(instrument, Instrument):
+            self.instrument = instrument
+        else:
+            raise RuntimeError("set_instrument accepts only Instrument "
+                               "objects or the names of valid instruments: ",
+                               valid_instruments.keys())
+
+class Instrument():
+    """
+    An instrument template for specifying a spectrograph/telescope pair
+    """
+    def __init__(self, lambda_min, lambda_max, n_lambda=None,
+                 dlambda=None, lsf_kernel=None, name=None):
+        self.lambda_min = lambda_min
+        self.lambda_max = lambda_max
+        self.lsf_kernel = lsf_kernel
+        if n_lambda is None and dlambda is None:
+            raise RuntimeError("Either n_lambda or dlambda must be set to "
+                               "specify the binsize")
+        elif dlambda is not None:
+            n_lambda = (lambda_max - lambda_min) / dlambda
+        self.n_lambda = n_lambda
+        if name is not None:
+            self.name = name
+
+class LSF():
+    """
+    Line Spread Function class
+
+    The user must define either a filename or a function and a width
+
+    Parameters
+    ----------
+
+    function : string, optional
+        the function defining the LSF kernel.
+        valid functions are "boxcar" or "gaussian"
+
+    width : int, optional
+        the width of the LSF kernel
+
+    filename : string , optional
+        the filename of a textfile for a user-specified kernel. each line
+        in the textfile is the non-normalized flux value of the kernel
+    """
+    def __init__(self, function=None, width=None, filename=None):
+        self.kernel = []
+        # if filename is defined, use it
+        if filename is not None:
+            # Check to see if the file is in the local dir
+            if os.path.isfile(filename):
+                lsf_file = open(filename, 'r')
+            # otherwise use the file in the lsf_kernels dir
+            else:
+                filename2 = os.path.join(os.path.dirname(__file__), "..", 
+                                         "data", "lsf_kernels", filename)
+                if os.path.isfile(filename2):
+                    lsf_file = open(filename2, 'r')
+                else:
+                    sys.exit("filename must be in local directory or in",
+                             "trident/data/lsf_kernels directory")
+            for line in lsf_file:
+                self.kernel.append(float(line.split()[1]))
+            lsf_file.close()
+        elif function is not None and width is not None:                    
+            if function == 'boxcar':
+               self.kernel = np.ones(width) 
+            #XXX Define more functional forms
+            #elif function == 'gaussian':
+            #   self.kernel = np.gaussian(width)
+        else:
+            sys.exit("Either filename OR function+width must be specified.")
+
+def plot_spectrum(wavelength, flux, filename="spectrum.png", 
+                  lambda_min=None, lambda_max=None, title=None, label=None, 
+                  stagger=0.2):
+    """
+    Plot a spectrum or a collection of spectra and save to disk
+
+    Parameters
+    ----------
+    wavelength : array or list of arrays
+        wavelength vals in angstroms
+
+    flux : array or list of arrays
+        relative flux (from 0 to 1)
+
+    filename : string, optional
+
+    title : string, optional
+        title for plot
+
+    label : string or list of strings, optional
+        label for each spectrum to be plotted
+
+    stagger : float, optional
+        if plotting multiple spectra on top of each other, do we stagger them?
+        If None, no.  If set to a float, it is the value in relative flux to
+        stagger each spectrum
+    """
+
     # number of rows and columns
     n_rows = 1
     n_columns = 1
 
     # blank space between edge of figure and active plot area
-    top_buffer = 0.05
+    top_buffer = 0.07
     bottom_buffer = 0.15
     left_buffer = 0.05
     right_buffer = 0.03
@@ -256,26 +397,66 @@ def plot_spectrum(wavelength, flux, filename):
     # create a figure (figsize is in inches)
     pyplot.figure(figsize=(12, 4))
 
-    # loop over all panels
-    for i in range(n_rows * n_columns):
+    # get the row and column number
+    my_row = 0
+    my_column = 0
 
-        # get the row and column number
-        my_row = i / n_columns
-        my_column = i % n_columns
+    # calculate the position of the bottom, left corner of this plot
+    left_side = left_buffer + (my_column * panel_width) + \
+                my_column * hor_buffer
+    top_side = 1.0 - (top_buffer + (my_row * panel_height) + \
+               my_row * vert_buffer)
+    bottom_side = top_side - panel_height
 
-        # calculate the position of the bottom, left corner of this plot
-        left_side = left_buffer + (my_column * panel_width) + \
-          my_column * hor_buffer
-        top_side = 1.0 - (top_buffer + (my_row * panel_height) + \
-                          my_row * vert_buffer)
-        bottom_side = top_side - panel_height
+    # create an axes object on which we will make the plot
+    my_axes = pyplot.axes((left_side, bottom_side, panel_width, panel_height))
 
-        # create an axes object on which we will make the plot
-        my_axes = pyplot.axes((left_side, bottom_side, panel_width, panel_height))
+    # Are we overplotting several spectra?  or just one?
+    if not (isinstance(wavelength, list) and isinstance(flux, list)):
+        wavelengths = [wavelength]
+        fluxs = [flux]
+        if label is not None: labels = [label] 
+    else:
+        wavelengths = wavelength
+        fluxs = flux
+        if label is not None: labels = label
+        
+    for i, (wavelength, flux) in enumerate(zip(wavelengths, fluxs)):
 
-        my_axes.plot(wavelength, flux)
-        my_axes.xaxis.set_label_text("$\\lambda$ [$\\AA$]")
-        my_axes.yaxis.set_label_text("relative flux")
+        # Do we stagger the fluxes?
+        if stagger is not None:
+            flux -= stagger * i
+
+        # Do we include labels and a legend?
+        if label is not None:
+            my_axes.plot(wavelength, flux, label=labels[i])
+        else:
+            my_axes.plot(wavelength, flux)
+
+        # Do we include a title?
+        if title is not None:
+            pyplot.title(title)
+            
+    if lambda_min is None and lambda_max is None:
         my_axes.set_xlim(wavelength.min(), wavelength.max())
-        my_axes.set_ylim(0, flux.max()*1.1)
-        pyplot.savefig(filename)
+    else:
+        my_axes.set_xlim(lambda_min, lambda_max)
+    my_axes.set_ylim(0, 2)
+    my_axes.xaxis.set_label_text("$\\lambda$ [$\\AA$]")
+    my_axes.yaxis.set_label_text("Relative Flux")
+    if label is not None: pyplot.legend()
+    pyplot.savefig(filename)
+
+# Valid instruments
+valid_instruments = \
+    {'COS' : 
+       Instrument(1150, 1450, dlambda=0.005, lsf_kernel='avg_COS.txt', name='COS'),
+     'HIRES' :
+       Instrument(1200, 1400, dlambda=0.01, name='HIRES'),
+     'UVES' :
+       Instrument(1200, 1400, dlambda=0.01, name='UVES'),
+     'MODS' :
+       Instrument(1200, 1400, dlambda=0.01, name='MODS'),
+     'SDSS' :
+       Instrument(1200, 1400, dlambda=0.01, name='SDSS')}
+

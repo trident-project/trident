@@ -2,3 +2,4 @@ syntax: glob
 *.pyc
 cloudy_ion_balance.h5
 trident.egg-info
+data/ion_balance/*.h5

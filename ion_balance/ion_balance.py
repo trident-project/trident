@@ -64,7 +64,7 @@ class IonBalanceTable(object):
         self.parameters.append(input[atom].attrs['Temperature'])
         input.close()
 
-def add_ion_fraction_field(atom, ion, model, data_file=None):
+def add_ion_fraction_field(atom, ion, model, data_file='default.h5'):
     """
     Add ion fraction field to yt.
     For example, add_ion_fraction_field('O',6) creates a field 
