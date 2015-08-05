@@ -37,14 +37,14 @@ import pdb
 H_mass_fraction = 0.76
 to_nH = H_mass_fraction / mh
 
-# set fractions to 0 for values lower than 1e-7, 
+# set fractions to 0 for values lower than 1e-7,
 # which is what is used in Sutherland & Dopita (1993).
 fraction_zero_point = 1.e-7
 zero_out_value = -30.
 
 table_store = {}
 
-# Reads in comma separated ionization balance tables from 
+# Reads in comma separated ionization balance tables from
 # Sutherland & Dopita (1993).
 class IonBalanceTable(object):
     def __init__(self, filename, atom=None):
@@ -64,19 +64,18 @@ class IonBalanceTable(object):
         self.parameters.append(input[atom].attrs['Temperature'])
         input.close()
 
-def add_ion_fraction_field(atom, ion, model, data_file='default.h5'):
+def add_ion_fraction_field(atom, ion, model):
     """
     Add ion fraction field to yt.
-    For example, add_ion_fraction_field('O',6) creates a field 
+    For example, add_ion_fraction_field('O',6) creates a field
     called O_p5_"model"_ion_fraction.
     """
     atom = string.capitalize(atom)
     field = "%s_p%s_%s_ion_fraction" % (atom, ion-1, model)
 
-    if data_file is None:
-        data_file = "%s_ion_balance.h5" %model
+    data_file = "%s_ion_balance.h5" %model
 
-    tableFile = "%s/tables/%s" % (os.path.dirname(__file__), data_file)
+    tableFile = "%s/../data/ion_balance/%s" % (os.path.dirname(__file__), data_file)
 
     if not table_store.has_key(field):
         ionTable = IonBalanceTable(tableFile, atom)
@@ -89,7 +88,7 @@ def add_ion_fraction_field(atom, ion, model, data_file='default.h5'):
 def add_ion_number_density_field(atom, ion, model, **kwargs):
     """
     Add ion number density field to yt.
-    For example, add_ion_number_density_field('O',6) creates a field 
+    For example, add_ion_number_density_field('O',6) creates a field
     called O_p5_"model"_number_density.
     """
     atom = string.capitalize(atom)
@@ -101,7 +100,7 @@ def add_ion_number_density_field(atom, ion, model, **kwargs):
 def add_ion_density_field(atom, ion, model, **kwargs):
     """
     Add ion mass density field to yt.
-    For example, add_ion_density_field('O',6) creates a field 
+    For example, add_ion_density_field('O',6) creates a field
     called O_p5_"model"_density.
     """
     atom = string.capitalize(atom)
@@ -113,7 +112,7 @@ def add_ion_density_field(atom, ion, model, **kwargs):
 def add_ion_mass_field(atom, ion, model, **kwargs):
     """
     Add ion mass fields (g and Msun) to yt.
-    For example, add_ion_density_field('O',6) creates a field 
+    For example, add_ion_density_field('O',6) creates a field
     called O_p5_"model"_mass.
     """
     atom = string.capitalize(atom)
@@ -141,7 +140,7 @@ def _ion_number_density(field,data):
     if atom == 'H' or atom == 'He':
         field = solarAbundance[atom] * data[fractionField] * \
                 data['density']
-    else:    
+    else:
         field = data.ds.quan(solarAbundance[atom], "1.0/Zsun") * \
                 data[fractionField] * data['metallicity'] * \
                 data['density']
@@ -179,7 +178,7 @@ def _ion_fraction_field(field,data):
         ionFraction = table_store[field.name[1]]['fraction']
         t_param = table_store[field.name[1]]['parameters'][0]
         bds = (t_param[0], t_param[-1])
-        
+
         interp = UnilinearFieldInterpolator(ionFraction, bds, 'log_T', truncate=True)
 
     elif n_parameters == 3:
@@ -187,10 +186,10 @@ def _ion_fraction_field(field,data):
         n_param = table_store[field.name[1]]['parameters'][0]
         z_param = table_store[field.name[1]]['parameters'][1]
         t_param = table_store[field.name[1]]['parameters'][2]
-        bds = na.array([n_param[0], n_param[-1], z_param[0], z_param[-1], 
+        bds = na.array([n_param[0], n_param[-1], z_param[0], z_param[-1],
                     t_param[0], t_param[-1]])
 
-        interp = TrilinearFieldInterpolator(ionFraction, bds, 
+        interp = TrilinearFieldInterpolator(ionFraction, bds,
                                             ['log_nH', 'redshift', 'log_T'],
                                             truncate=True)
 
