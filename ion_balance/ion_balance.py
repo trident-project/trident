@@ -64,12 +64,32 @@ class IonBalanceTable(object):
         self.parameters.append(input[atom].attrs['Temperature'])
         input.close()
 
-def add_ion_fraction_field(atom, ion, model):
+def _log_nH(field, data):
+    return na.log10(data['density'] * to_nH)
+
+def _redshift(field, data):
+    return data.ds.current_redshift * \
+        na.ones(data['density'].shape, dtype=data['density'].dtype)
+
+def _log_T(field, data):
+    return na.log10(data['temperature'])
+        
+def add_ion_fraction_field(atom, ion, model, ds):
     """
     Add ion fraction field to yt.
     For example, add_ion_fraction_field('O',6) creates a field
     called O_p5_"model"_ion_fraction.
     """
+
+    if 'log_nH' not in ds.derived_field_list:
+        ds.add_field('log_nH', function=_log_nH, units="")
+
+    if 'redshift' not in ds.derived_field_list:
+        ds.add_field('redshift', function=_redshift, units="")
+
+    if 'log_T' not in ds.derived_field_list:
+        ds.add_field('log_T', function=_log_T, units="")
+    
     atom = string.capitalize(atom)
     field = "%s_p%s_%s_ion_fraction" % (atom, ion-1, model)
 
@@ -83,9 +103,9 @@ def add_ion_fraction_field(atom, ion, model):
                               'parameters': copy.deepcopy(ionTable.parameters)}
         del ionTable
 
-    add_field(field,function=_ion_fraction_field, units="")
+    ds.add_field(field,function=_ion_fraction_field, units="")
 
-def add_ion_number_density_field(atom, ion, model, **kwargs):
+def add_ion_number_density_field(atom, ion, model, ds, **kwargs):
     """
     Add ion number density field to yt.
     For example, add_ion_number_density_field('O',6) creates a field
@@ -93,11 +113,11 @@ def add_ion_number_density_field(atom, ion, model, **kwargs):
     """
     atom = string.capitalize(atom)
     field = "%s_p%s_%s_number_density" % (atom, ion-1, model)
-    add_ion_fraction_field(atom, ion, model, **kwargs)
-    add_field(field,function=_ion_number_density,
+    add_ion_fraction_field(atom, ion, model, ds, **kwargs)
+    ds.add_field(field,function=_ion_number_density,
               units="1.0/cm**3")
 
-def add_ion_density_field(atom, ion, model, **kwargs):
+def add_ion_density_field(atom, ion, model, ds, **kwargs):
     """
     Add ion mass density field to yt.
     For example, add_ion_density_field('O',6) creates a field
@@ -105,11 +125,11 @@ def add_ion_density_field(atom, ion, model, **kwargs):
     """
     atom = string.capitalize(atom)
     field = "%s_p%s_%s_density" % (atom, ion-1, model)
-    add_ion_number_density_field(atom, ion, model, **kwargs)
-    add_field(field,function=_ion_density,
+    add_ion_number_density_field(atom, ion, model, ds, **kwargs)
+    ds.add_field(field,function=_ion_density,
               units="g/cm**3")
 
-def add_ion_mass_field(atom, ion, model, **kwargs):
+def add_ion_mass_field(atom, ion, model, ds, **kwargs):
     """
     Add ion mass fields (g and Msun) to yt.
     For example, add_ion_density_field('O',6) creates a field
@@ -117,25 +137,37 @@ def add_ion_mass_field(atom, ion, model, **kwargs):
     """
     atom = string.capitalize(atom)
     field = "%s_p%s_%s_mass" % (atom, ion-1, model)
-    add_ion_density_field(atom, ion, model, **kwargs)
-    add_field(field,function=_ion_mass, units=r"g")
+    add_ion_density_field(atom, ion, model, ds, **kwargs)
+    ds.add_field(field,function=_ion_mass, units=r"g")
 
 def _ion_mass(field,data):
-    atom = field.name[1].split("_")[0]
-    prefix = field.name[1].split("_mass")[0]
+    if isinstance(field.name, tuple):
+        field_name = field.name[1]
+    else:
+        field_name = field.name
+    atom = field_name.split("_")[0]
+    prefix = field_name.split("_mass")[0]
     densityField = "%s_density" % prefix
     return data[densityField] * data['cell_volume']
 
 def _ion_density(field,data):
-    atom = field.name[1].split("_")[0]
-    prefix = field.name[1].split("_density")[0]
+    if isinstance(field.name, tuple):
+        field_name = field.name[1]
+    else:
+        field_name = field.name
+    atom = field_name.split("_")[0]
+    prefix = field_name.split("_density")[0]
     numberDensityField = "%s_number_density" % prefix
     # the "mh" makes sure that the units work out
     return atomicMass[atom] * data[numberDensityField] * mh
 
 def _ion_number_density(field,data):
-    atom = field.name[1].split("_")[0]
-    prefix = field.name[1].split("_number_density")[0]
+    if isinstance(field.name, tuple):
+        field_name = field.name[1]
+    else:
+        field_name = field.name
+    atom = field_name.split("_")[0]
+    prefix = field_name.split("_number_density")[0]
     fractionField = "%s_ion_fraction" % prefix
     if atom == 'H' or atom == 'He':
         field = solarAbundance[atom] * data[fractionField] * \
@@ -155,37 +187,24 @@ def _ion_number_density(field,data):
     return field * to_nH
 
 def _ion_fraction_field(field,data):
-
-    def _log_nH(field, data):
-        return na.log10(data['density'] * to_nH)
-    if 'log_nH' not in data.ds.derived_field_list:
-        data.ds.add_field('log_nH', function=_log_nH, units="")
-
-    def _redshift(field, data):
-        return data.ds.current_redshift * \
-            na.ones(data['density'].shape, dtype=data['density'].dtype)
-    if 'redshift' not in data.ds.derived_field_list:
-        data.ds.add_field('redshift', function=_redshift, units="")
-
-    def _log_T(field, data):
-        return na.log10(data['temperature'])
-    if 'log_T' not in data.ds.derived_field_list:
-        data.ds.add_field('log_T', function=_log_T, units="")
-
-    n_parameters = len(table_store[field.name[1]]['parameters'])
+    if isinstance(field.name, tuple):
+        field_name = field.name[1]
+    else:
+        field_name = field.name
+    n_parameters = len(table_store[field_name]['parameters'])
 
     if n_parameters == 1:
-        ionFraction = table_store[field.name[1]]['fraction']
-        t_param = table_store[field.name[1]]['parameters'][0]
+        ionFraction = table_store[field_name]['fraction']
+        t_param = table_store[field_name]['parameters'][0]
         bds = (t_param[0], t_param[-1])
 
         interp = UnilinearFieldInterpolator(ionFraction, bds, 'log_T', truncate=True)
 
     elif n_parameters == 3:
-        ionFraction = table_store[field.name[1]]['fraction']
-        n_param = table_store[field.name[1]]['parameters'][0]
-        z_param = table_store[field.name[1]]['parameters'][1]
-        t_param = table_store[field.name[1]]['parameters'][2]
+        ionFraction = table_store[field_name]['fraction']
+        n_param = table_store[field_name]['parameters'][0]
+        z_param = table_store[field_name]['parameters'][1]
+        t_param = table_store[field_name]['parameters'][2]
         bds = na.array([n_param[0], n_param[-1], z_param[0], z_param[-1],
                     t_param[0], t_param[-1]])
 
