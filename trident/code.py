@@ -6,7 +6,7 @@ from yt.analysis_modules.absorption_spectrum.api import \
       AbsorptionSpectrum
 from yt.funcs import mylog, YTArray
 from matplotlib import pyplot
-from ion_balance.ion_balance import *
+from .ion_balance import *
 import sys
 
 atomic_mass = {'H': 1.00794, 'He': 4.002602, 'Li': 6.941,
