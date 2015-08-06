@@ -10,16 +10,6 @@ http://yt-project.org
 # Import all structures from trident.py
 from code import *
 
-# Import modified_ion_balance functions
-from modified_ion_balance.cloudy_ion_balance import \
-    add_Cloudy_ion_number_density_field, \
-    add_Cloudy_ion_density_field, \
-    add_Cloudy_ion_fraction_field
-
-#from modified_ion_balance.modify_light_rays import \
-#    add_ion_fields_to_ray, \
-#    add_ion_fields_to_file
-
 from ion_balance import *
 
 # Import yt's LightRay class
