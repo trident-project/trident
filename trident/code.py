@@ -5,8 +5,9 @@ from yt.analysis_modules.absorption_spectrum.api import \
       AbsorptionSpectrum
 from yt.funcs import mylog, YTArray
 from matplotlib import pyplot
+from ion_balance.ion_balance import *
 import sys
-      
+
 atomic_mass = {'H': 1.00794, 'He': 4.002602, 'Li': 6.941,
                'Be': 9.012182, 'B': 10.811, 'C': 12.0107,
                'N': 14.0067, 'O': 15.9994, 'F': 18.9984032,
@@ -18,13 +19,22 @@ atomic_mass = {'H': 1.00794, 'He': 4.002602, 'Li': 6.941,
                'Mn': 54.938049, 'Fe': 55.845, 'Co': 58.933200,
                'Ni': 58.6934, 'Cu': 63.546, 'Zn': 65.409}
 
+atom_ion_count = {'H': 2, 'He': 3, 'Li': 4,
+                  'Be': 5, 'B': 6, 'C': 6,
+                  'N': 8, 'O': 9, 'F': 10,
+                  'Ne': 11, 'Na': 12, 'Mg': 13,
+                  'Al': 14, 'Si': 15, 'P': 16,
+                  'S': 17, 'Cl': 18, 'Ar': 19,
+                  'K': 20, 'Ca': 21, 'Sc': 22,
+                  'Ti': 23, 'V': 24, 'Cr': 25,
+                  'Mn': 26, 'Fe': 27}
 
 class SpectrumGenerator(AbsorptionSpectrum):
-    def __init__(self, instrument=None, lambda_min=None, lambda_max=None, 
+    def __init__(self, instrument=None, lambda_min=None, lambda_max=None,
                  n_lambda=None, dlambda=None, lsf_kernel=None, line_list=None):
         """
         SpectrumGenerator is a subclass of yt's AbsorptionSpectrum class
-        with additional functionality like line lists, adding spectral 
+        with additional functionality like line lists, adding spectral
         templates, and plotting.
 
         Parameters
@@ -47,7 +57,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
             instrument = 'COS'
             print "No parameters specified, defaulting to COS instrument"
         elif instrument is None:
-            instrument = Instrument(lambda_min=lambda_min, 
+            instrument = Instrument(lambda_min=lambda_min,
                                     lambda_max=lambda_max,
                                     n_lambda=n_lambda,
                                     dlambda=dlambda,
@@ -55,7 +65,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         self.set_instrument(instrument)
         print "Setting instrument to %s" % self.instrument.name
 
-        AbsorptionSpectrum.__init__(self, 
+        AbsorptionSpectrum.__init__(self,
                                     self.instrument.lambda_min,
                                     self.instrument.lambda_max,
                                     self.instrument.n_lambda)
@@ -64,13 +74,13 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
     def _get_qso_spectrum(self, redshift=0.0, filename=None):
         """
-        Read in the composite QSO spectrum and return an interpolated version 
+        Read in the composite QSO spectrum and return an interpolated version
         to fit the desired wavelength interval and binning.
         """
 
         if filename is None:
             filename = os.path.join(os.path.dirname(__file__), "..", "data",
-                                    "spectral_templates", 
+                                    "spectral_templates",
                                     "qso_background_COS_HST.txt")
 
         data = np.loadtxt(filename)
@@ -87,13 +97,13 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
     def _get_milky_way_foreground(self, filename=None):
         """
-        Read in the composite QSO spectrum and return an interpolated version 
+        Read in the composite QSO spectrum and return an interpolated version
         to fit the desired wavelength interval and binning.
         """
 
         if filename is None:
             filename = os.path.join(os.path.dirname(__file__), "..", "data",
-                                    "spectral_templates", 
+                                    "spectral_templates",
                                     "mw_foreground_COS.txt")
 
         data = np.loadtxt(filename)
@@ -138,7 +148,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         """
         Apply the LSF to the flux_field of the spectrum.
         If an instrument already supplies a valid filename and no keywords
-        are supplied, it is used by default.  Otherwise, the user can 
+        are supplied, it is used by default.  Otherwise, the user can
         specify a filename of a user-defined kernel or a function+width
         for a kernel.  Valid functions are: "boxcar" and "gaussian".
         """
@@ -164,21 +174,21 @@ class SpectrumGenerator(AbsorptionSpectrum):
         self.lambda_bins = in_file['wavelength'].value
         self.flux_field = in_file['flux'].value
         in_file.close()
-    
+
     def load_line_list(self, filename=None):
         if filename is None:
             filename = os.path.join(os.path.dirname(__file__), "..", "data",
                                     "line_lists",
                                     "Nist_elem_list.txt")
         else:
-            # check to see if file exists, if not, check in 
+            # check to see if file exists, if not, check in
             # trident/data/line_lists
             if not os.path.isfile(filename):
-                filename = os.path.join(os.path.dirname(__file__), "..", 
+                filename = os.path.join(os.path.dirname(__file__), "..",
                                         "data", "line_lists", filename)
             if not os.path.isfile(filename):
                 raise RuntimeError("line_list %s is not found in local "
-                                   "directory or in trident/data/line_lists " 
+                                   "directory or in trident/data/line_lists "
                                    % (filename.split('/')[-1]))
 
         for line in file(filename).readlines():
@@ -194,16 +204,16 @@ class SpectrumGenerator(AbsorptionSpectrum):
                 ion = ion[:ion.find("*")]
             element = ion[:2]
             if element[1].isupper():
-                element = element[:1]        
+                element = element[:1]
 
             # # This is how things should work if there are H_number_density
             # # fields, but I cam commenting it out for now and we'll just
             # # use the post-processed fields
             if "Ly" in list_ion:
-                field = "H_number_density" 
+                field = "H_number_density"
             else:
                 field = "%s_Cloudy_eq_NumberDensity_post" % ion
-                
+
             self.add_line(label, field, float(wavelength),
                           float(f_value), float(gamma),
                           atomic_mass[element], label_threshold=1e3)
@@ -215,7 +225,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         f.write("# wavelength[A] flux rootflux\n")
         for i in xrange(self.lambda_bins.size):
             f.write("%e %e %e\n" % (self.lambda_bins[i],
-                                    self.flux_field[i], 
+                                    self.flux_field[i],
                                     self.flux_field[i]**0.5))
         f.close()
 
@@ -259,9 +269,9 @@ class SpectrumGenerator(AbsorptionSpectrum):
     def set_instrument(self, instrument):
         """
         Sets the appropriate range of wavelengths and binsize for the
-        output spectrum as well as the line spread function. 
+        output spectrum as well as the line spread function.
 
-        set_instrument accepts either the name of a valid instrument or 
+        set_instrument accepts either the name of a valid instrument or
         a fully specified Instrument object.
 
         Valid instruments are: %s
@@ -327,7 +337,7 @@ class LSF():
                 lsf_file = open(filename, 'r')
             # otherwise use the file in the lsf_kernels dir
             else:
-                filename2 = os.path.join(os.path.dirname(__file__), "..", 
+                filename2 = os.path.join(os.path.dirname(__file__), "..",
                                          "data", "lsf_kernels", filename)
                 if os.path.isfile(filename2):
                     lsf_file = open(filename2, 'r')
@@ -337,17 +347,17 @@ class LSF():
             for line in lsf_file:
                 self.kernel.append(float(line.split()[1]))
             lsf_file.close()
-        elif function is not None and width is not None:                    
+        elif function is not None and width is not None:
             if function == 'boxcar':
-               self.kernel = np.ones(width) 
+               self.kernel = np.ones(width)
             #XXX Define more functional forms
             #elif function == 'gaussian':
             #   self.kernel = np.gaussian(width)
         else:
             sys.exit("Either filename OR function+width must be specified.")
 
-def plot_spectrum(wavelength, flux, filename="spectrum.png", 
-                  lambda_min=None, lambda_max=None, title=None, label=None, 
+def plot_spectrum(wavelength, flux, filename="spectrum.png",
+                  lambda_min=None, lambda_max=None, title=None, label=None,
                   stagger=0.2):
     """
     Plot a spectrum or a collection of spectra and save to disk
@@ -383,15 +393,15 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
     bottom_buffer = 0.15
     left_buffer = 0.05
     right_buffer = 0.03
-    
+
     # blank space between plots
     hor_buffer = 0.05
     vert_buffer = 0.05
 
     # calculate the height and width of each panel
-    panel_width = ((1.0 - left_buffer - right_buffer - 
+    panel_width = ((1.0 - left_buffer - right_buffer -
                     ((n_columns-1)*hor_buffer)) / n_columns)
-    panel_height = ((1.0 - top_buffer - bottom_buffer - 
+    panel_height = ((1.0 - top_buffer - bottom_buffer -
                      ((n_rows-1)*vert_buffer)) / n_rows)
 
     # create a figure (figsize is in inches)
@@ -415,12 +425,12 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
     if not (isinstance(wavelength, list) and isinstance(flux, list)):
         wavelengths = [wavelength]
         fluxs = [flux]
-        if label is not None: labels = [label] 
+        if label is not None: labels = [label]
     else:
         wavelengths = wavelength
         fluxs = flux
         if label is not None: labels = label
-        
+
     for i, (wavelength, flux) in enumerate(zip(wavelengths, fluxs)):
 
         # Do we stagger the fluxes?
@@ -436,7 +446,7 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
         # Do we include a title?
         if title is not None:
             pyplot.title(title)
-            
+
     if lambda_min is None and lambda_max is None:
         my_axes.set_xlim(wavelength.min(), wavelength.max())
     else:
@@ -449,7 +459,7 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
 
 # Valid instruments
 valid_instruments = \
-    {'COS' : 
+    {'COS' :
        Instrument(1150, 1450, dlambda=0.005, lsf_kernel='avg_COS.txt', name='COS'),
      'HIRES' :
        Instrument(1200, 1400, dlambda=0.01, name='HIRES'),
@@ -460,3 +470,32 @@ valid_instruments = \
      'SDSS' :
        Instrument(1200, 1400, dlambda=0.01, name='SDSS')}
 
+def add_ion_fields_to_ray(ds, atomic_species, model, verbose=False):
+    """
+    Add ion species fields to a pre-existing LightRay
+
+    Parameters
+    ----------
+    ds : the LightRay dataset to which
+        the ion fields are added
+
+    atomic_species : a list of atomic
+        species for which the ions fields
+        for that species will be added
+
+    model : the desired model for computing
+        ion species fields
+
+    verbose: boolean flag that controls the
+        level of information output to the
+        screen
+    """
+
+    for species in atomic_species:
+        if species in atom_ion_count:
+            for i in range(atom_ion_count[species]):
+                if verbose:
+                    print "Adding %s: %i of %i" %(species, i+1, atom_ion_count[species])
+                add_ion_number_density_field(species, i+1, model, ds)
+        else:
+            raise RuntimeError("The ion count for species '%s' is unknown" %species)
