@@ -91,9 +91,12 @@ def add_ion_fraction_field(atom, ion, model, ds):
         ds.add_field('log_T', function=_log_T, units="")
     
     atom = string.capitalize(atom)
-    field = "%s_p%s_%s_ion_fraction" % (atom, ion-1, model)
+    if ion == 1:
+        field = "%s_ion_fraction" % atom
+    else:
+        field = "%s_p%d_ion_fraction" % (atom, ion-1)
 
-    data_file = "%s_ion_balance.h5" %model
+    data_file = "%s_ion_balance.h5" % model
 
     tableFile = "%s/../data/ion_balance/%s" % (os.path.dirname(__file__), data_file)
 
@@ -112,7 +115,10 @@ def add_ion_number_density_field(atom, ion, model, ds, **kwargs):
     called O_p5_"model"_number_density.
     """
     atom = string.capitalize(atom)
-    field = "%s_p%s_%s_number_density" % (atom, ion-1, model)
+    if ion == 1:
+        field = "%s_number_density" % atom
+    else:
+        field = "%s_p%d_number_density" % (atom, ion-1)
     add_ion_fraction_field(atom, ion, model, ds, **kwargs)
     ds.add_field(field,function=_ion_number_density,
               units="1.0/cm**3")
@@ -124,7 +130,10 @@ def add_ion_density_field(atom, ion, model, ds, **kwargs):
     called O_p5_"model"_density.
     """
     atom = string.capitalize(atom)
-    field = "%s_p%s_%s_density" % (atom, ion-1, model)
+    if ion == 1:
+        field = "%s_density" % atom
+    else:
+        field = "%s_p%d_density" % (atom, ion-1)
     add_ion_number_density_field(atom, ion, model, ds, **kwargs)
     ds.add_field(field,function=_ion_density,
               units="g/cm**3")
@@ -136,7 +145,10 @@ def add_ion_mass_field(atom, ion, model, ds, **kwargs):
     called O_p5_"model"_mass.
     """
     atom = string.capitalize(atom)
-    field = "%s_p%s_%s_mass" % (atom, ion-1, model)
+    if ion == 1:
+        field = "%s_mass" % atom
+    else:
+        field = "%s_p%s_mass" % (atom, ion-1)
     add_ion_density_field(atom, ion, model, ds, **kwargs)
     ds.add_field(field,function=_ion_mass, units=r"g")
 
