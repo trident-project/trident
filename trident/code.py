@@ -1,6 +1,7 @@
 import h5py
 import numpy as np
 import os
+import roman
 from yt.analysis_modules.absorption_spectrum.api import \
       AbsorptionSpectrum
 from yt.funcs import mylog, YTArray
@@ -206,13 +207,15 @@ class SpectrumGenerator(AbsorptionSpectrum):
             if element[1].isupper():
                 element = element[:1]
 
-            # # This is how things should work if there are H_number_density
-            # # fields, but I cam commenting it out for now and we'll just
-            # # use the post-processed fields
             if "Ly" in list_ion:
-                field = "H_number_density"
+                keyword = "H"
             else:
-                field = "%s_Cloudy_eq_NumberDensity_post" % ion
+                ion_number = roman.fromRoman(ion[len(element):])
+                if ion_number == 1:
+                    keyword = element
+                else:
+                    keyword = "%s_p%d" %  (element, (ion_number-1))
+            field = "%s_number_density" % keyword
 
             self.add_line(label, field, float(wavelength),
                           float(f_value), float(gamma),
