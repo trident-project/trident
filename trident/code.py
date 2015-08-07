@@ -2,8 +2,11 @@ import h5py
 import numpy as np
 import os
 import roman
+from ion_balance import \
+    add_ion_number_density_field
+from yt.convenience import load
 from yt.analysis_modules.absorption_spectrum.api import \
-      AbsorptionSpectrum
+    AbsorptionSpectrum
 from yt.funcs import mylog, YTArray
 from matplotlib import pyplot
 from .ion_balance import *
@@ -72,6 +75,33 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                     self.instrument.n_lambda)
         # Load a line list by default if one is provided
         self.load_line_list(line_list)
+
+    def make_spectrum(self, *args, **kwargs):
+        input_ds = args[0]
+        if isinstance(input_ds, str):
+            input_ds = load(input_ds)
+        ad = input_ds.all_data()
+
+        model = None
+        if "model" in kwargs:
+            model = kwargs.pop("model")
+        for line in self.line_list:
+            try:
+                disk_field = ad._determine_fields(line["field_name"])[0]
+            except:
+                if model is None:
+                    raise RuntimeError("No model has been given and field %s is not present." % line["field_name"])
+                if line["field_name"] not in input_ds.derived_field_list:
+                    my_ion = \
+                      line["field_name"][:line["field_name"].find("number_density")]
+                    on_ion = my_ion.split("_")
+                    if on_ion[1]:
+                        my_lev = int(on_ion[1][1:]) + 1
+                    else:
+                        my_lev = 1
+                add_ion_number_density_field(on_ion[0], my_lev, model, input_ds)
+
+        AbsorptionSpectrum.make_spectrum(self, *args, **kwargs)
 
     def _get_qso_spectrum(self, redshift=0.0, filename=None):
         """
