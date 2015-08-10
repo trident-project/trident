@@ -252,46 +252,6 @@ class SpectrumGenerator(AbsorptionSpectrum):
                           atomic_mass[element], label_threshold=1e3)
         mylog.info("Load %d lines from %s." % (len(self.line_list), filename))
 
-    def _write_spectrum_ascii(self, filename):
-        print "Writing spectrum to ascii file: %s." % filename
-        f = open(filename, 'w')
-        f.write("# wavelength[A] flux rootflux\n")
-        for i in xrange(self.lambda_bins.size):
-            f.write("%e %e %e\n" % (self.lambda_bins[i],
-                                    self.flux_field[i],
-                                    self.flux_field[i]**0.5))
-        f.close()
-
-    def _write_spectrum_fits(self, filename):
-        """
-        Write spectrum to a fits file.
-        """
-        try:
-            import pyfits
-        except:
-            print "Could not import the pyfits module.  Please install pyfits."
-            return
-
-        print "Writing spectrum to fits file: %s." % filename
-        col1 = pyfits.Column(name='wavelength', format='E', array=self.lambda_bins)
-        col2 = pyfits.Column(name='flux', format='E', array=self.flux_field)
-        col3 = pyfits.Column(name='rootflux', format='E', array=self.flux_field**0.5)
-        cols = pyfits.ColDefs([col1, col2, col3])
-        tbhdu = pyfits.new_table(cols)
-        tbhdu.writeto(filename, clobber=True)
-
-    def _write_spectrum_hdf5(self, filename):
-        """
-        Write spectrum to an hdf5 file.
-
-        """
-        print "Writing spectrum to hdf5 file: %s." % filename
-        output = h5py.File(filename, 'w')
-        output.create_dataset('wavelength', data=self.lambda_bins)
-        output.create_dataset('flux', data=self.flux_field)
-        output.create_dataset('rootflux', data=self.flux_field**0.5)
-        output.close()
-
     def make_flat_spectrum(self):
         """
         Makes a flat spectrum devoid of any lines.
