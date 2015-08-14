@@ -453,7 +453,7 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
 # Valid instruments
 valid_instruments = \
     {'COS' :
-       Instrument(1150, 1450, dlambda=0.005, lsf_kernel='avg_COS.txt', name='COS'),
+       Instrument(1150, 1450, dlambda=0.01, lsf_kernel='avg_COS.txt', name='COS'),
      'HIRES' :
        Instrument(1200, 1400, dlambda=0.01, name='HIRES'),
      'UVES' :
