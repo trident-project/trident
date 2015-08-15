@@ -78,7 +78,7 @@ def add_ion_fraction_field(atom, ion, model, ds):
     """
     Add ion fraction field to yt.
     For example, add_ion_fraction_field('O',6) creates a field
-    called O_p5_"model"_ion_fraction.
+    called O_p5_ion_fraction.
     """
 
     if 'log_nH' not in ds.derived_field_list:
@@ -96,12 +96,11 @@ def add_ion_fraction_field(atom, ion, model, ds):
     else:
         field = "%s_p%d_ion_fraction" % (atom, ion-1)
 
-    data_file = "%s_ion_balance.h5" % model
-
-    tableFile = "%s/../data/ion_balance/%s" % (os.path.dirname(__file__), data_file)
+    table_dir = os.path.join(os.path.dirname(__file__), '../data/ion_balance')
+    data_file = os.path.join(table_dir, "%s.h5" % model)
 
     if not table_store.has_key(field):
-        ionTable = IonBalanceTable(tableFile, atom)
+        ionTable = IonBalanceTable(data_file, atom)
         table_store[field] = {'fraction': copy.deepcopy(ionTable.ion_fraction[ion-1]),
                               'parameters': copy.deepcopy(ionTable.parameters)}
         del ionTable

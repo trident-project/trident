@@ -82,9 +82,16 @@ class SpectrumGenerator(AbsorptionSpectrum):
             input_ds = load(input_ds)
         ad = input_ds.all_data()
 
-        model = None
         if "model" in kwargs:
             model = kwargs.pop("model")
+        else:
+            table_dir = os.path.join(os.path.dirname(__file__), '../data/ion_balance')
+            filelist = os.listdir(table_dir)
+            ion_files = [i[:-3] for i in filelist if i.endswith('.h5')]
+            if 'hm2012_hr' in ion_files: model = 'hm2012_hr'
+            elif 'hm2012_lr' in ion_files: model = 'hm2012_lr'
+            else: model = ion_files[0]
+
         for line in self.line_list:
             try:
                 disk_field = ad._determine_fields(line["field_name"])[0]
