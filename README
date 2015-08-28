@@ -8,9 +8,10 @@ http://trident-project.org
 http://yt-project.org
 
 
-To install Trident, please make sure yt is installed first.  Then download the
-Trident repository at: http://bitbucket.org/trident-project/trident .  If you
-have mercurial installed, you can do this with:
+To install Trident, please make sure yt is installed first (right now it only 
+works on the tip of yt development branch).  Then download the
+Trident repository at: http://bitbucket.org/trident-project/trident .  
+With mercurial installed, you can do this by:
 
 $ hg clone https://bitbucket.org/trident-project/trident
 
@@ -34,22 +35,16 @@ Low-Res (205MB)
 
 $ wget http://trident-project.org/data/ion_balance/hm2012_lr.h5 data/ion_balance
 
-Then create a symbolic link at default.h5, so trident knows which one is active:
 
-$ ln -s data/ion_balance/hm2012_hr.h5 data/ion_balance/default.h5
-
-
-Now you should be ready to go.  To test your installation, you can go into
-the examples directory and run the working_script.py file.  You will require
-the enzo_cosmology_plus yt public dataset in order for this example to work.
-To get it and test it, run:
+Now you should be ready to go.  To test your installation, you can run our
+working script.  You will require the enzo_cosmology_plus yt public dataset 
+in order for this example to work.  To get it and test it, exit the trident
+source directory into a working directory and run the following:
 
 $ wget http://yt-project.org/data/enzo_cosmology_plus.tar.gz .
 
 $ tar -zxvf enzo_cosmology_plus.tar.gz
 
-$ cp <path/to/trident/repo>/examples/working_script.py enzo_cosmology_plus
-
-$ cd enzo_cosmology_plus
+$ cp <path/to/trident/repo>/examples/working_script.py .
 
 $ python working_script.py
