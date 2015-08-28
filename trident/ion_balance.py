@@ -27,12 +27,12 @@ from yt.fields.local_fields import add_field
 from yt.utilities.linear_interpolators import TrilinearFieldInterpolator, \
                                               UnilinearFieldInterpolator
 from yt.utilities.physical_constants import mh
-import numpy as na
+from yt.funcs import mylog
+import numpy as np
 import string
 import h5py
 import copy
 import os
-import pdb
 
 H_mass_fraction = 0.76
 to_nH = H_mass_fraction / mh
@@ -57,7 +57,7 @@ class IonBalanceTable(object):
         "Read in ion balance table from hdf5."
         input = h5py.File(self.filename, 'r')
         self.ion_fraction = input[atom].value
-        self.ion_fraction[self.ion_fraction < na.log10(fraction_zero_point)] = zero_out_value
+        self.ion_fraction[self.ion_fraction < np.log10(fraction_zero_point)] = zero_out_value
         for par in range(1, len(self.ion_fraction.shape) - 1):
             name = "Parameter%d" % par
             self.parameters.append(input[atom].attrs[name])
@@ -65,14 +65,14 @@ class IonBalanceTable(object):
         input.close()
 
 def _log_nH(field, data):
-    return na.log10(data['density'] * to_nH)
+    return np.log10(data['density'] * to_nH)
 
 def _redshift(field, data):
     return data.ds.current_redshift * \
-        na.ones(data['density'].shape, dtype=data['density'].dtype)
+        np.ones(data['density'].shape, dtype=data['density'].dtype)
 
 def _log_T(field, data):
-    return na.log10(data['temperature'])
+    return np.log10(data['temperature'])
         
 def add_ion_fraction_field(atom, ion, model, ds):
     """
@@ -216,7 +216,7 @@ def _ion_fraction_field(field,data):
         n_param = table_store[field_name]['parameters'][0]
         z_param = table_store[field_name]['parameters'][1]
         t_param = table_store[field_name]['parameters'][2]
-        bds = na.array([n_param[0], n_param[-1], z_param[0], z_param[-1],
+        bds = np.array([n_param[0], n_param[-1], z_param[0], z_param[-1],
                     t_param[0], t_param[-1]])
 
         interp = TrilinearFieldInterpolator(ionFraction, bds,
@@ -226,10 +226,10 @@ def _ion_fraction_field(field,data):
     else:
         raise RuntimeError("This data file format is not supported.")
 
-    fraction = na.power(10, interp(data))
+    fraction = np.power(10, interp(data))
     fraction[fraction <= fraction_zero_point] = 0.0
     if (fraction > 1.0).any():
-        print "WARNING! An ion fraction greater than 1 was calculated.  This is wrong!"
+        mylog.warning("An ion fraction greater than 1 was calculated.  This is wrong!")
     return fraction
 
 # Taken from Cloudy documentation.
