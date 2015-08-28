@@ -90,14 +90,13 @@ class SpectrumGenerator(AbsorptionSpectrum):
             ion_files = [i[:-3] for i in filelist if i.endswith('.h5')]
             if 'hm2012_hr' in ion_files: model = 'hm2012_hr'
             elif 'hm2012_lr' in ion_files: model = 'hm2012_lr'
+            elif 'hm2012' in ion_files: model = 'hm2012'
             else: model = ion_files[0]
 
         for line in self.line_list:
             try:
                 disk_field = ad._determine_fields(line["field_name"])[0]
             except:
-                if model is None:
-                    raise RuntimeError("No model has been given and field %s is not present." % line["field_name"])
                 if line["field_name"] not in input_ds.derived_field_list:
                     my_ion = \
                       line["field_name"][:line["field_name"].find("number_density")]
