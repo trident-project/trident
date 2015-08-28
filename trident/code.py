@@ -59,7 +59,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         """
         if instrument is None and lambda_min is None:
             instrument = 'COS'
-            print "No parameters specified, defaulting to COS instrument"
+            mylog.info("No parameters specified, defaulting to COS instrument.")
         elif instrument is None:
             instrument = Instrument(lambda_min=lambda_min,
                                     lambda_max=lambda_max,
@@ -67,7 +67,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                     dlambda=dlambda,
                                     lsf_kernel=lsf_kernel, name="Custom")
         self.set_instrument(instrument)
-        print "Setting instrument to %s" % self.instrument.name
+        mylog.info("Setting instrument to %s" % self.instrument.name)
 
         AbsorptionSpectrum.__init__(self,
                                     self.instrument.lambda_min,
@@ -196,11 +196,11 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                    "must specify one or use an instrument "
                                    "where one is defined.")
             else:
-                print "Applying default line spread function for %s." % \
-                       self.instrument.name
+                mylog.info("Applying default line spread function for %s." % \
+                       self.instrument.name)
                 lsf = LSF(filename=self.instrument.lsf_kernel)
         else:
-            print "Applying specified line spread function."
+            mylog.info("Applying specified line spread function.")
             lsf = LSF(function=function, width=width, filename=filename)
         self.flux_field = np.convolve(lsf.kernel,self.flux_field,'same')
 
@@ -494,7 +494,7 @@ def add_ion_fields_to_ray(ds, atomic_species, model, verbose=False):
         if species in atom_ion_count:
             for i in range(atom_ion_count[species]):
                 if verbose:
-                    print "Adding %s: %i of %i" %(species, i+1, atom_ion_count[species])
+                    mylog.info("Adding %s: %i of %i" %(species, i+1, atom_ion_count[species]))
                 add_ion_number_density_field(species, i+1, model, ds)
         else:
             raise RuntimeError("The ion count for species '%s' is unknown" %species)
