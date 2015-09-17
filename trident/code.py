@@ -356,7 +356,8 @@ class LSF():
             sys.exit("Either filename OR function+width must be specified.")
 
 def plot_spectrum(wavelength, flux, filename="spectrum.png",
-                  lambda_min=None, lambda_max=None, title=None, label=None,
+                  lambda_limits=None, flux_limits=None, 
+                  title=None, label=None,
                   stagger=0.2):
     """
     Plot a spectrum or a collection of spectra and save to disk
@@ -430,6 +431,9 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
         fluxs = flux
         if label is not None: labels = label
 
+    # A running maximum of flux for use in ylim scaling in final plot
+    max_flux = 0.
+
     for i, (wavelength, flux) in enumerate(zip(wavelengths, fluxs)):
 
         # Do we stagger the fluxes?
@@ -446,11 +450,17 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
         if title is not None:
             pyplot.title(title)
 
-    if lambda_min is None and lambda_max is None:
-        my_axes.set_xlim(wavelength.min(), wavelength.max())
-    else:
-        my_axes.set_xlim(lambda_min, lambda_max)
-    my_axes.set_ylim(0, 2)
+        new_max_flux = np.max(flux)
+        if new_max_flux > max_flux: 
+            max_flux = new_max_flux
+
+    if lambda_limits is None:
+        lambda_limits = (wavelength.min(), wavelength.max())
+    my_axes.set_xlim(lambda_limits[0], lambda_limits[1])
+
+    if flux_limits is None:
+        flux_limits = (0, 1.1*max_flux)
+    my_axes.set_ylim(flux_limits[0], flux_limits[1])
     my_axes.xaxis.set_label_text("$\\lambda$ [$\\AA$]")
     my_axes.yaxis.set_label_text("Relative Flux")
     if label is not None: pyplot.legend()
