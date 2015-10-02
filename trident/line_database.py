@@ -1,3 +1,5 @@
+import roman
+
 class Line:
     """An individual atomic transition identified uniquely by element, 
     ionic state, wavelength, gamma, oscillator strength, and identifier.
@@ -17,8 +19,12 @@ class Line:
     gamma : float
         The gamma of the transition in Hertz
 
-    oscillator strength : float
+    f_value: float
         The oscillator strength of the transition
+
+    field : string, optional
+        The default yt field name associated with the ion responsible for 
+        this line
 
     identifier : string, optional
         An optional identifier for the transition
@@ -31,15 +37,27 @@ class Line:
     >>> HI = Line('H', 'I', 1215.67, 469860000, 0.41641, 'Lya')
     
     """
-    def __init__(self, element, ion_state, wavelength, gamma, oscillator, 
-                 identifier=None):
+    def __init__(self, element, ion_state, wavelength, gamma, f_value, 
+                 field=None, identifier=None):
         self.element = element
         self.ion = ion
         self.wavelength = wavelength
         self.gamma = gamma
-        self.oscillator = oscillator
-        self.name = element+ion_state+'_%d' % round(wavelength, 0)
+        self.f_value = f_value
+        self.name = element+ion_state+' %d' % round(wavelength, 0)
+        if identifier is None:
+            identifier = self.name
         self.identifier = identifier
+
+        # Automatically populate the field if not defined
+        if field is None:
+            ion_number = roman.fromRoman(ion)
+                if ion_number == 1:
+                    keyword = element
+                else:
+                    keyword = "%s_p%d" %  (element, (ion_number-1))
+            field = "%s_number_density" % keyword
+        self.field = field
 
 class LineDatabase:
     """
@@ -48,8 +66,16 @@ class LineDatabase:
     """
     def __init__(input_file=None):
         self.lines = []
+        self.input_file = input_file
         if input_file is not None:
             self.load_line_list_from_file(input_file)
+
+    def add_line(self, element, ion_state, wavelength, gamma, 
+                 f_value, field=None, identifier=None):
+        """
+        """
+        self.lines.append(Line(element, ion_state, wavelength, gamma, 
+                               f_value, field, identifier))
 
     def load_line_list_from_file(self, filename):
         # check to see if file exists in cwd, if not, check in
@@ -75,17 +101,25 @@ class LineDatabase:
                 identifier = online[5]
             except:
                 identifier = None
-            self.lines.append(Line(element, ion_state, wavelength, gamma, 
-                                   f_value, identifier))
+            self.add_line(element, ion_state, wavelength, gamma, f_value, 
+                          identifier=identifier)
+            
+    def parse_subset(subsets):
+        """
+        ["C", "CII", "CII 1402", "HI"]
+        """
+        subset = []
+        for val in subsets:
+            element = None
+            ion = None
+            line = None
+            if " " in val:
+                val = val.split()
+            else:
+                val = [val]
+            if len(val[0]) == 1:
+                element = val
+                
 
-            
-            
-#    def parse_subset():
-#        return list
-#        mylog.info("Load %d lines from %s." % (len(self.line_list), filename))
-#            ion_number = roman.fromRoman(ion_state)
-#                if ion_number == 1:
-#                    keyword = element
-#                else:
-#                    keyword = "%s_p%d" %  (element, (ion_number-1))
-#            field = "%s_number_density" % keyword
+        mylog.info("Loading %d lines from %s." % (len(self.line_list), self.input_file))
+        return subset
