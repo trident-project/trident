@@ -64,6 +64,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
         based on its density, temperature, and metallicity.  The format of this
         file should be... <THIS NEEDS TO BE FINISHED>
 
+        < IN GENERAL THESE DOCS ARE INCOMPLETE >
+
         """
         if instrument is None and lambda_min is None:
             instrument = 'COS'
