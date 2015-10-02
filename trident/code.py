@@ -246,52 +246,6 @@ class SpectrumGenerator(AbsorptionSpectrum):
         self.flux_field = in_file['flux'].value
         in_file.close()
 
-    def load_line_list(self, filename=None):
-        if filename is None:
-            filename = os.path.join(os.path.dirname(__file__), "..", "data",
-                                    "line_lists",
-                                    "Nist_elem_list.txt")
-        else:
-            # check to see if file exists, if not, check in
-            # trident/data/line_lists
-            if not os.path.isfile(filename):
-                filename = os.path.join(os.path.dirname(__file__), "..",
-                                        "data", "line_lists", filename)
-            if not os.path.isfile(filename):
-                raise RuntimeError("line_list %s is not found in local "
-                                   "directory or in trident/data/line_lists "
-                                   % (filename.split('/')[-1]))
-
-        for line in file(filename).readlines():
-            online = line.split()
-            if line.startswith("#") or "--" in line or len(online) != 4: continue
-            list_ion, wavelength, gamma, f_value = online
-            label = list_ion
-            ion = list_ion
-            if "Ly" in list_ion:
-                ion = "HI"
-                label = "HI %s" % list_ion
-            if "*" in ion:
-                ion = ion[:ion.find("*")]
-            element = ion[:2]
-            if element[1].isupper():
-                element = element[:1]
-
-            if "Ly" in list_ion:
-                keyword = "H"
-            else:
-                ion_number = roman.fromRoman(ion[len(element):])
-                if ion_number == 1:
-                    keyword = element
-                else:
-                    keyword = "%s_p%d" %  (element, (ion_number-1))
-            field = "%s_number_density" % keyword
-
-            self.add_line(label, field, float(wavelength),
-                          float(f_value), float(gamma),
-                          atomic_mass[element], label_threshold=1e3)
-        mylog.info("Load %d lines from %s." % (len(self.line_list), filename))
-
     def make_flat_spectrum(self):
         """
         Makes a flat spectrum devoid of any lines.
