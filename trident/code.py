@@ -36,7 +36,7 @@ atom_ion_count = {'H': 2, 'He': 3, 'Li': 4,
 class SpectrumGenerator(AbsorptionSpectrum):
     def __init__(self, instrument=None, lambda_min=None, lambda_max=None,
                  n_lambda=None, dlambda=None, lsf_kernel=None, 
-                 line_database=None, ionization_table=None):
+                 line_database='lines.txt', ionization_table=None):
         """
         SpectrumGenerator is a subclass of yt's AbsorptionSpectrum class
         with additional functionality like line lists, adding spectral
@@ -107,7 +107,6 @@ class SpectrumGenerator(AbsorptionSpectrum):
                 ionization_table = ion_files[0]
             self.ionization_table = os.path.join(os.path.dirname(__file__), "..",
                                                  "data", "ion_balance", ionization_table)
-
 
     def make_spectrum(self, *args, lines=None, **kwargs):
         input_ds = args[0]
