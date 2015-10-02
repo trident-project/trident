@@ -35,7 +35,8 @@ atom_ion_count = {'H': 2, 'He': 3, 'Li': 4,
 
 class SpectrumGenerator(AbsorptionSpectrum):
     def __init__(self, instrument=None, lambda_min=None, lambda_max=None,
-                 n_lambda=None, dlambda=None, lsf_kernel=None, line_list=None):
+                 n_lambda=None, dlambda=None, lsf_kernel=None, 
+                 line_database=None, ionization_table=None):
         """
         SpectrumGenerator is a subclass of yt's AbsorptionSpectrum class
         with additional functionality like line lists, adding spectral
@@ -50,11 +51,18 @@ class SpectrumGenerator(AbsorptionSpectrum):
         n_lambda : int
         The number of wavelength bins in the spectrum
 
-        line_list : string, optional
-        A text file listing the various lines to deposit in the spectrum.
-        File is 4 tab-delimited columns of name (e.g. MgII), wavelength in
-        angstroms, gamma of transition, and f-value of transition.  See
-        example datasets in trident/data/line_lists for examples.
+        line_database : string, optional
+        A text file listing the various lines to insert into the line database.
+        The line database provides a list of all possible lines that could
+        be added to the spectrum. The file should 4 tab-delimited columns of
+        name (e.g. MgII), wavelength in angstroms, gamma of transition, and
+        f-value of transition.  See example datasets in trident/data/line_lists
+        for examples.
+
+        ionization_table: hdf5 file, optional
+        An HDF5 file used for computing the ionization fraction of the gas
+        based on its density, temperature, and metallicity.  The format of this
+        file should be... <THIS NEEDS TO BE FINISHED>
 
         """
         if instrument is None and lambda_min is None:
@@ -73,39 +81,65 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                     self.instrument.lambda_min,
                                     self.instrument.lambda_max,
                                     self.instrument.n_lambda)
-        # Load a line list by default if one is provided
-        self.load_line_list(line_list)
+        
+        # instantiate the LineDatabase
+        self.line_database = LineDatabase(line_database)
 
-    def make_spectrum(self, *args, **kwargs):
+        # store the ionization table in the SpectrumGenerator object
+        if ionization_table is not None:
+            # figure out where the user-specified files lives
+            if not os.path.isfile(ionization_table):
+                ionization_table = os.path.join(os.path.dirname(__file__), "..",
+                                                "data", "ion_balance", filename)
+            if not os.path.isfile(ionization_table):
+                raise RuntimeError("ionization_table %s is not found in local "
+                                   "directory or in trident/data/ion_balance "
+                                   % (filename.split('/')[-1]))
+            self.ionization_table = ionization_table
+        else:
+            table_dir = os.path.join(os.path.dirname(__file__), '../data/ion_balance')
+            filelist = os.listdir(table_dir)
+            ion_files = [i for i in filelist if i.endswith('.h5')]
+            if 'hm2012_hr.h5' in ion_files: ionization_table = 'hm2012_hr.h5'
+            elif 'hm2012_lr.h5' in ion_files: ionization_table = 'hm2012_lr.h5'
+            else:
+                mylog.info("No ionization file specified, using %s" %ion_files[0])
+                ionization_table = ion_files[0]
+            self.ionization_table = os.path.join(os.path.dirname(__file__), "..",
+                                                 "data", "ion_balance", ionization_table)
+
+
+    def make_spectrum(self, *args, lines=None, **kwargs):
         input_ds = args[0]
         if isinstance(input_ds, str):
             input_ds = load(input_ds)
         ad = input_ds.all_data()
 
-        if "model" in kwargs:
-            model = kwargs.pop("model")
-        else:
-            table_dir = os.path.join(os.path.dirname(__file__), '../data/ion_balance')
-            filelist = os.listdir(table_dir)
-            ion_files = [i[:-3] for i in filelist if i.endswith('.h5')]
-            if 'hm2012_hr' in ion_files: model = 'hm2012_hr'
-            elif 'hm2012_lr' in ion_files: model = 'hm2012_lr'
-            elif 'hm2012' in ion_files: model = 'hm2012'
-            else: model = ion_files[0]
-
-        for line in self.line_list:
+        active_lines = self.line_database.parse_subset(lines)
+        
+        # Make sure we've produced all the necessary
+        # derived fields if they aren't native to the data
+        for line in active_lines:
             try:
-                disk_field = ad._determine_fields(line["field_name"])[0]
+                disk_field = ad._determine_fields(line.field)[0]
             except:
-                if line["field_name"] not in input_ds.derived_field_list:
+                if line.field not in input_ds.derived_field_list:
                     my_ion = \
-                      line["field_name"][:line["field_name"].find("number_density")]
+                      line.field[:line.field.find("number_density")]
                     on_ion = my_ion.split("_")
                     if on_ion[1]:
                         my_lev = int(on_ion[1][1:]) + 1
                     else:
                         my_lev = 1
-                add_ion_number_density_field(on_ion[0], my_lev, model, input_ds)
+                add_ion_number_density_field(on_ion[0], my_lev,
+                                             self.ionization_table,
+                                             input_ds)
+            self.add_line(line.identifier, line.field,
+                          float(line.wavelength),
+                          float(line.f_value),
+                          float(line.gamma),
+                          atomic_mass[line.element],
+                          label_threshold=1e3)
 
         AbsorptionSpectrum.make_spectrum(self, *args, **kwargs)
 
