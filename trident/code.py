@@ -61,8 +61,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
         ionization_table: hdf5 file, optional
         An HDF5 file used for computing the ionization fraction of the gas
-        based on its density, temperature, and metallicity.  The format of this
-        file should be... <THIS NEEDS TO BE FINISHED>
+        based on its density, temperature, metallicity, and redshift.
+        The format of this file should be... <THIS NEEDS TO BE FINISHED>
 
         < IN GENERAL THESE DOCS ARE INCOMPLETE >
 
