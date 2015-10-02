@@ -276,6 +276,12 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                "objects or the names of valid instruments: ",
                                valid_instruments.keys())
 
+    def add_line_to_database(self, element, ion_state, wavelength, gamma, 
+                             f_value, field=None, identifier=None):
+        self.line_database.add_line(element, ion_state, wavelength,
+                                    gamma, f_value, field=field,
+                                    identifier=identifier)
+
 class Instrument():
     """
     An instrument template for specifying a spectrograph/telescope pair
