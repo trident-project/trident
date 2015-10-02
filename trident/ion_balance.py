@@ -74,7 +74,7 @@ def _redshift(field, data):
 def _log_T(field, data):
     return np.log10(data['temperature'])
         
-def add_ion_fraction_field(atom, ion, model, ds):
+def add_ion_fraction_field(atom, ion, ionization_table, ds):
     """
     Add ion fraction field to yt.
     For example, add_ion_fraction_field('O',6) creates a field
@@ -96,8 +96,7 @@ def add_ion_fraction_field(atom, ion, model, ds):
     else:
         field = "%s_p%d_ion_fraction" % (atom, ion-1)
 
-    table_dir = os.path.join(os.path.dirname(__file__), '../data/ion_balance')
-    data_file = os.path.join(table_dir, "%s.h5" % model)
+    data_file = ionization_table
 
     if not table_store.has_key(field):
         ionTable = IonBalanceTable(data_file, atom)
@@ -107,48 +106,48 @@ def add_ion_fraction_field(atom, ion, model, ds):
 
     ds.add_field(field,function=_ion_fraction_field, units="")
 
-def add_ion_number_density_field(atom, ion, model, ds, **kwargs):
+def add_ion_number_density_field(atom, ion, ionization_table, ds, **kwargs):
     """
     Add ion number density field to yt.
     For example, add_ion_number_density_field('O',6) creates a field
-    called O_p5_"model"_number_density.
+    called O_p5_number_density.
     """
     atom = string.capitalize(atom)
     if ion == 1:
         field = "%s_number_density" % atom
     else:
         field = "%s_p%d_number_density" % (atom, ion-1)
-    add_ion_fraction_field(atom, ion, model, ds, **kwargs)
+    add_ion_fraction_field(atom, ion, ionization_table, ds, **kwargs)
     ds.add_field(field,function=_ion_number_density,
               units="1.0/cm**3")
 
-def add_ion_density_field(atom, ion, model, ds, **kwargs):
+def add_ion_density_field(atom, ion, ionization_table, ds, **kwargs):
     """
     Add ion mass density field to yt.
     For example, add_ion_density_field('O',6) creates a field
-    called O_p5_"model"_density.
+    called O_p5_density.
     """
     atom = string.capitalize(atom)
     if ion == 1:
         field = "%s_density" % atom
     else:
         field = "%s_p%d_density" % (atom, ion-1)
-    add_ion_number_density_field(atom, ion, model, ds, **kwargs)
+    add_ion_number_density_field(atom, ion, ionization_table, ds, **kwargs)
     ds.add_field(field,function=_ion_density,
               units="g/cm**3")
 
-def add_ion_mass_field(atom, ion, model, ds, **kwargs):
+def add_ion_mass_field(atom, ion, ionization_table, ds, **kwargs):
     """
     Add ion mass fields (g and Msun) to yt.
     For example, add_ion_density_field('O',6) creates a field
-    called O_p5_"model"_mass.
+    called O_p5_mass.
     """
     atom = string.capitalize(atom)
     if ion == 1:
         field = "%s_mass" % atom
     else:
         field = "%s_p%s_mass" % (atom, ion-1)
-    add_ion_density_field(atom, ion, model, ds, **kwargs)
+    add_ion_density_field(atom, ion, ionization_table, ds, **kwargs)
     ds.add_field(field,function=_ion_mass, units=r"g")
 
 def _ion_mass(field,data):
