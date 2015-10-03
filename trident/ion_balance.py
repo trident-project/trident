@@ -1,26 +1,5 @@
 """
 Ion fraction fields using Cloudy data.
-
-Author: Britton Smith <brittons@origins.colorado.edu>
-Affiliation: CASA/University of CO, Boulder
-Homepage: http://yt.enzotools.org/
-License:
-  Copyright (C) 2008-2009 Britton Smith.  All Rights Reserved.
-
-  This file is part of yt.
-
-  yt is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 3 of the License, or
-  (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from yt.fields.local_fields import add_field
@@ -266,7 +245,7 @@ def _ion_density(field,data):
     prefix = field_name.split("_density")[0]
     numberDensityField = "%s_number_density" % prefix
     # the "mh" makes sure that the units work out
-    return atomicMass[atom] * data[numberDensityField] * mh
+    return atomic_mass[atom] * data[numberDensityField] * mh
 
 def _ion_number_density(field,data):
     if isinstance(field.name, tuple):
@@ -277,10 +256,10 @@ def _ion_number_density(field,data):
     prefix = field_name.split("_number_density")[0]
     fractionField = "%s_ion_fraction" % prefix
     if atom == 'H' or atom == 'He':
-        field = solarAbundance[atom] * data[fractionField] * \
+        field = solar_abundance[atom] * data[fractionField] * \
                 data['density']
     else:
-        field = data.ds.quan(solarAbundance[atom], "1.0/Zsun") * \
+        field = data.ds.quan(solar_abundance[atom], "1.0/Zsun") * \
                 data[fractionField] * data['metallicity'] * \
                 data['density']
                 # Ideally we'd like to use the following line
@@ -329,24 +308,24 @@ def _ion_fraction_field(field,data):
     return fraction
 
 # Taken from Cloudy documentation.
-solarAbundance = {'H':1.00e+00,'He':1.00e-01,'Li':2.04e-09,
-                  'Be':2.63e-11,'B':6.17e-10,'C':2.45e-04,
-                  'N':8.51e-05,'O':4.90e-04,'F':3.02e-08,
-                  'Ne':1.00e-04,'Na':2.14e-06,'Mg':3.47e-05,
-                  'Al':2.95e-06,'Si':3.47e-05,'P':3.20e-07,
-                  'S':1.84e-05,'Cl':1.91e-07,'Ar':2.51e-06,
-                  'K':1.32e-07,'Ca':2.29e-06,'Sc':1.48e-09,
-                  'Ti':1.05e-07,'V':1.00e-08,'Cr':4.68e-07,
-                  'Mn':2.88e-07,'Fe':2.82e-05,'Co':8.32e-08,
-                  'Ni':1.78e-06,'Cu':1.62e-08,'Zn':3.98e-08}
+solar_abundance = {'H':1.00e+00,'He':1.00e-01,'Li':2.04e-09,
+                   'Be':2.63e-11,'B':6.17e-10,'C':2.45e-04,
+                   'N':8.51e-05,'O':4.90e-04,'F':3.02e-08,
+                   'Ne':1.00e-04,'Na':2.14e-06,'Mg':3.47e-05,
+                   'Al':2.95e-06,'Si':3.47e-05,'P':3.20e-07,
+                   'S':1.84e-05,'Cl':1.91e-07,'Ar':2.51e-06,
+                   'K':1.32e-07,'Ca':2.29e-06,'Sc':1.48e-09,
+                   'Ti':1.05e-07,'V':1.00e-08,'Cr':4.68e-07,
+                   'Mn':2.88e-07,'Fe':2.82e-05,'Co':8.32e-08,
+                   'Ni':1.78e-06,'Cu':1.62e-08,'Zn':3.98e-08}
 
-atomicMass = {'H': 1.00794, 'He': 4.002602, 'Li': 6.941,
-              'Be': 9.012182, 'B': 10.811, 'C': 12.0107,
-              'N': 14.0067, 'O': 15.9994, 'F': 18.9984032,
-              'Ne': 20.1797, 'Na': 22.989770, 'Mg': 24.3050,
-              'Al': 26.981538, 'Si': 28.0855, 'P': 30.973761,
-              'S': 32.065, 'Cl': 35.453, 'Ar': 39.948,
-              'K': 39.0983, 'Ca': 40.078, 'Sc': 44.955910,
-              'Ti': 47.867, 'V': 50.9415, 'Cr': 51.9961,
-              'Mn': 54.938049, 'Fe': 55.845, 'Co': 58.933200,
-              'Ni': 58.6934, 'Cu': 63.546, 'Zn': 65.409}
+atomic_mass = {'H': 1.00794, 'He': 4.002602, 'Li': 6.941,
+               'Be': 9.012182, 'B': 10.811, 'C': 12.0107,
+               'N': 14.0067, 'O': 15.9994, 'F': 18.9984032,
+               'Ne': 20.1797, 'Na': 22.989770, 'Mg': 24.3050,
+               'Al': 26.981538, 'Si': 28.0855, 'P': 30.973761,
+               'S': 32.065, 'Cl': 35.453, 'Ar': 39.948,
+               'K': 39.0983, 'Ca': 40.078, 'Sc': 44.955910,
+               'Ti': 47.867, 'V': 50.9415, 'Cr': 51.9961,
+               'Mn': 54.938049, 'Fe': 55.845, 'Co': 58.933200,
+               'Ni': 58.6934, 'Cu': 63.546, 'Zn': 65.409}
