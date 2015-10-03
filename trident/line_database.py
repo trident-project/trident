@@ -3,6 +3,14 @@ from sets import Set
 import os
 from yt.funcs import mylog
 
+def uniquify(list): 
+   # order preserving method for reducing duplicates in a list
+   checked = []
+   for val in list:
+       if val not in checked:
+           checked.append(val)
+   return checked
+
 class Line:
     """An individual atomic transition identified uniquely by element, 
     ionic state, wavelength, gamma, oscillator strength, and identifier.
@@ -177,5 +185,5 @@ class LineDatabase:
                                (val[0], val[1], val[2]))
             
         # Get rid of duplicates in subset and re-sort
-        self.lines_subset = sorted(list(Set(self.lines_subset)))
+        self.lines_subset = uniquify(self.lines_subset)
         return self.lines_subset
