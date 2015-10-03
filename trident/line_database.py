@@ -76,6 +76,8 @@ class LineDatabase:
         self.input_file = input_file
         if input_file is not None:
             self.load_line_list_from_file(input_file)
+        else:
+            self.input_file = 'Manually Entered'
 
     def add_line(self, element, ion_state, wavelength, gamma, 
                  f_value, field=None, identifier=None):
@@ -145,6 +147,12 @@ class LineDatabase:
         """
         ["C", "C II", "C II 1402", "H I"]
         """
+        # if no subsets specified, then use all lines available
+        if subsets is None:
+            self.lines_subset = self.lines_all
+            mylog.info("Using all %d available lines in '%s'." % \
+                       (len(self.lines_all), self.input_file))
+            return self.lines_subset
         if isinstance(subsets, basestring): 
             subsets = [subsets]
         for val in subsets:

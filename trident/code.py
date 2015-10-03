@@ -11,6 +11,7 @@ from yt.funcs import mylog, YTArray
 from matplotlib import pyplot
 from .ion_balance import *
 import sys
+from line_database import LineDatabase
 
 atomic_mass = {'H': 1.00794, 'He': 4.002602, 'Li': 6.941,
                'Be': 9.012182, 'B': 10.811, 'C': 12.0107,
