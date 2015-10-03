@@ -1,4 +1,5 @@
 import roman
+from sets import Set
 
 class Line:
     """An individual atomic transition identified uniquely by element, 
@@ -65,7 +66,8 @@ class LineDatabase:
     by the SpectrumGenerator.
     """
     def __init__(input_file=None):
-        self.lines = []
+        self.lines_all = []
+        self.lines_subset = []
         self.input_file = input_file
         if input_file is not None:
             self.load_line_list_from_file(input_file)
@@ -74,8 +76,8 @@ class LineDatabase:
                  f_value, field=None, identifier=None):
         """
         """
-        self.lines.append(Line(element, ion_state, wavelength, gamma, 
-                               f_value, field, identifier))
+        self.lines_all.append(Line(element, ion_state, wavelength, gamma, 
+                                   f_value, field, identifier))
 
     def load_line_list_from_file(self, filename):
         # check to see if file exists in cwd, if not, check in
@@ -104,22 +106,53 @@ class LineDatabase:
             self.add_line(element, ion_state, wavelength, gamma, f_value, 
                           identifier=identifier)
             
+    def select_lines(element=None, ion_state=None, wavelength=None, identifier=None):
+        """
+        """
+        counter = 0
+        for line in self.lines_all:
+            if ion_state is None and wavelength is None:
+                if line.element == element:
+                    self.lines_subset.append(line)
+                    counter += 1
+            elif wavelength is None:
+                if line.element == element and line.ion_state == ion_state:
+                    self.lines_subset.append(line)
+                    counter += 1
+            elif identifier is None:
+                if line.element == element and line.ion_state == ion_state \
+                   and line.wavelength == wavelength:
+                    self.lines_subset.append(line)
+                    counter += 1
+            else:
+                if line.identifier == identifier:
+                    self.lines_subset.append(line)
+                    counter += 1
+        return counter            
+                
     def parse_subset(subsets):
         """
-        ["C", "CII", "CII 1402", "HI"]
+        ["C", "C II", "C II 1402", "H I"]
         """
-        subset = []
         for val in subsets:
-            element = None
-            ion = None
-            line = None
-            if " " in val:
-                val = val.split()
-            else:
-                val = [val]
+            val = val.split()
+            if len(val) == 0:
+                # add all lines associated with an element
+                counter = self.select_lines_by_element(val[0])
+                if counter == 0:
+                    mylog.info("No lines found in subset '%s'." % val[0])
             if len(val[0]) == 1:
-                element = val
-                
-
-        mylog.info("Loading %d lines from %s." % (len(self.line_list), self.input_file))
-        return subset
+                # add all lines associated with an ion
+                self.select_lines_by_ion(val[0], val[1])
+                if counter == 0:
+                    mylog.info("No lines found in subset '%s %s'." % \
+                               (val[0], val[1]))
+            if len(val[0]) == 2:
+                # add only one line
+                self.select_line(val[0], val[1], val[2])
+                    mylog.info("No lines found in subset '%s %s %s'." % \
+                               (val[0], val[1], val[2]))
+            
+        # Get rid of duplicates in subset
+        line_subset = list(Set(line_subset))
+        return line_subset
