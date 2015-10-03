@@ -111,8 +111,42 @@ class SpectrumGenerator(AbsorptionSpectrum):
             self.ionization_table = os.path.join(os.path.dirname(__file__), "..",
                                                  "data", "ion_balance", ionization_table)
 
-    def make_spectrum(self, *args, lines=None, **kwargs):
-        input_ds = args[0]
+    def make_spectrum(self, input_ds, lines=None,
+                      output_file="spectrum.h5",
+                      use_peculiar_velocity=True, njobs="auto"):
+        """
+        Make spectrum from ray data using the line list.
+
+        Parameters
+        ----------
+
+        input_ds : string or dataset
+           path to input ray data or a loaded ray dataset
+        lines: FILL THIS IN
+        output_file : optional, string
+           path for output file.  File formats are chosen based on the
+           filename extension.  ``.h5`` for hdf5, ``.fits`` for fits,
+           and everything else is ASCII.
+           Default: "spectrum.h5"
+        use_peculiar_velocity : optional, bool
+           if True, include line of sight velocity for shifting lines.
+           Default: True
+        njobs : optional, int or "auto"
+           the number of process groups into which the loop over
+           absorption lines will be divided.  If set to -1, each
+           absorption line will be deposited by exactly one processor.
+           If njobs is set to a value less than the total number of
+           available processors (N), then the deposition of an
+           individual line will be parallelized over (N / njobs)
+           processors.  If set to "auto", it will first try to
+           parallelize over the list of lines and only parallelize
+           the line deposition if there are more processors than
+           lines.  This is the optimal strategy for parallelizing
+           spectrum generation.
+           Default: "auto"
+        """
+
+
         if isinstance(input_ds, str):
             input_ds = load(input_ds)
         ad = input_ds.all_data()
@@ -143,7 +177,11 @@ class SpectrumGenerator(AbsorptionSpectrum):
                           atomic_mass[line.element],
                           label_threshold=1e3)
 
-        AbsorptionSpectrum.make_spectrum(self, *args, **kwargs)
+        AbsorptionSpectrum.make_spectrum(self, input_ds,
+                                         output_file=output_file,
+                                         line_list_file=None,
+                                         use_peculiar_velocity=use_peculiar_velocity,
+                                         njobs=njobs)
 
     def _get_qso_spectrum(self, redshift=0.0, filename=None):
         """
