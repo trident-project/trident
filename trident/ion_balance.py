@@ -45,9 +45,30 @@ zero_out_value = -30.
 table_store = {}
 
 # Reads in comma separated ionization balance tables from
-# Sutherland & Dopita (1993).
+# Sutherland & Dopita (1993). << Is this accurate any more?
 class IonBalanceTable(object):
     def __init__(self, filename, atom=None):
+        """
+        IonBalanceTable class
+
+        Used to load in an HDF5 file that contains
+        the values for the ionization state of the gas
+        as a function of density, temperature, and
+        metallcity for a given atom
+
+        Parameters
+        ----------
+
+        filename: string
+        Name of the HDF5 file that contains the
+        ionization data
+
+        atom: string
+        The atomic species you want to create
+        an IonBalanceTable for
+
+        """
+
         self.filename = filename
         self.parameters = []
         self.ion_fraction = []
@@ -74,11 +95,30 @@ def _redshift(field, data):
 def _log_T(field, data):
     return np.log10(data['temperature'])
         
-def add_ion_fraction_field(atom, ion, model, ds):
+def add_ion_fraction_field(atom, ion, ionization_table, ds):
     """
-    Add ion fraction field to yt.
+    Add ion fraction field to a yt data object.
+    
     For example, add_ion_fraction_field('O',6) creates a field
     called O_p5_ion_fraction.
+
+    Parameters
+    ----------
+    atom: string
+    Atomic species for desired ion fraction
+
+    ion: integer
+    Ion number for desired species
+
+    ionization_table: string
+    Path to an appropriately formatted HDF5 table
+    that can be used to compute the ion fraction
+    as a function of density, temperature, metallicity,
+    and redshift.
+
+    ds: yt dataset object
+    This is the object to which the ion fraction field
+    will be added.
     """
 
     if 'log_nH' not in ds.derived_field_list:
@@ -96,8 +136,7 @@ def add_ion_fraction_field(atom, ion, model, ds):
     else:
         field = "%s_p%d_ion_fraction" % (atom, ion-1)
 
-    table_dir = os.path.join(os.path.dirname(__file__), '../data/ion_balance')
-    data_file = os.path.join(table_dir, "%s.h5" % model)
+    data_file = ionization_table
 
     if not table_store.has_key(field):
         ionTable = IonBalanceTable(data_file, atom)
@@ -107,48 +146,105 @@ def add_ion_fraction_field(atom, ion, model, ds):
 
     ds.add_field(field,function=_ion_fraction_field, units="")
 
-def add_ion_number_density_field(atom, ion, model, ds, **kwargs):
+def add_ion_number_density_field(atom, ion, ionization_table, ds, **kwargs):
     """
-    Add ion number density field to yt.
+    Add ion number density field to a yt data object.
+
     For example, add_ion_number_density_field('O',6) creates a field
-    called O_p5_"model"_number_density.
+    called O_p5_number_density.
+
+    Parameters
+    ----------
+    atom: string
+    Atomic species for desired ion fraction
+
+    ion: integer
+    Ion number for desired species
+
+    ionization_table: string
+    Path to an appropriately formatted HDF5 table
+    that can be used to compute the ion fraction
+    as a function of density, temperature, metallicity,
+    and redshift.
+
+    ds: yt dataset object
+    This is the object to which the ion fraction field
+    will be added.
     """
     atom = string.capitalize(atom)
     if ion == 1:
         field = "%s_number_density" % atom
     else:
         field = "%s_p%d_number_density" % (atom, ion-1)
-    add_ion_fraction_field(atom, ion, model, ds, **kwargs)
+    add_ion_fraction_field(atom, ion, ionization_table, ds, **kwargs)
     ds.add_field(field,function=_ion_number_density,
               units="1.0/cm**3")
 
-def add_ion_density_field(atom, ion, model, ds, **kwargs):
+def add_ion_density_field(atom, ion, ionization_table, ds, **kwargs):
     """
-    Add ion mass density field to yt.
+    Add ion mass density field to a yt data object.
+
     For example, add_ion_density_field('O',6) creates a field
-    called O_p5_"model"_density.
+    called O_p5_density.
+
+    Parameters
+    ----------
+    atom: string
+    Atomic species for desired ion fraction
+
+    ion: integer
+    Ion number for desired species
+
+    ionization_table: string
+    Path to an appropriately formatted HDF5 table
+    that can be used to compute the ion fraction
+    as a function of density, temperature, metallicity,
+    and redshift.
+
+    ds: yt dataset object
+    This is the object to which the ion fraction field
+    will be added.
     """
     atom = string.capitalize(atom)
     if ion == 1:
         field = "%s_density" % atom
     else:
         field = "%s_p%d_density" % (atom, ion-1)
-    add_ion_number_density_field(atom, ion, model, ds, **kwargs)
+    add_ion_number_density_field(atom, ion, ionization_table, ds, **kwargs)
     ds.add_field(field,function=_ion_density,
               units="g/cm**3")
 
-def add_ion_mass_field(atom, ion, model, ds, **kwargs):
+def add_ion_mass_field(atom, ion, ionization_table, ds, **kwargs):
     """
-    Add ion mass fields (g and Msun) to yt.
+    Add ion mass fields (g and Msun) to a yt data object.
+
     For example, add_ion_density_field('O',6) creates a field
-    called O_p5_"model"_mass.
+    called O_p5_mass.
+
+    Parameters
+    ----------
+    atom: string
+    Atomic species for desired ion fraction
+
+    ion: integer
+    Ion number for desired species
+
+    ionization_table: string
+    Path to an appropriately formatted HDF5 table
+    that can be used to compute the ion fraction
+    as a function of density, temperature, metallicity,
+    and redshift.
+
+    ds: yt dataset object
+    This is the object to which the ion fraction field
+    will be added.
     """
     atom = string.capitalize(atom)
     if ion == 1:
         field = "%s_mass" % atom
     else:
         field = "%s_p%s_mass" % (atom, ion-1)
-    add_ion_density_field(atom, ion, model, ds, **kwargs)
+    add_ion_density_field(atom, ion, ionization_table, ds, **kwargs)
     ds.add_field(field,function=_ion_mass, units=r"g")
 
 def _ion_mass(field,data):
