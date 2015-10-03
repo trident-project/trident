@@ -29,7 +29,7 @@ else:
 # Now use the ray object to actually generate an absorption spectrum
 # Use the settings (spectral range, LSF, and spectral resolution for COS)
 sg = tri.SpectrumGenerator('COS')
-sg.make_spectrum(ray, output_file="spec.h5", line_list_file=None)
+sg.make_spectrum(ray, output_file="spec.h5")
 
 # "Final" spectrum with added quasar, MW background, and gaussian noise 
 # (SNR=30)

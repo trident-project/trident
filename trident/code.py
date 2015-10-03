@@ -91,9 +91,10 @@ class SpectrumGenerator(AbsorptionSpectrum):
         # store the ionization table in the SpectrumGenerator object
         if ionization_table is not None:
             # figure out where the user-specified files lives
+            ionization_table = os.path.join(os.path.dirname(__file__), "..",
+                                            "data", "ion_balance", filename)
             if not os.path.isfile(ionization_table):
-                ionization_table = os.path.join(os.path.dirname(__file__), "..",
-                                                "data", "ion_balance", filename)
+                ionization_table = filename
             if not os.path.isfile(ionization_table):
                 raise RuntimeError("ionization_table %s is not found in local "
                                    "directory or in trident/data/ion_balance "

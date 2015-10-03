@@ -87,11 +87,12 @@ class LineDatabase:
                                    f_value, field, identifier))
 
     def load_line_list_from_file(self, filename):
-        # check to see if file exists in cwd, if not, check in
-        # trident/data/line_lists
+        # check to see if file exists in trident/data/line_lists
+        # if not, look in cwd
+        filename = os.path.join(os.path.dirname(__file__), "..",
+                                "data", "line_lists", filename)
         if not os.path.isfile(filename):
-            filename = os.path.join(os.path.dirname(__file__), "..",
-                                    "data", "line_lists", filename)
+            filename = filename.split('/')[-1]
         if not os.path.isfile(filename):
             raise RuntimeError("line_list %s is not found in local "
                                "directory or in trident/data/line_lists "
