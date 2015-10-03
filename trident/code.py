@@ -2,37 +2,18 @@ import h5py
 import numpy as np
 import os
 import roman
-from ion_balance import \
-    add_ion_number_density_field
+import sys
 from yt.convenience import load
-from yt.analysis_modules.absorption_spectrum.api import \
-    AbsorptionSpectrum
+from yt.analysis_modules.absorption_spectrum.api import AbsorptionSpectrum
 from yt.funcs import mylog, YTArray
 from matplotlib import pyplot
-from .ion_balance import *
-import sys
+from ion_balance import \
+    add_ion_fraction_field, \
+    add_ion_number_density_field, \
+    add_ion_density_field, \
+    add_ion_mass_field, \
+    atomic_mass
 from line_database import LineDatabase
-
-atomic_mass = {'H': 1.00794, 'He': 4.002602, 'Li': 6.941,
-               'Be': 9.012182, 'B': 10.811, 'C': 12.0107,
-               'N': 14.0067, 'O': 15.9994, 'F': 18.9984032,
-               'Ne': 20.1797, 'Na': 22.989770, 'Mg': 24.3050,
-               'Al': 26.981538, 'Si': 28.0855, 'P': 30.973761,
-               'S': 32.065, 'Cl': 35.453, 'Ar': 39.948,
-               'K': 39.0983, 'Ca': 40.078, 'Sc': 44.955910,
-               'Ti': 47.867, 'V': 50.9415, 'Cr': 51.9961,
-               'Mn': 54.938049, 'Fe': 55.845, 'Co': 58.933200,
-               'Ni': 58.6934, 'Cu': 63.546, 'Zn': 65.409}
-
-atom_ion_count = {'H': 2, 'He': 3, 'Li': 4,
-                  'Be': 5, 'B': 6, 'C': 6,
-                  'N': 8, 'O': 9, 'F': 10,
-                  'Ne': 11, 'Na': 12, 'Mg': 13,
-                  'Al': 14, 'Si': 15, 'P': 16,
-                  'S': 17, 'Cl': 18, 'Ar': 19,
-                  'K': 20, 'Ca': 21, 'Sc': 22,
-                  'Ti': 23, 'V': 24, 'Cr': 25,
-                  'Mn': 26, 'Fe': 27}
 
 class SpectrumGenerator(AbsorptionSpectrum):
     def __init__(self, instrument=None, lambda_min=None, lambda_max=None,
