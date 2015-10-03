@@ -513,33 +513,3 @@ valid_instruments = \
        Instrument(1200, 1400, dlambda=0.01, name='MODS'),
      'SDSS' :
        Instrument(1200, 1400, dlambda=0.01, name='SDSS')}
-
-def add_ion_fields_to_ray(ds, atomic_species, model, verbose=False):
-    """
-    Add ion species fields to a pre-existing LightRay
-
-    Parameters
-    ----------
-    ds : the LightRay dataset to which
-        the ion fields are added
-
-    atomic_species : a list of atomic
-        species for which the ions fields
-        for that species will be added
-
-    model : the desired model for computing
-        ion species fields
-
-    verbose: boolean flag that controls the
-        level of information output to the
-        screen
-    """
-
-    for species in atomic_species:
-        if species in atom_ion_count:
-            for i in range(atom_ion_count[species]):
-                if verbose:
-                    mylog.info("Adding %s: %i of %i" %(species, i+1, atom_ion_count[species]))
-                add_ion_number_density_field(species, i+1, model, ds)
-        else:
-            raise RuntimeError("The ion count for species '%s' is unknown" %species)
