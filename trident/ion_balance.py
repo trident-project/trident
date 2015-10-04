@@ -2,6 +2,8 @@
 Ion fraction fields using Cloudy data.
 """
 
+from yt.fields.field_detector import \
+    FieldDetector
 from yt.fields.local_fields import add_field
 from yt.utilities.linear_interpolators import TrilinearFieldInterpolator, \
                                               UnilinearFieldInterpolator
@@ -303,8 +305,9 @@ def _ion_fraction_field(field,data):
 
     fraction = np.power(10, interp(data))
     fraction[fraction <= fraction_zero_point] = 0.0
-    if (fraction > 1.0).any():
-        mylog.warning("An ion fraction greater than 1 was calculated.  This is wrong!")
+    if not isinstance(data, FieldDetector) and (fraction > 1.0).any():
+        mylog.warning("An ion fraction greater than 1 was calculated.  " +
+                      "This is wrong!")
     return fraction
 
 # Taken from Cloudy documentation.
