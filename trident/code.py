@@ -318,7 +318,8 @@ class Instrument():
             raise RuntimeError("Either n_lambda or dlambda must be set to "
                                "specify the binsize")
         elif dlambda is not None:
-            n_lambda = (lambda_max - lambda_min) / dlambda
+            # Add 1 to n_lambda to make sure dlambda preserved
+            n_lambda = ((lambda_max - lambda_min) / dlambda) + 1
         self.n_lambda = n_lambda
         if name is not None:
             self.name = name
