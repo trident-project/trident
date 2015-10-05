@@ -479,6 +479,10 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
     my_axes.set_ylim(flux_limits[0], flux_limits[1])
     my_axes.xaxis.set_label_text("$\\lambda$ [$\\AA$]")
     my_axes.yaxis.set_label_text("Relative Flux")
+
+    # Don't let the x-axis switch to offset values for tick labels
+    my_axes.get_xaxis().get_major_formatter().set_useOffset(False)
+
     if label is not None: pyplot.legend()
     pyplot.savefig(filename)
 
