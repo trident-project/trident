@@ -15,6 +15,7 @@ Contents:
 
    Installation.rst
    MakingSpectra.rst
+   Reference.rst
 
 Help
 ----

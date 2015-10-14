@@ -38,7 +38,6 @@ class IonBalanceTable(object):
         metallcity for a given atom
 
         Parameters
-        ----------
 
         filename: string
         Name of the HDF5 file that contains the
@@ -84,7 +83,7 @@ def add_ion_fraction_field(atom, ion, ionization_table, ds):
     called O_p5_ion_fraction.
 
     Parameters
-    ----------
+
     atom: string
     Atomic species for desired ion fraction
 
@@ -135,7 +134,7 @@ def add_ion_number_density_field(atom, ion, ionization_table, ds, **kwargs):
     called O_p5_number_density.
 
     Parameters
-    ----------
+
     atom: string
     Atomic species for desired ion fraction
 
@@ -169,7 +168,7 @@ def add_ion_density_field(atom, ion, ionization_table, ds, **kwargs):
     called O_p5_density.
 
     Parameters
-    ----------
+
     atom: string
     Atomic species for desired ion fraction
 
@@ -203,7 +202,7 @@ def add_ion_mass_field(atom, ion, ionization_table, ds, **kwargs):
     called O_p5_mass.
 
     Parameters
-    ----------
+
     atom: string
     Atomic species for desired ion fraction
 

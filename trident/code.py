@@ -16,39 +16,38 @@ from ion_balance import \
 from line_database import LineDatabase
 
 class SpectrumGenerator(AbsorptionSpectrum):
+    """
+    SpectrumGenerator is a subclass of yt's AbsorptionSpectrum class
+    with additional functionality like line lists, adding spectral
+    templates, and plotting.
+
+    Parameters
+
+    lambda_min, lambda_max : float
+    The wavelength extrema in angstroms
+
+    n_lambda : int
+    The number of wavelength bins in the spectrum
+
+    line_database : string, optional
+    A text file listing the various lines to insert into the line database.
+    The line database provides a list of all possible lines that could
+    be added to the spectrum. The file should 4 tab-delimited columns of
+    name (e.g. MgII), wavelength in angstroms, gamma of transition, and
+    f-value of transition.  See example datasets in trident/data/line_lists
+    for examples.
+
+    ionization_table: hdf5 file, optional
+    An HDF5 file used for computing the ionization fraction of the gas
+    based on its density, temperature, metallicity, and redshift.
+    The format of this file should be... <THIS NEEDS TO BE FINISHED>
+
+    < IN GENERAL THESE DOCS ARE INCOMPLETE >
+
+    """
     def __init__(self, instrument=None, lambda_min=None, lambda_max=None,
                  n_lambda=None, dlambda=None, lsf_kernel=None, 
                  line_database='lines.txt', ionization_table=None):
-        """
-        SpectrumGenerator is a subclass of yt's AbsorptionSpectrum class
-        with additional functionality like line lists, adding spectral
-        templates, and plotting.
-
-        Parameters
-        ----------
-
-        lambda_min, lambda_max : float
-        The wavelength extrema in angstroms
-
-        n_lambda : int
-        The number of wavelength bins in the spectrum
-
-        line_database : string, optional
-        A text file listing the various lines to insert into the line database.
-        The line database provides a list of all possible lines that could
-        be added to the spectrum. The file should 4 tab-delimited columns of
-        name (e.g. MgII), wavelength in angstroms, gamma of transition, and
-        f-value of transition.  See example datasets in trident/data/line_lists
-        for examples.
-
-        ionization_table: hdf5 file, optional
-        An HDF5 file used for computing the ionization fraction of the gas
-        based on its density, temperature, metallicity, and redshift.
-        The format of this file should be... <THIS NEEDS TO BE FINISHED>
-
-        < IN GENERAL THESE DOCS ARE INCOMPLETE >
-
-        """
         if instrument is None and lambda_min is None:
             instrument = 'COS'
             mylog.info("No parameters specified, defaulting to COS instrument.")
@@ -100,14 +99,14 @@ class SpectrumGenerator(AbsorptionSpectrum):
         Make spectrum from ray data using the line list.
 
         Parameters
-        ----------
 
         input_ds : string or dataset
-           path to input ray data or a loaded ray dataset
+            path to input ray data or a loaded ray dataset
         lines: FILL THIS IN
+            some stuff
         output_file : optional, string
            path for output file.  File formats are chosen based on the
-           filename extension.  ``.h5`` for hdf5, ``.fits`` for fits,
+           filename extension.  ".h5" for hdf5, ".fits" for fits,
            and everything else is ASCII.
            Default: "spectrum.h5"
         use_peculiar_velocity : optional, bool
@@ -330,7 +329,6 @@ class LSF():
     The user must define either a filename or a function and a width
 
     Parameters
-    ----------
 
     function : string, optional
         the function defining the LSF kernel.
@@ -379,7 +377,7 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
     Plot a spectrum or a collection of spectra and save to disk
 
     Parameters
-    ----------
+
     wavelength : array or list of arrays
         wavelength vals in angstroms
 
