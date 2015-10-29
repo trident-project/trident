@@ -140,7 +140,7 @@ def add_ion_fraction_field(atom, ion, ionization_table, ds,
                               'parameters': copy.deepcopy(ionTable.parameters)}
         del ionTable
 
-    ds.add_field(field,function=_ion_fraction_field, units="")
+    ds.add_field(("gas", field),function=_ion_fraction_field, units="")
 
 def add_ion_number_density_field(atom, ion, ionization_table, ds,
                                  field_suffix=False, **kwargs):
@@ -179,8 +179,9 @@ def add_ion_number_density_field(atom, ion, ionization_table, ds,
         field = "%s_p%d_number_density" % (atom, ion-1)
     if field_suffix:
         field += "_%s" %ionization_table.split("/")[-1].split(".h5")[0]
-    add_ion_fraction_field(atom, ion, ionization_table, ds, **kwargs)
-    ds.add_field(field,function=_ion_number_density,
+    add_ion_fraction_field(atom, ion, ionization_table, ds,
+                           field_suffix=field_suffix, **kwargs)
+    ds.add_field(("gas", field),function=_ion_number_density,
               units="1.0/cm**3")
 
 def add_ion_density_field(atom, ion, ionization_table, ds,
@@ -220,8 +221,9 @@ def add_ion_density_field(atom, ion, ionization_table, ds,
         field = "%s_p%d_density" % (atom, ion-1)
     if field_suffix:
         field += "_%s" %ionization_table.split("/")[-1].split(".h5")[0]
-    add_ion_number_density_field(atom, ion, ionization_table, ds, **kwargs)
-    ds.add_field(field,function=_ion_density,
+    add_ion_number_density_field(atom, ion, ionization_table, ds,
+                                 field_suffix=field_suffix, **kwargs)
+    ds.add_field(("gas", field),function=_ion_density,
               units="g/cm**3")
 
 def add_ion_mass_field(atom, ion, ionization_table, ds,
@@ -261,8 +263,9 @@ def add_ion_mass_field(atom, ion, ionization_table, ds,
         field = "%s_p%s_mass" % (atom, ion-1)
     if field_suffix:
         field += "_%s" %ionization_table.split("/")[-1].split(".h5")[0]
-    add_ion_density_field(atom, ion, ionization_table, ds, **kwargs)
-    ds.add_field(field,function=_ion_mass, units=r"g")
+    add_ion_density_field(atom, ion, ionization_table, ds,
+                          field_suffix=field_suffix, **kwargs)
+    ds.add_field(("gas", field),function=_ion_mass, units=r"g")
 
 def _ion_mass(field,data):
     if isinstance(field.name, tuple):
@@ -271,7 +274,8 @@ def _ion_mass(field,data):
         field_name = field.name
     atom = field_name.split("_")[0]
     prefix = field_name.split("_mass")[0]
-    densityField = "%s_density" % prefix
+    suffix = field_name.split("_mass")[-1]
+    densityField = "%s_density%s" %(prefix, suffix)
     return data[densityField] * data['cell_volume']
 
 def _ion_density(field,data):
@@ -281,7 +285,8 @@ def _ion_density(field,data):
         field_name = field.name
     atom = field_name.split("_")[0]
     prefix = field_name.split("_density")[0]
-    numberDensityField = "%s_number_density" % prefix
+    suffix = field_name.split("_density")[-1]
+    numberDensityField = "%s_number_density%s" %(prefix, suffix)
     # the "mh" makes sure that the units work out
     return atomic_mass[atom] * data[numberDensityField] * mh
 
@@ -292,7 +297,8 @@ def _ion_number_density(field,data):
         field_name = field.name
     atom = field_name.split("_")[0]
     prefix = field_name.split("_number_density")[0]
-    fractionField = "%s_ion_fraction" % prefix
+    suffix = field_name.split("_number_density")[-1]
+    fractionField = "%s_ion_fraction%s" %(prefix, suffix)
     if atom == 'H' or atom == 'He':
         field = solar_abundance[atom] * data[fractionField] * \
                 data['density']
