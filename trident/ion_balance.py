@@ -83,11 +83,12 @@ def _redshift(field, data):
 
 def _log_T(field, data):
     return np.log10(data['temperature'])
-        
-def add_ion_fraction_field(atom, ion, ionization_table, ds):
+
+def add_ion_fraction_field(atom, ion, ionization_table, ds,
+                           field_suffix=False):
     """
     Add ion fraction field to a yt data object.
-    
+
     For example, add_ion_fraction_field('O',6) creates a field
     called O_p5_ion_fraction.
 
@@ -108,6 +109,10 @@ def add_ion_fraction_field(atom, ion, ionization_table, ds):
     ds: yt dataset object
     This is the object to which the ion fraction field
     will be added.
+
+    field_suffix : boolean
+    Determines whether or not to append a suffix to the field
+    name that indicates what ionization table was used
     """
 
     if 'log_nH' not in ds.derived_field_list:
@@ -118,12 +123,14 @@ def add_ion_fraction_field(atom, ion, ionization_table, ds):
 
     if 'log_T' not in ds.derived_field_list:
         ds.add_field('log_T', function=_log_T, units="")
-    
+
     atom = string.capitalize(atom)
     if ion == 1:
         field = "%s_ion_fraction" % atom
     else:
         field = "%s_p%d_ion_fraction" % (atom, ion-1)
+    if field_suffix:
+        field += "_%s" %ionization_table.split("/")[-1].split(".h5")[0]
 
     data_file = ionization_table
 
@@ -135,7 +142,8 @@ def add_ion_fraction_field(atom, ion, ionization_table, ds):
 
     ds.add_field(field,function=_ion_fraction_field, units="")
 
-def add_ion_number_density_field(atom, ion, ionization_table, ds, **kwargs):
+def add_ion_number_density_field(atom, ion, ionization_table, ds,
+                                 field_suffix=False, **kwargs):
     """
     Add ion number density field to a yt data object.
 
@@ -159,17 +167,24 @@ def add_ion_number_density_field(atom, ion, ionization_table, ds, **kwargs):
     ds: yt dataset object
     This is the object to which the ion fraction field
     will be added.
+
+    field_suffix : boolean
+    Determines whether or not to append a suffix to the field
+    name that indicates what ionization table was used
     """
     atom = string.capitalize(atom)
     if ion == 1:
         field = "%s_number_density" % atom
     else:
         field = "%s_p%d_number_density" % (atom, ion-1)
+    if field_suffix:
+        field += "_%s" %ionization_table.split("/")[-1].split(".h5")[0]
     add_ion_fraction_field(atom, ion, ionization_table, ds, **kwargs)
     ds.add_field(field,function=_ion_number_density,
               units="1.0/cm**3")
 
-def add_ion_density_field(atom, ion, ionization_table, ds, **kwargs):
+def add_ion_density_field(atom, ion, ionization_table, ds,
+                          field_suffix=False, **kwargs):
     """
     Add ion mass density field to a yt data object.
 
@@ -193,17 +208,24 @@ def add_ion_density_field(atom, ion, ionization_table, ds, **kwargs):
     ds: yt dataset object
     This is the object to which the ion fraction field
     will be added.
+
+    field_suffix : boolean
+    Determines whether or not to append a suffix to the field
+    name that indicates what ionization table was used
     """
     atom = string.capitalize(atom)
     if ion == 1:
         field = "%s_density" % atom
     else:
         field = "%s_p%d_density" % (atom, ion-1)
+    if field_suffix:
+        field += "_%s" %ionization_table.split("/")[-1].split(".h5")[0]
     add_ion_number_density_field(atom, ion, ionization_table, ds, **kwargs)
     ds.add_field(field,function=_ion_density,
               units="g/cm**3")
 
-def add_ion_mass_field(atom, ion, ionization_table, ds, **kwargs):
+def add_ion_mass_field(atom, ion, ionization_table, ds,
+                       field_suffix=False, **kwargs):
     """
     Add ion mass fields (g and Msun) to a yt data object.
 
@@ -227,12 +249,18 @@ def add_ion_mass_field(atom, ion, ionization_table, ds, **kwargs):
     ds: yt dataset object
     This is the object to which the ion fraction field
     will be added.
+
+    field_suffix : boolean
+    Determines whether or not to append a suffix to the field
+    name that indicates what ionization table was used
     """
     atom = string.capitalize(atom)
     if ion == 1:
         field = "%s_mass" % atom
     else:
         field = "%s_p%s_mass" % (atom, ion-1)
+    if field_suffix:
+        field += "_%s" %ionization_table.split("/")[-1].split(".h5")[0]
     add_ion_density_field(atom, ion, ionization_table, ds, **kwargs)
     ds.add_field(field,function=_ion_mass, units=r"g")
 
