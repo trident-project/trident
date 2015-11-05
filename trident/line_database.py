@@ -1,9 +1,22 @@
+"""
+Line, LineDatabase class and member functions.
+
+"""
+
+#-----------------------------------------------------------------------------
+# Copyright (c) 2015, Trident Development Team.
+#
+# Distributed under the terms of the Modified BSD License.
+#
+# The full license is in the file COPYING.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
 import roman
 from sets import Set
 import os
 from yt.funcs import mylog
 
-def uniquify(list): 
+def uniquify(list):
    # order preserving method for reducing duplicates in a list
    checked = []
    for val in list:
@@ -12,11 +25,10 @@ def uniquify(list):
    return checked
 
 class Line:
-    """An individual atomic transition identified uniquely by element, 
+    """An individual atomic transition identified uniquely by element,
     ionic state, wavelength, gamma, oscillator strength, and identifier.
 
-    Parameters
-    ----------
+    **Parameters**
 
     element : string
         The element of the transition using element's symbol on periodic table
@@ -34,21 +46,21 @@ class Line:
         The oscillator strength of the transition
 
     field : string, optional
-        The default yt field name associated with the ion responsible for 
+        The default yt field name associated with the ion responsible for
         this line
 
     identifier : string, optional
         An optional identifier for the transition
 
 
-    Example: 
+    Example:
 
     Create a Line object for the neutral hydrogen 1215 Angstroms transition.
 
     >>> HI = Line('H', 'I', 1215.67, 469860000, 0.41641, 'Lya')
-    
+
     """
-    def __init__(self, element, ion_state, wavelength, gamma, f_value, 
+    def __init__(self, element, ion_state, wavelength, gamma, f_value,
                  field=None, identifier=None):
         self.element = element
         self.ion_state = ion_state
@@ -87,11 +99,11 @@ class LineDatabase:
         else:
             self.input_file = 'Manually Entered'
 
-    def add_line(self, element, ion_state, wavelength, gamma, 
+    def add_line(self, element, ion_state, wavelength, gamma,
                  f_value, field=None, identifier=None):
         """
         """
-        self.lines_all.append(Line(element, ion_state, wavelength, gamma, 
+        self.lines_all.append(Line(element, ion_state, wavelength, gamma,
                                    f_value, field, identifier))
 
     def load_line_list_from_file(self, filename):
@@ -119,10 +131,10 @@ class LineDatabase:
                 identifier = " ".join(online[5:])
             else:
                 identifier = None
-            self.add_line(element, ion_state, wavelength, gamma, f_value, 
+            self.add_line(element, ion_state, wavelength, gamma, f_value,
                           identifier=identifier)
-            
-    def select_lines(self, element=None, ion_state=None, wavelength=None, 
+
+    def select_lines(self, element=None, ion_state=None, wavelength=None,
                     identifier=None):
         """
         """
@@ -146,12 +158,12 @@ class LineDatabase:
                     self.lines_subset.append(line)
                     counter += 1
             # only element set; use it to find line
-            else:   
+            else:
                 if line.element == element:
                     self.lines_subset.append(line)
                     counter += 1
-        return counter            
-                
+        return counter
+
     def parse_subset(self, subsets):
         """
         ["C", "C II", "C II 1402", "H I"]
@@ -162,7 +174,7 @@ class LineDatabase:
             mylog.info("Using all %d available lines in '%s'." % \
                        (len(self.lines_all), self.input_file))
             return self.lines_subset
-        if isinstance(subsets, basestring): 
+        if isinstance(subsets, basestring):
             subsets = [subsets]
         for val in subsets:
             # try to add line based on identifier
@@ -183,7 +195,7 @@ class LineDatabase:
                 if self.select_lines(val[0], val[1], val[2]) == 0:
                     mylog.info("No lines found in subset '%s %s %s'." %
                                (val[0], val[1], val[2]))
-            
+
         # Get rid of duplicates in subset and re-sort
         self.lines_subset = uniquify(self.lines_subset)
         return self.lines_subset

@@ -7,6 +7,14 @@ http://trident-project.org
 http://yt-project.org
 """
 
+#-----------------------------------------------------------------------------
+# Copyright (c) 2015, Trident Development Team.
+#
+# Distributed under the terms of the Modified BSD License.
+#
+# The full license is in the file COPYING.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
 # Import all structures from trident.py
 from code import *
 

@@ -1,3 +1,16 @@
+"""
+SpectrumGenerator class and member functions.
+
+"""
+
+#-----------------------------------------------------------------------------
+# Copyright (c) 2015, Trident Development Team.
+#
+# Distributed under the terms of the Modified BSD License.
+#
+# The full license is in the file COPYING.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
 import h5py
 import numpy as np
 import os
@@ -16,39 +29,44 @@ from ion_balance import \
 from line_database import LineDatabase
 
 class SpectrumGenerator(AbsorptionSpectrum):
-    def __init__(self, instrument=None, lambda_min=None, lambda_max=None,
-                 n_lambda=None, dlambda=None, lsf_kernel=None, 
-                 line_database='lines.txt', ionization_table=None):
-        """
-        SpectrumGenerator is a subclass of yt's AbsorptionSpectrum class
-        with additional functionality like line lists, adding spectral
-        templates, and plotting.
+    """
+    SpectrumGenerator is a subclass of yt's AbsorptionSpectrum class
+    with additional functionality like line lists, adding spectral
+    templates, and plotting.
 
-        Parameters
-        ----------
+    **Parameters**
 
-        lambda_min, lambda_max : float
+    lambda_min, lambda_max : int
         The wavelength extrema in angstroms
+        Defaults: None
 
-        n_lambda : int
+    n_lambda : int
         The number of wavelength bins in the spectrum
+        Default: None
 
-        line_database : string, optional
+    dlambda : float
+        The desired wavelength bin width of the spectrum (in angstroms)
+
+    lsf_kernel : string, optional
+        The filename for the LSF kernel
+
+    line_database : string, optional
         A text file listing the various lines to insert into the line database.
         The line database provides a list of all possible lines that could
         be added to the spectrum. The file should 4 tab-delimited columns of
         name (e.g. MgII), wavelength in angstroms, gamma of transition, and
         f-value of transition.  See example datasets in trident/data/line_lists
         for examples.
+        Default: lines.txt
 
-        ionization_table: hdf5 file, optional
+    ionization_table: hdf5 file, optional
         An HDF5 file used for computing the ionization fraction of the gas
         based on its density, temperature, metallicity, and redshift.
         The format of this file should be... <THIS NEEDS TO BE FINISHED>
-
-        < IN GENERAL THESE DOCS ARE INCOMPLETE >
-
-        """
+    """
+    def __init__(self, instrument=None, lambda_min=None, lambda_max=None,
+                 n_lambda=None, dlambda=None, lsf_kernel=None,
+                 line_database='lines.txt', ionization_table=None):
         if instrument is None and lambda_min is None:
             instrument = 'COS'
             mylog.info("No parameters specified, defaulting to COS instrument.")
@@ -65,7 +83,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                     self.instrument.lambda_min,
                                     self.instrument.lambda_max,
                                     self.instrument.n_lambda)
-        
+
         # instantiate the LineDatabase
         self.line_database = LineDatabase(line_database)
 
@@ -99,15 +117,18 @@ class SpectrumGenerator(AbsorptionSpectrum):
         """
         Make spectrum from ray data using the line list.
 
-        Parameters
-        ----------
+        **Parameters**
 
         input_ds : string or dataset
-           path to input ray data or a loaded ray dataset
-        lines: FILL THIS IN
+            path to input ray data or a loaded ray dataset
+        lines: list of strings
+            List of strings that determine which lines will be added
+            to the spectrum.  List can include things like "C", "O VI",
+            or "Mg II ####", where #### would be the integer wavelength
+            value of the desired line.
         output_file : optional, string
            path for output file.  File formats are chosen based on the
-           filename extension.  ``.h5`` for hdf5, ``.fits`` for fits,
+           filename extension.  ".h5" for hdf5, ".fits" for fits,
            and everything else is ASCII.
            Default: "spectrum.h5"
         use_peculiar_velocity : optional, bool
@@ -134,7 +155,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         ad = input_ds.all_data()
 
         active_lines = self.line_database.parse_subset(lines)
-        
+
         # Make sure we've produced all the necessary
         # derived fields if they aren't native to the data
         for line in active_lines:
@@ -214,6 +235,19 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
     def add_milky_way_foreground(self, flux_field=None,
                                  filename=None):
+        """
+        Add a Milky Way foreground flux to the spectrum.
+
+        **Parameters**
+
+        flux_field : optional, array
+            array of flux values to which the Milky Way foreground is applied.
+            Default: None
+        filename : string
+            filename where the Milky Way foreground values used to modify
+            the flux are stored.
+            Default: None
+        """
         if flux_field is None:
             flux_field = self.flux_field
         MW_spectrum = self._get_milky_way_foreground(filename=filename)
@@ -221,6 +255,22 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
     def add_qso_spectrum(self, flux_field=None,
                          redshift=0.0, filename=None):
+        """
+        Add a composite QSO spectrum to the spectrum.
+
+        **Parameters**
+
+        flux_field : optional, array
+            array of flux values to which the Milky Way foreground is applied.
+            Default: None
+        redshift: float
+            redshift value for defining the rest wavelength of the QSO
+            Default: 0.0
+        filename : string
+            filename where the Milky Way foreground values used to modify
+            the flux are stored.
+            Default: None
+        """
         if flux_field is None:
             flux_field = self.flux_field
         qso_spectrum = self._get_qso_spectrum(redshift=redshift,
@@ -228,6 +278,27 @@ class SpectrumGenerator(AbsorptionSpectrum):
         flux_field *= qso_spectrum
 
     def add_gaussian_noise(self, snr, n_bins=None, out=None, seed=None):
+        """
+        Add random gaussian noise to the spectrum.
+
+        **Parameters**
+
+        snr : int
+            The desired signal-to-noise ratio for adding the gaussian noise
+        n_bins: int
+            <I'm not entirely sure what functionality this has>
+            Default: None
+        out : array
+            Array of flux values to which the noise will be added
+            <note from devin: should we rename this something more intuitive?>
+            Default: None
+        seed : optional, int
+            Seed for the random number generator.  This should be used to
+            ensure than the same noise is adding each time the spectrum is
+            regenerated, if desired.
+            Default: None
+
+        """
         np.random.seed(seed)
         if n_bins is None:
             n_bins = self.lambda_bins.size
@@ -244,6 +315,19 @@ class SpectrumGenerator(AbsorptionSpectrum):
         are supplied, it is used by default.  Otherwise, the user can
         specify a filename of a user-defined kernel or a function+width
         for a kernel.  Valid functions are: "boxcar" and "gaussian".
+
+        **Parameters**
+
+        function : string, optional
+            desired functional form for the applied LSF kernel.
+            Valid options are currently "boxcar" or "gaussian"
+            Default: None
+        width : int, optional
+            width of the desired LSF kernel
+            Default: None
+        filename : string, optional
+            The filename of the user-supplied kernel for applying the LSF
+            Default: None
         """
         # if nothing is specified, then use the Instrument-defined kernel
         if function is None and width is None and filename is None:
@@ -261,6 +345,16 @@ class SpectrumGenerator(AbsorptionSpectrum):
         self.flux_field = np.convolve(lsf.kernel,self.flux_field,'same')
 
     def load_spectrum(self, filename=None):
+        """
+        Load a previously generated spectrum.
+
+        **Parameters**
+
+        filename : string
+            The HDF5 file from which the previously generated spectrum
+            should be read.  Note: only HDF5 files can currently be reloaded.
+            Default: None
+        """
         if not filename.endswith(".h5"):
             raise RuntimeError("Only hdf5 format supported for loading spectra.")
         in_file = h5py.File(filename, "r")
@@ -284,6 +378,11 @@ class SpectrumGenerator(AbsorptionSpectrum):
         a fully specified Instrument object.
 
         Valid instruments are: %s
+
+        **Parameters**
+
+        instrument : instrument object
+            The instrument object that should be used to create the spectrum.
         """ % valid_instruments.keys()
 
         if isinstance(instrument, str):
@@ -299,8 +398,37 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                "objects or the names of valid instruments: ",
                                valid_instruments.keys())
 
-    def add_line_to_database(self, element, ion_state, wavelength, gamma, 
+    def add_line_to_database(self, element, ion_state, wavelength, gamma,
                              f_value, field=None, identifier=None):
+        """
+        Adds desired line to the current LineDatabase object.
+
+        **Parameters**
+
+        element : string
+            The element of the transition using element's symbol on periodic table
+
+        ion_state : string
+            The roman numeral representing the ionic state of the transition
+
+        wavelength : float
+            The wavelength of the transition in angstroms
+
+        gamma : float
+            The gamma of the transition in Hertz
+
+        f_value: float
+            The oscillator strength of the transition
+
+        field : string, optional
+            The default yt field name associated with the ion responsible for
+            this line
+            Default: None
+
+        identifier : string, optional
+            An optional identifier for the transition
+            Default: None
+        """
         self.line_database.add_line(element, ion_state, wavelength,
                                     gamma, f_value, field=field,
                                     identifier=identifier)
@@ -308,6 +436,32 @@ class SpectrumGenerator(AbsorptionSpectrum):
 class Instrument():
     """
     An instrument template for specifying a spectrograph/telescope pair
+
+    **Parameters**
+
+    lambda_min : int
+        Minimum desired wavelength for generated spectrum (in angstroms)
+
+    lambda_max : int
+        Maximum desired wavelength for generated spectrum (in angstroms)
+
+    n_lambda : int
+        Number of desired wavelength bins for the spectrum
+        Default: None
+
+    dlambda : float
+        Desired bin width for the spectrum
+        <note from Devin: which one supercedes the others?>
+        Default: None
+
+    lsf_kernel : string
+        The filename for the LSF kernel
+        Default: None
+
+    name : string
+        Name assigned to the Instrument object
+        Default: None
+
     """
     def __init__(self, lambda_min, lambda_max, n_lambda=None,
                  dlambda=None, lsf_kernel=None, name=None):
@@ -331,7 +485,6 @@ class LSF():
     The user must define either a filename or a function and a width
 
     Parameters
-    ----------
 
     function : string, optional
         the function defining the LSF kernel.
@@ -340,7 +493,7 @@ class LSF():
     width : int, optional
         the width of the LSF kernel
 
-    filename : string , optional
+    filename : string, optional
         the filename of a textfile for a user-specified kernel. each line
         in the textfile is the non-normalized flux value of the kernel
     """
@@ -373,14 +526,14 @@ class LSF():
             sys.exit("Either filename OR function+width must be specified.")
 
 def plot_spectrum(wavelength, flux, filename="spectrum.png",
-                  lambda_limits=None, flux_limits=None, 
+                  lambda_limits=None, flux_limits=None,
                   title=None, label=None,
                   stagger=0.2):
     """
     Plot a spectrum or a collection of spectra and save to disk
 
     Parameters
-    ----------
+
     wavelength : array or list of arrays
         wavelength vals in angstroms
 
@@ -468,7 +621,7 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
             pyplot.title(title)
 
         new_max_flux = np.max(flux)
-        if new_max_flux > max_flux: 
+        if new_max_flux > max_flux:
             max_flux = new_max_flux
 
     if lambda_limits is None:
