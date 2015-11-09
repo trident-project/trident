@@ -15,9 +15,6 @@ http://yt-project.org
 # The full license is in the file COPYING.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-# Import all structures from trident.py
-from code import *
-
 from ion_balance import \
     add_ion_fraction_field, \
     add_ion_number_density_field, \
@@ -26,7 +23,20 @@ from ion_balance import \
     solar_abundance, \
     atomic_mass
 
-from line_database import LineDatabase, Line
+from instrument import \
+    Instrument
+
+from line_database import \
+    LineDatabase, \
+    Line
+
+from lsf import \
+    LSF
+
+from spectrum_generator import \
+    SpectrumGenerator, \
+    valid_instruments
 
 # Import yt's LightRay class
-from yt.analysis_modules.cosmological_observation.api import LightRay
+from yt.analysis_modules.cosmological_observation.api import \
+    LightRay
