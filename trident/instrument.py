@@ -18,18 +18,19 @@ class Instrument(object):
     **Parameters**
 
     lambda_min : int
-        Minimum desired wavelength for generated spectrum (in angstroms)
+        Minimum desired wavelength for generated spectrum in angstroms
 
     lambda_max : int
-        Maximum desired wavelength for generated spectrum (in angstroms)
+        Maximum desired wavelength for generated spectrum in angstroms
 
     n_lambda : int
         Number of desired wavelength bins for the spectrum
+        Setting dlambda overrides n_lambda value
         Default: None
 
     dlambda : float
-        Desired bin width for the spectrum
-        <note from Devin: which one supercedes the others?>
+        Desired bin width for the spectrum in angstroms
+        Setting dlambda overrides n_lambda value
         Default: None
 
     lsf_kernel : string
@@ -50,8 +51,13 @@ class Instrument(object):
             raise RuntimeError("Either n_lambda or dlambda must be set to "
                                "specify the binsize")
         elif dlambda is not None:
-            # Add 1 to n_lambda to make sure dlambda preserved
-            n_lambda = ((lambda_max - lambda_min) / dlambda) + 1
+            # adding 1 here to assure we cover full lambda range
+            n_lambda = (lambda_max - lambda_min) / float(dlambda) + 1
         self.n_lambda = n_lambda
+        if dlambda is None:
+            # adding 1 here to assure we cover full lambda range
+            dlambda = (lambda_max - lambda_min) / float(n_lambda - 1)
+        self.dlambda = dlambda
+
         if name is not None:
             self.name = name
