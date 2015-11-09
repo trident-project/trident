@@ -1,5 +1,5 @@
 """
-SpectrumGenerator class and member functions.
+Spectrum plotting functions.
 
 """
 
