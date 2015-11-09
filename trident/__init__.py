@@ -33,6 +33,9 @@ from line_database import \
 from lsf import \
     LSF
 
+from plotting import \
+    plot_spectrum
+
 from spectrum_generator import \
     SpectrumGenerator, \
     valid_instruments

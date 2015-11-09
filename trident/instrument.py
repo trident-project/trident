@@ -11,24 +11,7 @@ Instrument class and member functions.
 # The full license is in the file COPYING.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-import h5py
-import numpy as np
-import os
-import roman
-import sys
-from yt.convenience import load
-from yt.analysis_modules.absorption_spectrum.api import AbsorptionSpectrum
-from yt.funcs import mylog, YTArray
-from matplotlib import pyplot
-from ion_balance import \
-    add_ion_fraction_field, \
-    add_ion_number_density_field, \
-    add_ion_density_field, \
-    add_ion_mass_field, \
-    atomic_mass
-from line_database import LineDatabase
-
-class Instrument():
+class Instrument(object):
     """
     An instrument template for specifying a spectrograph/telescope pair
 

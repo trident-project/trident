@@ -14,19 +14,24 @@ SpectrumGenerator class and member functions.
 import h5py
 import numpy as np
 import os
-import roman
-import sys
-from yt.convenience import load
-from yt.analysis_modules.absorption_spectrum.api import AbsorptionSpectrum
-from yt.funcs import mylog, YTArray
-from matplotlib import pyplot
+
+from yt.analysis_modules.absorption_spectrum.api import \
+    AbsorptionSpectrum
+from yt.convenience import \
+    load
+from yt.funcs import \
+    mylog, \
+    YTArray
+
+from instrument import \
+    Instrument
 from ion_balance import \
-    add_ion_fraction_field, \
     add_ion_number_density_field, \
-    add_ion_density_field, \
-    add_ion_mass_field, \
     atomic_mass
-from line_database import LineDatabase
+from line_database import \
+    LineDatabase
+from lsf import \
+    LSF
 
 # Valid instruments
 valid_instruments = \
