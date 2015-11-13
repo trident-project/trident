@@ -75,19 +75,20 @@ class IonBalanceTable(object):
         input.close()
 
 def _log_nH(field, data):
-    return np.log10(data["gas", "density"] * to_nH)
+    return np.log10(data['density'] * to_nH)
 
 def _redshift(field, data):
     return data.ds.current_redshift * \
-        np.ones(data["gas", "density"].shape, dtype=data["gas", "density"].dtype)
+        np.ones(data['density'].shape, dtype=data['density'].dtype)
 
 def _log_T(field, data):
-    return np.log10(data["gas", "temperature"])
-        
-def add_ion_fraction_field(atom, ion, ionization_table, ds):
+    return np.log10(data['temperature'])
+
+def add_ion_fraction_field(atom, ion, ionization_table, ds,
+                           field_suffix=False):
     """
     Add ion fraction field to a yt data object.
-    
+
     For example, add_ion_fraction_field('O',6) creates a field
     called O_p5_ion_fraction.
 
@@ -108,22 +109,28 @@ def add_ion_fraction_field(atom, ion, ionization_table, ds):
     ds: yt dataset object
     This is the object to which the ion fraction field
     will be added.
+
+    field_suffix : boolean
+    Determines whether or not to append a suffix to the field
+    name that indicates what ionization table was used
     """
 
-    if ("gas", "log_nH") not in ds.derived_field_list:
-        ds.add_field(("gas", "log_nH"), function=_log_nH, units="")
+    if 'log_nH' not in ds.derived_field_list:
+        ds.add_field('log_nH', function=_log_nH, units="")
 
-    if ("gas", "redshift") not in ds.derived_field_list:
-        ds.add_field(("gas", "redshift"), function=_redshift, units="")
+    if 'redshift' not in ds.derived_field_list:
+        ds.add_field('redshift', function=_redshift, units="")
 
-    if ("gas", "log_T") not in ds.derived_field_list:
-        ds.add_field(("gas", "log_T"), function=_log_T, units="")
-    
+    if 'log_T' not in ds.derived_field_list:
+        ds.add_field('log_T', function=_log_T, units="")
+
     atom = string.capitalize(atom)
     if ion == 1:
         field = "%s_ion_fraction" % atom
     else:
         field = "%s_p%d_ion_fraction" % (atom, ion-1)
+    if field_suffix:
+        field += "_%s" %ionization_table.split("/")[-1].split(".h5")[0]
 
     data_file = ionization_table
 
@@ -133,9 +140,10 @@ def add_ion_fraction_field(atom, ion, ionization_table, ds):
                               'parameters': copy.deepcopy(ionTable.parameters)}
         del ionTable
 
-    ds.add_field(field,function=_ion_fraction_field, units="")
+    ds.add_field(("gas", field),function=_ion_fraction_field, units="")
 
-def add_ion_number_density_field(atom, ion, ionization_table, ds, **kwargs):
+def add_ion_number_density_field(atom, ion, ionization_table, ds,
+                                 field_suffix=False, **kwargs):
     """
     Add ion number density field to a yt data object.
 
@@ -159,17 +167,25 @@ def add_ion_number_density_field(atom, ion, ionization_table, ds, **kwargs):
     ds: yt dataset object
     This is the object to which the ion fraction field
     will be added.
+
+    field_suffix : boolean
+    Determines whether or not to append a suffix to the field
+    name that indicates what ionization table was used
     """
     atom = string.capitalize(atom)
     if ion == 1:
         field = "%s_number_density" % atom
     else:
         field = "%s_p%d_number_density" % (atom, ion-1)
-    add_ion_fraction_field(atom, ion, ionization_table, ds, **kwargs)
-    ds.add_field(field,function=_ion_number_density,
+    if field_suffix:
+        field += "_%s" %ionization_table.split("/")[-1].split(".h5")[0]
+    add_ion_fraction_field(atom, ion, ionization_table, ds,
+                           field_suffix=field_suffix, **kwargs)
+    ds.add_field(("gas", field),function=_ion_number_density,
               units="1.0/cm**3")
 
-def add_ion_density_field(atom, ion, ionization_table, ds, **kwargs):
+def add_ion_density_field(atom, ion, ionization_table, ds,
+                          field_suffix=False, **kwargs):
     """
     Add ion mass density field to a yt data object.
 
@@ -193,17 +209,25 @@ def add_ion_density_field(atom, ion, ionization_table, ds, **kwargs):
     ds: yt dataset object
     This is the object to which the ion fraction field
     will be added.
+
+    field_suffix : boolean
+    Determines whether or not to append a suffix to the field
+    name that indicates what ionization table was used
     """
     atom = string.capitalize(atom)
     if ion == 1:
         field = "%s_density" % atom
     else:
         field = "%s_p%d_density" % (atom, ion-1)
-    add_ion_number_density_field(atom, ion, ionization_table, ds, **kwargs)
-    ds.add_field(field,function=_ion_density,
+    if field_suffix:
+        field += "_%s" %ionization_table.split("/")[-1].split(".h5")[0]
+    add_ion_number_density_field(atom, ion, ionization_table, ds,
+                                 field_suffix=field_suffix, **kwargs)
+    ds.add_field(("gas", field),function=_ion_density,
               units="g/cm**3")
 
-def add_ion_mass_field(atom, ion, ionization_table, ds, **kwargs):
+def add_ion_mass_field(atom, ion, ionization_table, ds,
+                       field_suffix=False, **kwargs):
     """
     Add ion mass fields (g and Msun) to a yt data object.
 
@@ -227,14 +251,21 @@ def add_ion_mass_field(atom, ion, ionization_table, ds, **kwargs):
     ds: yt dataset object
     This is the object to which the ion fraction field
     will be added.
+
+    field_suffix : boolean
+    Determines whether or not to append a suffix to the field
+    name that indicates what ionization table was used
     """
     atom = string.capitalize(atom)
     if ion == 1:
         field = "%s_mass" % atom
     else:
         field = "%s_p%s_mass" % (atom, ion-1)
-    add_ion_density_field(atom, ion, ionization_table, ds, **kwargs)
-    ds.add_field(field,function=_ion_mass, units=r"g")
+    if field_suffix:
+        field += "_%s" %ionization_table.split("/")[-1].split(".h5")[0]
+    add_ion_density_field(atom, ion, ionization_table, ds,
+                          field_suffix=field_suffix, **kwargs)
+    ds.add_field(("gas", field),function=_ion_mass, units=r"g")
 
 def _ion_mass(field,data):
     if isinstance(field.name, tuple):
@@ -243,7 +274,8 @@ def _ion_mass(field,data):
         field_name = field.name
     atom = field_name.split("_")[0]
     prefix = field_name.split("_mass")[0]
-    densityField = "%s_density" % prefix
+    suffix = field_name.split("_mass")[-1]
+    densityField = "%s_density%s" %(prefix, suffix)
     return data[densityField] * data['cell_volume']
 
 def _ion_density(field,data):
@@ -253,7 +285,8 @@ def _ion_density(field,data):
         field_name = field.name
     atom = field_name.split("_")[0]
     prefix = field_name.split("_density")[0]
-    numberDensityField = "%s_number_density" % prefix
+    suffix = field_name.split("_density")[-1]
+    numberDensityField = "%s_number_density%s" %(prefix, suffix)
     # the "mh" makes sure that the units work out
     return atomic_mass[atom] * data[numberDensityField] * mh
 
@@ -264,14 +297,15 @@ def _ion_number_density(field,data):
         field_name = field.name
     atom = field_name.split("_")[0]
     prefix = field_name.split("_number_density")[0]
-    fractionField = "%s_ion_fraction" % prefix
+    suffix = field_name.split("_number_density")[-1]
+    fractionField = "%s_ion_fraction%s" %(prefix, suffix)
     if atom == 'H' or atom == 'He':
         field = solar_abundance[atom] * data[fractionField] * \
-                data["gas", "density"]
+                data['density']
     else:
         field = data.ds.quan(solar_abundance[atom], "1.0/Zsun") * \
-                data[fractionField] * data["gas", "metallicity"] * \
-                data["gas", "density"]
+                data[fractionField] * data['metallicity'] * \
+                data['density']
                 # Ideally we'd like to use the following line
                 # but it is very slow to compute.
                 # If we get H_nuclei_density spread up
@@ -305,9 +339,7 @@ def _ion_fraction_field(field,data):
                     t_param[0], t_param[-1]])
 
         interp = TrilinearFieldInterpolator(ionFraction, bds,
-                                            [("gas", "log_nH"),
-                                             ("gas", "redshift"),
-                                             ("gas", "log_T")],
+                                            ['log_nH', 'redshift', 'log_T'],
                                             truncate=True)
 
     else:
