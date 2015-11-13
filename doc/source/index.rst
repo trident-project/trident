@@ -15,6 +15,7 @@ Contents:
 
    Installation.rst
    MakingSpectra.rst
+   AdvancedSpectra.rst
    Reference.rst
 
 Help
@@ -36,4 +37,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
