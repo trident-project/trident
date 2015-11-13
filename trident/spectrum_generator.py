@@ -14,19 +14,37 @@ SpectrumGenerator class and member functions.
 import h5py
 import numpy as np
 import os
-import roman
-import sys
-from yt.convenience import load
-from yt.analysis_modules.absorption_spectrum.api import AbsorptionSpectrum
-from yt.funcs import mylog, YTArray
-from matplotlib import pyplot
+
+from yt.analysis_modules.absorption_spectrum.api import \
+    AbsorptionSpectrum
+from yt.convenience import \
+    load
+from yt.funcs import \
+    mylog, \
+    YTArray
+
+from instrument import \
+    Instrument
 from ion_balance import \
-    add_ion_fraction_field, \
     add_ion_number_density_field, \
-    add_ion_density_field, \
-    add_ion_mass_field, \
     atomic_mass
-from line_database import LineDatabase
+from line_database import \
+    LineDatabase
+from lsf import \
+    LSF
+
+# Valid instruments
+valid_instruments = \
+    {'COS' :
+       Instrument(1150, 1450, dlambda=0.01, lsf_kernel='avg_COS.txt', name='COS'),
+     'HIRES' :
+       Instrument(1200, 1400, dlambda=0.01, name='HIRES'),
+     'UVES' :
+       Instrument(1200, 1400, dlambda=0.01, name='UVES'),
+     'MODS' :
+       Instrument(1200, 1400, dlambda=0.01, name='MODS'),
+     'SDSS' :
+       Instrument(1200, 1400, dlambda=0.01, name='SDSS')}
 
 class SpectrumGenerator(AbsorptionSpectrum):
     """
@@ -432,222 +450,3 @@ class SpectrumGenerator(AbsorptionSpectrum):
         self.line_database.add_line(element, ion_state, wavelength,
                                     gamma, f_value, field=field,
                                     identifier=identifier)
-
-class Instrument():
-    """
-    An instrument template for specifying a spectrograph/telescope pair
-
-    **Parameters**
-
-    lambda_min : int
-        Minimum desired wavelength for generated spectrum (in angstroms)
-
-    lambda_max : int
-        Maximum desired wavelength for generated spectrum (in angstroms)
-
-    n_lambda : int
-        Number of desired wavelength bins for the spectrum
-        Default: None
-
-    dlambda : float
-        Desired bin width for the spectrum
-        <note from Devin: which one supercedes the others?>
-        Default: None
-
-    lsf_kernel : string
-        The filename for the LSF kernel
-        Default: None
-
-    name : string
-        Name assigned to the Instrument object
-        Default: None
-
-    """
-    def __init__(self, lambda_min, lambda_max, n_lambda=None,
-                 dlambda=None, lsf_kernel=None, name=None):
-        self.lambda_min = lambda_min
-        self.lambda_max = lambda_max
-        self.lsf_kernel = lsf_kernel
-        if n_lambda is None and dlambda is None:
-            raise RuntimeError("Either n_lambda or dlambda must be set to "
-                               "specify the binsize")
-        elif dlambda is not None:
-            n_lambda = (lambda_max - lambda_min) / dlambda
-        self.n_lambda = n_lambda
-        if name is not None:
-            self.name = name
-
-class LSF():
-    """
-    Line Spread Function class
-
-    The user must define either a filename or a function and a width
-
-    Parameters
-
-    function : string, optional
-        the function defining the LSF kernel.
-        valid functions are "boxcar" or "gaussian"
-
-    width : int, optional
-        the width of the LSF kernel
-
-    filename : string, optional
-        the filename of a textfile for a user-specified kernel. each line
-        in the textfile is the non-normalized flux value of the kernel
-    """
-    def __init__(self, function=None, width=None, filename=None):
-        self.kernel = []
-        # if filename is defined, use it
-        if filename is not None:
-            # Check to see if the file is in the local dir
-            if os.path.isfile(filename):
-                lsf_file = open(filename, 'r')
-            # otherwise use the file in the lsf_kernels dir
-            else:
-                filename2 = os.path.join(os.path.dirname(__file__), "..",
-                                         "data", "lsf_kernels", filename)
-                if os.path.isfile(filename2):
-                    lsf_file = open(filename2, 'r')
-                else:
-                    sys.exit("filename must be in local directory or in",
-                             "trident/data/lsf_kernels directory")
-            for line in lsf_file:
-                self.kernel.append(float(line.split()[1]))
-            lsf_file.close()
-        elif function is not None and width is not None:
-            if function == 'boxcar':
-               self.kernel = np.ones(width)
-            #XXX Define more functional forms
-            #elif function == 'gaussian':
-            #   self.kernel = np.gaussian(width)
-        else:
-            sys.exit("Either filename OR function+width must be specified.")
-
-def plot_spectrum(wavelength, flux, filename="spectrum.png",
-                  lambda_limits=None, flux_limits=None,
-                  title=None, label=None,
-                  stagger=0.2):
-    """
-    Plot a spectrum or a collection of spectra and save to disk
-
-    Parameters
-
-    wavelength : array or list of arrays
-        wavelength vals in angstroms
-
-    flux : array or list of arrays
-        relative flux (from 0 to 1)
-
-    filename : string, optional
-
-    title : string, optional
-        title for plot
-
-    label : string or list of strings, optional
-        label for each spectrum to be plotted
-
-    stagger : float, optional
-        if plotting multiple spectra on top of each other, do we stagger them?
-        If None, no.  If set to a float, it is the value in relative flux to
-        stagger each spectrum
-    """
-
-    # number of rows and columns
-    n_rows = 1
-    n_columns = 1
-
-    # blank space between edge of figure and active plot area
-    top_buffer = 0.07
-    bottom_buffer = 0.15
-    left_buffer = 0.05
-    right_buffer = 0.03
-
-    # blank space between plots
-    hor_buffer = 0.05
-    vert_buffer = 0.05
-
-    # calculate the height and width of each panel
-    panel_width = ((1.0 - left_buffer - right_buffer -
-                    ((n_columns-1)*hor_buffer)) / n_columns)
-    panel_height = ((1.0 - top_buffer - bottom_buffer -
-                     ((n_rows-1)*vert_buffer)) / n_rows)
-
-    # create a figure (figsize is in inches)
-    pyplot.figure(figsize=(12, 4))
-
-    # get the row and column number
-    my_row = 0
-    my_column = 0
-
-    # calculate the position of the bottom, left corner of this plot
-    left_side = left_buffer + (my_column * panel_width) + \
-                my_column * hor_buffer
-    top_side = 1.0 - (top_buffer + (my_row * panel_height) + \
-               my_row * vert_buffer)
-    bottom_side = top_side - panel_height
-
-    # create an axes object on which we will make the plot
-    my_axes = pyplot.axes((left_side, bottom_side, panel_width, panel_height))
-
-    # Are we overplotting several spectra?  or just one?
-    if not (isinstance(wavelength, list) and isinstance(flux, list)):
-        wavelengths = [wavelength]
-        fluxs = [flux]
-        if label is not None: labels = [label]
-    else:
-        wavelengths = wavelength
-        fluxs = flux
-        if label is not None: labels = label
-
-    # A running maximum of flux for use in ylim scaling in final plot
-    max_flux = 0.
-
-    for i, (wavelength, flux) in enumerate(zip(wavelengths, fluxs)):
-
-        # Do we stagger the fluxes?
-        if stagger is not None:
-            flux -= stagger * i
-
-        # Do we include labels and a legend?
-        if label is not None:
-            my_axes.plot(wavelength, flux, label=labels[i])
-        else:
-            my_axes.plot(wavelength, flux)
-
-        # Do we include a title?
-        if title is not None:
-            pyplot.title(title)
-
-        new_max_flux = np.max(flux)
-        if new_max_flux > max_flux:
-            max_flux = new_max_flux
-
-    if lambda_limits is None:
-        lambda_limits = (wavelength.min(), wavelength.max())
-    my_axes.set_xlim(lambda_limits[0], lambda_limits[1])
-
-    if flux_limits is None:
-        flux_limits = (0, 1.1*max_flux)
-    my_axes.set_ylim(flux_limits[0], flux_limits[1])
-    my_axes.xaxis.set_label_text("$\\lambda$ [$\\AA$]")
-    my_axes.yaxis.set_label_text("Relative Flux")
-
-    # Don't let the x-axis switch to offset values for tick labels
-    my_axes.get_xaxis().get_major_formatter().set_useOffset(False)
-
-    if label is not None: pyplot.legend()
-    pyplot.savefig(filename)
-
-# Valid instruments
-valid_instruments = \
-    {'COS' :
-       Instrument(1150, 1450, dlambda=0.01, lsf_kernel='avg_COS.txt', name='COS'),
-     'HIRES' :
-       Instrument(1200, 1400, dlambda=0.01, name='HIRES'),
-     'UVES' :
-       Instrument(1200, 1400, dlambda=0.01, name='UVES'),
-     'MODS' :
-       Instrument(1200, 1400, dlambda=0.01, name='MODS'),
-     'SDSS' :
-       Instrument(1200, 1400, dlambda=0.01, name='SDSS')}

@@ -8,9 +8,9 @@ http://trident-project.org
 http://yt-project.org
 
 
-To install Trident, please make sure yt is installed first (right now it only 
-works on the tip of yt development branch).  Then download the
-Trident repository at: http://bitbucket.org/trident-project/trident .  
+To install Trident, please assure yt is installed (right now it only works on 
+the tip of the yt development branch, not with the stable version).  Download 
+the Trident repository at: http://bitbucket.org/trident-project/trident .  
 With mercurial installed, you can do this by:
 
 $ hg clone https://bitbucket.org/trident-project/trident
@@ -27,21 +27,23 @@ file (1.6GB), but the low-resolution data is also acceptable (205MB).
 
 High-Res (1.6GB)
 
-$ cd <path/to/trident/repo>
+$ cd <path/to/trident/repo>/data/ion_balance
 
-$ wget http://trident-project.org/data/ion_balance/hm2012_hr.h5 data/ion_balance
+$ wget http://trident-project.org/data/ion_balance/hm2012_hr.h5 
 
 Low-Res (205MB)
 
-$ wget http://trident-project.org/data/ion_balance/hm2012_lr.h5 data/ion_balance
+$ wget http://trident-project.org/data/ion_balance/hm2012_lr.h5
 
 
 Now you should be ready to go.  To test your installation, you can run our
 working script.  You will require the enzo_cosmology_plus yt public dataset 
 in order for this example to work.  To get it and test it, exit the trident
-source directory into a working directory and run the following:
+source directory into a test working directory and run the following:
 
-$ wget http://yt-project.org/data/enzo_cosmology_plus.tar.gz .
+$ cd <sandbox/directory>
+
+$ wget http://yt-project.org/data/enzo_cosmology_plus.tar.gz 
 
 $ tar -zxvf enzo_cosmology_plus.tar.gz
 

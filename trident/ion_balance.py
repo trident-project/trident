@@ -75,14 +75,14 @@ class IonBalanceTable(object):
         input.close()
 
 def _log_nH(field, data):
-    return np.log10(data['density'] * to_nH)
+    return np.log10(data["gas", "density"] * to_nH)
 
 def _redshift(field, data):
     return data.ds.current_redshift * \
-        np.ones(data['density'].shape, dtype=data['density'].dtype)
+        np.ones(data["gas", "density"].shape, dtype=data["gas", "density"].dtype)
 
 def _log_T(field, data):
-    return np.log10(data['temperature'])
+    return np.log10(data["gas", "temperature"])
 
 def add_ion_fraction_field(atom, ion, ionization_table, ds,
                            field_suffix=False):
@@ -115,14 +115,14 @@ def add_ion_fraction_field(atom, ion, ionization_table, ds,
     name that indicates what ionization table was used
     """
 
-    if 'log_nH' not in ds.derived_field_list:
-        ds.add_field('log_nH', function=_log_nH, units="")
+    if ("gas", "log_nH") not in ds.derived_field_list:
+        ds.add_field(("gas", "log_nH"), function=_log_nH, units="")
 
-    if 'redshift' not in ds.derived_field_list:
-        ds.add_field('redshift', function=_redshift, units="")
+    if ("gas", "redshift") not in ds.derived_field_list:
+        ds.add_field(("gas", "redshift"), function=_redshift, units="")
 
-    if 'log_T' not in ds.derived_field_list:
-        ds.add_field('log_T', function=_log_T, units="")
+    if ("gas", "log_T") not in ds.derived_field_list:
+        ds.add_field(("gas", "log_T"), function=_log_T, units="")
 
     atom = string.capitalize(atom)
     if ion == 1:
@@ -301,11 +301,11 @@ def _ion_number_density(field,data):
     fractionField = "%s_ion_fraction%s" %(prefix, suffix)
     if atom == 'H' or atom == 'He':
         field = solar_abundance[atom] * data[fractionField] * \
-                data['density']
+                data["gas", "density"]
     else:
         field = data.ds.quan(solar_abundance[atom], "1.0/Zsun") * \
-                data[fractionField] * data['metallicity'] * \
-                data['density']
+                data[fractionField] * data["gas", "metallicity"] * \
+                data["gas", "density"]
                 # Ideally we'd like to use the following line
                 # but it is very slow to compute.
                 # If we get H_nuclei_density spread up
@@ -339,7 +339,9 @@ def _ion_fraction_field(field,data):
                     t_param[0], t_param[-1]])
 
         interp = TrilinearFieldInterpolator(ionFraction, bds,
-                                            ['log_nH', 'redshift', 'log_T'],
+                                            [("gas", "log_nH"),
+                                             ("gas", "redshift"),
+                                             ("gas", "log_T")],
                                             truncate=True)
 
     else:
