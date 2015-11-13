@@ -46,7 +46,7 @@ class IonBalanceTable(object):
         as a function of density, temperature, and
         metallcity for a given atom
 
-        Parameters
+        **Parameters**
 
         filename: string
         Name of the HDF5 file that contains the
@@ -92,21 +92,21 @@ def add_ion_fraction_field(atom, ion, ionization_table, ds,
     For example, add_ion_fraction_field('O',6) creates a field
     called O_p5_ion_fraction.
 
-    Parameters
+    **Parameters**
 
     atom: string
     Atomic species for desired ion fraction
 
-    ion: integer
+    ion : integer
     Ion number for desired species
 
-    ionization_table: string
+    ionization_table : string
     Path to an appropriately formatted HDF5 table
     that can be used to compute the ion fraction
     as a function of density, temperature, metallicity,
     and redshift.
 
-    ds: yt dataset object
+    ds : yt dataset object
     This is the object to which the ion fraction field
     will be added.
 
@@ -150,12 +150,12 @@ def add_ion_number_density_field(atom, ion, ionization_table, ds,
     For example, add_ion_number_density_field('O',6) creates a field
     called O_p5_number_density.
 
-    Parameters
+    **Parameters**
 
     atom: string
     Atomic species for desired ion fraction
 
-    ion: integer
+    ion : integer
     Ion number for desired species
 
     ionization_table: string
@@ -164,7 +164,7 @@ def add_ion_number_density_field(atom, ion, ionization_table, ds,
     as a function of density, temperature, metallicity,
     and redshift.
 
-    ds: yt dataset object
+    ds : yt dataset object
     This is the object to which the ion fraction field
     will be added.
 
@@ -192,21 +192,21 @@ def add_ion_density_field(atom, ion, ionization_table, ds,
     For example, add_ion_density_field('O',6) creates a field
     called O_p5_density.
 
-    Parameters
+    **Parameters**
 
-    atom: string
+    atom : string
     Atomic species for desired ion fraction
 
-    ion: integer
+    ion : integer
     Ion number for desired species
 
-    ionization_table: string
+    ionization_table : string
     Path to an appropriately formatted HDF5 table
     that can be used to compute the ion fraction
     as a function of density, temperature, metallicity,
     and redshift.
 
-    ds: yt dataset object
+    ds : yt dataset object
     This is the object to which the ion fraction field
     will be added.
 
@@ -234,21 +234,21 @@ def add_ion_mass_field(atom, ion, ionization_table, ds,
     For example, add_ion_density_field('O',6) creates a field
     called O_p5_mass.
 
-    Parameters
+    **Parameters**
 
-    atom: string
+    atom : string
     Atomic species for desired ion fraction
 
-    ion: integer
+    ion : integer
     Ion number for desired species
 
-    ionization_table: string
+    ionization_table : string
     Path to an appropriately formatted HDF5 table
     that can be used to compute the ion fraction
     as a function of density, temperature, metallicity,
     and redshift.
 
-    ds: yt dataset object
+    ds : yt dataset object
     This is the object to which the ion fraction field
     will be added.
 
