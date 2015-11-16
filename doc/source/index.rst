@@ -11,7 +11,7 @@ Trident is a Python package for creating synthetic QSO spectra from simulations.
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    Installation.rst
    MakingSpectra.rst
