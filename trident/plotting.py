@@ -11,6 +11,7 @@ Spectrum plotting functions.
 # The full license is in the file COPYING.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
+from yt.funcs import mylog
 from matplotlib import pyplot
 import numpy as np
 
@@ -127,4 +128,6 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
     my_axes.get_xaxis().get_major_formatter().set_useOffset(False)
 
     if label is not None: pyplot.legend()
+
+    mylog.info("Writing spectrum plot to png file: %s." % filename)
     pyplot.savefig(filename)
