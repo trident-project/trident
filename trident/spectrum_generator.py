@@ -451,7 +451,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                     gamma, f_value, field=field,
                                     identifier=identifier)
 
-    def save_data(self, filename='spectrum.h5', format=None):
+    def save_spectrum(self, filename='spectrum.h5', format=None):
         """
         Save the current spectral data to an output file.  Unless specified, 
         the output data format will be determined by the suffix of the filename
