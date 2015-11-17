@@ -132,7 +132,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                                  "data", "ion_balance", ionization_table)
 
     def make_spectrum(self, input_ds, lines=None,
-                      output_file="spectrum.h5",
+                      output_file=None,
                       use_peculiar_velocity=True, njobs="auto"):
         """
         Make spectrum from ray data using the line list.
@@ -148,9 +148,9 @@ class SpectrumGenerator(AbsorptionSpectrum):
             value of the desired line.
         output_file : optional, string
            path for output file.  File formats are chosen based on the
-           filename extension.  ".h5" for hdf5, ".fits" for fits,
+           filename extension.  ".h5" for HDF5, ".fits" for FITS,
            and everything else is ASCII.
-           Default: "spectrum.h5"
+           Default: None
         use_peculiar_velocity : optional, bool
            if True, include line of sight velocity for shifting lines.
            Default: True
@@ -452,6 +452,30 @@ class SpectrumGenerator(AbsorptionSpectrum):
         self.line_database.add_line(element, ion_state, wavelength,
                                     gamma, f_value, field=field,
                                     identifier=identifier)
+
+    def save_spectrum(self, filename='spectrum.h5', format=None):
+        """
+        Save the current spectral data to an output file.  Unless specified, 
+        the output data format will be determined by the suffix of the filename
+        provided ("h5":HDF5, "fits":FITS, all other:ASCII). 
+
+        """
+        if format is None:
+            if filename.endswith('.h5'):
+                self._write_spectrum_hdf5(filename)
+            elif filename.endswith('.fits'):
+                self._write_spectrum_fits(filename)
+            else:
+                self._write_spectrum_ascii(filename)
+        elif format == 'HDF5':
+            self._write_spectrum_hdf5(filename)
+        elif format == 'FITS':
+            self._write_spectrum_fits(filename)
+        elif format == 'ASCII':
+            self._write_spectrum_ascii(filename)
+        else:
+            mylog.warn("Invalid format.  Must be 'HDF5', 'FITS', 'ASCII'. Defaulting to ASCII.")
+            self._write_spectrum_ascii(filename)
 
     def plot_spectrum(self, filename="spectrum.png",
                       lambda_limits=None, flux_limits=None,
