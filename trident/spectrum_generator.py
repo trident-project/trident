@@ -453,6 +453,30 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                     gamma, f_value, field=field,
                                     identifier=identifier)
 
+    def save_spectrum(self, filename='spectrum.h5', format=None):
+        """
+        Save the current spectral data to an output file.  Unless specified, 
+        the output data format will be determined by the suffix of the filename
+        provided ("h5":HDF5, "fits":FITS, all other:ASCII). 
+
+        """
+        if format is None:
+            if filename.endswith('.h5'):
+                self._write_spectrum_hdf5(filename)
+            elif filename.endswith('.fits'):
+                self._write_spectrum_fits(filename)
+            else:
+                self._write_spectrum_ascii(filename)
+        elif format == 'HDF5':
+            self._write_spectrum_hdf5(filename)
+        elif format == 'FITS':
+            self._write_spectrum_fits(filename)
+        elif format == 'ASCII':
+            self._write_spectrum_ascii(filename)
+        else:
+            mylog.warn("Invalid format.  Must be 'HDF5', 'FITS', 'ASCII'. Defaulting to ASCII.")
+            self._write_spectrum_ascii(filename)
+
     def plot_spectrum(self, filename="spectrum.png",
                       lambda_limits=None, flux_limits=None,
                       title=None, label=None,
