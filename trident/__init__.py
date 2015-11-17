@@ -40,9 +40,9 @@ from spectrum_generator import \
     SpectrumGenerator, \
     valid_instruments
 
-# Import yt's LightRay class
-from yt.analysis_modules.cosmological_observation.api import \
-    LightRay
+from ray_generator import \
+    make_simple_ray, \
+    make_compound_ray
 
 print """
 Welcome to Trident!
