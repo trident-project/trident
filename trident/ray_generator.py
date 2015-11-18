@@ -23,8 +23,7 @@ from yt.funcs import \
     YTArray
 
 def make_simple_ray(parameter_filename, start_position, end_position,
-                    fields=['density', 'temperature', 'metallicity'], 
-                    solution_filename=None, data_filename=None, 
+                    fields=None, solution_filename=None, data_filename=None, 
                     trajectory=None, redshift=None, 
                     setup_function=None, load_kwargs=None):
     """
@@ -34,6 +33,8 @@ def make_simple_ray(parameter_filename, start_position, end_position,
     **Parameters**
 
     """
+    if fields is None:
+        fields = ['density', 'temperature', 'metallicity']
     lr = LightRay(parameter_filename, load_kwargs=load_kwargs)
     return lr.make_light_ray(start_position=start_position,
                              end_position=end_position,
@@ -44,10 +45,9 @@ def make_simple_ray(parameter_filename, start_position, end_position,
                              data_filename=data_filename,
                              redshift=redshift)
 
-def make_compound_ray(parameter_filename, simulation_type=None, 
-                      start_redshift=None, end_redshift=None,
-                      fields=['density', 'temperature', 'metallicity'], 
-                      solution_filename=None, data_filename=None, 
+def make_compound_ray(parameter_filename, simulation_type,
+                      start_redshift, end_redshift,
+                      fields=None, solution_filename=None, data_filename=None, 
                       use_minimum_datasets=True, deltaz_min=0.0,
                       minimum_coherent_box_fraction=0.0, seed=None, 
                       setup_function=None, load_kwargs=None):
@@ -59,6 +59,8 @@ def make_compound_ray(parameter_filename, simulation_type=None,
     **Parameters**
 
     """
+    if fields is None:
+        fields = ['density', 'temperature', 'metallicity']
     lr = LightRay(parameter_filename, 
                   simulation_type=simulation_type, 
                   near_redshift=start_redshift, 
