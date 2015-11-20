@@ -7,12 +7,13 @@ Making spectra with Trident is intended to require a minimal amount of effort by
 
 The basic process requires two main steps:
 
-    1. Extract a light ray from the simulation data
+    1. Extract a light ray from the simulation data.
     2. Define the desired spectrum features and use the light ray to generate the corresponding synthetic spectrum.
 
 First, we'll go through the process for extracting a light ray from your simulation data.
 
-**Light Ray Generation**
+Light Ray Generation
+--------------------
 
 In order to generate a light ray from your data, you need to first make sure that you've imported both the yt and Trident packages:
 
@@ -44,7 +45,8 @@ From here, we can generate the light ray using the LightRay class and the make_l
 
 Now that we have our light ray, we can use it to generate a spectrum.
 
-**Spectrum Generation**
+Spectrum Generation
+-------------------
 
 To generate a spectrum, we first need to initialize a SpectrumGenerator object and then we can make a basic "clean" spectrum that just contains the absorption features created by the densities, temperatures, and metallicities of the line elements in the light ray.
 
@@ -76,6 +78,6 @@ Finally, we use Trident's plot_spectrum function to plot the spectrum that we've
 which produces:
 
 .. image:: _images/spec.png
-   :width: 500
+   :width: 700
 
 To create more complex or ion-specific spectra, refer to :ref:`advanced-spectra`
