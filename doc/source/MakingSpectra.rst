@@ -71,8 +71,11 @@ Finally, we use Trident's plot_spectrum function to plot the spectrum that we've
 
 .. code-block:: python
 
-    trident.plot_spectrum(sg.lambda_bins, sg.flux_field, 'spectrum.png')
+    trident.plot_spectrum(sg.lambda_field, sg.flux_field, 'spectrum.png')
 
-** WE SHOULD INCLUDE THE RESULTING PLOT HERE **
+which produces:
+
+.. image:: _images/spec.png
+   :width: 500
 
 To create more complex or ion-specific spectra, refer to :ref:`advanced-spectra`
