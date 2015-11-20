@@ -103,6 +103,9 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                     self.instrument.lambda_min,
                                     self.instrument.lambda_max,
                                     self.instrument.n_lambda)
+        # Instantiate the spectrum to be zeros and ones for tau_field and
+        # flux_field respectively.
+        self.clear_spectrum()
 
         # instantiate the LineDatabase
         self.line_database = LineDatabase(line_database)
@@ -382,12 +385,13 @@ class SpectrumGenerator(AbsorptionSpectrum):
         self.flux_field = in_file['flux'].value
         in_file.close()
 
-    def make_flat_spectrum(self):
+    def clear_spectrum(self):
         """
-        Makes a flat spectrum devoid of any lines.
+        Clears the existing spectrum's flux and tau fields and replaces them
+        with ones and zeros respectively.
         """
         self.flux_field = np.ones(self.lambda_field.size)
-        return (self.lambda_field, self.flux_field)
+        self.tau_field = np.zeros(self.lambda_field.size)
 
     def set_instrument(self, instrument):
         """
