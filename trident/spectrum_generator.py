@@ -222,11 +222,11 @@ class SpectrumGenerator(AbsorptionSpectrum):
         qso_lambda += qso_lambda * redshift
         qso_flux = data[:, 1]
 
-        index = np.digitize(self.lambda_bins, qso_lambda)
+        index = np.digitize(self.lambda_field, qso_lambda)
         np.clip(index, 1, qso_lambda.size - 1, out=index)
         slope = (qso_flux[index] - qso_flux[index - 1]) / \
           (qso_lambda[index] - qso_lambda[index - 1])
-        my_flux = slope * (self.lambda_bins - qso_lambda[index]) + qso_flux[index]
+        my_flux = slope * (self.lambda_field - qso_lambda[index]) + qso_flux[index]
         return my_flux
 
     def _get_milky_way_foreground(self, filename=None):
@@ -244,13 +244,13 @@ class SpectrumGenerator(AbsorptionSpectrum):
         MW_lambda = YTArray(data[:, 0], 'angstrom')
         MW_flux = data[:, 1]
 
-        index = np.digitize(self.lambda_bins, MW_lambda)
+        index = np.digitize(self.lambda_field, MW_lambda)
         np.clip(index, 1, MW_lambda.size - 1, out=index)
         slope = (MW_flux[index] - MW_flux[index - 1]) / \
           (MW_lambda[index] - MW_lambda[index - 1])
-        my_flux = slope * (self.lambda_bins - MW_lambda[index]) + MW_flux[index]
+        my_flux = slope * (self.lambda_field - MW_lambda[index]) + MW_flux[index]
         # just set values that go beyond the data to 1
-        my_flux[self.lambda_bins > 1799.9444] = 1.0
+        my_flux[self.lambda_field > 1799.9444] = 1.0
         return my_flux
 
     def add_milky_way_foreground(self, flux_field=None,
@@ -321,7 +321,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         """
         np.random.seed(seed)
         if n_bins is None:
-            n_bins = self.lambda_bins.size
+            n_bins = self.lambda_field.size
         if out is None:
             out = self.flux_field
         np.add(out, np.random.normal(loc=0.0, scale=1/float(snr), size=n_bins),
@@ -378,7 +378,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         if not filename.endswith(".h5"):
             raise RuntimeError("Only hdf5 format supported for loading spectra.")
         in_file = h5py.File(filename, "r")
-        self.lambda_bins = in_file['wavelength'].value
+        self.lambda_field = in_file['wavelength'].value
         self.flux_field = in_file['flux'].value
         in_file.close()
 
@@ -386,8 +386,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
         """
         Makes a flat spectrum devoid of any lines.
         """
-        self.flux_field = np.ones(self.lambda_bins.size)
-        return (self.lambda_bins, self.flux_field)
+        self.flux_field = np.ones(self.lambda_field.size)
+        return (self.lambda_field, self.flux_field)
 
     def set_instrument(self, instrument):
         """
@@ -455,9 +455,9 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
     def save_spectrum(self, filename='spectrum.h5', format=None):
         """
-        Save the current spectral data to an output file.  Unless specified, 
+        Save the current spectral data to an output file.  Unless specified,
         the output data format will be determined by the suffix of the filename
-        provided ("h5":HDF5, "fits":FITS, all other:ASCII). 
+        provided ("h5":HDF5, "fits":FITS, all other:ASCII).
 
         """
         if format is None:
@@ -486,17 +486,17 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
         This is a convenience method that wraps the plot_spectrum standalone
         function for use with the data from the SpectrumGenerator itself.
-    
+
         Parameters
-    
+
         filename : string, optional
-    
+
         title : string, optional
             title for plot
-    
+
         label : string or list of strings, optional
             label for each spectrum to be plotted
         """
-        plot_spectrum(self.lambda_bins, self.flux_field, filename=filename,
+        plot_spectrum(self.lambda_field, self.flux_field, filename=filename,
                       lambda_limits=lambda_limits, flux_limits=flux_limits,
                       title=title)
