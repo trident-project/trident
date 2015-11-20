@@ -98,6 +98,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                     lsf_kernel=lsf_kernel, name="Custom")
         self.set_instrument(instrument)
         mylog.info("Setting instrument to %s" % self.instrument.name)
+        self.dlambda = self.instrument.dlambda
 
         AbsorptionSpectrum.__init__(self,
                                     self.instrument.lambda_min,
