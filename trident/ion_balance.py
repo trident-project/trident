@@ -49,12 +49,12 @@ class IonBalanceTable(object):
         **Parameters**
 
         filename: string
-        Name of the HDF5 file that contains the
-        ionization data
+            Name of the HDF5 file that contains the
+            ionization data
 
         atom: string
-        The atomic species you want to create
-        an IonBalanceTable for
+            The atomic species you want to create
+            an IonBalanceTable for
 
         """
 
@@ -95,24 +95,24 @@ def add_ion_fraction_field(atom, ion, ionization_table, ds,
     **Parameters**
 
     atom: string
-    Atomic species for desired ion fraction
+        Atomic species for desired ion fraction
 
     ion : integer
-    Ion number for desired species
+        Ion number for desired species
 
     ionization_table : string
-    Path to an appropriately formatted HDF5 table
-    that can be used to compute the ion fraction
-    as a function of density, temperature, metallicity,
-    and redshift.
+        Path to an appropriately formatted HDF5 table
+        that can be used to compute the ion fraction
+        as a function of density, temperature, metallicity,
+        and redshift.
 
     ds : yt dataset object
-    This is the object to which the ion fraction field
-    will be added.
+        This is the object to which the ion fraction field
+        will be added.
 
     field_suffix : boolean
-    Determines whether or not to append a suffix to the field
-    name that indicates what ionization table was used
+        Determines whether or not to append a suffix to the field
+        name that indicates what ionization table was used
     """
 
     if ("gas", "log_nH") not in ds.derived_field_list:
@@ -153,24 +153,24 @@ def add_ion_number_density_field(atom, ion, ionization_table, ds,
     **Parameters**
 
     atom: string
-    Atomic species for desired ion fraction
+        Atomic species for desired ion fraction
 
     ion : integer
-    Ion number for desired species
+        Ion number for desired species
 
     ionization_table: string
-    Path to an appropriately formatted HDF5 table
-    that can be used to compute the ion fraction
-    as a function of density, temperature, metallicity,
-    and redshift.
+        Path to an appropriately formatted HDF5 table
+        that can be used to compute the ion fraction
+        as a function of density, temperature, metallicity,
+        and redshift.
 
     ds : yt dataset object
-    This is the object to which the ion fraction field
-    will be added.
+        This is the object to which the ion fraction field
+        will be added.
 
     field_suffix : boolean
-    Determines whether or not to append a suffix to the field
-    name that indicates what ionization table was used
+        Determines whether or not to append a suffix to the field
+        name that indicates what ionization table was used
     """
     atom = string.capitalize(atom)
     if ion == 1:
@@ -195,24 +195,24 @@ def add_ion_density_field(atom, ion, ionization_table, ds,
     **Parameters**
 
     atom : string
-    Atomic species for desired ion fraction
+        Atomic species for desired ion fraction
 
     ion : integer
-    Ion number for desired species
+        Ion number for desired species
 
     ionization_table : string
-    Path to an appropriately formatted HDF5 table
-    that can be used to compute the ion fraction
-    as a function of density, temperature, metallicity,
-    and redshift.
+        Path to an appropriately formatted HDF5 table
+        that can be used to compute the ion fraction
+        as a function of density, temperature, metallicity,
+        and redshift.
 
     ds : yt dataset object
-    This is the object to which the ion fraction field
-    will be added.
+        This is the object to which the ion fraction field
+        will be added.
 
     field_suffix : boolean
-    Determines whether or not to append a suffix to the field
-    name that indicates what ionization table was used
+        Determines whether or not to append a suffix to the field
+        name that indicates what ionization table was used
     """
     atom = string.capitalize(atom)
     if ion == 1:
@@ -237,24 +237,24 @@ def add_ion_mass_field(atom, ion, ionization_table, ds,
     **Parameters**
 
     atom : string
-    Atomic species for desired ion fraction
+        Atomic species for desired ion fraction
 
     ion : integer
-    Ion number for desired species
+        Ion number for desired species
 
     ionization_table : string
-    Path to an appropriately formatted HDF5 table
-    that can be used to compute the ion fraction
-    as a function of density, temperature, metallicity,
-    and redshift.
+        Path to an appropriately formatted HDF5 table
+        that can be used to compute the ion fraction
+        as a function of density, temperature, metallicity,
+        and redshift.
 
     ds : yt dataset object
-    This is the object to which the ion fraction field
-    will be added.
+        This is the object to which the ion fraction field
+        will be added.
 
     field_suffix : boolean
-    Determines whether or not to append a suffix to the field
-    name that indicates what ionization table was used
+        Determines whether or not to append a suffix to the field
+        name that indicates what ionization table was used
     """
     atom = string.capitalize(atom)
     if ion == 1:
