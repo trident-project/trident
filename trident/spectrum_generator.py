@@ -505,3 +505,11 @@ class SpectrumGenerator(AbsorptionSpectrum):
         plot_spectrum(self.lambda_field, self.flux_field, filename=filename,
                       lambda_limits=lambda_limits, flux_limits=flux_limits,
                       title=title)
+
+    def __repr__(self):
+        disp = "<SpectrumGenerator>:\n"
+        disp += "    lambda_field: %s\n" % self.lambda_field
+        disp += "    tau_field: %s\n" % self.tau_field
+        disp += "    flux_field: %s\n" % self.flux_field
+        disp += "%s" % self.instrument
+        return disp
