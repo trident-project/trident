@@ -100,16 +100,13 @@ class SpectrumGenerator(AbsorptionSpectrum):
         mylog.info("Setting instrument to %s" % self.instrument.name)
         self.dlambda = self.instrument.dlambda
 
-        AbsorptionSpectrum.__init__(self,
-                                    self.instrument.lambda_min,
-                                    self.instrument.lambda_max,
-                                    self.instrument.n_lambda)
-        # Instantiate the spectrum to be zeros and ones for tau_field and
-        # flux_field respectively.
-        self.clear_spectrum()
-
         # instantiate the LineDatabase
         self.line_database = LineDatabase(line_database)
+
+        # Instantiate the spectrum to be zeros and ones for tau_field and
+        # flux_field respectively.  This also instantiates the
+        # AbsorptionSpectrum object so it must be called in the __init__ call
+        self.clear_spectrum()
 
         # store the ionization table in the SpectrumGenerator object
         if ionization_table is not None:
@@ -388,11 +385,22 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
     def clear_spectrum(self):
         """
-        Clears the existing spectrum's flux and tau fields and replaces them
-        with ones and zeros respectively.
+        Instantiates the AbsorptionSpectrum object, clears the existing
+        spectrum's flux and tau fields and replaces them with ones and zeros
+        respectively, and empties the line subset list.
         """
+        # Instantiate the AbsorptionSpectrum object
+        AbsorptionSpectrum.__init__(self,
+                                    self.instrument.lambda_min,
+                                    self.instrument.lambda_max,
+                                    self.instrument.n_lambda)
+
+        # Set flux and tau to ones and zeros
         self.flux_field = np.ones(self.lambda_field.size)
         self.tau_field = np.zeros(self.lambda_field.size)
+
+        # Make sure we reset the line database as well
+        self.line_database.lines_subset = []
 
     def set_instrument(self, instrument):
         """
