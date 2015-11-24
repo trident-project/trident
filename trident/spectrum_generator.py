@@ -397,6 +397,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         the AbsorptionSpectrum object as well.  Also clear the line_subset
         stored by the LineDatabase.
         """
+        # Set flux and tau to ones and zeros
         self.flux_field = np.ones(self.lambda_field.size)
         self.tau_field = np.zeros(self.lambda_field.size)
 
