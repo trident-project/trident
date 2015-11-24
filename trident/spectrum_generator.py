@@ -104,12 +104,13 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                     self.instrument.lambda_min,
                                     self.instrument.lambda_max,
                                     self.instrument.n_lambda)
-        # Instantiate the spectrum to be zeros and ones for tau_field and
-        # flux_field respectively.
-        self.clear_spectrum()
 
         # instantiate the LineDatabase
         self.line_database = LineDatabase(line_database)
+
+        # Instantiate the spectrum to be zeros and ones for tau_field and
+        # flux_field respectively.
+        self.clear_spectrum()
 
         # store the ionization table in the SpectrumGenerator object
         if ionization_table is not None:
@@ -177,6 +178,9 @@ class SpectrumGenerator(AbsorptionSpectrum):
         if isinstance(input_ds, str):
             input_ds = load(input_ds)
         ad = input_ds.all_data()
+
+        # Clear out any previous spectrum that existed first
+        self.clear_spectrum()
 
         active_lines = self.line_database.parse_subset(lines)
 
@@ -389,10 +393,18 @@ class SpectrumGenerator(AbsorptionSpectrum):
     def clear_spectrum(self):
         """
         Clears the existing spectrum's flux and tau fields and replaces them
-        with ones and zeros respectively.
+        with ones and zeros respectively.  Clear the line list kept in
+        the AbsorptionSpectrum object as well.  Also clear the line_subset
+        stored by the LineDatabase.
         """
         self.flux_field = np.ones(self.lambda_field.size)
         self.tau_field = np.zeros(self.lambda_field.size)
+
+        # Clear out the line list that is stored in AbsorptionSpectrum
+        self.line_list = []
+
+        # Make sure we reset the line database as well
+        self.line_database.lines_subset = []
 
     def set_instrument(self, instrument):
         """
