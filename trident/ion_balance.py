@@ -143,7 +143,7 @@ def add_ion_fraction_field(atom, ion, ionization_table, ds,
     ds.add_field(("gas", field),function=_ion_fraction_field, units="")
 
 def add_ion_number_density_field(atom, ion, ionization_table, ds,
-                                 field_suffix=False, **kwargs):
+                                 field_suffix=False):
     """
     Add ion number density field to a yt data object.
 
@@ -180,12 +180,12 @@ def add_ion_number_density_field(atom, ion, ionization_table, ds,
     if field_suffix:
         field += "_%s" %ionization_table.split("/")[-1].split(".h5")[0]
     add_ion_fraction_field(atom, ion, ionization_table, ds,
-                           field_suffix=field_suffix, **kwargs)
+                           field_suffix=field_suffix)
     ds.add_field(("gas", field),function=_ion_number_density,
               units="1.0/cm**3")
 
 def add_ion_density_field(atom, ion, ionization_table, ds,
-                          field_suffix=False, **kwargs):
+                          field_suffix=False):
     """
     Add ion mass density field to a yt data object.
 
@@ -222,12 +222,12 @@ def add_ion_density_field(atom, ion, ionization_table, ds,
     if field_suffix:
         field += "_%s" %ionization_table.split("/")[-1].split(".h5")[0]
     add_ion_number_density_field(atom, ion, ionization_table, ds,
-                                 field_suffix=field_suffix, **kwargs)
+                                 field_suffix=field_suffix)
     ds.add_field(("gas", field),function=_ion_density,
               units="g/cm**3")
 
 def add_ion_mass_field(atom, ion, ionization_table, ds,
-                       field_suffix=False, **kwargs):
+                       field_suffix=False):
     """
     Add ion mass fields (g and Msun) to a yt data object.
 
@@ -264,7 +264,7 @@ def add_ion_mass_field(atom, ion, ionization_table, ds,
     if field_suffix:
         field += "_%s" %ionization_table.split("/")[-1].split(".h5")[0]
     add_ion_density_field(atom, ion, ionization_table, ds,
-                          field_suffix=field_suffix, **kwargs)
+                          field_suffix=field_suffix)
     ds.add_field(("gas", field),function=_ion_mass, units=r"g")
 
 def _ion_mass(field,data):
