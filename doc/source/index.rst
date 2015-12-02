@@ -16,6 +16,7 @@ Contents:
    Installation.rst
    MakingSpectra.rst
    AdvancedSpectra.rst
+   IonBalance.rst
    Reference.rst
 
 Help
