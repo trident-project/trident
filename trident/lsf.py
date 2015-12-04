@@ -61,3 +61,9 @@ class LSF(object):
             #   self.kernel = np.gaussian(width)
         else:
             sys.exit("Either filename OR function+width must be specified.")
+
+    def __repr__(self):
+        if self.filename is not None:
+            return "from file %s" % self.filename
+        else:
+            return "%s of width %d" % (function, width)

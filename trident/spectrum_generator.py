@@ -486,17 +486,17 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
         This is a convenience method that wraps the plot_spectrum standalone
         function for use with the data from the SpectrumGenerator itself.
-    
+
         Parameters
-    
+
         filename : string, optional
-    
+
         title : string, optional
             title for plot
-    
+
         label : string or list of strings, optional
             label for each spectrum to be plotted
         """
-        plot_spectrum(self.lambda_bins, self.flux_field, filename=filename,
+        plot_spectrum(self.lambda_field, self.flux_field, filename=filename,
                       lambda_limits=lambda_limits, flux_limits=flux_limits,
                       title=title)

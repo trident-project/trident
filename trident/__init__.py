@@ -40,24 +40,15 @@ from spectrum_generator import \
     SpectrumGenerator, \
     valid_instruments
 
+from utilities import \
+    print_logo
+
+# Import yt's LightRay class
+from yt.analysis_modules.cosmological_observation.api import \
+    LightRay
+
 from ray_generator import \
     make_simple_ray, \
     make_compound_ray
 
-print """
-Welcome to Trident!
-MMMMMMMMMMMMMMMMMMM.............................................................
-M.M..... M .... M.M.............................................................
-M..IMN..MMM.,.MM..M.......... .......... ......... .............................
-M...OM ..M . MM ..M.MMMMMMMMMM.........MM....... MM...................... ......
-M....M8..M . M ...M.....MM..... .. ............. MM.... ......... . ... MM7.....
-M.... M..M .M.....M.....MM.....MMMMMM .MM..MMMMMMMM..MMMMMMM..MMDMMMMM MMMMMMM..
-M.....MM.M ?M.....M.....MM.....MM ..MM.MM. MM....MM.,MM...MM+.MM....MM..MM7.....
-M..... MMMMM .....M.....MM.....MM......MM. MM....MM.8MMMMMMMD.MM ...MM .MM7.....
-M....... M .......M.....MM.....MM......MM..MM...8MM. MM...MMN.MM ...MM .MMZ.MM .
-M........M .......M.....MM.....MM......MM..MMMMM.MM. MMMMMMM..MM ...MM ..MMMMM..
-MMMMMMMMMMMMMMMMMMM..........................  ............................ ....
-................................................................................
-We appreciate your use of this package!
-Please send questions to trident-project-users@googlegroups.com
-"""
+print_logo()

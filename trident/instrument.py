@@ -61,3 +61,13 @@ class Instrument(object):
 
         if name is not None:
             self.name = name
+
+    def __repr__(self):
+        disp = "<Instrument>:\n"
+        disp += "    name: %s\n" % self.name
+        disp += "    lambda_min: %f\n" % self.lambda_min
+        disp += "    lambda_max: %f\n" % self.lambda_max
+        disp += "    n_lambda: %d\n" % self.n_lambda
+        disp += "    dlambda: %f\n" % self.dlambda
+        disp += "    lsf_kernel: %s" % self.lsf_kernel
+        return disp
