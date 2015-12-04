@@ -75,5 +75,4 @@ def make_compound_ray(parameter_filename, simulation_type,
                              setup_function=setup_function,
                              solution_filename=solution_filename,
                              data_filename=data_filename,
-                             redshift=redshift, 
-                             njobs=-1)
+                             redshift=None, njobs=-1)
