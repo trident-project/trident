@@ -11,6 +11,8 @@ Miscellaneous Utilities for Trident
 # The full license is in the file COPYING.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
+import os
+
 def trident():
     """
     Prints a nice ASCII logo!
@@ -27,3 +29,9 @@ M........M........M.....MM...MM......MM..MMMMM.MM. MMMMMMM..MM....MM...MMMMM....
 MMMMMMMMMMMMMMMMMMM.............................................................
 Please send questions to trident-project-users@googlegroups.com
 """
+
+def path():
+    """
+    A function returning the path of the trident installation directory.
+    """
+    return '/'.join(os.path.dirname(__file__).split('/')[:-1])
