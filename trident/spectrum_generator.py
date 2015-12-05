@@ -139,41 +139,47 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                                 "ion_balance", ionization_table)
 
     def make_spectrum(self, input_ds, lines=None,
-                      output_file="spectrum.h5",
-                      use_peculiar_velocity=True, njobs="auto"):
+                      output_file=None,
+                      use_peculiar_velocity=True, 
+                      observing_redshift=0.0,
+                      njobs="auto"):
         """
         Make spectrum from ray data using the line list.
 
         **Parameters**
 
         input_ds : string or dataset
-            path to input ray data or a loaded ray dataset
+            Path to input ray data or a loaded ray dataset
         lines: list of strings
             List of strings that determine which lines will be added
             to the spectrum.  List can include things like "C", "O VI",
             or "Mg II ####", where #### would be the integer wavelength
             value of the desired line.
         output_file : optional, string
-           path for output file.  File formats are chosen based on the
-           filename extension.  ".h5" for hdf5, ".fits" for fits,
-           and everything else is ASCII.
-           Default: "spectrum.h5"
+            Path for output file.  File formats are chosen based on the
+            filename extension.  ".h5" for HDF5, ".fits" for FITS,
+            and everything else is ASCII.
+            Default: None
         use_peculiar_velocity : optional, bool
-           if True, include line of sight velocity for shifting lines.
-           Default: True
+            if True, include line of sight velocity for shifting lines.
+            Default: True
+        observing_redshift : optional, float
+            This is the value of the redshift at which the observer of this
+            spectrum exists.  In most cases, this will be a redshift of 0.
+            Default: 0.
         njobs : optional, int or "auto"
-           the number of process groups into which the loop over
-           absorption lines will be divided.  If set to -1, each
-           absorption line will be deposited by exactly one processor.
-           If njobs is set to a value less than the total number of
-           available processors (N), then the deposition of an
-           individual line will be parallelized over (N / njobs)
-           processors.  If set to "auto", it will first try to
-           parallelize over the list of lines and only parallelize
-           the line deposition if there are more processors than
-           lines.  This is the optimal strategy for parallelizing
-           spectrum generation.
-           Default: "auto"
+            The number of process groups into which the loop over
+            absorption lines will be divided.  If set to -1, each
+            absorption line will be deposited by exactly one processor.
+            If njobs is set to a value less than the total number of
+            available processors (N), then the deposition of an
+            individual line will be parallelized over (N / njobs)
+            processors.  If set to "auto", it will first try to
+            parallelize over the list of lines and only parallelize
+            the line deposition if there are more processors than
+            lines.  This is the optimal strategy for parallelizing
+            spectrum generation.
+            Default: "auto"
         """
 
 
@@ -214,6 +220,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                          output_file=output_file,
                                          line_list_file=None,
                                          use_peculiar_velocity=use_peculiar_velocity,
+                                         observing_redshift=observing_redshift,
                                          njobs=njobs)
 
     def _get_qso_spectrum(self, redshift=0.0, filename=None):
