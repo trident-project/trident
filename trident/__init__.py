@@ -41,7 +41,7 @@ from spectrum_generator import \
     valid_instruments
 
 from utilities import \
-    print_logo
+    trident
 
 # Import yt's LightRay class
 from yt.analysis_modules.cosmological_observation.api import \
@@ -50,5 +50,3 @@ from yt.analysis_modules.cosmological_observation.api import \
 from ray_generator import \
     make_simple_ray, \
     make_compound_ray
-
-print_logo()

@@ -11,7 +11,10 @@ Miscellaneous Utilities for Trident
 # The full license is in the file COPYING.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-def print_logo():
+def trident():
+    """
+    A nice ASCII logo!
+    """
     print """
 MMMMMMMMMMMMMMMMMMM.............................................................
 M...B....C....D...M.MMMMMMMMMM.......MM........MM.....................MM7.......
