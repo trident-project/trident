@@ -13,7 +13,7 @@ Miscellaneous Utilities for Trident
 
 def trident():
     """
-    A nice ASCII logo!
+    Prints a nice ASCII logo!
     """
     print """
 MMMMMMMMMMMMMMMMMMM.............................................................
