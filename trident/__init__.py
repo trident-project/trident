@@ -47,4 +47,8 @@ from utilities import \
 from yt.analysis_modules.cosmological_observation.api import \
     LightRay
 
+from ray_generator import \
+    make_simple_ray, \
+    make_compound_ray
+
 print_logo()
