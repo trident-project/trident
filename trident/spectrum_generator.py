@@ -98,6 +98,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                     n_lambda=n_lambda,
                                     dlambda=dlambda,
                                     lsf_kernel=lsf_kernel, name="Custom")
+        self.observing_redshift = 0.
         self.set_instrument(instrument)
         mylog.info("Setting instrument to %s" % self.instrument.name)
         self.dlambda = self.instrument.dlambda
@@ -181,7 +182,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
             spectrum generation.
             Default: "auto"
         """
-
+        self.observing_redshift = observing_redshift
 
         if isinstance(input_ds, str):
             input_ds = load(input_ds)
@@ -223,11 +224,20 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                          observing_redshift=observing_redshift,
                                          njobs=njobs)
 
-    def _get_qso_spectrum(self, redshift=0.0, filename=None):
+    def _get_qso_spectrum(self, emitting_redshift, observing_redshift, 
+                          filename=None):
         """
         Read in the composite QSO spectrum and return an interpolated version
         to fit the desired wavelength interval and binning.
         """
+        if observing_redshift is None:
+            observing_redshift = self.observing_redshift
+        if emitting_redshift is None:
+            emitting_redshift = 0.
+        # Following Hogg (2000) eq. 13 for the effective redshift z12 of 
+        # observing at z1 redshift light emitted at z2:
+        # 1 + z12 = (1 + z2) / (1 + z1)
+        redshift_eff = (1 + emitting_redshift) / (1 + observing_redshift) - 1
 
         if filename is None:
             filename = os.path.join(trident_path(),  "data",
@@ -236,7 +246,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
         data = np.loadtxt(filename)
         qso_lambda = YTArray(data[:, 0], 'angstrom')
-        qso_lambda += qso_lambda * redshift
+        qso_lambda += qso_lambda * redshift_eff
         qso_flux = data[:, 1]
 
         index = np.digitize(self.lambda_field, qso_lambda)
@@ -248,8 +258,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
     def _get_milky_way_foreground(self, filename=None):
         """
-        Read in the composite QSO spectrum and return an interpolated version
-        to fit the desired wavelength interval and binning.
+        Read in the Milky Way foreground spectrum and return an interpolated 
+        version to fit the desired wavelength interval and binning.
         """
 
         if filename is None:
@@ -291,19 +301,30 @@ class SpectrumGenerator(AbsorptionSpectrum):
         flux_field *= MW_spectrum
 
     def add_qso_spectrum(self, flux_field=None,
-                         redshift=0.0, 
+                         emitting_redshift=None,
+                         observing_redshift=None,
                          filename=None):
         """
-        Add a composite QSO spectrum to the spectrum.
+        Add a composite QSO spectrum to the spectrum.  Uses data from 
+        Telfer et al., ApJ, 565, 773 
+        "The Rest-Frame Extreme Ultraviolet Spectral Properties of QSO"
+        HST Radio Quiet composite for < 1275 Ang, SDSS composite > 2000 Ang,
+        mean in between 8251 0 
 
         **Parameters**
 
-        flux_field : optional, array
-            Array of flux values to which the Milky Way foreground is applied.
+        flux_field : array, optional
+            Array of flux values to which the quasar background is applied.
             Default: None
-        redshift: float
-            Redshift value for defining the rest wavelength of the QSO
-            Default: 0.0
+        emitting_redshift: float, optional
+            Redshift value at which the QSO emitted its light.  If specified
+            as None, use 0.
+            Default: None
+        observing_redshift: float, optional
+            Redshift value at which the quasar is observed.  If specified as
+            None, use the observing_redshift value specified in make_spectrum()
+            which defaults to 0.
+            Default: None
         filename : string
             Filename where the Milky Way foreground values used to modify
             the flux are stored.
@@ -311,7 +332,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
         """
         if flux_field is None:
             flux_field = self.flux_field
-        qso_spectrum = self._get_qso_spectrum(redshift=redshift,
+        qso_spectrum = self._get_qso_spectrum(emitting_redshift=emitting_redshift,
+                                              observing_redshift=observing_redshift,
                                               filename=filename)
         flux_field *= qso_spectrum
 
