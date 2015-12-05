@@ -25,18 +25,31 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
     Parameters
 
     wavelength : array or list of arrays
-        wavelength vals in angstroms
+        Wavelength vals in angstroms
 
     flux : array or list of arrays
-        relative flux (from 0 to 1)
+        Relative flux (from 0 to 1)
 
     filename : string, optional
+        Output filename of the plotted spectrum.  Will be a png file.
+
+    lambda_limits : tuple or list of floats, optional
+        The minimum and maximum of the lambda range (x-axis) for the plot
+        in angstroms.  If specified as None, will use whole lambda range
+        of spectrum.
+        Default: None
+
+    flux_limits : tuple or list of floats, optional
+        The minimum and maximum of the flux range (y-axis) for the plot.
+        If specified as None, limits are automatically from
+        [0, 1.1*max(flux)].
+        Default: None
 
     title : string, optional
-        title for plot
+        Title for plot
 
     label : string or list of strings, optional
-        label for each spectrum to be plotted
+        Label for each spectrum to be plotted
 
     stagger : float, optional
         if plotting multiple spectra on top of each other, do we stagger them?

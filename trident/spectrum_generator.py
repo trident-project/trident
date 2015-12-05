@@ -161,7 +161,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
             and everything else is ASCII.
             Default: None
         use_peculiar_velocity : optional, bool
-            if True, include line of sight velocity for shifting lines.
+            If True, include line of sight velocity for shifting lines.
             Default: True
         observing_redshift : optional, float
             This is the value of the redshift at which the observer of this
@@ -278,10 +278,10 @@ class SpectrumGenerator(AbsorptionSpectrum):
         **Parameters**
 
         flux_field : optional, array
-            array of flux values to which the Milky Way foreground is applied.
+            Array of flux values to which the Milky Way foreground is applied.
             Default: None
         filename : string
-            filename where the Milky Way foreground values used to modify
+            Filename where the Milky Way foreground values used to modify
             the flux are stored.
             Default: None
         """
@@ -291,20 +291,21 @@ class SpectrumGenerator(AbsorptionSpectrum):
         flux_field *= MW_spectrum
 
     def add_qso_spectrum(self, flux_field=None,
-                         redshift=0.0, filename=None):
+                         redshift=0.0, 
+                         filename=None):
         """
         Add a composite QSO spectrum to the spectrum.
 
         **Parameters**
 
         flux_field : optional, array
-            array of flux values to which the Milky Way foreground is applied.
+            Array of flux values to which the Milky Way foreground is applied.
             Default: None
         redshift: float
-            redshift value for defining the rest wavelength of the QSO
+            Redshift value for defining the rest wavelength of the QSO
             Default: 0.0
         filename : string
-            filename where the Milky Way foreground values used to modify
+            Filename where the Milky Way foreground values used to modify
             the flux are stored.
             Default: None
         """
@@ -331,7 +332,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
             Default: None
         seed : optional, int
             Seed for the random number generator.  This should be used to
-            ensure than the same noise is adding each time the spectrum is
+            ensure than the same noise is added each time the spectrum is
             regenerated, if desired.
             Default: None
 
@@ -356,11 +357,11 @@ class SpectrumGenerator(AbsorptionSpectrum):
         **Parameters**
 
         function : string, optional
-            desired functional form for the applied LSF kernel.
+            Desired functional form for the applied LSF kernel.
             Valid options are currently "boxcar" or "gaussian"
             Default: None
         width : int, optional
-            width of the desired LSF kernel
+            Width of the desired LSF kernel in bin elements
             Default: None
         filename : string, optional
             The filename of the user-supplied kernel for applying the LSF
@@ -506,23 +507,35 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
     def plot_spectrum(self, filename="spectrum.png",
                       lambda_limits=None, flux_limits=None,
-                      title=None, label=None,
-                      stagger=0.2):
+                      title=None, label=None):
         """
         Plot the spectrum from the SpectrumGenerator class.
 
         This is a convenience method that wraps the plot_spectrum standalone
         function for use with the data from the SpectrumGenerator itself.
 
-        Parameters
+        **Parameters**
 
         filename : string, optional
+            Output filename of the plotted spectrum.  Will be a png file.
+
+        lambda_limits : tuple or list of floats, optional
+            The minimum and maximum of the lambda range (x-axis) for the plot
+            in angstroms.  If specified as None, will use whole lambda range 
+            of spectrum.
+            Default: None
+
+        flux_limits : tuple or list of floats, optional
+            The minimum and maximum of the flux range (y-axis) for the plot.
+            If specified as None, limits are automatically from 
+            [0, 1.1*max(flux)].
+            Default: None
 
         title : string, optional
-            title for plot
+            Title for plot
 
         label : string or list of strings, optional
-            label for each spectrum to be plotted
+            Label for each spectrum to be plotted
         """
         plot_spectrum(self.lambda_field, self.flux_field, filename=filename,
                       lambda_limits=lambda_limits, flux_limits=flux_limits,
