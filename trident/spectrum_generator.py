@@ -98,6 +98,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                     lsf_kernel=lsf_kernel, name="Custom")
         self.set_instrument(instrument)
         mylog.info("Setting instrument to %s" % self.instrument.name)
+        self.dlambda = self.instrument.dlambda
 
         AbsorptionSpectrum.__init__(self,
                                     self.instrument.lambda_min,
@@ -106,6 +107,10 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
         # instantiate the LineDatabase
         self.line_database = LineDatabase(line_database)
+
+        # Instantiate the spectrum to be zeros and ones for tau_field and
+        # flux_field respectively.
+        self.clear_spectrum()
 
         # store the ionization table in the SpectrumGenerator object
         if ionization_table is not None:
@@ -132,7 +137,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                                  "data", "ion_balance", ionization_table)
 
     def make_spectrum(self, input_ds, lines=None,
-                      output_file=None,
+                      output_file="spectrum.h5",
                       use_peculiar_velocity=True, njobs="auto"):
         """
         Make spectrum from ray data using the line list.
@@ -148,9 +153,9 @@ class SpectrumGenerator(AbsorptionSpectrum):
             value of the desired line.
         output_file : optional, string
            path for output file.  File formats are chosen based on the
-           filename extension.  ".h5" for HDF5, ".fits" for FITS,
+           filename extension.  ".h5" for hdf5, ".fits" for fits,
            and everything else is ASCII.
-           Default: None
+           Default: "spectrum.h5"
         use_peculiar_velocity : optional, bool
            if True, include line of sight velocity for shifting lines.
            Default: True
@@ -173,6 +178,9 @@ class SpectrumGenerator(AbsorptionSpectrum):
         if isinstance(input_ds, str):
             input_ds = load(input_ds)
         ad = input_ds.all_data()
+
+        # Clear out any previous spectrum that existed first
+        self.clear_spectrum()
 
         active_lines = self.line_database.parse_subset(lines)
 
@@ -222,11 +230,11 @@ class SpectrumGenerator(AbsorptionSpectrum):
         qso_lambda += qso_lambda * redshift
         qso_flux = data[:, 1]
 
-        index = np.digitize(self.lambda_bins, qso_lambda)
+        index = np.digitize(self.lambda_field, qso_lambda)
         np.clip(index, 1, qso_lambda.size - 1, out=index)
         slope = (qso_flux[index] - qso_flux[index - 1]) / \
           (qso_lambda[index] - qso_lambda[index - 1])
-        my_flux = slope * (self.lambda_bins - qso_lambda[index]) + qso_flux[index]
+        my_flux = slope * (self.lambda_field - qso_lambda[index]) + qso_flux[index]
         return my_flux
 
     def _get_milky_way_foreground(self, filename=None):
@@ -244,13 +252,13 @@ class SpectrumGenerator(AbsorptionSpectrum):
         MW_lambda = YTArray(data[:, 0], 'angstrom')
         MW_flux = data[:, 1]
 
-        index = np.digitize(self.lambda_bins, MW_lambda)
+        index = np.digitize(self.lambda_field, MW_lambda)
         np.clip(index, 1, MW_lambda.size - 1, out=index)
         slope = (MW_flux[index] - MW_flux[index - 1]) / \
           (MW_lambda[index] - MW_lambda[index - 1])
-        my_flux = slope * (self.lambda_bins - MW_lambda[index]) + MW_flux[index]
+        my_flux = slope * (self.lambda_field - MW_lambda[index]) + MW_flux[index]
         # just set values that go beyond the data to 1
-        my_flux[self.lambda_bins > 1799.9444] = 1.0
+        my_flux[self.lambda_field > 1799.9444] = 1.0
         return my_flux
 
     def add_milky_way_foreground(self, flux_field=None,
@@ -321,7 +329,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         """
         np.random.seed(seed)
         if n_bins is None:
-            n_bins = self.lambda_bins.size
+            n_bins = self.lambda_field.size
         if out is None:
             out = self.flux_field
         np.add(out, np.random.normal(loc=0.0, scale=1/float(snr), size=n_bins),
@@ -378,16 +386,26 @@ class SpectrumGenerator(AbsorptionSpectrum):
         if not filename.endswith(".h5"):
             raise RuntimeError("Only hdf5 format supported for loading spectra.")
         in_file = h5py.File(filename, "r")
-        self.lambda_bins = in_file['wavelength'].value
+        self.lambda_field = in_file['wavelength'].value
         self.flux_field = in_file['flux'].value
         in_file.close()
 
-    def make_flat_spectrum(self):
+    def clear_spectrum(self):
         """
-        Makes a flat spectrum devoid of any lines.
+        Clears the existing spectrum's flux and tau fields and replaces them
+        with ones and zeros respectively.  Clear the line list kept in
+        the AbsorptionSpectrum object as well.  Also clear the line_subset
+        stored by the LineDatabase.
         """
-        self.flux_field = np.ones(self.lambda_bins.size)
-        return (self.lambda_bins, self.flux_field)
+        # Set flux and tau to ones and zeros
+        self.flux_field = np.ones(self.lambda_field.size)
+        self.tau_field = np.zeros(self.lambda_field.size)
+
+        # Clear out the line list that is stored in AbsorptionSpectrum
+        self.line_list = []
+
+        # Make sure we reset the line database as well
+        self.line_database.lines_subset = []
 
     def set_instrument(self, instrument):
         """
@@ -455,9 +473,9 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
     def save_spectrum(self, filename='spectrum.h5', format=None):
         """
-        Save the current spectral data to an output file.  Unless specified, 
+        Save the current spectral data to an output file.  Unless specified,
         the output data format will be determined by the suffix of the filename
-        provided ("h5":HDF5, "fits":FITS, all other:ASCII). 
+        provided ("h5":HDF5, "fits":FITS, all other:ASCII).
 
         """
         if format is None:
@@ -500,3 +518,11 @@ class SpectrumGenerator(AbsorptionSpectrum):
         plot_spectrum(self.lambda_field, self.flux_field, filename=filename,
                       lambda_limits=lambda_limits, flux_limits=flux_limits,
                       title=title)
+
+    def __repr__(self):
+        disp = "<SpectrumGenerator>:\n"
+        disp += "    lambda_field: %s\n" % self.lambda_field
+        disp += "    tau_field: %s\n" % self.tau_field
+        disp += "    flux_field: %s\n" % self.flux_field
+        disp += "%s" % self.instrument
+        return disp
