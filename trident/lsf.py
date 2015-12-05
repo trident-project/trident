@@ -14,6 +14,7 @@ LSF class and member functions.
 import numpy as np
 import os
 import sys
+from utilities import trident_path
 
 class LSF(object):
     """
@@ -43,8 +44,8 @@ class LSF(object):
                 lsf_file = open(filename, 'r')
             # otherwise use the file in the lsf_kernels dir
             else:
-                filename2 = os.path.join(os.path.dirname(__file__), "..",
-                                         "data", "lsf_kernels", filename)
+                filename2 = os.path.join(trident_path(), "data", \
+                                         "lsf_kernels", filename)
                 if os.path.isfile(filename2):
                     lsf_file = open(filename2, 'r')
                 else:

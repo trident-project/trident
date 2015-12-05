@@ -34,6 +34,8 @@ from lsf import \
     LSF
 from plotting import \
     plot_spectrum
+from utilities import \
+    trident_path
 
 # Valid instruments
 valid_instruments = \
@@ -115,8 +117,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
         # store the ionization table in the SpectrumGenerator object
         if ionization_table is not None:
             # figure out where the user-specified files lives
-            ionization_table = os.path.join(os.path.dirname(__file__), "..",
-                                            "data", "ion_balance", filename)
+            ionization_table = os.path.join(trident_path(), "data", \
+                                            "ion_balance", filename)
             if not os.path.isfile(ionization_table):
                 ionization_table = filename
             if not os.path.isfile(ionization_table):
@@ -125,7 +127,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                    % (filename.split('/')[-1]))
             self.ionization_table = ionization_table
         else:
-            table_dir = os.path.join(os.path.dirname(__file__), '../data/ion_balance')
+            table_dir = os.path.join(trident_path(), 'data/ion_balance')
             filelist = os.listdir(table_dir)
             ion_files = [i for i in filelist if i.endswith('.h5')]
             if 'hm2012_hr.h5' in ion_files: ionization_table = 'hm2012_hr.h5'
@@ -133,8 +135,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
             else:
                 mylog.info("No ionization file specified, using %s" %ion_files[0])
                 ionization_table = ion_files[0]
-            self.ionization_table = os.path.join(os.path.dirname(__file__), "..",
-                                                 "data", "ion_balance", ionization_table)
+            self.ionization_table = os.path.join(trident_path(), "data", 
+                                                "ion_balance", ionization_table)
 
     def make_spectrum(self, input_ds, lines=None,
                       output_file="spectrum.h5",
@@ -221,7 +223,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         """
 
         if filename is None:
-            filename = os.path.join(os.path.dirname(__file__), "..", "data",
+            filename = os.path.join(trident_path(),  "data",
                                     "spectral_templates",
                                     "qso_background_COS_HST.txt")
 
@@ -244,7 +246,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         """
 
         if filename is None:
-            filename = os.path.join(os.path.dirname(__file__), "..", "data",
+            filename = os.path.join(trident_path(), "data",
                                     "spectral_templates",
                                     "mw_foreground_COS.txt")
 

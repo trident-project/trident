@@ -30,7 +30,7 @@ MMMMMMMMMMMMMMMMMMM.............................................................
 Please send questions to trident-project-users@googlegroups.com
 """
 
-def path():
+def trident_path():
     """
     A function returning the path of the trident installation directory.
     """

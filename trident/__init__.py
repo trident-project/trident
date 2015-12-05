@@ -42,7 +42,7 @@ from spectrum_generator import \
 
 from utilities import \
     trident, \
-    path
+    trident_path
 
 # Import yt's LightRay class
 from yt.analysis_modules.cosmological_observation.api import \
@@ -54,4 +54,4 @@ from ray_generator import \
 
 # Making installation path global
 global path
-path = path()
+path = trident_path()
