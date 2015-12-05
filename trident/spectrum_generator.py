@@ -283,7 +283,10 @@ class SpectrumGenerator(AbsorptionSpectrum):
     def add_milky_way_foreground(self, flux_field=None,
                                  filename=None):
         """
-        Add a Milky Way foreground flux to the spectrum.
+        Add a Milky Way foreground flux to the spectrum.  Data
+        from Charles Danforth. Median-filter of 92 normalized 
+        COS/G130M+G160M AGN spectra spanning the wavelength range of 
+        1130 to 1800 Angstroms in 0.07 Angstrom bin size.
 
         **Parameters**
 
