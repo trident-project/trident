@@ -14,6 +14,8 @@ LSF class and member functions.
 import numpy as np
 import os
 import sys
+from yt.funcs import \
+    mylog
 from utilities import trident_path
 
 class LSF(object):
@@ -29,7 +31,7 @@ class LSF(object):
         valid functions are "boxcar" or "gaussian"
 
     width : int, optional
-        the width of the LSF kernel
+        the width of the LSF kernel.  
 
     filename : string, optional
         the filename of a textfile for a user-specified kernel. each line
@@ -56,10 +58,13 @@ class LSF(object):
             lsf_file.close()
         elif function is not None and width is not None:
             if function == 'boxcar':
-               self.kernel = np.ones(width)
-            #XXX Define more functional forms
-            #elif function == 'gaussian':
-            #   self.kernel = np.gaussian(width)
+                if width % 2 == 0:
+                    mylog.warn("LSF kernel must have an odd length. Reducing kernel size by 1.")
+                    width -= 1
+                self.kernel = np.ones(width)/width
+            elif function == 'gaussian':
+                from astropy.convolution import Gaussian1DKernel
+                self.kernel = Gaussian1DKernel(width)
         else:
             sys.exit("Either filename OR function+width must be specified.")
 

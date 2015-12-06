@@ -372,7 +372,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
         else:
             mylog.info("Applying specified line spread function.")
             lsf = LSF(function=function, width=width, filename=filename)
-        self.flux_field = np.convolve(lsf.kernel,self.flux_field,'same')
+        from astropy.convolution import convolve
+        self.flux_field = convolve(self.flux_field, lsf.kernel)
 
     def load_spectrum(self, filename=None):
         """
