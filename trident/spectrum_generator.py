@@ -140,7 +140,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                                 "ion_balance", ionization_table)
 
     def make_spectrum(self, input_ds, lines=None,
-                      output_file=None,
+                      output_file='spectrum.h5',
                       use_peculiar_velocity=True, 
                       observing_redshift=0.0,
                       njobs="auto"):
@@ -533,7 +533,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
     def plot_spectrum(self, filename="spectrum.png",
                       lambda_limits=None, flux_limits=None,
-                      title=None, label=None):
+                      title=None, label=None, figsize=None):
         """
         Plot the spectrum from the SpectrumGenerator class.
 
@@ -565,7 +565,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         """
         plot_spectrum(self.lambda_field, self.flux_field, filename=filename,
                       lambda_limits=lambda_limits, flux_limits=flux_limits,
-                      title=title)
+                      title=title, figsize=figsize)
 
     def __repr__(self):
         disp = "<SpectrumGenerator>:\n"
