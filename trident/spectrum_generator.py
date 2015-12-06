@@ -147,33 +147,33 @@ class SpectrumGenerator(AbsorptionSpectrum):
         **Parameters**
 
         input_ds : string or dataset
-            path to input ray data or a loaded ray dataset
+            Path to input ray data or a loaded ray dataset
         lines: list of strings
             List of strings that determine which lines will be added
             to the spectrum.  List can include things like "C", "O VI",
             or "Mg II ####", where #### would be the integer wavelength
             value of the desired line.
         output_file : optional, string
-           path for output file.  File formats are chosen based on the
-           filename extension.  ".h5" for hdf5, ".fits" for fits,
-           and everything else is ASCII.
-           Default: "spectrum.h5"
+            Path for output file.  File formats are chosen based on the
+            filename extension.  ".h5" for hdf5, ".fits" for fits,
+            and everything else is ASCII.
+            Default: "spectrum.h5"
         use_peculiar_velocity : optional, bool
-           if True, include line of sight velocity for shifting lines.
-           Default: True
+            If True, include line of sight velocity for shifting lines.
+            Default: True
         njobs : optional, int or "auto"
-           the number of process groups into which the loop over
-           absorption lines will be divided.  If set to -1, each
-           absorption line will be deposited by exactly one processor.
-           If njobs is set to a value less than the total number of
-           available processors (N), then the deposition of an
-           individual line will be parallelized over (N / njobs)
-           processors.  If set to "auto", it will first try to
-           parallelize over the list of lines and only parallelize
-           the line deposition if there are more processors than
-           lines.  This is the optimal strategy for parallelizing
-           spectrum generation.
-           Default: "auto"
+            The number of process groups into which the loop over
+            absorption lines will be divided.  If set to -1, each
+            absorption line will be deposited by exactly one processor.
+            If njobs is set to a value less than the total number of
+            available processors (N), then the deposition of an
+            individual line will be parallelized over (N / njobs)
+            processors.  If set to "auto", it will first try to
+            parallelize over the list of lines and only parallelize
+            the line deposition if there are more processors than
+            lines.  This is the optimal strategy for parallelizing
+            spectrum generation.
+            Default: "auto"
         """
 
 
@@ -241,8 +241,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
     def _get_milky_way_foreground(self, filename=None):
         """
-        Read in the composite QSO spectrum and return an interpolated version
-        to fit the desired wavelength interval and binning.
+        Read in the Milky Way foreground spectrum and return an interpolated 
+        version to fit the desired wavelength interval and binning.
         """
 
         if filename is None:
@@ -266,15 +266,18 @@ class SpectrumGenerator(AbsorptionSpectrum):
     def add_milky_way_foreground(self, flux_field=None,
                                  filename=None):
         """
-        Add a Milky Way foreground flux to the spectrum.
+        Add a Milky Way foreground flux to the spectrum.  Data
+        from Charles Danforth. Median-filter of 92 normalized 
+        COS/G130M+G160M AGN spectra spanning the wavelength range of 
+        1130 to 1800 Angstroms in 0.07 Angstrom bin size.
 
         **Parameters**
 
         flux_field : optional, array
-            array of flux values to which the Milky Way foreground is applied.
+            Array of flux values to which the Milky Way foreground is applied.
             Default: None
         filename : string
-            filename where the Milky Way foreground values used to modify
+            Filename where the Milky Way foreground values used to modify
             the flux are stored.
             Default: None
         """
@@ -297,7 +300,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
             redshift value for defining the rest wavelength of the QSO
             Default: 0.0
         filename : string
-            filename where the Milky Way foreground values used to modify
+            Filename where the Milky Way foreground values used to modify
             the flux are stored.
             Default: None
         """
@@ -324,7 +327,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
             Default: None
         seed : optional, int
             Seed for the random number generator.  This should be used to
-            ensure than the same noise is adding each time the spectrum is
+            ensure than the same noise is added each time the spectrum is
             regenerated, if desired.
             Default: None
 
@@ -349,11 +352,11 @@ class SpectrumGenerator(AbsorptionSpectrum):
         **Parameters**
 
         function : string, optional
-            desired functional form for the applied LSF kernel.
+            Desired functional form for the applied LSF kernel.
             Valid options are currently "boxcar" or "gaussian"
             Default: None
         width : int, optional
-            width of the desired LSF kernel
+            Width of the desired LSF kernel in bin elements
             Default: None
         filename : string, optional
             The filename of the user-supplied kernel for applying the LSF
@@ -500,27 +503,26 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
     def plot_spectrum(self, filename="spectrum.png",
                       lambda_limits=None, flux_limits=None,
-                      title=None, label=None,
-                      stagger=0.2):
+                      title=None, label=None, figsize=None):
         """
         Plot the spectrum from the SpectrumGenerator class.
 
         This is a convenience method that wraps the plot_spectrum standalone
         function for use with the data from the SpectrumGenerator itself.
 
-        Parameters
+        **Parameters**
 
         filename : string, optional
 
         title : string, optional
-            title for plot
+            Title for plot
 
         label : string or list of strings, optional
-            label for each spectrum to be plotted
+            Label for each spectrum to be plotted
         """
         plot_spectrum(self.lambda_field, self.flux_field, filename=filename,
                       lambda_limits=lambda_limits, flux_limits=flux_limits,
-                      title=title)
+                      title=title, figsize=figsize)
 
     def __repr__(self):
         disp = "<SpectrumGenerator>:\n"

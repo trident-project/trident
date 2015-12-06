@@ -17,7 +17,7 @@ import numpy as np
 
 def plot_spectrum(wavelength, flux, filename="spectrum.png",
                   lambda_limits=None, flux_limits=None,
-                  title=None, label=None,
+                  title=None, label=None, figsize=None,
                   stagger=0.2):
     """
     Plot a spectrum or a collection of spectra and save to disk
@@ -65,7 +65,9 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
                      ((n_rows-1)*vert_buffer)) / n_rows)
 
     # create a figure (figsize is in inches)
-    pyplot.figure(figsize=(12, 4))
+    if figsize is None:
+        figsize = (12, 4)
+    pyplot.figure(figsize=figsize)
 
     # get the row and column number
     my_row = 0
@@ -131,3 +133,4 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
 
     mylog.info("Writing spectrum plot to png file: %s." % filename)
     pyplot.savefig(filename)
+    pyplot.close()
