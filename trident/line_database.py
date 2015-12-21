@@ -15,6 +15,7 @@ import roman
 from sets import Set
 import os
 from yt.funcs import mylog
+from utilities import trident_path
 
 def uniquify(list):
    # order preserving method for reducing duplicates in a list
@@ -109,8 +110,7 @@ class LineDatabase:
     def load_line_list_from_file(self, filename):
         # check to see if file exists in trident/data/line_lists
         # if not, look in cwd
-        filename = os.path.join(os.path.dirname(__file__), "..",
-                                "data", "line_lists", filename)
+        filename = os.path.join(trident_path(), "data", "line_lists", filename)
         if not os.path.isfile(filename):
             filename = filename.split('/')[-1]
         if not os.path.isfile(filename):

@@ -1,5 +1,7 @@
-#HST RQ composite < 1275 Ang, SDSS composite > 2000 Ang., mean in between
-#8251 0
+# Data from Telfer et al., ApJ, 565, 773
+# "The Rest-Frame Extreme Ultraviolet Spectral Properties of QSOs"
+# HST RQ composite < 1275 Ang, SDSS composite > 2000 Ang., mean in between
+# 8251 0
 302.0000 0.932348 0.042266
 303.0000 1.69339  0.0556
 304.0000 2.50057 0.069824
