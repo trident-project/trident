@@ -326,7 +326,7 @@ def _ion_fraction_field(field,data):
     if n_parameters == 1:
         ionFraction = table_store[field_name]['fraction']
         t_param = table_store[field_name]['parameters'][0]
-        bds = (t_param[0], t_param[-1])
+        bds = t_param.astype("=f8")
 
         interp = UnilinearFieldInterpolator(ionFraction, bds, 'log_T', truncate=True)
 
@@ -335,8 +335,7 @@ def _ion_fraction_field(field,data):
         n_param = table_store[field_name]['parameters'][0]
         z_param = table_store[field_name]['parameters'][1]
         t_param = table_store[field_name]['parameters'][2]
-        bds = np.array([n_param[0], n_param[-1], z_param[0], z_param[-1],
-                    t_param[0], t_param[-1]])
+        bds = [n_param.astype("=f8"), z_param.astype("=f8"), t_param.astype("=f8")]
 
         interp = TrilinearFieldInterpolator(ionFraction, bds,
                                             [("gas", "log_nH"),
