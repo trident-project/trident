@@ -131,6 +131,6 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
 
     if label is not None: pyplot.legend()
 
-    mylog.info("Writing spectrum plot to png file: %s." % filename)
+    mylog.info("Writing spectrum plot to png file: %s" % filename)
     pyplot.savefig(filename)
     pyplot.close()
