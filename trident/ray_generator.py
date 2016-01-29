@@ -163,7 +163,7 @@ def make_compound_ray(parameter_filename, simulation_type,
         Sets the seed for the random number generator used to determine the
         location and trajectory of the LightRay as it traverses the 
         simulation datasets.  For consistent results between LightRays, 
-        use the save seed value.
+        use the same seed value.
         Default: None
 
     setup_function : optional, function
