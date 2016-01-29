@@ -211,7 +211,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                           label_threshold=1e3)
 
         AbsorptionSpectrum.make_spectrum(self, input_ds,
-                                         output_file=output_file,
+                                         output_file=None,
                                          line_list_file=None,
                                          use_peculiar_velocity=use_peculiar_velocity,
                                          njobs=njobs)
