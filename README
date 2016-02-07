@@ -9,9 +9,17 @@ http://yt-project.org
 
 
 To install Trident, please assure yt is installed (right now it only works on 
-the tip of the yt development branch, not with the stable version).  Download 
-the Trident repository at: http://bitbucket.org/trident-project/trident .  
-With mercurial installed, you can do this by:
+the tip of the yt development branch, not with the stable version).  Generally,
+the easiest way to install yt is using Anaconda as described here:
+http://yt-project.org/docs/dev/installing.html#installing-yt-using-anaconda
+Make sure that you also obtain the source code as instructed.
+For notes on all other installation methods see: 
+http://yt-project.org/docs/dev/installing.html.
+
+
+Once you have yt working, download the Trident repository at: 
+http://bitbucket.org/trident-project/trident .  With mercurial installed, you 
+can do this by:
 
 $ hg clone https://bitbucket.org/trident-project/trident
 
