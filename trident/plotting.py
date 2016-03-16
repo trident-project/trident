@@ -55,6 +55,18 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
         if plotting multiple spectra on top of each other, do we stagger them?
         If None, no.  If set to a float, it is the value in relative flux to
         stagger each spectrum
+
+    features : dict, optional
+        include vertical lines with labels to represent certain spectral
+        features.  
+        Default: None
+
+        Example: features={'Ly a' : 1216, 'Ly b' : 1026}
+
+    axis_labels : tuple of strings, optional
+        optionally set the axis labels directly.  If set to None, defaults to
+        ('Wavelength [$\\AA$]', 'Relative Flux').
+        Default: None
     """
 
     # number of rows and columns
