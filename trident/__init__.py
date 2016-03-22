@@ -52,6 +52,9 @@ from ray_generator import \
     make_simple_ray, \
     make_compound_ray
 
+from roman import \
+    toRoman
+
 # Making installation path global
 global path
 path = trident_path()
