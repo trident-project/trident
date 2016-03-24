@@ -98,6 +98,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                     n_lambda=n_lambda,
                                     dlambda=dlambda,
                                     lsf_kernel=lsf_kernel, name="Custom")
+        self.observing_redshift = 0.
         self.set_instrument(instrument)
         mylog.info("Setting instrument to %s" % self.instrument.name)
         self.dlambda = self.instrument.dlambda
@@ -139,8 +140,10 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                                 "ion_balance", ionization_table)
 
     def make_spectrum(self, input_ds, lines=None,
-                      output_file="spectrum.h5",
-                      use_peculiar_velocity=True, njobs="auto"):
+                      output_file=None,
+                      use_peculiar_velocity=True, 
+                      observing_redshift=0.0,
+                      njobs="auto"):
         """
         Make spectrum from ray data using the line list.
 
@@ -155,12 +158,16 @@ class SpectrumGenerator(AbsorptionSpectrum):
             value of the desired line.
         output_file : optional, string
             Path for output file.  File formats are chosen based on the
-            filename extension.  ".h5" for hdf5, ".fits" for fits,
+            filename extension.  ".h5" for HDF5, ".fits" for FITS,
             and everything else is ASCII.
-            Default: "spectrum.h5"
+            Default: None
         use_peculiar_velocity : optional, bool
             If True, include line of sight velocity for shifting lines.
             Default: True
+        observing_redshift : optional, float
+            This is the value of the redshift at which the observer of this
+            spectrum exists.  In most cases, this will be a redshift of 0.
+            Default: 0.
         njobs : optional, int or "auto"
             The number of process groups into which the loop over
             absorption lines will be divided.  If set to -1, each
@@ -175,7 +182,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
             spectrum generation.
             Default: "auto"
         """
-
+        self.observing_redshift = observing_redshift
 
         if isinstance(input_ds, str):
             input_ds = load(input_ds)
@@ -214,13 +221,23 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                          output_file=None,
                                          line_list_file=None,
                                          use_peculiar_velocity=use_peculiar_velocity,
+                                         observing_redshift=observing_redshift,
                                          njobs=njobs)
 
-    def _get_qso_spectrum(self, redshift=0.0, filename=None):
+    def _get_qso_spectrum(self, emitting_redshift, observing_redshift, 
+                          filename=None):
         """
         Read in the composite QSO spectrum and return an interpolated version
         to fit the desired wavelength interval and binning.
         """
+        if observing_redshift is None:
+            observing_redshift = self.observing_redshift
+        if emitting_redshift is None:
+            emitting_redshift = 0.
+        # Following Hogg (2000) eq. 13 for the effective redshift z12 of 
+        # observing at z1 redshift light emitted at z2:
+        # 1 + z12 = (1 + z2) / (1 + z1)
+        redshift_eff = (1 + emitting_redshift) / (1 + observing_redshift) - 1
 
         if filename is None:
             filename = os.path.join(trident_path(),  "data",
@@ -229,7 +246,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
         data = np.loadtxt(filename)
         qso_lambda = YTArray(data[:, 0], 'angstrom')
-        qso_lambda += qso_lambda * redshift
+        qso_lambda += qso_lambda * redshift_eff
         qso_flux = data[:, 1]
 
         index = np.digitize(self.lambda_field, qso_lambda)
@@ -287,18 +304,30 @@ class SpectrumGenerator(AbsorptionSpectrum):
         flux_field *= MW_spectrum
 
     def add_qso_spectrum(self, flux_field=None,
-                         redshift=0.0, filename=None):
+                         emitting_redshift=None,
+                         observing_redshift=None,
+                         filename=None):
         """
-        Add a composite QSO spectrum to the spectrum.
+        Add a composite QSO spectrum to the spectrum.  Uses data from 
+        Telfer et al., ApJ, 565, 773 
+        "The Rest-Frame Extreme Ultraviolet Spectral Properties of QSO"
+        HST Radio Quiet composite for < 1275 Ang, SDSS composite > 2000 Ang,
+        mean in between 8251 0 
 
         **Parameters**
 
-        flux_field : optional, array
-            array of flux values to which the Milky Way foreground is applied.
+        flux_field : array, optional
+            Array of flux values to which the quasar background is applied.
             Default: None
-        redshift: float
-            redshift value for defining the rest wavelength of the QSO
-            Default: 0.0
+        emitting_redshift: float, optional
+            Redshift value at which the QSO emitted its light.  If specified
+            as None, use 0.
+            Default: None
+        observing_redshift: float, optional
+            Redshift value at which the quasar is observed.  If specified as
+            None, use the observing_redshift value specified in make_spectrum()
+            which defaults to 0.
+            Default: None
         filename : string
             Filename where the Milky Way foreground values used to modify
             the flux are stored.
@@ -306,7 +335,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
         """
         if flux_field is None:
             flux_field = self.flux_field
-        qso_spectrum = self._get_qso_spectrum(redshift=redshift,
+        qso_spectrum = self._get_qso_spectrum(emitting_redshift=emitting_redshift,
+                                              observing_redshift=observing_redshift,
                                               filename=filename)
         flux_field *= qso_spectrum
 
@@ -502,8 +532,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
             self._write_spectrum_ascii(filename)
 
     def plot_spectrum(self, filename="spectrum.png",
-                      lambda_limits=None, flux_limits=None,
-                      title=None, label=None, figsize=None):
+                      lambda_limits=None, flux_limits=None, step=False,
+                      title=None, label=None, figsize=None, features=None):
         """
         Plot the spectrum from the SpectrumGenerator class.
 
@@ -513,6 +543,19 @@ class SpectrumGenerator(AbsorptionSpectrum):
         **Parameters**
 
         filename : string, optional
+            Output filename of the plotted spectrum.  Will be a png file.
+
+        lambda_limits : tuple or list of floats, optional
+            The minimum and maximum of the lambda range (x-axis) for the plot
+            in angstroms.  If specified as None, will use whole lambda range 
+            of spectrum.
+            Default: None
+
+        flux_limits : tuple or list of floats, optional
+            The minimum and maximum of the flux range (y-axis) for the plot.
+            If specified as None, limits are automatically from 
+            [0, 1.1*max(flux)].
+            Default: None
 
         title : string, optional
             Title for plot
@@ -522,7 +565,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         """
         plot_spectrum(self.lambda_field, self.flux_field, filename=filename,
                       lambda_limits=lambda_limits, flux_limits=flux_limits,
-                      title=title, figsize=figsize)
+                      step=step, title=title, figsize=figsize, features=features)
 
     def __repr__(self):
         disp = "<SpectrumGenerator>:\n"

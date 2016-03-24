@@ -17,31 +17,57 @@ import numpy as np
 
 def plot_spectrum(wavelength, flux, filename="spectrum.png",
                   lambda_limits=None, flux_limits=None,
-                  title=None, label=None, figsize=None,
-                  stagger=0.2):
+                  title=None, label=None, figsize=None, step=False,
+                  stagger=0.2, features=None, axis_labels=None):
     """
     Plot a spectrum or a collection of spectra and save to disk
 
     Parameters
 
     wavelength : array or list of arrays
-        wavelength vals in angstroms
+        Wavelength vals in angstroms
 
     flux : array or list of arrays
         relative flux (from 0 to 1)
 
     filename : string, optional
+        Output filename of the plotted spectrum.  Will be a png file.
+
+    lambda_limits : tuple or list of floats, optional
+        The minimum and maximum of the lambda range (x-axis) for the plot
+        in angstroms.  If specified as None, will use whole lambda range
+        of spectrum.
+        Default: None
+
+    flux_limits : tuple or list of floats, optional
+        The minimum and maximum of the flux range (y-axis) for the plot.
+        If specified as None, limits are automatically from
+        [0, 1.1*max(flux)].
+        Default: None
+
 
     title : string, optional
-        title for plot
+        Title for plot
 
     label : string or list of strings, optional
-        label for each spectrum to be plotted
+        Label for each spectrum to be plotted
 
     stagger : float, optional
         if plotting multiple spectra on top of each other, do we stagger them?
         If None, no.  If set to a float, it is the value in relative flux to
         stagger each spectrum
+
+    features : dict, optional
+        include vertical lines with labels to represent certain spectral
+        features.  
+        Default: None
+
+        Example: features={'Ly a' : 1216, 'Ly b' : 1026}
+
+    axis_labels : tuple of strings, optional
+        optionally set the axis labels directly.  If set to None, defaults to
+        ('Wavelength [$\\AA$]', 'Relative Flux').
+        Default: None
     """
 
     # number of rows and columns
@@ -51,7 +77,7 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
     # blank space between edge of figure and active plot area
     top_buffer = 0.07
     bottom_buffer = 0.15
-    left_buffer = 0.05
+    left_buffer = 0.06
     right_buffer = 0.03
 
     # blank space between plots
@@ -104,9 +130,15 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
 
         # Do we include labels and a legend?
         if label is not None:
-            my_axes.plot(wavelength, flux, label=labels[i])
+            if step:
+                my_axes.step(wavelength, flux, label=labels[i])
+            else:
+                my_axes.plot(wavelength, flux, label=labels[i])
         else:
-            my_axes.plot(wavelength, flux)
+            if step:
+                my_axes.step(wavelength, flux)
+            else:
+                my_axes.plot(wavelength, flux)
 
         # Do we include a title?
         if title is not None:
@@ -123,14 +155,31 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
     if flux_limits is None:
         flux_limits = (0, 1.1*max_flux)
     my_axes.set_ylim(flux_limits[0], flux_limits[1])
-    my_axes.xaxis.set_label_text("$\\lambda$ [$\\AA$]")
-    my_axes.yaxis.set_label_text("Relative Flux")
+    if axis_labels is None:
+        axis_labels = ('Wavelength [$\\AA$]', 'Relative Flux')
+    my_axes.xaxis.set_label_text(axis_labels[0])
+    my_axes.yaxis.set_label_text(axis_labels[1])
 
     # Don't let the x-axis switch to offset values for tick labels
     my_axes.get_xaxis().get_major_formatter().set_useOffset(False)
 
     if label is not None: pyplot.legend()
 
-    mylog.info("Writing spectrum plot to png file: %s" % filename)
+    # Overplot the relevant features on the plot
+    if features is not None:
+        for feature in features:
+            label = feature
+            wavelength = features[feature]
+            # Draw line
+            my_axes.plot([wavelength, wavelength], flux_limits, '--', color='k')
+            # Write text
+            text_location = flux_limits[1] - 0.05*(flux_limits[1] - flux_limits[0])
+            my_axes.text(wavelength, text_location, label, 
+                    horizontalalignment='right', 
+                    verticalalignment='top', rotation='vertical')
+                    #transform=ax.transAxes) 
+
+    #pyplot.tight_layout()
+     mylog.info("Writing spectrum plot to png file: %s" % filename)
     pyplot.savefig(filename)
     pyplot.close()
