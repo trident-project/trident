@@ -1,11 +1,16 @@
 Trident is a python-based package extending yt for generating synthetic
-observations of hydrodynamical datasets.
+absorption-line spectra of hydrodynamical datasets.
 
-Please visit the Trident and yt websites for more information:
+Please visit the Trident and yt websites and their respective documentation
+for more information:
 
 http://trident-project.org
 
+http://trident.readthedocs.org
+
 http://yt-project.org
+
+http://yt-project.org/doc/
 
 
 To install Trident, please assure yt is installed (right now it only works on 
