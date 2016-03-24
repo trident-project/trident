@@ -1,5 +1,6 @@
 import os
 from setuptools import setup
+from setuptools import find_packages
 
 # Utility function to read the README file.
 # Used for the long_description.  It's nice, because now 1) we have a top level
@@ -10,17 +11,22 @@ def read(fname):
 
 setup(
     name = "trident",
-    version = "0.1",
+    version = "0.2",
     author = "Cameron Hummels, Devin Silvia, Britton Smith",
-    description = ("Synthetic spectrum generator for simulation data"),
+    description = ("Spectrum generator for astrophysical simulation data"),
+    long_description = ("""Used for generating synthetic absorption-line 
+spectra from astrophysical hydrodynamical data"""),
     license = "BSD",
-    keywords = "spectra",
+    keywords = ["simulation", "spectra"], 
     url = "https://bitbucket.org/trident-project/trident",
-    packages=[],
-    long_description=read('README'),
+    packages=find_packages(),
     classifiers=[
-        "Development Status :: 1 - Alpha",
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Science/Research",
         "Topic :: Utilities",
         "License :: OSI Approved :: BSD License",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 2.7",
     ],
+    install_requires=['yt'],
 )
