@@ -1,0 +1,18 @@
+This directory contains the uncompiled Trident documentation.  If you wish to 
+build it locally, you can do so with the Sphinx extension.  Sphinx is available
+at:
+
+http://www.sphinx-doc.org/en/stable/
+
+Alternatively, you can install it easily using pip:
+
+$ pip install sphinx
+
+And then build the Trident docs with:
+
+$ make html
+
+
+Alternatively, you can view the latest Trident documentation online at:
+
+http://trident.readthedocs.org
