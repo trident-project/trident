@@ -1,0 +1,8 @@
+include CITATION CREDITS LICENSE README requirements.txt setup.py
+recursive-include trident *.py
+recursive-include data README *.txt
+prune data/ion_balance *.h5
+recursive-include doc *.rst *.py *.png
+include doc/README doc/Makefile
+prune doc/build
+recursive-include examples *.py
