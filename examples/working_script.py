@@ -28,7 +28,7 @@ sg.plot_spectrum('spec_raw.png')
 
 # "Final" spectrum with added quasar, MW background, and gaussian noise 
 # (SNR=30)
-sg.add_qso_spectrum(redshift=0.0)
+sg.add_qso_spectrum()
 sg.add_milky_way_foreground()
 sg.apply_lsf()
 sg.add_gaussian_noise(30)
