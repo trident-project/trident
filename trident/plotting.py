@@ -28,7 +28,7 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
         Wavelength vals in angstroms
 
     flux : array or list of arrays
-        Relative flux (from 0 to 1)
+        relative flux (from 0 to 1)
 
     filename : string, optional
         Output filename of the plotted spectrum.  Will be a png file.
@@ -44,6 +44,7 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
         If specified as None, limits are automatically from
         [0, 1.1*max(flux)].
         Default: None
+
 
     title : string, optional
         Title for plot
@@ -179,6 +180,6 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
                     #transform=ax.transAxes) 
 
     #pyplot.tight_layout()
-    mylog.info("Writing spectrum plot to png file: %s." % filename)
+     mylog.info("Writing spectrum plot to png file: %s" % filename)
     pyplot.savefig(filename)
     pyplot.close()
