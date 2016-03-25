@@ -1,3 +1,6 @@
+TRIDENT
+=======
+
 Trident is a python-based package extending yt for generating synthetic
 absorption-line spectra of hydrodynamical datasets.  For more information
 about Trident and yt, please visit the websites or look at the code repository:
@@ -14,7 +17,8 @@ INSTALLATION
 
 The Trident source is most easily installed using pip.  But you can only
 do this once you've installed yt and its dependencies.  If you already have
-yt installed, then skip to step #2.  
+yt installed, then skip to step 2.  
+
 
 1) Install yt.  There are several methods for doing this all discussed in
 detail in the yt docs here: http://yt-project.org/doc/installing.html
@@ -25,9 +29,11 @@ If you're just starting out, we recommend the conda method as the least
 work for new users to get yt installed as described here:
 http://yt-project.org/doc/installing.html#installing-yt-using-anaconda
 
+
 2) Install Trident using pip.  
 
 $ pip install trident
+
 
 3) Get the ion_balance datafile.  This datafile is needed to determine
 the ionization fractions for ions from density, temperature, metallicity, and 
