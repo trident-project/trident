@@ -20,7 +20,7 @@ do this once you've installed yt and its dependencies.  If you already have
 yt installed, then skip to step 2.  
 
 
-1) Install yt.  There are several methods for doing this all discussed in
+1. Install yt.  There are several methods for doing this all discussed in
 detail in the yt docs here: http://yt-project.org/doc/installing.html
 Note that Trident currently requires the development branch of yt to work
 properly.
@@ -30,12 +30,12 @@ work for new users to get yt installed as described here:
 http://yt-project.org/doc/installing.html#installing-yt-using-anaconda
 
 
-2) Install Trident using pip.  
+2. Install Trident using pip.  
 
 $ pip install trident
 
 
-3) Get the ion_balance datafile.  This datafile is needed to determine
+3. Get the ion_balance datafile.  This datafile is needed to determine
 the ionization fractions for ions from density, temperature, metallicity, and 
 redshift fields.  The first time you run Trident, it will attempt to 
 automatically download this file for you with some interactive prompts.
