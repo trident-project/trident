@@ -13,6 +13,7 @@ setup(
     name = "trident",
     version = "0.2",
     author = "Cameron Hummels, Devin Silvia, Britton Smith",
+    author_email = "chummels@gmail.com",
     description = ("Spectrum generator for astrophysical simulation data"),
     long_description = ("""Used for generating synthetic absorption-line 
 spectra from astrophysical hydrodynamical data"""),
