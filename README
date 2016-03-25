@@ -20,22 +20,22 @@ do this once you've installed yt and its dependencies.  If you already have
 yt installed, then skip to step 2.  
 
 
-1. Install yt.  There are several methods for doing this all discussed in
+Step 1: Install yt.  There are several methods for doing this all discussed in
 detail in the yt docs here: http://yt-project.org/doc/installing.html
 Note that Trident currently requires the development branch of yt to work
 properly.
 
-If you're just starting out, we recommend the conda method as the least
+If you're just starting out, we recommend the anaconda method as the least
 work for new users to get yt installed as described here:
 http://yt-project.org/doc/installing.html#installing-yt-using-anaconda
 
 
-2. Install Trident using pip.  
+Step 2: Install Trident using pip.::
 
-$ pip install trident
+    $ pip install trident
 
 
-3. Get the ion_balance datafile.  This datafile is needed to determine
+Step 3: Get the `ion_balance` datafile.  This datafile is needed to determine
 the ionization fractions for ions from density, temperature, metallicity, and 
 redshift fields.  The first time you run Trident, it will attempt to 
 automatically download this file for you with some interactive prompts.
@@ -45,13 +45,13 @@ following files and either placing it in your $HOME/.trident directory, or
 placing its path in the .trident/config file.  See the docs for more 
 information.
 
-High-Res (1.6GB)
+High-Res (1.6GB)::
 
-$ wget http://trident-project.org/data/ion_balance/hm2012_hr.h5 
+    $ wget http://trident-project.org/data/ion_balance/hm2012_hr.h5 
 
-Low-Res (205MB)
+Low-Res (205MB)::
 
-$ wget http://trident-project.org/data/ion_balance/hm2012_lr.h5
+    $ wget http://trident-project.org/data/ion_balance/hm2012_lr.h5
 
 The best results are achieved using the high-resolution data 
 file (1.6GB), but the low-resolution data is also acceptable (205MB).
