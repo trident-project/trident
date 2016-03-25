@@ -180,6 +180,6 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
                     #transform=ax.transAxes) 
 
     #pyplot.tight_layout()
-     mylog.info("Writing spectrum plot to png file: %s" % filename)
+    mylog.info("Writing spectrum plot to png file: %s" % filename)
     pyplot.savefig(filename)
     pyplot.close()
