@@ -35,7 +35,7 @@ Step 2: Install Trident using pip.::
     $ pip install trident
 
 
-Step 3: Get the `ion_balance` datafile.  This datafile is needed to determine
+Step 3: Get the ``ion_balance`` datafile.  This datafile is needed to determine
 the ionization fractions for ions from density, temperature, metallicity, and 
 redshift fields.  The first time you run Trident, it will attempt to 
 automatically download this file for you with some interactive prompts.
