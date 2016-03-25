@@ -15,6 +15,8 @@ http://yt-project.org
 # The full license is in the file COPYING.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
+__version__ = "0.2"
+
 from ion_balance import \
     add_ion_fraction_field, \
     add_ion_number_density_field, \
