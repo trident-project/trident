@@ -1,6 +1,6 @@
 .. _installation:
 
-INSTALLATION
+Installation
 ============
 
 The Trident source is most easily installed using pip.  But you can only
@@ -8,7 +8,7 @@ do this once you've installed yt and its dependencies.  If you already have
 yt installed, then skip to step 2.
 
 
-Step 1: Install yt.  There are several methods for doing this all discussed in
+Step 1: Install yt  There are several methods for doing this all discussed in
 detail in the yt docs here: http://yt-project.org/docs/dev/installing.html
 Note that Trident currently requires the development branch of yt to work
 properly.
@@ -44,5 +44,4 @@ Low-Res (205MB)::
 The best results are achieved using the high-resolution data
 file (1.6GB), but the low-resolution data is also acceptable (205MB).
 
-You're now ready to use Trident.  Please refer to the documentation for how
-to use it with your data or with one of our sample datasets.
+You're now ready to use Trident.  
