@@ -21,13 +21,13 @@ yt installed, then skip to step 2.
 
 
 Step 1: Install yt.  There are several methods for doing this all discussed in
-detail in the yt docs here: http://yt-project.org/doc/installing.html
+detail in the yt docs here: http://yt-project.org/docs/dev/installing.html
 Note that Trident currently requires the development branch of yt to work
 properly.
 
 If you're just starting out, we recommend the anaconda method as the least
 work for new users to get yt installed as described here:
-http://yt-project.org/doc/installing.html#installing-yt-using-anaconda
+http://yt-project.org/docs/dev/installing.html#installing-yt-using-anaconda
 
 
 Step 2: Install Trident using pip.::
