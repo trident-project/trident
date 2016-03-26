@@ -26,7 +26,7 @@ Then, you need to specify which dataset to extract the light ray from (for this 
 
 .. code-block:: python
 
-   file_name = 'enzo_cosmology_plus/RD0009/RD0009'
+   fn = 'enzo_cosmology_plus/RD0009/RD0009'
 
 From here, we can generate the light ray using the LightRay class and the make_light_ray function contained within that class:
 
@@ -64,7 +64,7 @@ From here we can modify the spectrum to include additional features that would b
     # Modify the clean spectrum to produce an "observed" spectrum with added
     # composite quasar spectrum, MW foreground features, and gaussian noise
     # with SNR=30
-    sg.add_qso_spectrum(redshift=0.0)
+    sg.add_qso_spectrum()
     sg.add_milky_way_foreground()
     sg.apply_lsf()
     sg.add_gaussian_noise(30)
