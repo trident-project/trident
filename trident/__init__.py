@@ -55,7 +55,8 @@ from ray_generator import \
     make_compound_ray
 
 from roman import \
-    toRoman
+    toRoman, \
+    fromRoman
 
 # Making installation path global
 global path
