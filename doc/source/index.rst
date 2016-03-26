@@ -1,12 +1,8 @@
-.. trident documentation master file, created by
-   sphinx-quickstart on Fri Oct  2 16:18:37 2015.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Trident Documentation
+=====================
 
-Welcome to the documentation for Trident!
-=========================================
-
-Trident is a Python package for creating synthetic QSO spectra from simulations.
+Trident is a Python package for creating synthetic absorption-line spectra 
+from astrophysical hydrodynamics simulations.
 
 Contents:
 
@@ -29,12 +25,12 @@ free to post any questions or ideas for development.
 Citing Trident
 --------------
 
-We don't have a Trident paper yet, so why don't you just offer us
-permanent jobs?
+We do not currently have a method paper available for citation, but this
+location will be updated when we do.  Currently, if you use Trident in a
+publication, please cite Trident as:
 
-Indices and tables
-------------------
+Hummels, C. B., Smith, B. D., Silvia, D. in prep.
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+In the body of the text, please add a footnote to the Trident webpage:
+
+http://trident-project.org/
