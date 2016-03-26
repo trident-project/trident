@@ -53,7 +53,7 @@ Interface for Adding Ion Fields
 .. autofunction:: trident.add_ion_fraction_field
 .. autofunction:: trident.add_ion_mass_field
 
-Miscellanious Utilities
+Miscellaneous Utilities
 -----------------------
 
 .. autosummary::
