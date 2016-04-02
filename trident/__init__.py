@@ -58,6 +58,11 @@ from roman import \
     toRoman, \
     fromRoman
 
+from file_utilities import \
+    download, \
+    gzip_file, \
+    gunzip_file
+
 # Making installation path global
 global path
 path = trident_path()
