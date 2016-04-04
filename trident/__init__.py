@@ -59,9 +59,12 @@ from roman import \
     fromRoman
 
 from file_utilities import \
-    download, \
+    download_file, \
     gzip_file, \
-    gunzip_file
+    gunzip_file, \
+    _check_local_datafiles, \
+    _setup_local_datafiles, \
+    get_datafiles
 
 # Making installation path global
 global path
