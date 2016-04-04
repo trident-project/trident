@@ -59,13 +59,9 @@ from roman import \
     fromRoman
 
 from file_utilities import \
-    download_file, \
-    gzip_file, \
-    gunzip_file, \
-    _check_local_datafiles, \
-    _setup_local_datafiles, \
-    get_datafiles
+    parse_config
 
 # Making installation path global
 global path
 path = trident_path()
+datadir, datafile = parse_config()

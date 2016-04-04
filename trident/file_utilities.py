@@ -21,6 +21,13 @@ import requests
 import tempfile
 import shutil
 
+def ensure_directory(directory):
+    """
+    Ensures a directory exists by creating it if it does not.
+    """
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
 def download_file(url, local_directory=None, local_filename=None):
     """
     Downloads a file from the provided URL.  If progress_bar is set
@@ -33,26 +40,29 @@ def download_file(url, local_directory=None, local_filename=None):
     # Following the base description on stack overflow:
     # http://stackoverflow.com/questions/22676/how-do-i-download-a-file-over-http-using-python
 
-    filename = url.split('/')[-1]
+    if local_filename is None:
+        local_filename = url.split('/')[-1]
+    if local_directory is None:
+        local_directory = '.'
+    ensure_directory(local_directory)
+    filepath = os.path.join(local_directory, local_filename)
+    filehandle = open(filepath, 'wb')
+
     u = urllib2.urlopen(url)
-    filehandle = open(filename, 'wb')
     meta = u.info()
     filesize = int(meta.getheaders("Content-Length")[0])
-    print "Downloading: %s Bytes: %s" % (filename, filesize)
-
+    print "Downloading file: %s     Size [bytes]: %s" % (local_filename, filesize)
     filesize_dl = 0
     block_sz = 8192
     while True:
         buffer = u.read(block_sz)
         if not buffer:
             break
-
         filesize_dl += len(buffer)
         filehandle.write(buffer)
         status = r"%10d  [%3.2f%%]" % (filesize_dl, filesize_dl * 100. / filesize)
         status = status + chr(8)*(len(status)+1)
         print status,
-
     filehandle.close()
 
 def gunzip_file(in_filename, out_filename=None, cleanup=True):
@@ -92,7 +102,7 @@ def gzip_file(in_filename, out_filename=None, cleanup=True):
 
 #def _scan_remote_directory():
 
-def _check_local_datafiles():
+def parse_config():
     """
     This function runs every time Trident gets imported.  It assures that
     Trident knows where to look for ion_balance datafiles.  If something is
@@ -103,54 +113,59 @@ def _check_local_datafiles():
     home = expanduser("~")
     directory = os.path.join(home, '.trident')
     config_filename = os.path.join(directory, 'config')
-    if not os.path.exists(directory) or not os.path.exists(config_filename):
-        _setup_local_datafiles()
-
-    parser = SafeConfigParser()
-    parser.read(config_filename)
     try:
-        ion_balance_data_dir = parser.get('trident', 'ion_balance_data_dir')
-        ion_balance_default = parser.get('trident', 'ion_balance_data_file')
-        ion_balance_filename = os.path.join(ion_balance_data_dir, 
-                                            ion_balance_data_file)
+        parser = SafeConfigParser()
+        parser.read(config_filename)
+        ion_balance_data_dir = parser.get('Trident', 'ion_balance_data_dir')
+        ion_balance_data_file = parser.get('Trident', 'ion_balance_data_file')
     except:
-        _setup_local_datafiles()
-    return ion_balance_data_dir, ion_balance_filename
+        ion_balance_data_dir, ion_balance_data_file = create_config()
+    return ion_balance_data_dir, ion_balance_data_file
 
-def _setup_local_datafiles():
+def create_config():
     """
     """
-    print "To finalize your Trident installation, you will require a configuration file"
-    print "placed in your ~/.trident directory and a data file for calculating"
-    print "ionization fractions from gas quantities."
-
-    print "Which datafile would you like to use for calculation ionization fractions?"
-
-    print "Type 'yes' to create them now:"
-    value = raw_input()
-    if value.strip() != 'yes':
-        sys.exit('Exiting.')
-
-    # Create ~/.trident directory
-    home = expanduser("~")
-    directory = os.path.join(home, '.trident')
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-        print "~/.trident directory created."
-    else:
-        print "~/.trident directory already exists."
-    
+    ensure_directory(expanduser('~/.trident'))
+    datadir, datafile = get_datafiles()
+    config = SafeConfigParser()
+    config.add_section('Trident')
+    config.set('Trident', 'ion_balance_data_dir', datadir)
+    config.set('Trident', 'ion_balance_data_file', datafile)
+    config_filename = expanduser('~/.trident/config')
+    with open(config_filename, 'w') as configfile:
+        config.write(configfile)
+    return datadir, datafile
 
 def get_datafiles(url=None):
     """
     """
+    default_dir = expanduser('~/.trident')
+    print ""
+    print "To finalize your Trident installation, we will"
+    print "  create a `~/.trident` directory"
+    print "  create a config file in your `~.trident` directory"
+    print "  download a data file for calculating ionization fractions"
+    print ""
+    print "Where would you like Trident to store the data file?"
+    print "[%s]" % default_dir
+
+    # First assure that the .trident directory is created for storing
+    # the config file.
+    ensure_directory(default_dir)
+
+    datadir = raw_input().rstrip()
+    if datadir == '':
+        datadir = default_dir
+    datadir = expanduser(datadir)
+    ensure_directory(datadir)
+
     if url is None:
         url = 'http://trident-project.org/data/ion_balance/'
     page = str(requests.get(url).text)
     line_list = page.split('\n')
     i = 1
     filenames = []
-    print "The following datafiles are available for calculating ionization fractions."
+    print "The following data files are available:"
     for line in line_list:
        if not line.startswith('<!--X'):
             continue
@@ -170,16 +185,13 @@ def get_datafiles(url=None):
             break
         except IndexError:
             print "%d is not a valid option.  Please pick one of the listed numbers."
-    print ""
-    print "Where would you like to store this datafile? [~/.trident]"
-    value = raw_input().rstrip()
-    value = expanduser(value)
 
-
-    filename = os.path.join(url, filename)
+    fileurl = os.path.join(url, filename)
     tempdir = tempfile.mkdtemp()
-    download_file(filename, local_directory=tempdir)
-    
+    print ""
+    download_file(fileurl, local_directory=tempdir)
+    print " Unzipping file: %s" % filename
+    gunzip_file(os.path.join(tempdir, filename), 
+                out_filename=os.path.join(datadir, filename[:-3]))
     shutil.rmtree(tempdir)
-
-    
+    return datadir, filename[:-3]
