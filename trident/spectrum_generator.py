@@ -83,8 +83,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
     ionization_table: hdf5 file, optional
         An HDF5 file used for computing the ionization fraction of the gas
-        based on its density, temperature, metallicity, and redshift.
-        The format of this file should be... <THIS NEEDS TO BE FINISHED>
+        based on its density, temperature, metallicity, and redshift.  
     """
     def __init__(self, instrument=None, lambda_min=None, lambda_max=None,
                  n_lambda=None, dlambda=None, lsf_kernel=None,
@@ -115,29 +114,20 @@ class SpectrumGenerator(AbsorptionSpectrum):
         # flux_field respectively.
         self.clear_spectrum()
 
-        # store the ionization table in the SpectrumGenerator object
         if ionization_table is not None:
             # figure out where the user-specified files lives
-            ionization_table = os.path.join(trident_path(), "data", \
-                                            "ion_balance", filename)
-            if not os.path.isfile(ionization_table):
-                ionization_table = filename
-            if not os.path.isfile(ionization_table):
-                raise RuntimeError("ionization_table %s is not found in local "
-                                   "directory or in trident/data/ion_balance "
-                                   % (filename.split('/')[-1]))
-            self.ionization_table = ionization_table
-        else:
-            table_dir = os.path.join(trident_path(), 'data/ion_balance')
-            filelist = os.listdir(table_dir)
-            ion_files = [i for i in filelist if i.endswith('.h5')]
-            if 'hm2012_hr.h5' in ion_files: ionization_table = 'hm2012_hr.h5'
-            elif 'hm2012_lr.h5' in ion_files: ionization_table = 'hm2012_lr.h5'
+            ion_balance_data_dir, ion_balance_data_file = parse_config()
+            filepath = os.path.join(ion_balance_data_dir, ionization_table)
+            if os.path.isfile(ionization_table):
+                self.ionization_table = ionization_table
+            elif os.path.isfile(filepath):
+                self.ionization_table = filepath
             else:
-                mylog.info("No ionization file specified, using %s" %ion_files[0])
-                ionization_table = ion_files[0]
-            self.ionization_table = os.path.join(trident_path(), "data", 
-                                                "ion_balance", ionization_table)
+                raise RuntimeError("ionization_table %s is not found in local "
+                                   "directory or in %s" % 
+                                   (filename.split('/')[-1], 
+                                    ion_balance_data_dir))
+            self.ionization_table = ionization_table
 
     def make_spectrum(self, input_ds, lines=None,
                       output_file=None,
@@ -207,9 +197,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                         my_lev = int(on_ion[1][1:]) + 1
                     else:
                         my_lev = 1
-                add_ion_number_density_field(on_ion[0], my_lev,
-                                             self.ionization_table,
-                                             input_ds)
+                add_ion_number_density_field(on_ion[0], my_lev, input_ds)
             self.add_line(line.identifier, line.field,
                           float(line.wavelength),
                           float(line.f_value),
