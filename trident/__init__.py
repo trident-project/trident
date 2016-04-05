@@ -43,6 +43,7 @@ from spectrum_generator import \
     valid_instruments
 
 from utilities import \
+    parse_config, \
     trident, \
     trident_path
 
@@ -58,10 +59,6 @@ from roman import \
     toRoman, \
     fromRoman
 
-from file_utilities import \
-    parse_config
-
 # Making installation path global
-global path
 path = trident_path()
 datadir, datafile = parse_config()
