@@ -20,6 +20,7 @@ from ConfigParser import SafeConfigParser
 import requests
 import tempfile
 import shutil
+from yt.funcs import get_pbar
 
 def ensure_directory(directory):
     """
@@ -55,9 +56,9 @@ def download_file(url, progress_bar=True, local_directory=None,
     # Get information about remote filesize
     u = urllib2.urlopen(url)
     meta = u.info()
-    filesize = int(meta.getheaders("Content-Length")[0])
+    filesize = int(meta.getheaders("Content-Length")[0])/2**10 # in kB
     if progress_bar:
-        print "Downloading file: %s     Size [bytes]: %s" % (local_filename, filesize)
+        pbar = get_pbar("Downloading file: %s" % local_filename, filesize)
     filesize_dl = 0
     block_sz = 8192
 
@@ -66,13 +67,12 @@ def download_file(url, progress_bar=True, local_directory=None,
         buffer = u.read(block_sz)
         if not buffer:
             break
-        filesize_dl += len(buffer)
+        filesize_dl += int(len(buffer))/2**10
         filehandle.write(buffer)
         if progress_bar:
-            status = r"%10d  [%3.2f%%]" % (filesize_dl, 
-                                           filesize_dl * 100. / filesize)
-            status = status + chr(8)*(len(status)+1)
-            print status,
+            pbar.update(filesize_dl)
+    if progress_bar:
+        pbar.finish()
     filehandle.close()
 
 def gunzip_file(in_filename, out_filename=None, cleanup=True):
@@ -253,7 +253,7 @@ def get_datafiles(datadir=None, url=None):
     tempdir = tempfile.mkdtemp()
     print ""
     download_file(fileurl, local_directory=tempdir)
-    print " Unzipping file: %s" % filename
+    print "  Unzipping file: %s" % filename
     gunzip_file(os.path.join(tempdir, filename), 
                 out_filename=os.path.join(datadir, filename[:-3]))
     shutil.rmtree(tempdir) 
