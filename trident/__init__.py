@@ -17,7 +17,7 @@ http://yt-project.org
 
 __version__ = "0.3"
 
-from ion_balance import \
+from trident.ion_balance import \
     add_ion_fraction_field, \
     add_ion_number_density_field, \
     add_ion_density_field, \
@@ -25,39 +25,39 @@ from ion_balance import \
     solar_abundance, \
     atomic_mass
 
-from instrument import \
+from trident.instrument import \
     Instrument
 
-from line_database import \
+from trident.line_database import \
     LineDatabase, \
     Line
 
-from lsf import \
+from trident.lsf import \
     LSF
 
-from plotting import \
+from trident.plotting import \
     plot_spectrum
 
-from spectrum_generator import \
+from trident.spectrum_generator import \
     SpectrumGenerator, \
     valid_instruments
 
-from utilities import \
+from trident.utilities import \
     parse_config, \
     trident, \
     trident_path
 
-# Import yt's LightRay class
-from yt.analysis_modules.cosmological_observation.api import \
-    LightRay
-
-from ray_generator import \
+from trident.ray_generator import \
     make_simple_ray, \
     make_compound_ray
 
-from roman import \
+from trident.roman import \
     toRoman, \
     fromRoman
+
+# Import yt's LightRay class
+from yt.analysis_modules.cosmological_observation.api import \
+    LightRay
 
 # Making installation path global
 path = trident_path()
