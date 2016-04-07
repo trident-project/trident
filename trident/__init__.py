@@ -8,11 +8,11 @@ http://yt-project.org
 """
 
 #-----------------------------------------------------------------------------
-# Copyright (c) 2015, Trident Development Team.
+# Copyright (c) 2106, Trident Development Team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
-# The full license is in the file COPYING.txt, distributed with this software.
+# The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
 __version__ = "0.3"
