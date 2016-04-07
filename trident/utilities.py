@@ -116,10 +116,10 @@ def gzip_file(in_filename, out_filename=None, cleanup=True):
 def parse_config():
     """
     This function runs every time Trident gets imported.  It assures that
-    Trident knows where to look for ion_balance datafiles.  If something is
-    missing, either the config file, or a valid ion_balance datafile, it
-    tries to set it up for the user.  For more information about setting
-    this up manually see the installation documentation.
+    Trident knows where to look for ion table datafiles.  If something is
+    missing, either the config file, or a valid ion table datafile, it
+    tries to set everything up for the user.  For more information about doing
+    this manually see the installation documentation.
     """
     # Assure the ~/.trident directory exists, and read in the config file.
     home = expanduser("~")
@@ -128,24 +128,24 @@ def parse_config():
     try:
         parser = SafeConfigParser()
         parser.read(config_filename)
-        ion_balance_data_dir = parser.get('Trident', 'ion_balance_data_dir')
-        ion_balance_data_file = parser.get('Trident', 'ion_balance_data_file')
+        ion_table_dir = parser.get('Trident', 'ion_table_dir')
+        ion_table_file = parser.get('Trident', 'ion_table_file')
     except:
-        ion_balance_data_dir, ion_balance_data_file = create_config()
+        ion_table_dir, ion_table_file = create_config()
 
-    if not os.path.exists(os.path.join(ion_balance_data_dir, 
-                                       ion_balance_data_file)):
+    if not os.path.exists(os.path.join(ion_table_dir, 
+                                       ion_table_file)):
         print ""
-        print "No data file found in %s" % ion_balance_data_dir
-        ion_balance_data_file = get_datafiles(ion_balance_data_dir)
-        parser.set('Trident', 'ion_balance_data_file', ion_balance_data_file)
-    return ion_balance_data_dir, ion_balance_data_file
+        print "No ion table data file found in %s" % ion_table_dir
+        ion_table_file = get_datafiles(ion_table_dir)
+        parser.set('Trident', 'ion_table_file', ion_table_file)
+    return ion_table_dir, ion_table_file
 
 def create_config():
     """
     This function is run if it appears that the configuration has not yet
     been set up for the user.  It will attempt to create a configuration file
-    and download an ion_balance datafile from the web.  It does this using
+    and download an ion table datafile from the web.  It does this using
     user interaction from the python prompt.
     """
     default_dir = expanduser('~/.trident')
@@ -154,7 +154,7 @@ def create_config():
     print "Trident installation, you must:"
     print " * create a `~/.trident` directory"
     print " * create a config file in your `~.trident` directory"
-    print " * download an ion_balance data file for calculating ionization fractions"
+    print " * download an ion table file for calculating ionization fractions"
     print ""
     print "You can do this manually by following the installation docs, or we can"
     print "do it automatically now if you have web access."
@@ -165,7 +165,7 @@ def create_config():
         sys.exit('Instructions at http://trident.readthedocs.org/en/latest/Installation.html')
 
     print ""
-    print "Where would you like Trident to store the ion_balance data file?"
+    print "Where would you like Trident to store the ion table file?"
     print "[%s]" % default_dir
 
     # First assure that the .trident directory is created for storing
@@ -192,8 +192,8 @@ def create_config():
     # Create the config file and make it to the datadir and datafiles chosen
     config = SafeConfigParser()
     config.add_section('Trident')
-    config.set('Trident', 'ion_balance_data_dir', datadir)
-    config.set('Trident', 'ion_balance_data_file', datafile)
+    config.set('Trident', 'ion_table_dir', datadir)
+    config.set('Trident', 'ion_table_file', datafile)
     config_filename = expanduser('~/.trident/config')
     with open(config_filename, 'w') as configfile:
         config.write(configfile)
@@ -201,23 +201,23 @@ def create_config():
     print ""
     print "Installation complete.  Now let's do some science!"
 
-    # Return the ion_balance_data_dir and ion_balance_data_file so they
+    # Return the ion_table_dir and ion_table_file so they
     # can be set as trident global variables for future use by ion_balance 
     # classes/functions
     return datadir, datafile
 
 def get_datafiles(datadir=None, url=None):
     """
-    If the user lacks an ion_balance datafile, this attempts to download one
+    If the user lacks an ion table datafile, this attempts to download one
     from the web using interaction with the user.
     """
     if datadir is None:
         datadir = expanduser('~/.trident')
     ensure_directory(datadir)
 
-    # ion_balance datafiles are stored here
+    # ion table datafiles are stored here
     if url is None:
-        url = 'http://trident-project.org/data/ion_balance/'
+        url = 'http://trident-project.org/data/ion_table/'
     
     # Try to figure out which datafiles are available on the remote server
     try:
@@ -282,7 +282,7 @@ def trident_path():
     """
     A function returning the path of the trident installation directory.
     Useful for identifying where data files are (e.g. path/data).  Note that
-    ion_balance datafiles are downloaded separate and placed in another
+    ion table datafiles are downloaded separate and placed in another
     location according to the ~/.trident/config file.
     """
     return '/'.join(os.path.dirname(__file__).split('/')[:-1])
