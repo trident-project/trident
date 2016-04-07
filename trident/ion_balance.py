@@ -29,7 +29,7 @@ from utilities import \
 H_mass_fraction = 0.76
 to_nH = H_mass_fraction / mh
 
-# set fractions to 0 for values lower than 1e-7,
+# set fractions to 0 for values lower than 1e-9,
 # which is what is used in Sutherland & Dopita (1993).
 fraction_zero_point = 1.e-9
 zero_out_value = -30.
@@ -38,28 +38,26 @@ table_store = {}
 datadir, datafile = parse_config()
 ion_balance_data_file = os.path.join(datadir, datafile)
 
-# Reads in comma separated ionization balance tables from
-# Sutherland & Dopita (1993). << Is this accurate any more?
 class IonBalanceTable(object):
     def __init__(self, filename=ion_balance_data_file, atom=None):
         """
         IonBalanceTable class
 
-        Used to load in an HDF5 file that contains
-        the values for the ionization state of the gas
-        as a function of density, temperature, and
-        metallcity for a given atom
+        Used to load in an HDF5 file that contains the values for the 
+        elemental ionization state of the gas as a function of density, 
+        temperature, and metallcity.
 
         **Parameters**
 
-        filename: string
-            Name of the HDF5 file that contains the
-            ionization data
+        filename: string, optional
+            Name of the HDF5 file that contains the ionization table data.  
 
-        atom: string
-            The atomic species you want to create
-            an IonBalanceTable for
+            default: it uses the table specified in ~/.trident/config
+ 
+        atom: string, optional
+            The atomic species for which you want to create an IonBalanceTable 
 
+            default: None
         """
         self.filename = filename
         self.parameters = []
@@ -68,6 +66,7 @@ class IonBalanceTable(object):
 
     def _load_hdf5_table(self, atom):
         "Read in ion balance table from hdf5."
+
         input = h5py.File(self.filename, 'r')
         self.ion_fraction = input[atom].value
         self.ion_fraction[self.ion_fraction < np.log10(fraction_zero_point)] = zero_out_value
@@ -90,32 +89,33 @@ def _log_T(field, data):
 def add_ion_fraction_field(atom, ion, ds, ionization_table=ion_balance_data_file,
                            field_suffix=False):
     """
-    Add ion fraction field to a yt data object.
+    Add ion fraction field to a yt dataset for the desired ion.
 
-    For example, add_ion_fraction_field('O',6) creates a field
-    called O_p5_ion_fraction.
+    For example, add_ion_fraction_field('O', 6, ds) creates a field
+    called O_p5_ion_fraction for dataset ds, which represents 5-ionized
+    oxygen (O plus 5 = O VI).
 
     **Parameters**
 
     atom: string
-        Atomic species for desired ion fraction
+        Atomic species for desired ion fraction (e.g. 'H', 'C', 'Mg')
 
     ion : integer
-        Ion number for desired species
-
-    ionization_table : string
-        Path to an appropriately formatted HDF5 table
-        that can be used to compute the ion fraction
-        as a function of density, temperature, metallicity,
-        and redshift.
+        Ion number for desired species (e.g. 0 = neutral, 1 = singly ionized,
+        2 = doubly ionized, etc.)
 
     ds : yt dataset object
-        This is the object to which the ion fraction field
-        will be added.
+        This is the dataset to which the ion fraction field will be added.
 
-    field_suffix : boolean
-        Determines whether or not to append a suffix to the field
-        name that indicates what ionization table was used
+    ionization_table : string, optional
+        Path to an appropriately formatted HDF5 table that can be used to 
+        compute the ion fraction as a function of density, temperature, 
+        metallicity, and redshift.  By default, it uses the table specified in
+        ~/.trident/config
+ 
+    field_suffix : boolean, optional
+        Determines whether or not to append a suffix to the field name that 
+        indicates what ionization table was used
     """
 
     if ("gas", "log_nH") not in ds.derived_field_list:
@@ -150,28 +150,29 @@ def add_ion_number_density_field(atom, ion, ds, ionization_table=ion_balance_dat
     """
     Add ion number density field to a yt data object.
 
-    For example, add_ion_number_density_field('O',6) creates a field
-    called O_p5_number_density.
+    For example, add_ion_fraction_field('O', 6, ds) creates a field
+    called O_p5_ion_fraction for dataset ds, which represents 5-ionized
+    oxygen (O plus 5 = O VI).
 
     **Parameters**
 
     atom: string
-        Atomic species for desired ion fraction
+        Atomic species for desired ion fraction (e.g. 'H', 'C', 'Mg')
 
     ion : integer
-        Ion number for desired species
-
-    ionization_table: string
-        Path to an appropriately formatted HDF5 table
-        that can be used to compute the ion fraction
-        as a function of density, temperature, metallicity,
-        and redshift.
+        Ion number for desired species (e.g. 0 = neutral, 1 = singly ionized,
+        2 = doubly ionized, etc.)
 
     ds : yt dataset object
-        This is the object to which the ion fraction field
-        will be added.
+        This is the dataset to which the ion fraction field will be added.
 
-    field_suffix : boolean
+    ionization_table : string, optional
+        Path to an appropriately formatted HDF5 table that can be used to 
+        compute the ion fraction as a function of density, temperature, 
+        metallicity, and redshift.  By default, it uses the table specified in
+        ~/.trident/config
+ 
+    field_suffix : boolean, optional
         Determines whether or not to append a suffix to the field
         name that indicates what ionization table was used
     """
@@ -192,28 +193,29 @@ def add_ion_density_field(atom, ion, ds, ionization_table=ion_balance_data_file,
     """
     Add ion mass density field to a yt data object.
 
-    For example, add_ion_density_field('O',6) creates a field
-    called O_p5_density.
+    For example, add_ion_fraction_field('O', 6, ds) creates a field
+    called O_p5_ion_fraction for dataset ds, which represents 5-ionized
+    oxygen (O plus 5 = O VI).
 
     **Parameters**
 
-    atom : string
-        Atomic species for desired ion fraction
+    atom: string
+        Atomic species for desired ion fraction (e.g. 'H', 'C', 'Mg')
 
     ion : integer
-        Ion number for desired species
-
-    ionization_table : string
-        Path to an appropriately formatted HDF5 table
-        that can be used to compute the ion fraction
-        as a function of density, temperature, metallicity,
-        and redshift.
+        Ion number for desired species (e.g. 0 = neutral, 1 = singly ionized,
+        2 = doubly ionized, etc.)
 
     ds : yt dataset object
-        This is the object to which the ion fraction field
-        will be added.
+        This is the dataset to which the ion fraction field will be added.
 
-    field_suffix : boolean
+    ionization_table : string, optional
+        Path to an appropriately formatted HDF5 table that can be used to 
+        compute the ion fraction as a function of density, temperature, 
+        metallicity, and redshift.  By default, it uses the table specified in
+        ~/.trident/config
+ 
+    field_suffix : boolean, optional
         Determines whether or not to append a suffix to the field
         name that indicates what ionization table was used
     """
@@ -234,28 +236,30 @@ def add_ion_mass_field(atom, ion, ds, ionization_table=ion_balance_data_file,
     """
     Add ion mass fields (g and Msun) to a yt data object.
 
-    For example, add_ion_density_field('O',6) creates a field
-    called O_p5_mass.
+    For example, add_ion_fraction_field('O', 6, ds) creates a field
+    called O_p5_ion_fraction for dataset ds, which represents 5-ionized
+    oxygen (O plus 5 = O VI).
 
     **Parameters**
 
-    atom : string
-        Atomic species for desired ion fraction
+    atom: string
+        Atomic species for desired ion fraction (e.g. 'H', 'C', 'Mg')
 
     ion : integer
-        Ion number for desired species
-
-    ionization_table : string
-        Path to an appropriately formatted HDF5 table
-        that can be used to compute the ion fraction
-        as a function of density, temperature, metallicity,
-        and redshift.
+        Ion number for desired species (e.g. 0 = neutral, 1 = singly ionized,
+        2 = doubly ionized, etc.)
 
     ds : yt dataset object
-        This is the object to which the ion fraction field
+        This is the dataset to which the ion fraction field will be added.
         will be added.
 
-    field_suffix : boolean
+    ionization_table : string, optional
+        Path to an appropriately formatted HDF5 table that can be used to 
+        compute the ion fraction as a function of density, temperature, 
+        metallicity, and redshift.  By default, it uses the table specified in
+        ~/.trident/config
+ 
+    field_suffix : boolean, optional
         Determines whether or not to append a suffix to the field
         name that indicates what ionization table was used
     """
@@ -270,7 +274,12 @@ def add_ion_mass_field(atom, ion, ds, ionization_table=ion_balance_data_file,
                           field_suffix=field_suffix)
     ds.add_field(("gas", field),function=_ion_mass, units=r"g")
 
-def _ion_mass(field,data):
+def _ion_mass(field, data):
+    """
+    Creates the function for a derived field to follow the total mass of an 
+    ion over a dataset given that the specified ion's density field exists 
+    in the dataset.
+    """
     if isinstance(field.name, tuple):
         field_name = field.name[1]
     else:
@@ -282,6 +291,11 @@ def _ion_mass(field,data):
     return data[densityField] * data['cell_volume']
 
 def _ion_density(field,data):
+    """
+    Creates the function for a derived field for following the density of an 
+    ion over a dataset given that the specified ion's number_density field 
+    exists in the dataset.
+    """
     if isinstance(field.name, tuple):
         field_name = field.name[1]
     else:
@@ -294,6 +308,11 @@ def _ion_density(field,data):
     return atomic_mass[atom] * data[numberDensityField] * mh
 
 def _ion_number_density(field,data):
+    """
+    Creates the function for a derived field for following the number_density 
+    of an ion over a dataset given that the specified ion's ion_fraction field 
+    exists in the dataset.
+    """
     if isinstance(field.name, tuple):
         field_name = field.name[1]
     else:
@@ -320,6 +339,11 @@ def _ion_number_density(field,data):
     return field * to_nH
 
 def _ion_fraction_field(field,data):
+    """
+    Creates the function for a derived field for following the ion_fraction
+    of an ion over a dataset by plugging in the density, temperature, 
+    metallicity and redshift of the output into the ionization table.
+    """
     if isinstance(field.name, tuple):
         field_name = field.name[1]
     else:
