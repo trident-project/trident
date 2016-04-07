@@ -15,7 +15,7 @@ http://yt-project.org
 # The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
-__version__ = "0.3"
+__version__ = "0.4"
 
 from trident.ion_balance import \
     add_ion_fraction_field, \

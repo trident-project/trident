@@ -11,7 +11,7 @@ def read(fname):
 
 setup(
     name = "trident",
-    version = "0.3",
+    version = "0.4",
     author = "Cameron Hummels, Devin Silvia, Britton Smith",
     author_email = "chummels@gmail.com",
     description = ("Spectrum generator for astrophysical simulation data"),
