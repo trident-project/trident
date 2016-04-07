@@ -47,21 +47,30 @@ Step 3: Get Ionization Table
 
 In order to calculate the ionization fractions for various ions from 
 density, temperature, metallicity, and redshift fields, you will need 
-an ionization table data file.  The first time you import Trident, it will 
-attempt to automatically download this file for you with some interactive 
-prompts::
+an ionization table data file and a configuration file.  The first time 
+you import Trident into Python, the code will attempt to automatically 
+set this all up for you with a series of interactive prompts.  If this works
+for you, then you're done and you can skip to step 4::
 
     $ python
     >>> import trident
 
-Alternatively, you can acquire it manually by downloading/unzipping one of the 
-files at http://trident-project.org/data/ion_balance .  You can store this
-file wherever you desire, just assure the config file in your $HOME/.trident
-directory points to it.  The contents of $HOME/.trident/config should be:
+Alternatively, you can set this up manually by downloading/unzipping one of the 
+files at http://trident-project.org/data/ion_table .  You can store this
+file wherever you desire, just assure the config file in your ``$HOME/.trident``
+directory points to it.  As an example, if you placed the ``hm2012_hr.h5`` ion
+table file in your ``~/.trident`` directory, the contents of 
+``$HOME/.trident/config`` would be::
 
-[Trident]
-ion_table_dir = /Users/chummels/.trident
-ion_table_file = hm2012_lr.h5
+    [Trident]
+    ion_table_dir = ~/.trident
+    ion_table_file = hm2012_hr.h5
+
+To assure this is all working after you have set it up.  Try to load Trident.
+If you can do that, then you're ready to move to Step 4::
+
+    $ python
+    >>> import trident
 
 Step 4: Science!
 ^^^^^^^^^^^^^^^^
@@ -70,7 +79,7 @@ You're now ready to use Trident.  Please refer to the documentation for how
 to use it with your data or with one of our sample datasets.
 
 
-DOCUMENTATION AND MAILING LIST
+Documentation and Mailing List
 ------------------------------
 
 To view our documentation, please visit:
