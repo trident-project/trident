@@ -1,4 +1,4 @@
-TRIDENT
+Trident
 =======
 
 Trident is a python-based package extending yt for generating synthetic
@@ -12,7 +12,7 @@ http://bitbucket.org/trident-project/trident
 http://yt-project.org
 
 
-INSTALLATION
+Installation
 ------------
 
 The Trident source is most easily installed using pip.  But you can only
