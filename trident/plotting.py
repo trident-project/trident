@@ -11,8 +11,10 @@ Spectrum plotting functions.
 # The full license is in the file COPYING.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-from yt.funcs import mylog
-from matplotlib import pyplot
+from yt.funcs import \
+    mylog
+from matplotlib import \
+    pyplot
 import numpy as np
 
 def plot_spectrum(wavelength, flux, filename="spectrum.png",

@@ -1,5 +1,5 @@
 """
-LSF class and member functions.
+LSF class and member functions for Line Spread Functions.
 
 """
 
@@ -16,7 +16,8 @@ import os
 import sys
 from yt.funcs import \
     mylog
-from utilities import trident_path
+from trident.utilities import \
+    trident_path
 
 class LSF(object):
     """

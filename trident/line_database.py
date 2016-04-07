@@ -11,11 +11,16 @@ Line, LineDatabase class and member functions.
 # The full license is in the file COPYING.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-import roman
-from sets import Set
 import os
-from yt.funcs import mylog
-from utilities import trident_path
+from sets import \
+    Set
+from yt.funcs import \
+    mylog
+from trident.utilities import \
+    trident_path
+import trident.roman import \
+    toRoman, \
+    fromRoman
 
 def uniquify(list):
    # order preserving method for reducing duplicates in a list

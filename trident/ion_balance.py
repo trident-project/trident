@@ -23,7 +23,7 @@ import string
 import h5py
 import copy
 import os
-from utilities import \
+from trident.utilities import \
     parse_config
 
 H_mass_fraction = 0.76

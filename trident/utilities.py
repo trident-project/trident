@@ -15,12 +15,15 @@ import urllib2
 import gzip
 import os
 import sys
-from os.path import expanduser
-from ConfigParser import SafeConfigParser
+from os.path import \
+    expanduser
+from ConfigParser import \
+    SafeConfigParser
 import requests
 import tempfile
 import shutil
-from yt.funcs import get_pbar
+from yt.funcs import \
+    get_pbar
 
 def ensure_directory(directory):
     """

@@ -23,18 +23,18 @@ from yt.funcs import \
     mylog, \
     YTArray
 
-from instrument import \
+from trident.instrument import \
     Instrument
-from ion_balance import \
+from trident.ion_balance import \
     add_ion_number_density_field, \
     atomic_mass
-from line_database import \
+from trident.line_database import \
     LineDatabase
-from lsf import \
+from trident.lsf import \
     LSF
-from plotting import \
+from trident.plotting import \
     plot_spectrum
-from utilities import \
+from trident.utilities import \
     trident_path
 
 # Valid instruments
