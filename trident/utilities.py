@@ -139,6 +139,8 @@ def parse_config():
         print "No ion table data file found in %s" % ion_table_dir
         ion_table_file = get_datafiles(ion_table_dir)
         parser.set('Trident', 'ion_table_file', ion_table_file)
+        with open(config_filename, 'w') as configfile:
+            parser.write(configfile)
     return ion_table_dir, ion_table_file
 
 def create_config():
