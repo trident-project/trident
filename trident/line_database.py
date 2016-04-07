@@ -18,8 +18,7 @@ from yt.funcs import \
     mylog
 from trident.utilities import \
     trident_path
-import trident.roman import \
-    toRoman, \
+from trident.roman import \
     fromRoman
 
 def uniquify(list):
@@ -80,7 +79,7 @@ class Line:
 
         # Automatically populate the field if not defined
         if field is None:
-            ion_number = roman.fromRoman(ion_state)
+            ion_number = fromRoman(ion_state)
             if ion_number == 1:
                 keyword = element
             else:
