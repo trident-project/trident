@@ -116,18 +116,19 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
         if ionization_table is not None:
             # figure out where the user-specified files lives
-            ion_balance_data_dir, ion_balance_data_file = parse_config()
-            filepath = os.path.join(ion_balance_data_dir, ionization_table)
-            if os.path.isfile(ionization_table):
-                self.ionization_table = ionization_table
-            elif os.path.isfile(filepath):
-                self.ionization_table = filepath
+            ion_table_dir, ion_table_file = parse_config()
+            ion_table_filepath = os.path.join(ion_table_dir, ion_table_file)
+            if os.path.isfile(ion_table_file):
+                self.ionization_table = ion_table_file
+            elif os.path.isfile(ion_table_filepath):
+                self.ionization_table = ion_table_filepath
             else:
                 raise RuntimeError("ionization_table %s is not found in local "
                                    "directory or in %s" % 
                                    (filename.split('/')[-1], 
-                                    ion_balance_data_dir))
-            self.ionization_table = ionization_table
+                                    ion_table_dir))
+        else:
+            self.ionization_table = None
 
     def make_spectrum(self, input_ds, lines=None,
                       output_file=None,
@@ -197,7 +198,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
                         my_lev = int(on_ion[1][1:]) + 1
                     else:
                         my_lev = 1
-                add_ion_number_density_field(on_ion[0], my_lev, input_ds)
+                add_ion_number_density_field(on_ion[0], my_lev, input_ds, 
+                                             self.ionization_table)
             self.add_line(line.identifier, line.field,
                           float(line.wavelength),
                           float(line.f_value),

@@ -35,11 +35,11 @@ fraction_zero_point = 1.e-9
 zero_out_value = -30.
 
 table_store = {}
-datadir, datafile = parse_config()
-ion_balance_data_file = os.path.join(datadir, datafile)
+ion_table_dir, ion_table_file = parse_config()
+ion_table_filepath = os.path.join(ion_table_dir, ion_table_file)
 
 class IonBalanceTable(object):
-    def __init__(self, filename=ion_balance_data_file, atom=None):
+    def __init__(self, filename=None, atom=None):
         """
         IonBalanceTable class
 
@@ -59,6 +59,8 @@ class IonBalanceTable(object):
 
             default: None
         """
+        if filename is None:
+            filename = ion_table_filepath
         self.filename = filename
         self.parameters = []
         self.ion_fraction = []
@@ -86,7 +88,7 @@ def _redshift(field, data):
 def _log_T(field, data):
     return np.log10(data["gas", "temperature"])
 
-def add_ion_fraction_field(atom, ion, ds, ionization_table=ion_balance_data_file,
+def add_ion_fraction_field(atom, ion, ds, ionization_table=None,
                            field_suffix=False):
     """
     Add ion fraction field to a yt dataset for the desired ion.
@@ -118,6 +120,9 @@ def add_ion_fraction_field(atom, ion, ds, ionization_table=ion_balance_data_file
         indicates what ionization table was used
     """
 
+    if ionization_table is None:
+        ionization_table = ion_table_filepath
+
     if ("gas", "log_nH") not in ds.derived_field_list:
         ds.add_field(("gas", "log_nH"), function=_log_nH, units="")
 
@@ -145,7 +150,7 @@ def add_ion_fraction_field(atom, ion, ds, ionization_table=ion_balance_data_file
 
     ds.add_field(("gas", field),function=_ion_fraction_field, units="")
 
-def add_ion_number_density_field(atom, ion, ds, ionization_table=ion_balance_data_file,
+def add_ion_number_density_field(atom, ion, ds, ionization_table=None,
                                  field_suffix=False):
     """
     Add ion number density field to a yt data object.
@@ -176,6 +181,8 @@ def add_ion_number_density_field(atom, ion, ds, ionization_table=ion_balance_dat
         Determines whether or not to append a suffix to the field
         name that indicates what ionization table was used
     """
+    if ionization_table is None:
+        ionization_table = ion_table_filepath
     atom = string.capitalize(atom)
     if ion == 1:
         field = "%s_number_density" % atom
@@ -188,7 +195,7 @@ def add_ion_number_density_field(atom, ion, ds, ionization_table=ion_balance_dat
     ds.add_field(("gas", field),function=_ion_number_density,
               units="1.0/cm**3")
 
-def add_ion_density_field(atom, ion, ds, ionization_table=ion_balance_data_file,
+def add_ion_density_field(atom, ion, ds, ionization_table=None,
                           field_suffix=False):
     """
     Add ion mass density field to a yt data object.
@@ -219,6 +226,8 @@ def add_ion_density_field(atom, ion, ds, ionization_table=ion_balance_data_file,
         Determines whether or not to append a suffix to the field
         name that indicates what ionization table was used
     """
+    if ionization_table is None:
+        ionization_table = ion_table_filepath
     atom = string.capitalize(atom)
     if ion == 1:
         field = "%s_density" % atom
@@ -231,7 +240,7 @@ def add_ion_density_field(atom, ion, ds, ionization_table=ion_balance_data_file,
     ds.add_field(("gas", field),function=_ion_density,
               units="g/cm**3")
 
-def add_ion_mass_field(atom, ion, ds, ionization_table=ion_balance_data_file,
+def add_ion_mass_field(atom, ion, ds, ionization_table=None,
                        field_suffix=False):
     """
     Add ion mass fields (g and Msun) to a yt data object.
@@ -263,6 +272,8 @@ def add_ion_mass_field(atom, ion, ds, ionization_table=ion_balance_data_file,
         Determines whether or not to append a suffix to the field
         name that indicates what ionization table was used
     """
+    if ionization_table is None:
+        ionization_table = ion_table_filepath
     atom = string.capitalize(atom)
     if ion == 1:
         field = "%s_mass" % atom
