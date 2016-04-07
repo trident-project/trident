@@ -61,4 +61,4 @@ from yt.analysis_modules.cosmological_observation.api import \
 
 # Making installation path global
 path = trident_path()
-datadir, datafile = parse_config()
+ion_table_dir, ion_table_file = parse_config()
