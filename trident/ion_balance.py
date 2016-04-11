@@ -39,28 +39,6 @@ table_store = {}
 ion_table_dir, ion_table_file = parse_config()
 ion_table_filepath = os.path.join(ion_table_dir, ion_table_file)
 
-def _log_nH(field, data):
-    if isinstance(field.name, tuple):
-        ftype = field.name[0]
-    else:
-        ftype = "gas"
-    return np.log10(data[ftype, "density"] * to_nH)
-
-def _redshift(field, data):
-    if isinstance(field.name, tuple):
-        ftype = field.name[0]
-    else:
-        ftype = "gas"
-    return data.ds.current_redshift * \
-        np.ones(data[ftype, "density"].shape, dtype=data[ftype, "density"].dtype)
-
-def _log_T(field, data):
-    if isinstance(field.name, tuple):
-        ftype = field.name[0]
-    else:
-        ftype = "gas"
-    return np.log10(data[ftype, "temperature"])
-
 class IonBalanceTable(object):
     def __init__(self, filename=None, atom=None):
         """
@@ -100,6 +78,28 @@ class IonBalanceTable(object):
             self.parameters.append(input[atom].attrs[name])
         self.parameters.append(input[atom].attrs['Temperature'])
         input.close()
+
+def _log_nH(field, data):
+    if isinstance(field.name, tuple):
+        ftype = field.name[0]
+    else:
+        ftype = "gas"
+    return np.log10(data[ftype, "density"] * to_nH)
+
+def _redshift(field, data):
+    if isinstance(field.name, tuple):
+        ftype = field.name[0]
+    else:
+        ftype = "gas"
+    return data.ds.current_redshift * \
+        np.ones(data[ftype, "density"].shape, dtype=data[ftype, "density"].dtype)
+
+def _log_T(field, data):
+    if isinstance(field.name, tuple):
+        ftype = field.name[0]
+    else:
+        ftype = "gas"
+    return np.log10(data[ftype, "temperature"])
 
 def add_ion_fraction_field(atom, ion, ds, ftype="gas",
                            ionization_table=None,
