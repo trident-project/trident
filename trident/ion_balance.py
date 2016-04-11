@@ -39,6 +39,28 @@ table_store = {}
 ion_table_dir, ion_table_file = parse_config()
 ion_table_filepath = os.path.join(ion_table_dir, ion_table_file)
 
+def _log_nH(field, data):
+    if isinstance(field.name, tuple):
+        ftype = field.name[0]
+    else:
+        ftype = "gas"
+    return np.log10(data[ftype, "density"] * to_nH)
+
+def _redshift(field, data):
+    if isinstance(field.name, tuple):
+        ftype = field.name[0]
+    else:
+        ftype = "gas"
+    return data.ds.current_redshift * \
+        np.ones(data[ftype, "density"].shape, dtype=data[ftype, "density"].dtype)
+
+def _log_T(field, data):
+    if isinstance(field.name, tuple):
+        ftype = field.name[0]
+    else:
+        ftype = "gas"
+    return np.log10(data[ftype, "temperature"])
+
 class IonBalanceTable(object):
     def __init__(self, filename=None, atom=None):
         """
@@ -115,16 +137,6 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
 
     if ionization_table is None:
         ionization_table = ion_table_filepath
-
-    def _log_nH(field, data):
-        return np.log10(data[ftype, "density"] * to_nH)
-
-    def _redshift(field, data):
-        return data.ds.current_redshift * \
-            np.ones(data[ftype, "density"].shape, dtype=data[ftype, "density"].dtype)
-
-    def _log_T(field, data):
-        return np.log10(data[ftype, "temperature"])
 
     if (ftype, "log_nH") not in ds.derived_field_list:
         ds.add_field((ftype, "log_nH"), function=_log_nH, units="",
