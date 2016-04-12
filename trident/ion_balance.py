@@ -363,6 +363,13 @@ def _ion_number_density(field,data):
     prefix = field_name.split("_number_density")[0]
     suffix = field_name.split("_number_density")[-1]
     fractionField = "%s_ion_fraction%s" %(prefix, suffix)
+
+    # try the atom-specific density field first
+    nuclei_field = "%s_nuclei_mass_density" % atom
+    if (ftype, nuclei_field) in data.ds.field_info:
+        return data[fractionField] * \
+          data[(ftype, nuclei_field)] / atomic_mass[atom] / mh
+
     if atom == 'H' or atom == 'He':
         field = solar_abundance[atom] * data[fractionField] * \
                 data[ftype, "density"]
