@@ -168,6 +168,11 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
 
     ds.add_field((ftype, field), function=_ion_fraction_field, units="",
                  particle_type=particle_type)
+    if particle_type:
+        new_field = ds.add_smoothed_particle_field((ftype, field))
+        if ftype != "gas":
+            ds.field_info.alias(("gas", field), new_field)
+            ds.derived_field_list.append(("gas", field))
 
 def add_ion_number_density_field(atom, ion, ds, ftype="gas",
                                  ionization_table=None,
@@ -216,6 +221,11 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
                            particle_type=particle_type)
     ds.add_field((ftype, field),function=_ion_number_density,
                  units="1.0/cm**3", particle_type=particle_type)
+    if particle_type:
+        new_field = ds.add_smoothed_particle_field((ftype, field))
+        if ftype != "gas":
+            ds.field_info.alias(("gas", field), new_field)
+            ds.derived_field_list.append(("gas", field))
 
 def add_ion_density_field(atom, ion, ds, ftype="gas",
                           ionization_table=None,
@@ -264,6 +274,11 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
                                  particle_type=particle_type)
     ds.add_field((ftype, field), function=_ion_density,
                  units="g/cm**3", particle_type=particle_type)
+    if particle_type:
+        new_field = ds.add_smoothed_particle_field((ftype, field))
+        if ftype != "gas":
+            ds.field_info.alias(("gas", field), new_field)
+            ds.derived_field_list.append(("gas", field))
 
 def add_ion_mass_field(atom, ion, ds, ftype="gas",
                        ionization_table=None,
@@ -313,6 +328,11 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
                           particle_type=particle_type)
     ds.add_field((ftype, field), function=_ion_mass, units=r"g",
                  particle_type=particle_type)
+    if particle_type:
+        new_field = ds.add_smoothed_particle_field((ftype, field))
+        if ftype != "gas":
+            ds.field_info.alias(("gas", field), new_field)
+            ds.derived_field_list.append(("gas", field))
 
 def _ion_mass(field, data):
     """
