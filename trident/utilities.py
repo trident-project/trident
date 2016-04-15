@@ -155,7 +155,7 @@ def create_config():
     print "It appears that this is your first time using Trident.  To finalize your"
     print "Trident installation, you must:"
     print " * create a `~/.trident` directory"
-    print " * create a config file in your `~.trident` directory"
+    print " * create a config file in your `~/.trident` directory"
     print " * download an ion table file for calculating ionization fractions"
     print ""
     print "You can do this manually by following the installation docs, or we can"

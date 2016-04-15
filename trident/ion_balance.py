@@ -14,8 +14,9 @@ Ion fraction fields using Cloudy data.
 from yt.fields.field_detector import \
     FieldDetector
 from yt.fields.local_fields import add_field
-from yt.utilities.linear_interpolators import TrilinearFieldInterpolator, \
-                                              UnilinearFieldInterpolator
+from yt.utilities.linear_interpolators import \
+    TrilinearFieldInterpolator, \
+    UnilinearFieldInterpolator
 from yt.utilities.physical_constants import mh
 from yt.funcs import mylog
 import numpy as np
@@ -79,17 +80,31 @@ class IonBalanceTable(object):
         input.close()
 
 def _log_nH(field, data):
-    return np.log10(data["gas", "density"] * to_nH)
+    if isinstance(field.name, tuple):
+        ftype = field.name[0]
+    else:
+        ftype = "gas"
+    return np.log10(data[ftype, "density"] * to_nH)
 
 def _redshift(field, data):
+    if isinstance(field.name, tuple):
+        ftype = field.name[0]
+    else:
+        ftype = "gas"
     return data.ds.current_redshift * \
-        np.ones(data["gas", "density"].shape, dtype=data["gas", "density"].dtype)
+        np.ones(data[ftype, "density"].shape, dtype=data[ftype, "density"].dtype)
 
 def _log_T(field, data):
-    return np.log10(data["gas", "temperature"])
+    if isinstance(field.name, tuple):
+        ftype = field.name[0]
+    else:
+        ftype = "gas"
+    return np.log10(data[ftype, "temperature"])
 
-def add_ion_fraction_field(atom, ion, ds, ionization_table=None,
-                           field_suffix=False):
+def add_ion_fraction_field(atom, ion, ds, ftype="gas",
+                           ionization_table=None,
+                           field_suffix=False,
+                           particle_type=False):
     """
     Add ion fraction field to a yt dataset for the desired ion.
 
@@ -123,14 +138,17 @@ def add_ion_fraction_field(atom, ion, ds, ionization_table=None,
     if ionization_table is None:
         ionization_table = ion_table_filepath
 
-    if ("gas", "log_nH") not in ds.derived_field_list:
-        ds.add_field(("gas", "log_nH"), function=_log_nH, units="")
+    if (ftype, "log_nH") not in ds.derived_field_list:
+        ds.add_field((ftype, "log_nH"), function=_log_nH, units="",
+                     particle_type=particle_type)
 
-    if ("gas", "redshift") not in ds.derived_field_list:
-        ds.add_field(("gas", "redshift"), function=_redshift, units="")
+    if (ftype, "redshift") not in ds.derived_field_list:
+        ds.add_field((ftype, "redshift"), function=_redshift, units="",
+                     particle_type=particle_type)
 
-    if ("gas", "log_T") not in ds.derived_field_list:
-        ds.add_field(("gas", "log_T"), function=_log_T, units="")
+    if (ftype, "log_T") not in ds.derived_field_list:
+        ds.add_field((ftype, "log_T"), function=_log_T, units="",
+                     particle_type=particle_type)
 
     atom = string.capitalize(atom)
     if ion == 1:
@@ -148,10 +166,18 @@ def add_ion_fraction_field(atom, ion, ds, ionization_table=None,
                               'parameters': copy.deepcopy(ionTable.parameters)}
         del ionTable
 
-    ds.add_field(("gas", field),function=_ion_fraction_field, units="")
+    ds.add_field((ftype, field), function=_ion_fraction_field, units="",
+                 particle_type=particle_type)
+    if particle_type:
+        new_field = ds.add_smoothed_particle_field((ftype, field))
+        if ftype != "gas":
+            ds.field_info.alias(("gas", field), new_field)
+            ds.derived_field_list.append(("gas", field))
 
-def add_ion_number_density_field(atom, ion, ds, ionization_table=None,
-                                 field_suffix=False):
+def add_ion_number_density_field(atom, ion, ds, ftype="gas",
+                                 ionization_table=None,
+                                 field_suffix=False,
+                                 particle_type=False):
     """
     Add ion number density field to a yt data object.
 
@@ -190,13 +216,21 @@ def add_ion_number_density_field(atom, ion, ds, ionization_table=None,
         field = "%s_p%d_number_density" % (atom, ion-1)
     if field_suffix:
         field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
-    add_ion_fraction_field(atom, ion, ds, ionization_table, 
-                           field_suffix=field_suffix)
-    ds.add_field(("gas", field),function=_ion_number_density,
-              units="1.0/cm**3")
+    add_ion_fraction_field(atom, ion, ds, ftype, ionization_table,
+                           field_suffix=field_suffix,
+                           particle_type=particle_type)
+    ds.add_field((ftype, field),function=_ion_number_density,
+                 units="1.0/cm**3", particle_type=particle_type)
+    if particle_type:
+        new_field = ds.add_smoothed_particle_field((ftype, field))
+        if ftype != "gas":
+            ds.field_info.alias(("gas", field), new_field)
+            ds.derived_field_list.append(("gas", field))
 
-def add_ion_density_field(atom, ion, ds, ionization_table=None,
-                          field_suffix=False):
+def add_ion_density_field(atom, ion, ds, ftype="gas",
+                          ionization_table=None,
+                          field_suffix=False,
+                          particle_type=False):
     """
     Add ion mass density field to a yt data object.
 
@@ -235,13 +269,21 @@ def add_ion_density_field(atom, ion, ds, ionization_table=None,
         field = "%s_p%d_density" % (atom, ion-1)
     if field_suffix:
         field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
-    add_ion_number_density_field(atom, ion, ds, ionization_table,
-                                 field_suffix=field_suffix)
-    ds.add_field(("gas", field),function=_ion_density,
-              units="g/cm**3")
+    add_ion_number_density_field(atom, ion, ds, ftype, ionization_table,
+                                 field_suffix=field_suffix,
+                                 particle_type=particle_type)
+    ds.add_field((ftype, field), function=_ion_density,
+                 units="g/cm**3", particle_type=particle_type)
+    if particle_type:
+        new_field = ds.add_smoothed_particle_field((ftype, field))
+        if ftype != "gas":
+            ds.field_info.alias(("gas", field), new_field)
+            ds.derived_field_list.append(("gas", field))
 
-def add_ion_mass_field(atom, ion, ds, ionization_table=None,
-                       field_suffix=False):
+def add_ion_mass_field(atom, ion, ds, ftype="gas",
+                       ionization_table=None,
+                       field_suffix=False,
+                       particle_type=False):
     """
     Add ion mass fields (g and Msun) to a yt data object.
 
@@ -281,9 +323,16 @@ def add_ion_mass_field(atom, ion, ds, ionization_table=None,
         field = "%s_p%s_mass" % (atom, ion-1)
     if field_suffix:
         field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
-    add_ion_density_field(atom, ion, ds, ionization_table,
-                          field_suffix=field_suffix)
-    ds.add_field(("gas", field),function=_ion_mass, units=r"g")
+    add_ion_density_field(atom, ion, ds, ftype, ionization_table,
+                          field_suffix=field_suffix,
+                          particle_type=particle_type)
+    ds.add_field((ftype, field), function=_ion_mass, units=r"g",
+                 particle_type=particle_type)
+    if particle_type:
+        new_field = ds.add_smoothed_particle_field((ftype, field))
+        if ftype != "gas":
+            ds.field_info.alias(("gas", field), new_field)
+            ds.derived_field_list.append(("gas", field))
 
 def _ion_mass(field, data):
     """
@@ -325,20 +374,29 @@ def _ion_number_density(field,data):
     exists in the dataset.
     """
     if isinstance(field.name, tuple):
+        ftype = field.name[0]
         field_name = field.name[1]
     else:
+        ftype = "gas"
         field_name = field.name
     atom = field_name.split("_")[0]
     prefix = field_name.split("_number_density")[0]
     suffix = field_name.split("_number_density")[-1]
     fractionField = "%s_ion_fraction%s" %(prefix, suffix)
+
+    # try the atom-specific density field first
+    nuclei_field = "%s_nuclei_mass_density" % atom
+    if (ftype, nuclei_field) in data.ds.field_info:
+        return data[fractionField] * \
+          data[(ftype, nuclei_field)] / atomic_mass[atom] / mh
+
     if atom == 'H' or atom == 'He':
         field = solar_abundance[atom] * data[fractionField] * \
-                data["gas", "density"]
+                data[ftype, "density"]
     else:
         field = data.ds.quan(solar_abundance[atom], "1.0/Zsun") * \
-                data[fractionField] * data["gas", "metallicity"] * \
-                data["gas", "density"]
+                data[fractionField] * data[ftype, "metallicity"] * \
+                data[ftype, "density"]
                 # Ideally we'd like to use the following line
                 # but it is very slow to compute.
                 # If we get H_nuclei_density spread up
@@ -356,8 +414,10 @@ def _ion_fraction_field(field,data):
     metallicity and redshift of the output into the ionization table.
     """
     if isinstance(field.name, tuple):
+        ftype = field.name[0]
         field_name = field.name[1]
     else:
+        ftype = "gas"
         field_name = field.name
     n_parameters = len(table_store[field_name]['parameters'])
 
@@ -376,9 +436,9 @@ def _ion_fraction_field(field,data):
         bds = [n_param.astype("=f8"), z_param.astype("=f8"), t_param.astype("=f8")]
 
         interp = TrilinearFieldInterpolator(ionFraction, bds,
-                                            [("gas", "log_nH"),
-                                             ("gas", "redshift"),
-                                             ("gas", "log_T")],
+                                            [(ftype, "log_nH"),
+                                             (ftype, "redshift"),
+                                             (ftype, "log_T")],
                                             truncate=True)
 
     else:
@@ -392,24 +452,26 @@ def _ion_fraction_field(field,data):
     return fraction
 
 # Taken from Cloudy documentation.
-solar_abundance = {'H':1.00e+00,'He':1.00e-01,'Li':2.04e-09,
-                   'Be':2.63e-11,'B':6.17e-10,'C':2.45e-04,
-                   'N':8.51e-05,'O':4.90e-04,'F':3.02e-08,
-                   'Ne':1.00e-04,'Na':2.14e-06,'Mg':3.47e-05,
-                   'Al':2.95e-06,'Si':3.47e-05,'P':3.20e-07,
-                   'S':1.84e-05,'Cl':1.91e-07,'Ar':2.51e-06,
-                   'K':1.32e-07,'Ca':2.29e-06,'Sc':1.48e-09,
-                   'Ti':1.05e-07,'V':1.00e-08,'Cr':4.68e-07,
-                   'Mn':2.88e-07,'Fe':2.82e-05,'Co':8.32e-08,
-                   'Ni':1.78e-06,'Cu':1.62e-08,'Zn':3.98e-08}
+solar_abundance = {
+    'H' : 1.00e+00, 'He': 1.00e-01, 'Li': 2.04e-09,
+    'Be': 2.63e-11, 'B' : 6.17e-10, 'C' : 2.45e-04,
+    'N' : 8.51e-05, 'O' : 4.90e-04, 'F' : 3.02e-08,
+    'Ne': 1.00e-04, 'Na': 2.14e-06, 'Mg': 3.47e-05,
+    'Al': 2.95e-06, 'Si': 3.47e-05, 'P' : 3.20e-07,
+    'S' : 1.84e-05, 'Cl': 1.91e-07, 'Ar': 2.51e-06,
+    'K' : 1.32e-07, 'Ca': 2.29e-06, 'Sc': 1.48e-09,
+    'Ti': 1.05e-07, 'V' : 1.00e-08, 'Cr': 4.68e-07,
+    'Mn': 2.88e-07, 'Fe': 2.82e-05, 'Co': 8.32e-08,
+    'Ni': 1.78e-06, 'Cu': 1.62e-08, 'Zn': 3.98e-08}
 
-atomic_mass = {'H': 1.00794, 'He': 4.002602, 'Li': 6.941,
-               'Be': 9.012182, 'B': 10.811, 'C': 12.0107,
-               'N': 14.0067, 'O': 15.9994, 'F': 18.9984032,
-               'Ne': 20.1797, 'Na': 22.989770, 'Mg': 24.3050,
-               'Al': 26.981538, 'Si': 28.0855, 'P': 30.973761,
-               'S': 32.065, 'Cl': 35.453, 'Ar': 39.948,
-               'K': 39.0983, 'Ca': 40.078, 'Sc': 44.955910,
-               'Ti': 47.867, 'V': 50.9415, 'Cr': 51.9961,
-               'Mn': 54.938049, 'Fe': 55.845, 'Co': 58.933200,
-               'Ni': 58.6934, 'Cu': 63.546, 'Zn': 65.409}
+atomic_mass = {
+    'H' : 1.00794,   'He': 4.002602,  'Li': 6.941,
+    'Be': 9.012182,  'B' : 10.811,    'C' : 12.0107,
+    'N' : 14.0067,   'O' : 15.9994,   'F' : 18.9984032,
+    'Ne': 20.1797,   'Na': 22.989770, 'Mg': 24.3050,
+    'Al': 26.981538, 'Si': 28.0855,   'P' : 30.973761,
+    'S' : 32.065,    'Cl': 35.453,    'Ar': 39.948,
+    'K' : 39.0983,   'Ca': 40.078,    'Sc': 44.955910,
+    'Ti': 47.867,    'V' : 50.9415,   'Cr': 51.9961,
+    'Mn': 54.938049, 'Fe': 55.845,    'Co': 58.933200,
+    'Ni': 58.6934,   'Cu': 63.546,    'Zn': 65.409}
