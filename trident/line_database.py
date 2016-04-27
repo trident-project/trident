@@ -80,10 +80,7 @@ class Line:
         # Automatically populate the field if not defined
         if field is None:
             ion_number = fromRoman(ion_state)
-            if ion_number == 1:
-                keyword = element
-            else:
-                keyword = "%s_p%d" %  (element, (ion_number-1))
+            keyword = "%s_p%d" %  (element, (ion_number-1))
             field = "%s_number_density" % keyword
         self.field = field
 
@@ -203,3 +200,15 @@ class LineDatabase:
         # Get rid of duplicates in subset and re-sort
         self.lines_subset = uniquify(self.lines_subset)
         return self.lines_subset
+
+    def parse_subset_to_ions(self, subsets):
+        """
+        Parse the lines based on the desired subsets, and output a list of 
+        ion tuples required to produce these desired lines
+        """
+        self.parse_subset(subsets)
+        ions = []
+        for line in self.lines_subset:
+            ions.append((line.element, fromRoman(line.ion_state)))
+        ions = uniquify(ions)
+        return ions
