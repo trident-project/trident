@@ -50,12 +50,12 @@ class IonBalanceTable(object):
 
         **Parameters**
 
-        filename: string, optional
+        filename : string, optional
             Name of the HDF5 file that contains the ionization table data.  
 
             default: it uses the table specified in ~/.trident/config
  
-        atom: string, optional
+        atom : string, optional
             The atomic species for which you want to create an IonBalanceTable 
 
             default: None
@@ -113,19 +113,21 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
 
     **Parameters**
 
-    atom: string
+    atom : string
         Atomic species for desired ion fraction (e.g. 'H', 'C', 'Mg')
 
     ion : integer
-        Ion number for desired species (e.g. 0 = neutral, 1 = singly ionized,
-        2 = doubly ionized, etc.)
+        Ion number for desired species (e.g. 1 = neutral, 2 = singly ionized,
+        3 = doubly ionized, etc.)
 
     ds : yt dataset object
         This is the dataset to which the ion fraction field will be added.
 
     ftype : string, optional
-        ftype is the field type of the field to add.  it is the first
-        string in the field tuple e.g. "gas" in ("gas", "O_p5_ion_fraction")
+        The field type of the field to add.  it is the first string in the 
+        field tuple e.g. "gas" in ("gas", "O_p5_ion_fraction")
+        ftype must correspond to the ftype of the 'density', and 'temperature'
+        fields in your dataset you wish to use to generate the ion field.
         Default: "gas"
 
     ionization_table : string, optional
@@ -211,19 +213,21 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
 
     **Parameters**
 
-    atom: string
+    atom : string
         Atomic species for desired ion fraction (e.g. 'H', 'C', 'Mg')
 
     ion : integer
-        Ion number for desired species (e.g. 0 = neutral, 1 = singly ionized,
-        2 = doubly ionized, etc.)
+        Ion number for desired species (e.g. 1 = neutral, 2 = singly ionized,
+        3 = doubly ionized, etc.)
 
     ds : yt dataset object
         This is the dataset to which the ion fraction field will be added.
 
     ftype : string, optional
-        ftype is the field type of the field to add.  it is the first
-        string in the field tuple e.g. "gas" in ("gas", "O_p5_ion_fraction")
+        The field type of the field to add.  it is the first string in the 
+        field tuple e.g. "gas" in ("gas", "O_p5_ion_fraction")
+        ftype must correspond to the ftype of the 'density', and 'temperature'
+        fields in your dataset you wish to use to generate the ion field.
         Default: "gas"
 
      ionization_table : string, optional
@@ -290,19 +294,21 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
 
     **Parameters**
 
-    atom: string
+    atom : string
         Atomic species for desired ion fraction (e.g. 'H', 'C', 'Mg')
 
     ion : integer
-        Ion number for desired species (e.g. 0 = neutral, 1 = singly ionized,
-        2 = doubly ionized, etc.)
+        Ion number for desired species (e.g. 1 = neutral, 2 = singly ionized,
+        3 = doubly ionized, etc.)
 
     ds : yt dataset object
         This is the dataset to which the ion fraction field will be added.
 
     ftype : string, optional
-        ftype is the field type of the field to add.  it is the first
-        string in the field tuple e.g. "gas" in ("gas", "O_p5_ion_fraction")
+        The field type of the field to add.  it is the first string in the 
+        field tuple e.g. "gas" in ("gas", "O_p5_ion_fraction")
+        ftype must correspond to the ftype of the 'density', and 'temperature'
+        fields in your dataset you wish to use to generate the ion field.
         Default: "gas"
 
      ionization_table : string, optional
@@ -370,20 +376,22 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
 
     **Parameters**
 
-    atom: string
+    atom : string
         Atomic species for desired ion fraction (e.g. 'H', 'C', 'Mg')
 
     ion : integer
-        Ion number for desired species (e.g. 0 = neutral, 1 = singly ionized,
-        2 = doubly ionized, etc.)
+        Ion number for desired species (e.g. 1 = neutral, 2 = singly ionized,
+        3 = doubly ionized, etc.)
 
     ds : yt dataset object
         This is the dataset to which the ion fraction field will be added.
         will be added.
 
     ftype : string, optional
-        ftype is the field type of the field to add.  it is the first
-        string in the field tuple e.g. "gas" in ("gas", "O_p5_ion_fraction")
+        The field type of the field to add.  it is the first string in the 
+        field tuple e.g. "gas" in ("gas", "O_p5_ion_fraction")
+        ftype must correspond to the ftype of the 'density', and 'temperature'
+        fields in your dataset you wish to use to generate the ion field.
         Default: "gas"
 
      ionization_table : string, optional
