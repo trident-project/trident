@@ -199,7 +199,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                     else:
                         my_lev = 1
                 add_ion_number_density_field(on_ion[0], my_lev, input_ds, 
-                                             self.ionization_table)
+                                             ionization_table=self.ionization_table)
             self.add_line(line.identifier, line.field,
                           float(line.wavelength),
                           float(line.f_value),
