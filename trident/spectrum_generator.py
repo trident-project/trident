@@ -77,8 +77,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
         The line database provides a list of all possible lines that could
         be added to the spectrum. The file should 4 tab-delimited columns of
         name (e.g. MgII), wavelength in angstroms, gamma of transition, and
-        f-value of transition.  See example datasets in trident/data/line_lists
-        for examples.
+        f-value of transition.  See example datasets in 
+        trident.path/data/line_lists for examples.
         Default: lines.txt
 
     ionization_table: hdf5 file, optional
@@ -146,7 +146,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
             List of strings that determine which lines will be added
             to the spectrum.  List can include things like "C", "O VI",
             or "Mg II ####", where #### would be the integer wavelength
-            value of the desired line.
+            value of the desired line.  If set to None, includes all lines
+            in LineDatabase set in SpectrumGenerator.
         output_file : optional, string
             Path for output file.  File formats are chosen based on the
             filename extension.  ".h5" for HDF5, ".fits" for FITS,
