@@ -18,6 +18,7 @@ http://yt-project.org
 __version__ = "0.4"
 
 from trident.ion_balance import \
+    add_ion_fields, \
     add_ion_fraction_field, \
     add_ion_number_density_field, \
     add_ion_density_field, \

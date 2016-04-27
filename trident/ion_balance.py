@@ -24,6 +24,8 @@ import string
 import h5py
 import copy
 import os
+from trident.line_database import \
+    LineDatabase
 from trident.utilities import \
     parse_config
 
@@ -100,6 +102,38 @@ def _log_T(field, data):
     else:
         ftype = "gas"
     return np.log10(data[ftype, "temperature"])
+
+def add_ion_fields(ds, ions=None, ftype='gas', 
+                   ionization_table=None, 
+                   field_suffix=False, 
+                   line_database='lines.txt'):
+    """
+    Add ion fields to a yt dataset for a list of ion strings
+    """
+    # Determine whether the user is trying to add a particle field 
+    # based on the nature of other fields of that ftype in the dataset
+    try:
+        field_list_arr = np.asarray(ds.derived_field_list)
+        mask = field_list_arr[:,0] == ftype
+        valid_field = tuple(field_list_arr[mask][0])
+        particle_type = ds.field_info[valid_field].particle_type
+    except IndexError:
+        raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
+
+    if ionization_table is None:
+        ionization_table = ion_table_filepath
+
+    # Parse the ions given following the LineDatabase syntax
+    line_database = LineDatabase(line_database)
+    ions = line_database.parse_subset_to_ions(ions)
+
+    # adding X_p#_ion_mass field triggers the addition of:
+    # - X_P#_ion_fraction
+    # - X_P#_number_density
+    # - X_P#_density
+    for (atom, ion) in ions:
+        add_ion_mass_field(atom, ion, ds, ftype, ionization_table,
+            field_suffix=field_suffix)
 
 def add_ion_fraction_field(atom, ion, ds, ftype="gas",
                            ionization_table=None,
@@ -267,7 +301,7 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
     add_ion_fraction_field(atom, ion, ds, ftype, ionization_table,
                            field_suffix=field_suffix)
     ds.add_field((ftype, field),function=_ion_number_density,
-                 units="1.0/cm**3", particle_type=particle_type)
+                 units="cm**-3", particle_type=particle_type)
     if ion == 1: # add aliased field too
         ds.field_info.alias((ftype, alias_field), (ftype, field))
         ds.derived_field_list.append((ftype, alias_field))
