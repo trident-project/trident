@@ -124,6 +124,11 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
     ds : yt dataset object
         This is the dataset to which the ion fraction field will be added.
 
+    ftype : string, optional
+        ftype is the field type of the field to add.  it is the first
+        string in the field tuple e.g. "gas" in ("gas", "O_p5_ion_fraction")
+        Default: "gas"
+
     ionization_table : string, optional
         Path to an appropriately formatted HDF5 table that can be used to 
         compute the ion fraction as a function of density, temperature, 
@@ -151,28 +156,39 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
                      particle_type=particle_type)
 
     atom = string.capitalize(atom)
+
+    # if neutral ion field, alias X_p0_ion_fraction to X_ion_fraction field
     if ion == 1:
         field = "%s_ion_fraction" % atom
+        alias_field = "%s_p0_ion_fraction" % atom
     else:
         field = "%s_p%d_ion_fraction" % (atom, ion-1)
     if field_suffix:
         field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
-
-    data_file = ionization_table
+        if ion == 1:
+            alias_field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
 
     if not table_store.has_key(field):
-        ionTable = IonBalanceTable(data_file, atom)
+        ionTable = IonBalanceTable(ionization_table, atom)
         table_store[field] = {'fraction': copy.deepcopy(ionTable.ion_fraction[ion-1]),
                               'parameters': copy.deepcopy(ionTable.parameters)}
         del ionTable
 
     ds.add_field((ftype, field), function=_ion_fraction_field, units="",
                  particle_type=particle_type)
+    if ion == 1: # add aliased field too
+        ds.field_info.alias((ftype, alias_field), (ftype, field))
+        ds.derived_field_list.append((ftype, alias_field))
+
+    # if ion particle field, add a smoothed deposited version to gas fields
     if particle_type:
         new_field = ds.add_smoothed_particle_field((ftype, field))
         if ftype != "gas":
             ds.field_info.alias(("gas", field), new_field)
             ds.derived_field_list.append(("gas", field))
+            if ion == 1: # add aliased field too
+                ds.field_info.alias(("gas", alias_field), new_field)
+                ds.derived_field_list.append(("gas", alias_field))
 
 def add_ion_number_density_field(atom, ion, ds, ftype="gas",
                                  ionization_table=None,
@@ -197,7 +213,12 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
     ds : yt dataset object
         This is the dataset to which the ion fraction field will be added.
 
-    ionization_table : string, optional
+    ftype : string, optional
+        ftype is the field type of the field to add.  it is the first
+        string in the field tuple e.g. "gas" in ("gas", "O_p5_ion_fraction")
+        Default: "gas"
+
+     ionization_table : string, optional
         Path to an appropriately formatted HDF5 table that can be used to 
         compute the ion fraction as a function of density, temperature, 
         metallicity, and redshift.  By default, it uses the table specified in
@@ -210,22 +231,35 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
     if ionization_table is None:
         ionization_table = ion_table_filepath
     atom = string.capitalize(atom)
+    # if neutral ion field, alias X_p0_number_density to X_number_density field
     if ion == 1:
         field = "%s_number_density" % atom
+        alias_field = "%s_p0_number_density" % atom
     else:
         field = "%s_p%d_number_density" % (atom, ion-1)
     if field_suffix:
         field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
+        if ion == 1:
+            alias_field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
+
     add_ion_fraction_field(atom, ion, ds, ftype, ionization_table,
                            field_suffix=field_suffix,
                            particle_type=particle_type)
     ds.add_field((ftype, field),function=_ion_number_density,
                  units="1.0/cm**3", particle_type=particle_type)
+    if ion == 1: # add aliased field too
+        ds.field_info.alias((ftype, alias_field), (ftype, field))
+        ds.derived_field_list.append((ftype, alias_field))
+
+    # if ion particle field, add a smoothed deposited version to gas fields
     if particle_type:
         new_field = ds.add_smoothed_particle_field((ftype, field))
         if ftype != "gas":
             ds.field_info.alias(("gas", field), new_field)
             ds.derived_field_list.append(("gas", field))
+            if ion == 1: # add aliased field too
+                ds.field_info.alias(("gas", alias_field), new_field)
+                ds.derived_field_list.append(("gas", alias_field))
 
 def add_ion_density_field(atom, ion, ds, ftype="gas",
                           ionization_table=None,
@@ -250,7 +284,12 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
     ds : yt dataset object
         This is the dataset to which the ion fraction field will be added.
 
-    ionization_table : string, optional
+    ftype : string, optional
+        ftype is the field type of the field to add.  it is the first
+        string in the field tuple e.g. "gas" in ("gas", "O_p5_ion_fraction")
+        Default: "gas"
+
+     ionization_table : string, optional
         Path to an appropriately formatted HDF5 table that can be used to 
         compute the ion fraction as a function of density, temperature, 
         metallicity, and redshift.  By default, it uses the table specified in
@@ -263,22 +302,36 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
     if ionization_table is None:
         ionization_table = ion_table_filepath
     atom = string.capitalize(atom)
+
+    # if neutral ion field, alias X_p0_number_density to X_number_density field
     if ion == 1:
         field = "%s_density" % atom
+        alias_field = "%s_p0_density" % atom
     else:
         field = "%s_p%d_density" % (atom, ion-1)
     if field_suffix:
         field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
+        if ion == 1:
+            alias_field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
+
     add_ion_number_density_field(atom, ion, ds, ftype, ionization_table,
                                  field_suffix=field_suffix,
                                  particle_type=particle_type)
     ds.add_field((ftype, field), function=_ion_density,
                  units="g/cm**3", particle_type=particle_type)
+    if ion == 1: # add aliased field too
+        ds.field_info.alias((ftype, alias_field), (ftype, field))
+        ds.derived_field_list.append((ftype, alias_field))
+
+    # if ion particle field, add a smoothed deposited version to gas fields
     if particle_type:
         new_field = ds.add_smoothed_particle_field((ftype, field))
         if ftype != "gas":
             ds.field_info.alias(("gas", field), new_field)
             ds.derived_field_list.append(("gas", field))
+            if ion == 1: # add aliased field too
+                ds.field_info.alias(("gas", alias_field), new_field)
+                ds.derived_field_list.append(("gas", alias_field))
 
 def add_ion_mass_field(atom, ion, ds, ftype="gas",
                        ionization_table=None,
@@ -304,7 +357,12 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
         This is the dataset to which the ion fraction field will be added.
         will be added.
 
-    ionization_table : string, optional
+    ftype : string, optional
+        ftype is the field type of the field to add.  it is the first
+        string in the field tuple e.g. "gas" in ("gas", "O_p5_ion_fraction")
+        Default: "gas"
+
+     ionization_table : string, optional
         Path to an appropriately formatted HDF5 table that can be used to 
         compute the ion fraction as a function of density, temperature, 
         metallicity, and redshift.  By default, it uses the table specified in
@@ -317,22 +375,35 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
     if ionization_table is None:
         ionization_table = ion_table_filepath
     atom = string.capitalize(atom)
+    # if neutral ion field, alias X_p0_number_density to X_number_density field
     if ion == 1:
         field = "%s_mass" % atom
+        alias_field = "%s_p0_mass" % atom
     else:
         field = "%s_p%s_mass" % (atom, ion-1)
     if field_suffix:
         field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
+        if ion == 1:
+            alias_field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
+
     add_ion_density_field(atom, ion, ds, ftype, ionization_table,
                           field_suffix=field_suffix,
                           particle_type=particle_type)
     ds.add_field((ftype, field), function=_ion_mass, units=r"g",
                  particle_type=particle_type)
+    if ion == 1: # add aliased field too
+        ds.field_info.alias((ftype, alias_field), (ftype, field))
+        ds.derived_field_list.append((ftype, alias_field))
+
+    # if ion particle field, add a smoothed deposited version to gas fields
     if particle_type:
         new_field = ds.add_smoothed_particle_field((ftype, field))
         if ftype != "gas":
             ds.field_info.alias(("gas", field), new_field)
             ds.derived_field_list.append(("gas", field))
+            if ion == 1: # add aliased field too
+                ds.field_info.alias(("gas", alias_field), new_field)
+                ds.derived_field_list.append(("gas", alias_field))
 
 def _ion_mass(field, data):
     """
@@ -399,7 +470,7 @@ def _ion_number_density(field,data):
                 data[ftype, "density"]
                 # Ideally we'd like to use the following line
                 # but it is very slow to compute.
-                # If we get H_nuclei_density spread up
+                # If we get H_nuclei_density sped up
                 # then we will want to remove the "to_nH" below
                 # (this applies above as well)
                 #data['H_nuclei_density']
