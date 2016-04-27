@@ -103,8 +103,7 @@ def _log_T(field, data):
 
 def add_ion_fraction_field(atom, ion, ds, ftype="gas",
                            ionization_table=None,
-                           field_suffix=False,
-                           particle_type=False):
+                           field_suffix=False):
     """
     Add ion fraction field to a yt dataset for the desired ion.
 
@@ -139,6 +138,16 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
         Determines whether or not to append a suffix to the field name that 
         indicates what ionization table was used
     """
+
+    # Determine whether the user is trying to add a particle field 
+    # based on the nature of other fields of that ftype in the dataset
+    try:
+        field_list_arr = np.asarray(ds.derived_field_list)
+        mask = field_list_arr[:,0] == ftype
+        valid_field = tuple(field_list_arr[mask][0])
+        particle_type = ds.field_info[valid_field].particle_type
+    except IndexError:
+        raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
 
     if ionization_table is None:
         ionization_table = ion_table_filepath
@@ -192,8 +201,7 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
 
 def add_ion_number_density_field(atom, ion, ds, ftype="gas",
                                  ionization_table=None,
-                                 field_suffix=False,
-                                 particle_type=False):
+                                 field_suffix=False):
     """
     Add ion number density field to a yt data object.
 
@@ -228,6 +236,16 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
         Determines whether or not to append a suffix to the field
         name that indicates what ionization table was used
     """
+    # Determine whether the user is trying to add a particle field 
+    # based on the nature of other fields of that ftype in the dataset
+    try:
+        field_list_arr = np.asarray(ds.derived_field_list)
+        mask = field_list_arr[:,0] == ftype
+        valid_field = tuple(field_list_arr[mask][0])
+        particle_type = ds.field_info[valid_field].particle_type
+    except IndexError:
+        raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
+
     if ionization_table is None:
         ionization_table = ion_table_filepath
     atom = string.capitalize(atom)
@@ -243,8 +261,7 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
             alias_field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
 
     add_ion_fraction_field(atom, ion, ds, ftype, ionization_table,
-                           field_suffix=field_suffix,
-                           particle_type=particle_type)
+                           field_suffix=field_suffix)
     ds.add_field((ftype, field),function=_ion_number_density,
                  units="1.0/cm**3", particle_type=particle_type)
     if ion == 1: # add aliased field too
@@ -263,8 +280,7 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
 
 def add_ion_density_field(atom, ion, ds, ftype="gas",
                           ionization_table=None,
-                          field_suffix=False,
-                          particle_type=False):
+                          field_suffix=False):
     """
     Add ion mass density field to a yt data object.
 
@@ -299,6 +315,16 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
         Determines whether or not to append a suffix to the field
         name that indicates what ionization table was used
     """
+    # Determine whether the user is trying to add a particle field 
+    # based on the nature of other fields of that ftype in the dataset
+    try:
+        field_list_arr = np.asarray(ds.derived_field_list)
+        mask = field_list_arr[:,0] == ftype
+        valid_field = tuple(field_list_arr[mask][0])
+        particle_type = ds.field_info[valid_field].particle_type
+    except IndexError:
+        raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
+
     if ionization_table is None:
         ionization_table = ion_table_filepath
     atom = string.capitalize(atom)
@@ -315,8 +341,7 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
             alias_field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
 
     add_ion_number_density_field(atom, ion, ds, ftype, ionization_table,
-                                 field_suffix=field_suffix,
-                                 particle_type=particle_type)
+                                 field_suffix=field_suffix)
     ds.add_field((ftype, field), function=_ion_density,
                  units="g/cm**3", particle_type=particle_type)
     if ion == 1: # add aliased field too
@@ -335,8 +360,7 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
 
 def add_ion_mass_field(atom, ion, ds, ftype="gas",
                        ionization_table=None,
-                       field_suffix=False,
-                       particle_type=False):
+                       field_suffix=False):
     """
     Add ion mass fields (g and Msun) to a yt data object.
 
@@ -372,9 +396,20 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
         Determines whether or not to append a suffix to the field
         name that indicates what ionization table was used
     """
+    # Determine whether the user is trying to add a particle field 
+    # based on the nature of other fields of that ftype in the dataset
+    try:
+        field_list_arr = np.asarray(ds.derived_field_list)
+        mask = field_list_arr[:,0] == ftype
+        valid_field = tuple(field_list_arr[mask][0])
+        particle_type = ds.field_info[valid_field].particle_type
+    except IndexError:
+        raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
+
     if ionization_table is None:
         ionization_table = ion_table_filepath
     atom = string.capitalize(atom)
+
     # if neutral ion field, alias X_p0_number_density to X_number_density field
     if ion == 1:
         field = "%s_mass" % atom
@@ -387,8 +422,7 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
             alias_field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
 
     add_ion_density_field(atom, ion, ds, ftype, ionization_table,
-                          field_suffix=field_suffix,
-                          particle_type=particle_type)
+                          field_suffix=field_suffix)
     ds.add_field((ftype, field), function=_ion_mass, units=r"g",
                  particle_type=particle_type)
     if ion == 1: # add aliased field too
