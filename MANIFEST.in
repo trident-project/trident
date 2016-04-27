@@ -1,7 +1,4 @@
 include CITATION CREDITS LICENSE README
-recursive-include trident *.py
-recursive-include data README *.txt
+recursive-include trident *.py *.txt
 recursive-include doc *.rst *.py *.png
-include doc/README doc/Makefile
-prune doc/build
 recursive-include examples *.py

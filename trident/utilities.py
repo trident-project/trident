@@ -287,4 +287,6 @@ def trident_path():
     ion table datafiles are downloaded separate and placed in another
     location according to the ~/.trident/config file.
     """
-    return '/'.join(os.path.dirname(__file__).split('/')[:-1])
+    path_list = os.path.dirname(__file__).split('/')[:-1]
+    path_list.append('trident')
+    return '/'.join(path_list)

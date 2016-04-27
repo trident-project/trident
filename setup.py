@@ -19,8 +19,9 @@ setup(
 spectra from astrophysical hydrodynamical data"""),
     license = "BSD",
     keywords = ["simulation", "spectra", "astronomy", "astrophysics"], 
-    url = "https://bitbucket.org/trident-project/trident",
+    url = "https://trident-project.org",
     packages=find_packages(),
+    include_package_data=True,
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
