@@ -106,7 +106,8 @@ def _log_T(field, data):
 def add_ion_fields(ds, ions=None, ftype='gas', 
                    ionization_table=None, 
                    field_suffix=False, 
-                   line_database='lines.txt'):
+                   line_database='lines.txt',
+                   force_override=False):
     """
     Add ion fields to a yt dataset for a list of ion strings
     """
@@ -133,11 +134,12 @@ def add_ion_fields(ds, ions=None, ftype='gas',
     # - X_P#_density
     for (atom, ion) in ions:
         add_ion_mass_field(atom, ion, ds, ftype, ionization_table,
-            field_suffix=field_suffix)
+            field_suffix=field_suffix, force_override=force_override)
 
 def add_ion_fraction_field(atom, ion, ds, ftype="gas",
                            ionization_table=None,
-                           field_suffix=False):
+                           field_suffix=False,
+                           force_override=False):
     """
     Add ion fraction field to a yt dataset for the desired ion.
 
@@ -190,15 +192,18 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
 
     if (ftype, "log_nH") not in ds.derived_field_list:
         ds.add_field((ftype, "log_nH"), function=_log_nH, units="",
-                     particle_type=particle_type)
+                     particle_type=particle_type, 
+                     force_override=force_override)
 
     if (ftype, "redshift") not in ds.derived_field_list:
         ds.add_field((ftype, "redshift"), function=_redshift, units="",
-                     particle_type=particle_type)
+                     particle_type=particle_type,
+                     force_override=force_override)
 
     if (ftype, "log_T") not in ds.derived_field_list:
         ds.add_field((ftype, "log_T"), function=_log_T, units="",
-                     particle_type=particle_type)
+                     particle_type=particle_type,
+                     force_override=force_override)
 
     atom = string.capitalize(atom)
 
@@ -220,7 +225,7 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
         del ionTable
 
     ds.add_field((ftype, field), function=_ion_fraction_field, units="",
-                 particle_type=particle_type)
+                 particle_type=particle_type, force_override=force_override)
     if ion == 1: # add aliased field too
         ds.field_info.alias((ftype, alias_field), (ftype, field))
         ds.derived_field_list.append((ftype, alias_field))
@@ -237,7 +242,8 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
 
 def add_ion_number_density_field(atom, ion, ds, ftype="gas",
                                  ionization_table=None,
-                                 field_suffix=False):
+                                 field_suffix=False,
+                                 force_override=False):
     """
     Add ion number density field to a yt data object.
 
@@ -299,9 +305,11 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
             alias_field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
 
     add_ion_fraction_field(atom, ion, ds, ftype, ionization_table,
-                           field_suffix=field_suffix)
+                           field_suffix=field_suffix, 
+                           force_override=force_override)
     ds.add_field((ftype, field),function=_ion_number_density,
-                 units="cm**-3", particle_type=particle_type)
+                 units="cm**-3", particle_type=particle_type, 
+                 force_override=force_override)
     if ion == 1: # add aliased field too
         ds.field_info.alias((ftype, alias_field), (ftype, field))
         ds.derived_field_list.append((ftype, alias_field))
@@ -318,7 +326,8 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
 
 def add_ion_density_field(atom, ion, ds, ftype="gas",
                           ionization_table=None,
-                          field_suffix=False):
+                          field_suffix=False,
+                          force_override=False):
     """
     Add ion mass density field to a yt data object.
 
@@ -381,9 +390,11 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
             alias_field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
 
     add_ion_number_density_field(atom, ion, ds, ftype, ionization_table,
-                                 field_suffix=field_suffix)
+                                 field_suffix=field_suffix,
+                                 force_override=force_override)
     ds.add_field((ftype, field), function=_ion_density,
-                 units="g/cm**3", particle_type=particle_type)
+                 units="g/cm**3", particle_type=particle_type,
+                 force_override=force_override)
     if ion == 1: # add aliased field too
         ds.field_info.alias((ftype, alias_field), (ftype, field))
         ds.derived_field_list.append((ftype, alias_field))
@@ -400,7 +411,8 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
 
 def add_ion_mass_field(atom, ion, ds, ftype="gas",
                        ionization_table=None,
-                       field_suffix=False):
+                       field_suffix=False,
+                       force_override=False):
     """
     Add ion mass fields (g and Msun) to a yt data object.
 
@@ -464,9 +476,11 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
             alias_field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
 
     add_ion_density_field(atom, ion, ds, ftype, ionization_table,
-                          field_suffix=field_suffix)
+                          field_suffix=field_suffix,
+                          force_override=force_override)
     ds.add_field((ftype, field), function=_ion_mass, units=r"g",
-                 particle_type=particle_type)
+                 particle_type=particle_type,
+                 force_override=force_override)
     if ion == 1: # add aliased field too
         ds.field_info.alias((ftype, alias_field), (ftype, field))
         ds.derived_field_list.append((ftype, alias_field))
