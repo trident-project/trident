@@ -109,8 +109,48 @@ def add_ion_fields(ds, ions=None, ftype='gas',
                    line_database='lines.txt',
                    force_override=False):
     """
-    Add ion fields to a yt dataset for a list of ion strings
+    Add specified ion fields to a yt dataset 
+
+    This is a wrapper around the various add_ion_mass, add_ion_density, 
+    etc. functions.
+
+    You specify what ions you want to add in the ions kwarg as a list of
+    strings.  Each string can contain an element, or an element and an 
+    ionization state, or even an element, ionization state, and line.
+
+    Example: 
+    To add ionized hydrogen, doubly-ionized Carbon, and all of the Magnesium
+    species fields to a dataset, you would run:
+
+    >>> add_ion_fields(ds, ions=['H II', 'C III', 'Mg'])
+
+    **Parameters**
+
+    ds : yt dataset object
+        This is the dataset to which the ion fraction field will be added.
+
+    ions : 
+
+    ftype : string, optional
+        The field type of the field to add.  it is the first string in the 
+        field tuple e.g. "gas" in ("gas", "O_p5_ion_fraction")
+        ftype must correspond to the ftype of the 'density', and 'temperature'
+        fields in your dataset you wish to use to generate the ion field.
+        Default: "gas"
+
+    ionization_table : string, optional
+        Path to an appropriately formatted HDF5 table that can be used to 
+        compute the ion fraction as a function of density, temperature, 
+        metallicity, and redshift.  By default, it uses the table specified in
+        ~/.trident/config
+ 
+    field_suffix : boolean, optional
+        Determines whether or not to append a suffix to the field name that 
+        indicates what ionization table was used
+
+    line_database : 
     """
+
     # Determine whether the user is trying to add a particle field 
     # based on the nature of other fields of that ftype in the dataset
     try:
