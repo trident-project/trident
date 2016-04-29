@@ -40,6 +40,9 @@ class LSF(object):
     """
     def __init__(self, function=None, width=None, filename=None):
         self.kernel = []
+        self.filename = filename
+        self.function = function
+        self.width = width
         # if filename is defined, use it
         if filename is not None:
             # Check to see if the file is in the local dir
@@ -52,11 +55,14 @@ class LSF(object):
                 if os.path.isfile(filename2):
                     lsf_file = open(filename2, 'r')
                 else:
-                    sys.exit("filename must be in local directory or in",
-                             "trident/data/lsf_kernels directory")
+                    raise RuntimeError("LSF filename not found in current " +
+                        "directory or in %s/data/lsf_kernels directory" % 
+                        trident_path())
             for line in lsf_file:
                 self.kernel.append(float(line.split()[1]))
             lsf_file.close()
+            self.kernel = np.array(self.kernel)
+            self.width = self.kernel.size
         elif function is not None and width is not None:
             if function == 'boxcar':
                 if width % 2 == 0:
@@ -67,10 +73,10 @@ class LSF(object):
                 from astropy.convolution import Gaussian1DKernel
                 self.kernel = Gaussian1DKernel(width)
         else:
-            sys.exit("Either filename OR function+width must be specified.")
+            raise RuntimeError("Either LSF filename OR function+width must be specified.")
 
     def __repr__(self):
         if self.filename is not None:
-            return "from file %s" % self.filename
+            return "LSF from file %s" % self.filename
         else:
-            return "%s of width %d" % (function, width)
+            return "LSF %s of width %d" % (self.function, self.width)
