@@ -125,6 +125,12 @@ def parse_config():
     home = expanduser("~")
     directory = os.path.join(home, '.trident')
     config_filename = os.path.join(directory, 'config.tri')
+
+    # If config file exists in current directory, use it instead of file in
+    # $HOME/.trident.  Stopgap for situations where user cannot access $HOME
+    local_filename = os.path.join(os.getcwd(), 'config.tri')
+    if os.path.exists(local_filename):
+        config_filename = local_filename
     try:
         parser = SafeConfigParser()
         parser.read(config_filename)
