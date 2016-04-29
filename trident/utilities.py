@@ -124,7 +124,7 @@ def parse_config():
     # Assure the ~/.trident directory exists, and read in the config file.
     home = expanduser("~")
     directory = os.path.join(home, '.trident')
-    config_filename = os.path.join(directory, 'config')
+    config_filename = os.path.join(directory, 'config.tri')
     try:
         parser = SafeConfigParser()
         parser.read(config_filename)
@@ -155,7 +155,7 @@ def create_config():
     print "It appears that this is your first time using Trident.  To finalize your"
     print "Trident installation, you must:"
     print " * create a `~/.trident` directory"
-    print " * create a config file in your `~/.trident` directory"
+    print " * create a config.tri file in your `~/.trident` directory"
     print " * download an ion table file for calculating ionization fractions"
     print ""
     print "You can do this manually by following the installation docs, or we can"
@@ -196,7 +196,7 @@ def create_config():
     config.add_section('Trident')
     config.set('Trident', 'ion_table_dir', datadir)
     config.set('Trident', 'ion_table_file', datafile)
-    config_filename = expanduser('~/.trident/config')
+    config_filename = expanduser('~/.trident/config.tri')
     with open(config_filename, 'w') as configfile:
         config.write(configfile)
 
@@ -285,7 +285,7 @@ def trident_path():
     A function returning the path of the trident installation directory.
     Useful for identifying where data files are (e.g. path/data).  Note that
     ion table datafiles are downloaded separate and placed in another
-    location according to the ~/.trident/config file.
+    location according to the ~/.trident/config.tri file.
     """
     path_list = os.path.dirname(__file__).split('/')[:-1]
     path_list.append('trident')
