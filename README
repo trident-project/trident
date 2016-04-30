@@ -1,8 +1,5 @@
 [![Build Status](https://drone.io/bitbucket.org/trident-project/trident/status.png)](https://drone.io/bitbucket.org/trident-project/trident/latest)
 
-Trident
-=======
-
 Trident is a Python package for creating synthetic absorption-line spectra
 from astrophysical hydrodynamics simulations.  It utilizes the yt package
 to read in simulation datasets and extends it to provide realistic
