@@ -1,88 +1,16 @@
 Trident
 =======
 
-Trident is a python-based package extending yt for generating synthetic
-absorption-line spectra of hydrodynamical datasets.  For more information
-about Trident and yt, please visit the websites or look at the code repository:
+Trident is a Python package for creating synthetic absorption-line spectra
+from astrophysical hydrodynamics simulations.  It utilizes the yt package
+to read in simulation datasets and extends it to provide realistic
+synthetic observations appropriate for studies of the interstellar,
+circumgalactic, and intergalactic media.
+
+For more information about the package and to read our documentation, please
+visit:
 
 http://trident-project.org
-
-http://bitbucket.org/trident-project/trident
-
-http://yt-project.org
-
-
-Installation
-------------
-
-The Trident source is most easily installed using pip.  But you can only
-do this once you've installed yt and its dependencies.  If you already have
-the dev version of yt installed, then skip to step 2.  
-
-
-Step 1: Install yt  
-^^^^^^^^^^^^^^^^^^
-
-There are several methods for doing this all discussed in detail in the yt 
-docs here: http://yt-project.org/docs/dev/installing.html
-Note that Trident currently requires the development branch of yt to work
-properly.
-
-If you're just starting out, we recommend the anaconda method as the least
-work for new users to get yt installed as described here (be sure to get 
-the development version of yt):
-http://yt-project.org/docs/dev/installing.html#installing-yt-using-anaconda
-
-
-Step 2: Install Trident
-^^^^^^^^^^^^^^^^^^^^^^^
-
-You can install Trident using pip::
-
-    $ pip install trident
-
-
-Step 3: Get Ionization Table
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-In order to calculate the ionization fractions for various ions from 
-density, temperature, metallicity, and redshift fields, you will need 
-an ionization table data file and a configuration file.  The first time 
-you import Trident into Python, the code will attempt to automatically 
-set this all up for you with a series of interactive prompts.  If this works
-for you, then you're done and you can skip to step 4::
-
-    $ python
-    >>> import trident
-
-Alternatively, you can set this up manually by downloading/unzipping one of the 
-files at http://trident-project.org/data/ion_table .  You can store this
-file wherever you desire, just assure the config file in your ``$HOME/.trident``
-directory points to it.  As an example, if you placed the ``hm2012_hr.h5`` ion
-table file in your ``~/.trident`` directory, the contents of 
-``$HOME/.trident/config`` would be::
-
-    [Trident]
-    ion_table_dir = ~/.trident
-    ion_table_file = hm2012_hr.h5
-
-To assure this is all working after you have set it up.  Try to load Trident.
-If you can do that, then you're ready to move to Step 4::
-
-    $ python
-    >>> import trident
-
-Step 4: Science!
-^^^^^^^^^^^^^^^^
-
-You're now ready to use Trident.  Please refer to the documentation for how
-to use it with your data or with one of our sample datasets.
-
-
-Documentation and Mailing List
-------------------------------
-
-To view our documentation, please visit:
 
 http://trident.readthedocs.org
 
