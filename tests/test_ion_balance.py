@@ -21,6 +21,70 @@ from yt.testing import \
 import numpy as np
 # Make sure save occurs in tmpdir
 
+def test_add_ion_fraction_field_to_grid_ds():
+    """
+    Test to add various ion fields
+    """
+    ds = fake_random_ds(32, fields=("density", "velocity_x", "velocity_y",
+                                    "velocity_z", "temperature", "metallicity"),
+                            units= ('g/cm**3', 'cm/s', 'cm/s',
+                                    'cm/s', 'K', ''))
+    ftype = 'stream'
+    ad = ds.all_data()
+    tri.add_ion_fraction_field('O', 6, ds, ftype='stream')
+    field = ('stream', 'O_p5_ion_fraction')
+    assert field in ds.derived_field_list
+    assert isinstance(ad[field], np.ndarray)
+    yt.SlicePlot(ds, 'x', field).save()
+
+def test_add_ion_number_density_field_to_grid_ds():
+    """
+    Test to add various ion fields
+    """
+    ds = fake_random_ds(32, fields=("density", "velocity_x", "velocity_y",
+                                    "velocity_z", "temperature", "metallicity"),
+                            units= ('g/cm**3', 'cm/s', 'cm/s',
+                                    'cm/s', 'K', ''))
+    ftype = 'stream'
+    ad = ds.all_data()
+    tri.add_ion_mass_field('O', 6, ds, ftype='stream')
+    field = ('stream', 'O_p5_number_density')
+    assert field in ds.derived_field_list
+    assert isinstance(ad[field], np.ndarray)
+    yt.SlicePlot(ds, 'x', field).save()
+
+def test_add_ion_density_field_to_grid_ds():
+    """
+    Test to add various ion fields
+    """
+    ds = fake_random_ds(32, fields=("density", "velocity_x", "velocity_y",
+                                    "velocity_z", "temperature", "metallicity"),
+                            units= ('g/cm**3', 'cm/s', 'cm/s',
+                                    'cm/s', 'K', ''))
+    ftype = 'stream'
+    ad = ds.all_data()
+    tri.add_ion_mass_field('O', 6, ds, ftype='stream')
+    field = ('stream', 'O_p5_density')
+    assert field in ds.derived_field_list
+    assert isinstance(ad[field], np.ndarray)
+    yt.SlicePlot(ds, 'x', field).save()
+
+def test_add_ion_mass_field_to_grid_ds():
+    """
+    Test to add various ion fields
+    """
+    ds = fake_random_ds(32, fields=("density", "velocity_x", "velocity_y",
+                                    "velocity_z", "temperature", "metallicity"),
+                            units= ('g/cm**3', 'cm/s', 'cm/s',
+                                    'cm/s', 'K', ''))
+    ftype = 'stream'
+    ad = ds.all_data()
+    tri.add_ion_mass_field('O', 6, ds, ftype='stream')
+    field = ('stream', 'O_p5_mass')
+    assert field in ds.derived_field_list
+    assert isinstance(ad[field], np.ndarray)
+    yt.SlicePlot(ds, 'x', field).save()
+
 def test_add_all_ion_fields_to_grid_ds():
     """
     Test to add various ion fields
@@ -105,3 +169,6 @@ def test_add_all_ion_fields_to_particle_ds():
     #    field = (ftype, field)
     #    assert field in ds.derived_field_list
     #    assert isinstance(ad[field], np.ndarray)
+
+
+
