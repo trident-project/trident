@@ -10,12 +10,12 @@ circumgalactic, and intergalactic media.
 .. toctree::
    :maxdepth: 2
 
-   Installation.rst
-   MakingSpectra.rst
-   AdvancedSpectra.rst
-   IonBalance.rst
-   Reference.rst
-   Citation.rst
+   installation.rst
+   making_spectra.rst
+   advanced_spectra.rst
+   ion_balance.rst
+   reference.rst
+   citation.rst
 
 Help
 ----
