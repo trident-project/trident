@@ -2,7 +2,10 @@ Trident Documentation
 =====================
 
 Trident is a Python package for creating synthetic absorption-line spectra 
-from astrophysical hydrodynamics simulations.
+from astrophysical hydrodynamics simulations.  It utilizes the yt package
+to read in simulation datasets and extends it to provide realistic 
+synthetic observations appropriate for studies of the interstellar,
+circumgalactic, and intergalactic media.
 
 .. toctree::
    :maxdepth: 2
