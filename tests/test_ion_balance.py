@@ -17,9 +17,13 @@ from yt.testing import \
     fake_random_ds, \
     fake_amr_ds, \
     fake_particle_ds
+import tempfile
+import shutil
 
 import numpy as np
-# Make sure save occurs in tmpdir
+# TODO
+# Make particle fields added work; cannot see 'gas' counterparts
+# and grid*particle error problems when looking at particle fields
 
 def test_add_ion_fraction_field_to_grid_ds():
     """
@@ -35,7 +39,10 @@ def test_add_ion_fraction_field_to_grid_ds():
     field = ('stream', 'O_p5_ion_fraction')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
-    yt.SlicePlot(ds, 'x', field).save()
+
+    dirpath = tempfile.mkdtemp()
+    yt.SlicePlot(ds, 'x', field).save(dirpath)
+    shutil.rmtree(dirpath)
 
 def test_add_ion_number_density_field_to_grid_ds():
     """
@@ -51,7 +58,10 @@ def test_add_ion_number_density_field_to_grid_ds():
     field = ('stream', 'O_p5_number_density')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
-    yt.SlicePlot(ds, 'x', field).save()
+
+    dirpath = tempfile.mkdtemp()
+    yt.SlicePlot(ds, 'x', field).save(dirpath)
+    shutil.rmtree(dirpath)
 
 def test_add_ion_density_field_to_grid_ds():
     """
@@ -67,7 +77,10 @@ def test_add_ion_density_field_to_grid_ds():
     field = ('stream', 'O_p5_density')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
-    yt.SlicePlot(ds, 'x', field).save()
+
+    dirpath = tempfile.mkdtemp()
+    yt.SlicePlot(ds, 'x', field).save(dirpath)
+    shutil.rmtree(dirpath)
 
 def test_add_ion_mass_field_to_grid_ds():
     """
@@ -83,7 +96,10 @@ def test_add_ion_mass_field_to_grid_ds():
     field = ('stream', 'O_p5_mass')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
-    yt.SlicePlot(ds, 'x', field).save()
+
+    dirpath = tempfile.mkdtemp()
+    yt.SlicePlot(ds, 'x', field).save(dirpath)
+    shutil.rmtree(dirpath)
 
 def test_add_ion_fraction_fields_to_amr_ds():
     """
@@ -97,7 +113,10 @@ def test_add_ion_fraction_fields_to_amr_ds():
     field = ('stream', 'O_p5_ion_fraction')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
-    yt.SlicePlot(ds, 'x', field).save()
+
+    dirpath = tempfile.mkdtemp()
+    yt.SlicePlot(ds, 'x', field).save(dirpath)
+    shutil.rmtree(dirpath)
 
 def test_add_ion_number_density_fields_to_amr_ds():
     """
@@ -111,7 +130,10 @@ def test_add_ion_number_density_fields_to_amr_ds():
     field = ('stream', 'O_p5_number_density')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
-    yt.SlicePlot(ds, 'x', field).save()
+
+    dirpath = tempfile.mkdtemp()
+    yt.SlicePlot(ds, 'x', field).save(dirpath)
+    shutil.rmtree(dirpath)
 
 def test_add_ion_density_fields_to_amr_ds():
     """
@@ -125,7 +147,10 @@ def test_add_ion_density_fields_to_amr_ds():
     field = ('stream', 'O_p5_density')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
-    yt.SlicePlot(ds, 'x', field).save()
+
+    dirpath = tempfile.mkdtemp()
+    yt.SlicePlot(ds, 'x', field).save(dirpath)
+    shutil.rmtree(dirpath)
 
 def test_add_ion_mass_fields_to_amr_ds():
     """
@@ -139,7 +164,10 @@ def test_add_ion_mass_fields_to_amr_ds():
     field = ('stream', 'O_p5_mass')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
-    yt.SlicePlot(ds, 'x', field).save()
+
+    dirpath = tempfile.mkdtemp()
+    yt.SlicePlot(ds, 'x', field).save(dirpath)
+    shutil.rmtree(dirpath)
 
 def test_add_all_ion_fields_to_grid_ds():
     """
@@ -154,11 +182,13 @@ def test_add_all_ion_fields_to_grid_ds():
     tri.add_ion_fields(ds, ftype='stream')
     fields = ['H_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
     # Assure that a sampling of fields are added and can be sliced
+    dirpath = tempfile.mkdtemp()
     for field in fields:
         field = (ftype, field)
         assert field in ds.derived_field_list
         assert isinstance(ad[field], np.ndarray)
-        yt.SlicePlot(ds, 'x', field).save()
+        yt.SlicePlot(ds, 'x', field).save(dirpath)
+    shutil.rmtree(dirpath)
 
 def test_add_all_ion_fields_to_amr_ds():
     """
@@ -171,11 +201,13 @@ def test_add_all_ion_fields_to_amr_ds():
     tri.add_ion_fields(ds, ftype='stream')
     fields = ['H_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
     # Assure that a sampling of fields are added and can be sliced
+    dirpath = tempfile.mkdtemp()
     for field in fields:
         field = (ftype, field)
         assert field in ds.derived_field_list
         assert isinstance(ad[field], np.ndarray)
-        yt.SlicePlot(ds, 'x', field).save()
+        yt.SlicePlot(ds, 'x', field).save(dirpath)
+    shutil.rmtree(dirpath)
 
 def test_add_all_ion_fields_to_particle_ds():
     """
@@ -221,10 +253,10 @@ def test_add_all_ion_fields_to_particle_ds():
     #len(ad[('gas', 'H_mass')])
     #import pdb; pdb.set_trace()
     fields = ['H_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
+    #dirpath = tempfile.mkdtemp()
     #for field in fields:
     #    field = (ftype, field)
     #    assert field in ds.derived_field_list
     #    assert isinstance(ad[field], np.ndarray)
-
-
-
+    #    yt.SlicePlot(ds, 'x', field).save(dirpath)
+    #shutil.rmtree(dirpath)
