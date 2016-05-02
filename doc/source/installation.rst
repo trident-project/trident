@@ -1,41 +1,67 @@
 .. _installation:
 
 Installation
-------------
+============
 
-The Trident source is most easily installed using pip.  But you can only
-do this once you've installed yt and its dependencies.  If you already have
-the dev version of yt installed, then skip to step 2.  
-
+Follow these steps to successfully install Trident and its dependencies.
 
 Step 1: Install yt  
-^^^^^^^^^^^^^^^^^^
+------------------
 
-There are several methods for doing this all discussed in detail in the yt 
-docs here: http://yt-project.org/docs/dev/installing.html .
-Note that Trident currently requires the development branch of yt to work
-properly.
+`yt <http://yt-project.org>`_ is a python-based software package for the 
+analysis and visualization of a variety of different datasets, including 
+astrophysical hydrodynamical data.  Installation of Trident currently 
+requires that you install the development version of yt as described below.  
+If you already have a working installation of the development branch of yt, 
+then skip to step 2.
 
-If you're just starting out, we recommend the anaconda method as the least
-work for new users to get yt installed as described here (be sure to get 
-the development version of yt):
-http://yt-project.org/docs/dev/installing.html#installing-yt-using-anaconda
+There are several methods for installing yt, which are all discussed in 
+detail in the `yt installation documentation 
+<http://yt-project.org/docs/dev/installing.html>`_.  Note that Trident 
+currently requires the development branch of yt to work properly.
+If you're just starting out, we recommend the `anaconda installation method 
+<http://yt-project.org/docs/dev/installing.html#installing-yt-using-anaconda>`_ 
+as the least work for new users to get yt working.
 
+.. _install-trident:
 
 Step 2: Install Trident
-^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------
 
-Now, you can install Trident using pip::
+There are two ways to install the Trident code itself.  The easiest 
+method is to use pip to install the most recent stable version of Trident.  
+Alternatively, you can install the development version of Trident--the version 
+appropriate for users who want to hack on the code and get access 
+to features not yet available in the stable release.  Don't worry, you can 
+always switch between the two versions easily enough by following the directions
+in :ref:`uninstallation`.
+
+Installing the Stable Release
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can install the most recent stable release of Trident using pip::
 
     $ pip install trident
 
+Installing the Development Branch
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To get the development version, you'll pull the source code from its 
+repository using mercurial, which should be installed as part of your yt 
+installation.  After that, you'll use pip to install the source directly.  
+Go to your desired source code installation directory and run::
+
+    $ hg clone http://bitbucket.org/trident-project/trident
+    $ cd trident
+    $ pip install -e .
 
 Step 3: Get Ionization Table
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+----------------------------
 
 In order to calculate the ionization fractions for various ions from 
 density, temperature, metallicity fields, you will need an ionization table 
-datafile and a configuration file.  The first time you import Trident into 
+datafile and a configuration file.  Because this datafile can be large, it is
+not packaged with the main source code.  The first time you import Trident into 
 Python, the code will attempt to automatically set this all up for you with 
 a series of interactive prompts.  **This step requires an internet connection.**
 
@@ -43,22 +69,24 @@ a series of interactive prompts.  **This step requires an internet connection.**
 
     $ python
     >>> import trident
+    ...Series of Interactive Prompts...
 
 If you cannot directly access the internet on this computer, or you lack write
 access to your ``$HOME`` directory, or this step fails for any reason, please 
 follow our documentation on :ref:`manual-config`.
 
 Step 4: Science!
-^^^^^^^^^^^^^^^^
+----------------
 
-You're now ready to use Trident.  Please refer to the documentation for how
-to use it with your data or with one of our sample datasets.
+Congratulations, you're now ready to use Trident!  Please refer to the 
+documentation for how to use it with your data or with one of our sample 
+datasets.
 
 
 .. _manual-config:
 
 Manually Installing your Ionization Table
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------------------
 
 If for some reason you are unable to install the config file and ionization
 table data automatically, you must set it up manually.  When Trident runs,
@@ -88,3 +116,28 @@ session::
     >>> import trident
 
 If this fails or you have additional problems, please contact our mailing list.
+
+.. _uninstallation:
+
+Uninstallation or Switching Code Versions
+-----------------------------------------
+
+Uninstallation of the Trident source code is easy.  If you installed the 
+stable version of the code via pip, just run::
+
+    $ pip uninstall trident
+
+If you installed the dev version of Trident, you'll have to delete the source
+as well::
+
+    $ pip uninstall trident
+    $ rm -rf /path/to/trident/source
+
+If you want to switch between the two stable and development versions, just
+*uninstall* your version of the code as above, and then install the desired
+version as described in :ref:`install-trident`
+
+To fully remove the code from your system, remember to remove any ion table
+datafiles you may have downloaded in your ``$HOME/.trident`` directory, 
+and follow the instructions for how to `uninstall yt 
+<http://yt-project.org/docs/dev/installing.html>`_.
