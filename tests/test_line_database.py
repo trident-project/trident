@@ -19,6 +19,8 @@ from trident.line_database import \
 from trident.utilities import \
     trident_path
 import numpy as np
+from shutil import copyfile
+import os.path
 
 def test_uniquify():
     """
@@ -48,11 +50,11 @@ def test_line_database_from_stored_file():
     print ld
 
 def test_line_database_from_local_file():
-    # todo
-    # copy lines.txt file from data dir to tmpdir as diff filename
-    # attempt to load as LineDatabase
-    ld = LineDatabase('lines.txt')
+    line_file = os.path.join(trident_path(), 'data/line_lists/lines.txt')
+    copyfile(line_file, 'test_lines.txt')
+    ld = LineDatabase('test_lines.txt')
     print ld
+    os.remove('test_lines.txt')
 
 def test_line_database_from_input():
     ld = LineDatabase()
