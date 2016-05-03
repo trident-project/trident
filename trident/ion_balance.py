@@ -648,8 +648,10 @@ def _ion_fraction_field(field,data):
     fraction = np.power(10, interp(data))
     fraction[fraction <= fraction_zero_point] = 0.0
     if not isinstance(data, FieldDetector) and (fraction > 1.0).any():
-        mylog.warning("An ion fraction greater than 1 was calculated.  " +
-                      "This is wrong!")
+        greater_than = fraction > 1.0
+        mylog.warning("An ion fraction greater than 1 was calculated. Bad interpolation: " +
+                      "capping at 1.0")
+        mylog.warning("Original values: %s" % fraction[greater_than])
     return fraction
 
 # Taken from Cloudy documentation.
