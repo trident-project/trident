@@ -12,6 +12,11 @@ Tests for ion balance code
 #-----------------------------------------------------------------------------
 
 import trident as tri
+from trident.ion_balance import \
+    add_ion_fraction_field, \
+    add_ion_number_density_field, \
+    add_ion_density_field, \
+    add_ion_mass_field
 import yt
 from yt.testing import \
     fake_random_ds, \
@@ -35,7 +40,7 @@ def test_add_ion_fraction_field_to_grid_ds():
                                     'cm/s', 'K', ''))
     ftype = 'stream'
     ad = ds.all_data()
-    tri.add_ion_fraction_field('O', 6, ds, ftype='stream')
+    add_ion_fraction_field('O', 6, ds, ftype='stream')
     field = ('stream', 'O_p5_ion_fraction')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
@@ -54,7 +59,7 @@ def test_add_ion_number_density_field_to_grid_ds():
                                     'cm/s', 'K', ''))
     ftype = 'stream'
     ad = ds.all_data()
-    tri.add_ion_mass_field('O', 6, ds, ftype='stream')
+    add_ion_mass_field('O', 6, ds, ftype='stream')
     field = ('stream', 'O_p5_number_density')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
@@ -73,7 +78,7 @@ def test_add_ion_density_field_to_grid_ds():
                                     'cm/s', 'K', ''))
     ftype = 'stream'
     ad = ds.all_data()
-    tri.add_ion_mass_field('O', 6, ds, ftype='stream')
+    add_ion_mass_field('O', 6, ds, ftype='stream')
     field = ('stream', 'O_p5_density')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
@@ -92,7 +97,7 @@ def test_add_ion_mass_field_to_grid_ds():
                                     'cm/s', 'K', ''))
     ftype = 'stream'
     ad = ds.all_data()
-    tri.add_ion_mass_field('O', 6, ds, ftype='stream')
+    add_ion_mass_field('O', 6, ds, ftype='stream')
     field = ('stream', 'O_p5_mass')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
@@ -109,7 +114,7 @@ def test_add_ion_fraction_fields_to_amr_ds():
                              "velocity_z", "temperature", "metallicity"))
     ftype = 'stream'
     ad = ds.all_data()
-    tri.add_ion_fraction_field('O', 6, ds, ftype='stream')
+    add_ion_fraction_field('O', 6, ds, ftype='stream')
     field = ('stream', 'O_p5_ion_fraction')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
@@ -126,7 +131,7 @@ def test_add_ion_number_density_fields_to_amr_ds():
                              "velocity_z", "temperature", "metallicity"))
     ftype = 'stream'
     ad = ds.all_data()
-    tri.add_ion_number_density_field('O', 6, ds, ftype='stream')
+    add_ion_number_density_field('O', 6, ds, ftype='stream')
     field = ('stream', 'O_p5_number_density')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
@@ -143,7 +148,7 @@ def test_add_ion_density_fields_to_amr_ds():
                              "velocity_z", "temperature", "metallicity"))
     ftype = 'stream'
     ad = ds.all_data()
-    tri.add_ion_density_field('O', 6, ds, ftype='stream')
+    add_ion_density_field('O', 6, ds, ftype='stream')
     field = ('stream', 'O_p5_density')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
@@ -160,7 +165,7 @@ def test_add_ion_mass_fields_to_amr_ds():
                              "velocity_z", "temperature", "metallicity"))
     ftype = 'stream'
     ad = ds.all_data()
-    tri.add_ion_mass_field('O', 6, ds, ftype='stream')
+    add_ion_mass_field('O', 6, ds, ftype='stream')
     field = ('stream', 'O_p5_mass')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
