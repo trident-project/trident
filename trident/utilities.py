@@ -141,8 +141,8 @@ def parse_config():
 
     if not os.path.exists(os.path.join(ion_table_dir, 
                                        ion_table_file)):
-        print ""
-        print "No ion table data file found in %s" % ion_table_dir
+        print("")
+        print("No ion table data file found in %s" % ion_table_dir)
         ion_table_file = get_datafiles(ion_table_dir)
         parser.set('Trident', 'ion_table_file', ion_table_file)
         with open(config_filename, 'w') as configfile:
@@ -158,23 +158,23 @@ def create_config():
     """
     default_dir = expanduser('~/.trident')
     trident()
-    print "It appears that this is your first time using Trident.  To finalize your"
-    print "Trident installation, you must:"
-    print " * create a `~/.trident` directory"
-    print " * create a config.tri file in your `~/.trident` directory"
-    print " * download an ion table file for calculating ionization fractions"
-    print ""
-    print "You can do this manually by following the installation docs, or we can"
-    print "do it automatically now if you have web access."
-    print ""
-    print "Would you like to do this automatically? ([y]/n)"
+    print("It appears that this is your first time using Trident.  To finalize your")
+    print("Trident installation, you must:")
+    print(" * create a `~/.trident` directory")
+    print(" * create a config.tri file in your `~/.trident` directory")
+    print(" * download an ion table file for calculating ionization fractions")
+    print("")
+    print("You can do this manually by following the installation docs, or we can")
+    print("do it automatically now if you have web access.")
+    print("")
+    print("Would you like to do this automatically? ([y]/n)")
     value = raw_input().rstrip()
     if not value == '' and not value == 'y':
-        sys.exit('Instructions at http://trident.readthedocs.org/en/latest/Installation.html')
+        sys.exit('Instructions at http://trident.readthedocs.org/en/latest/installation.html')
 
-    print ""
-    print "Where would you like Trident to store the ion table file?"
-    print "[%s]" % default_dir
+    print("")
+    print("Where would you like Trident to store the ion table file?")
+    print("[%s]" % default_dir)
 
     # First assure that the .trident directory is created for storing
     # the config file.
@@ -188,10 +188,10 @@ def create_config():
     # Try to create data directory if it doesn't exist
     try:
         ensure_directory(datadir)
-        print "Using %s" % datadir
-        print ""
+        print("Using %s" % datadir)
+        print("")
     except:
-        print "Cannot create directory %s" % datadir
+        print("Cannot create directory %s" % datadir)
         raise
 
     # Get the datafile from the web
@@ -206,8 +206,8 @@ def create_config():
     with open(config_filename, 'w') as configfile:
         config.write(configfile)
 
-    print ""
-    print "Installation complete.  Now let's do some science!"
+    print("")
+    print("Installation complete.  Now let's do some science!")
 
     # Return the ion_table_dir and ion_table_file so they
     # can be set as trident global variables for future use by ion_balance 
@@ -231,24 +231,24 @@ def get_datafiles(datadir=None, url=None):
     try:
         page = str(requests.get(url).text)
     except:
-        print "Cannot seem to access %s; Do you have internet access?" % url
+        print("Cannot seem to access %s; Do you have internet access?" % url)
         raise
 
     line_list = page.split('\n')
     i = 1 # counter
     filenames = []
-    print "The following data files are available:"
+    print("The following data files are available:")
     for line in line_list:
        if not line.startswith('<!--X'): # identifies files by comments
             continue
        line = line[6:-3]  # strips off the HTML comment chars
        filenames.append(line.split()[0])
-       print "%d) %s" % (i, line)
+       print("%d) %s" % (i, line))
        i += 1
 
     # User chooses which file
-    print ""
-    print "Which number would you like to download and use? [1]"
+    print("")
+    print("Which number would you like to download and use? [1]")
     value = raw_input().rstrip()
     if value == '':
         value = '1'
@@ -257,14 +257,14 @@ def get_datafiles(datadir=None, url=None):
             filename = filenames[int(value)-1] 
             break
         except IndexError:
-            print "%d is not a valid option.  Please pick one of the listed numbers."
+            print("%d is not a valid option.  Please pick one of the listed numbers.")
 
     # Actually downloads the file to a temporary directory before gunzipping.
     fileurl = os.path.join(url, filename)
     tempdir = tempfile.mkdtemp()
-    print ""
+    print("")
     download_file(fileurl, local_directory=tempdir)
-    print "  Unzipping file: %s" % filename
+    print("  Unzipping file: %s" % filename)
     gunzip_file(os.path.join(tempdir, filename), 
                 out_filename=os.path.join(datadir, filename[:-3]))
     shutil.rmtree(tempdir) 
@@ -274,7 +274,7 @@ def trident():
     """
     Prints a nice ASCII logo!
     """
-    print """
+    print("""
 MMMMMMMMMMMMMMMMMMM.............................................................
 M...B....C....D...M.MMMMMMMMMM.......MM........MM.....................MM7.......
 M...MM...M...MM...M.....MM.....................MM.....................MM7.......
@@ -284,7 +284,7 @@ M.....MMMMMMM.....M.....MM...MM......MM. MM....MM.8MMMMMMMD.MM....MM..MM7.......
 M....... M........M.....MM...MM......MM..MM...8MM. MM...._..MM....MM..MMZ.MM ...
 M........M........M.....MM...MM......MM..MMMMM.MM. MMMMMMM..MM....MM...MMMMM....
 MMMMMMMMMMMMMMMMMMM.............................................................
-"""
+""")
 
 def trident_path():
     """
