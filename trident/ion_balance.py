@@ -652,6 +652,7 @@ def _ion_fraction_field(field,data):
         mylog.warning("An ion fraction greater than 1 was calculated. ")
         mylog.warning("Bad interpolation: capping at 1. ")
         mylog.warning("Original values: %s" % fraction[greater_than])
+        np.clip(fraction, 0.0, 1.0)
     return fraction
 
 # Taken from Cloudy documentation.
