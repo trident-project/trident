@@ -3,8 +3,6 @@
 API Reference
 =============
 
-#.. automodapi::
-
 
 Interface for Generating Rays
 -----------------------------
@@ -48,10 +46,7 @@ Interface for Adding Ion Fields
 .. autosummary::
     :toctree: generated/
 
-.. autofunction:: trident.add_ion_density_field
-.. autofunction:: trident.add_ion_number_density_field
-.. autofunction:: trident.add_ion_fraction_field
-.. autofunction:: trident.add_ion_mass_field
+.. autofunction:: trident.add_ion_fields
 
 Miscellaneous Utilities
 -----------------------
@@ -61,4 +56,5 @@ Miscellaneous Utilities
 
 .. autofunction:: trident.toRoman
 .. autofunction:: trident.fromRoman
+.. autofunction:: trident.trident_path
 .. autofunction:: trident.trident
