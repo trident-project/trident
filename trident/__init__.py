@@ -42,7 +42,8 @@ from trident.spectrum_generator import \
 from trident.utilities import \
     parse_config, \
     trident, \
-    trident_path
+    trident_path, \
+    create_onezone_dataset
 
 from trident.ray_generator import \
     make_simple_ray, \

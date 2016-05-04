@@ -24,6 +24,11 @@ import tempfile
 import shutil
 from yt.funcs import \
     get_pbar
+import h5py as h5
+import numpy as np
+from textwrap import \
+    dedent
+
 
 def ensure_directory(directory):
     """
@@ -296,3 +301,88 @@ def trident_path():
     path_list = os.path.dirname(__file__).split('/')[:-1]
     path_list.append('trident')
     return '/'.join(path_list)
+
+def create_onezone_dataset(filename=None, density=None, temperature=None, 
+                           metallicity=None, column_density=None):
+                           
+    """
+    This function creates a simple enzo dataset consisting of a single 
+    cell matching the desired hydro quantities.  It makes an excellent
+    test dataset through which to send a sightline and test Trident's 
+    capabilities for making absorption spectra.
+    """
+
+    # create directory
+    if filename is None:
+        filename = 'one_zone'
+    
+    pf_fn = os.path.join(filename, filename)
+    hf_fn = os.path.join(filename, '%s.hierarchy' % filename)
+    h5_fn = os.path.join(filename, '%s.h5' % filename)
+
+    fields = ['Density', 'Temperature', 'Metal_Density', 
+              'x-velocity', 'y-velocity', 'z-velocity']
+
+    parameters = """
+    InitialTime                 = 0
+    TopGridRank                 = 1
+    TopGridDimensions           = 1
+    ComovingCoordinates         = 0
+    HydroMethod                 = 0
+    MultiSpecies                = 0
+    DualEnergyFormalism         = 0
+    NumberOfParticles           = 0
+    Gamma                       = 1.4
+    RefineBy                    = 2
+    DomainLeftEdge              = 0
+    DomainRightEdge             = 1
+    LeftFaceBoundaryCondition   = 0
+    RightFaceBoundaryCondition  = 0
+    TimeUnits                   = 1
+    LengthUnits                 = 1
+    MassUnits                   = 1
+    DensityUnits                = 1
+    TemperatureUnits            = 1
+    NumberOfGhostZones          = 0
+    VersionNumber               = 2.4
+    """
+    
+    hierarchy = """
+    Grid = 1
+    GridRank          = 1
+    GridDimension     = 1
+    GridStartIndex    = 0
+    GridEndIndex      = 0
+    GridLeftEdge      = 0
+    GridRightEdge     = 1
+    NumberOfBaryonFields = %d
+    BaryonFileName = ./%s
+    NumberOfParticles   = 0
+    """ % (len(fields), h5_fn)
+    
+    try:
+        os.stat(filename)
+    except:
+        os.mkdir(filename)       
+    
+    # create parameter file
+    pf = open(pf_fn, 'w')
+    parameters = dedent(parameters)
+    for line in parameters:
+        pf.write(line)
+    pf.close()
+    
+    # create hierarchy file
+    hf = open(hf_fn, 'w')
+    hierarchy = dedent(hierarchy)
+    for line in hierarchy:
+        hf.write(line)
+    hf.close()
+    
+    # create hdf5 file
+    h5f = h5.File(h5_fn, 'w')
+    grp = h5f.create_group('Grid00000001')
+    ones = np.ones(1)
+    for field in fields:
+        grp.create_dataset(field, data=ones)
+    h5f.close()
