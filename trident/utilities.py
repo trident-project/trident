@@ -26,9 +26,12 @@ from yt.funcs import \
     get_pbar
 import h5py as h5
 import numpy as np
-from textwrap import \
-    dedent
-
+from yt.units import \
+    cm, \
+    pc, \
+    Zsun
+from yt import \
+    load_uniform_grid
 
 def ensure_directory(directory):
     """
@@ -302,87 +305,46 @@ def trident_path():
     path_list.append('trident')
     return '/'.join(path_list)
 
-def create_onezone_dataset(filename=None, density=None, temperature=None, 
-                           metallicity=None, column_density=None):
+def create_simple_dataset(density=1e-26, temperature=1000, 
+                          metallicity=0.3, domain_width=10.):
                            
     """
-    This function creates a simple enzo dataset consisting of a single 
+    This function creates a simple dataset consisting of a single 
     cell matching the desired hydro quantities.  It makes an excellent
     test dataset through which to send a sightline and test Trident's 
     capabilities for making absorption spectra.
+
+    Using the defaults and passing a ray through the full domain should
+    result in an spectrum with a good number of absorption features.
+
+    **Parameters**
+
+    density : float, optional
+        The density value of the dataset in g/cm**3
+        Default: 1e-26
+
+    temperature : float, optional
+        The temperature value of the dataset in K
+        Default: 10**4
+
+    metallicity : float, optional
+        The metallicity value of the dataset in Zsun
+        Default: 0.3
+
+    domain_width : float, optional
+        The width of the dataset in kpc
+        Default: 10.
     """
 
-    # create directory
-    if filename is None:
-        filename = 'one_zone'
-    
-    pf_fn = os.path.join(filename, filename)
-    hf_fn = os.path.join(filename, '%s.hierarchy' % filename)
-    h5_fn = os.path.join(filename, '%s.h5' % filename)
+    one = np.ones([1,1,1])
+    zero = np.zeros([1,1,1])
+    dens = np.array([[[density]]])*one
+    temp = np.array([[[temperature]]])*one
+    metal = np.array([[[metallicity]]])*one
+    domain_width *= 1e3*pc/cm
+    bbox = np.array([[0., domain_width], [0., domain_width], [0., domain_width]])
 
-    fields = ['Density', 'Temperature', 'Metal_Density', 
-              'x-velocity', 'y-velocity', 'z-velocity']
-
-    parameters = """
-    InitialTime                 = 0
-    TopGridRank                 = 1
-    TopGridDimensions           = 1
-    ComovingCoordinates         = 0
-    HydroMethod                 = 0
-    MultiSpecies                = 0
-    DualEnergyFormalism         = 0
-    NumberOfParticles           = 0
-    Gamma                       = 1.4
-    RefineBy                    = 2
-    DomainLeftEdge              = 0
-    DomainRightEdge             = 1
-    LeftFaceBoundaryCondition   = 0
-    RightFaceBoundaryCondition  = 0
-    TimeUnits                   = 1
-    LengthUnits                 = 1
-    MassUnits                   = 1
-    DensityUnits                = 1
-    TemperatureUnits            = 1
-    NumberOfGhostZones          = 0
-    VersionNumber               = 2.4
-    """
-    
-    hierarchy = """
-    Grid = 1
-    GridRank          = 1
-    GridDimension     = 1
-    GridStartIndex    = 0
-    GridEndIndex      = 0
-    GridLeftEdge      = 0
-    GridRightEdge     = 1
-    NumberOfBaryonFields = %d
-    BaryonFileName = ./%s
-    NumberOfParticles   = 0
-    """ % (len(fields), h5_fn)
-    
-    try:
-        os.stat(filename)
-    except:
-        os.mkdir(filename)       
-    
-    # create parameter file
-    pf = open(pf_fn, 'w')
-    parameters = dedent(parameters)
-    for line in parameters:
-        pf.write(line)
-    pf.close()
-    
-    # create hierarchy file
-    hf = open(hf_fn, 'w')
-    hierarchy = dedent(hierarchy)
-    for line in hierarchy:
-        hf.write(line)
-    hf.close()
-    
-    # create hdf5 file
-    h5f = h5.File(h5_fn, 'w')
-    grp = h5f.create_group('Grid00000001')
-    ones = np.ones(1)
-    for field in fields:
-        grp.create_dataset(field, data=ones)
-    h5f.close()
+    data = {'density':dens, 'temperature':temp, 'metallicity':metal*Zsun,
+            'velocity_x':zero, 'velocity_y':zero, 'velocity_z':zero}
+    return load_uniform_grid(data, one.shape, length_unit='cm',
+                              mass_unit='g', bbox=bbox)

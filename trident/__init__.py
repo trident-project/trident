@@ -43,7 +43,7 @@ from trident.utilities import \
     parse_config, \
     trident, \
     trident_path, \
-    create_onezone_dataset
+    create_simple_dataset
 
 from trident.ray_generator import \
     make_simple_ray, \
