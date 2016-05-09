@@ -542,33 +542,43 @@ def _ion_mass(field, data):
     in the dataset.
     """
     if isinstance(field.name, tuple):
+        ftype = field.name[0]
         field_name = field.name[1]
     else:
+        ftype = "gas"
         field_name = field.name
     atom = field_name.split("_")[0]
     prefix = field_name.split("_mass")[0]
     suffix = field_name.split("_mass")[-1]
-    densityField = "%s_density%s" %(prefix, suffix)
-    return data[densityField] * data['cell_volume']
+    density_field_name = "%s_density%s" % (prefix, suffix)
+    if data.ds.field_info[(ftype, density_field_name)].particle_type:
+        fraction_field_name = "%s_ion_fraction%s" % (prefix, suffix)
+        return data[ftype, fraction_field_name] * \
+          data[ftype, "particle_mass"]
+    else:
+        return data[ftype, density_field_name] * \
+          data[ftype, "cell_volume"]
 
-def _ion_density(field,data):
+def _ion_density(field, data):
     """
     Creates the function for a derived field for following the density of an 
     ion over a dataset given that the specified ion's number_density field 
     exists in the dataset.
     """
     if isinstance(field.name, tuple):
+        ftype = field.name[0]
         field_name = field.name[1]
     else:
+        ftype = "gas"
         field_name = field.name
     atom = field_name.split("_")[0]
     prefix = field_name.split("_density")[0]
     suffix = field_name.split("_density")[-1]
-    numberDensityField = "%s_number_density%s" %(prefix, suffix)
+    number_density_field_name = "%s_number_density%s" % (prefix, suffix)
     # the "mh" makes sure that the units work out
-    return atomic_mass[atom] * data[numberDensityField] * mh
+    return atomic_mass[atom] * data[ftype, number_density_field_name] * mh
 
-def _ion_number_density(field,data):
+def _ion_number_density(field, data):
     """
     Creates the function for a derived field for following the number_density 
     of an ion over a dataset given that the specified ion's ion_fraction field 
@@ -583,32 +593,33 @@ def _ion_number_density(field,data):
     atom = field_name.split("_")[0]
     prefix = field_name.split("_number_density")[0]
     suffix = field_name.split("_number_density")[-1]
-    fractionField = "%s_ion_fraction%s" %(prefix, suffix)
+    fraction_field_name = "%s_ion_fraction%s" % (prefix, suffix)
 
     # try the atom-specific density field first
     nuclei_field = "%s_nuclei_mass_density" % atom
     if (ftype, nuclei_field) in data.ds.field_info:
-        return data[fractionField] * \
+        return data[fraction_field_name] * \
           data[(ftype, nuclei_field)] / atomic_mass[atom] / mh
 
     if atom == 'H' or atom == 'He':
-        field = solar_abundance[atom] * data[fractionField] * \
+        field = solar_abundance[atom] * data[fraction_field_name] * \
                 data[ftype, "density"]
     else:
         field = data.ds.quan(solar_abundance[atom], "1.0/Zsun") * \
-                data[fractionField] * data[ftype, "metallicity"] * \
-                data[ftype, "density"]
-                # Ideally we'd like to use the following line
-                # but it is very slow to compute.
-                # If we get H_nuclei_density sped up
-                # then we will want to remove the "to_nH" below
-                # (this applies above as well)
-                #data['H_nuclei_density']
+          data[ftype, fraction_field_name] * \
+          data[ftype, "metallicity"] * \
+          data[ftype, "density"]
+        # Ideally we'd like to use the following line
+        # but it is very slow to compute.
+        # If we get H_nuclei_density sped up
+        # then we will want to remove the "to_nH" below
+        # (this applies above as well)
+        # data['H_nuclei_density']
     field[field <= 0.0] = 1.e-50
     # the "to_nH", does the final conversion to number density
     return field * to_nH
 
-def _ion_fraction_field(field,data):
+def _ion_fraction_field(field, data):
     """
     Creates the function for a derived field for following the ion_fraction
     of an ion over a dataset by plugging in the density, temperature, 
