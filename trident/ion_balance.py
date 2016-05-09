@@ -601,6 +601,14 @@ def _ion_number_density(field, data):
         return data[fraction_field_name] * \
           data[(ftype, nuclei_field)] / atomic_mass[atom] / mh
 
+    # try the species metallicity
+    metallicity_field = "%s_metallicity" % atom
+    if (ftype, metallicity_field) in data.ds.field_info:
+        return data[fraction_field_name] * \
+                  data[ftype, "density"] * \
+                  data[ftype, metallicity_field] / \
+                  atomic_mass[atom] / mh
+
     if atom == 'H' or atom == 'He':
         field = solar_abundance[atom] * data[fraction_field_name] * \
                 data[ftype, "density"]
