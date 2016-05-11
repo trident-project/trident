@@ -3,58 +3,56 @@
 API Reference
 =============
 
-
 Interface for Generating Rays
 -----------------------------
 
 .. autosummary::
-    :toctree: generated/
+   :toctree: generated/
+   :nosignatures:
 
-.. autofunction:: trident.make_simple_ray
-.. autofunction:: trident.make_compound_ray
-.. autoclass:: trident.LightRay
-    :members:
+   ~trident.make_simple_ray
+   ~trident.make_compound_ray
+   ~trident.LightRay
 
 Interface for Generating Spectra
 --------------------------------
 
 .. autosummary::
-    :toctree: generated/
+   :toctree: generated/
+   :nosignatures:
 
-.. autoclass:: trident.SpectrumGenerator
-   :members:
-.. autoclass:: trident.Instrument
-   :members:
-.. autoclass:: trident.Line
-   :members:
-.. autoclass:: trident.LineDatabase
-   :members:
-.. autoclass:: trident.LSF
-   :members:
+   ~trident.SpectrumGenerator
+   ~trident.Instrument
+   ~trident.Line
+   ~trident.LineDatabase
+   ~trident.LSF
 
 Interface for Plotting Spectra
 ------------------------------
 
 .. autosummary::
-    :toctree: generated/
+   :toctree: generated/
+   :nosignatures:
 
-.. autofunction:: trident.plot_spectrum
+   ~trident.plot_spectrum
 
 Interface for Adding Ion Fields
 -------------------------------
 
 .. autosummary::
-    :toctree: generated/
+   :toctree: generated/
+   :nosignatures:
 
-.. autofunction:: trident.add_ion_fields
+   ~trident.add_ion_fields
 
 Miscellaneous Utilities
 -----------------------
 
 .. autosummary::
-    :toctree: generated/
+   :toctree: generated/
+   :nosignatures:
 
-.. autofunction:: trident.toRoman
-.. autofunction:: trident.fromRoman
-.. autofunction:: trident.trident_path
-.. autofunction:: trident.trident
+   ~trident.toRoman
+   ~trident.fromRoman
+   ~trident.trident_path
+   ~trident.trident
