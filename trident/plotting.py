@@ -98,6 +98,16 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
         Optionally set the axis labels directly.  If set to None, defaults to
         ('Wavelength [$\\AA$]', 'Relative Flux').
         Default: None
+
+    **Example**
+
+    Plot a flat spectrum
+
+    >>> import numpy as np
+    >>> import trident
+    >>> wavelength = np.arange(1200, 1400)
+    >>> flux = np.ones(len(wavelength))
+    >>> trident.plot_spectrum(wavelength, flux)
     """
 
     # number of rows and columns
