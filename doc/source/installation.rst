@@ -75,7 +75,22 @@ If you cannot directly access the internet on this computer, or you lack write
 access to your ``$HOME`` directory, or this step fails for any reason, please 
 follow our documentation on :ref:`manual-config`.
 
-Step 4: Science!
+Step 4: Verify Installation
+-------------------------
+
+Once you've installed yt, Trident, and downloaded your ion table data file, 
+everything *should* be working, but it's good to verify your installation.
+Trident provides a simple test function to verify that your install is 
+able to create a simple one-zone dataset, generate a ray through it, and 
+create a spectrum from that ray.  This should take about 5 seconds to run 
+on a modern computer, and if it succeeds it demonstrates that your installation
+has been totally successful::
+
+    $ python
+    >>> import trident
+    >>> trident.verify()
+
+Step 5: Science!
 ----------------
 
 Congratulations, you're now ready to use Trident!  Please refer to the 

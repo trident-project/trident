@@ -56,3 +56,4 @@ Miscellaneous Utilities
    ~trident.fromRoman
    ~trident.trident_path
    ~trident.trident
+   ~trident.verify
