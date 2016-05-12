@@ -348,3 +348,59 @@ def create_simple_dataset(density=1e-26, temperature=1000,
             'velocity_x':zero, 'velocity_y':zero, 'velocity_z':zero}
     return load_uniform_grid(data, one.shape, length_unit='cm',
                               mass_unit='g', bbox=bbox)
+
+def test():
+    """
+    A test function that can be run to demonstrate that the bulk of Trident's
+    functionality is working.  This creates a single-cell grid-based dataset
+    in memory, then creates a ray by sending a sightline through that dataset,
+    then creates a spectrum from the ray object.  Saves all data to a tempdir
+    to be deleted.
+    """
+    from trident.spectrum_generator import SpectrumGenerator
+    from trident.ray_generator import make_simple_ray
+    print("")
+    print("Creating single-cell dataset")
+    print("----------------------------")
+    print("")
+    try:
+        ds = create_simple_dataset()
+    except:
+        print("Failed to create single-cell dataset")
+        raise
+
+    print("")
+    print("Creating ray object through single-cell dataset")
+    print("-----------------------------------------------")
+    print("")
+    tempdir = tempfile.mkdtemp()
+    try:
+        ray = make_simple_ray(ds,
+                start_position=ds.domain_left_edge,
+                end_position=ds.domain_right_edge,
+                data_filename=os.path.join(tempdir, 'ray.h5'),
+                fields=['density', 'temperature', 'metallicity'])
+    except:
+        print("Failed to create ray object")
+        raise
+
+    print("")
+    print("Create spectrum with Lyman alpha, Mg II, and O VI lines")
+    print("-------------------------------------------------------")
+    print("")
+    sg = SpectrumGenerator('COS')
+    sg.make_spectrum(ray, lines=['Ly a', 'Mg II', 'O VI'])
+    sg.save_spectrum('spec_raw.h5')
+    sg.plot_spectrum('spec_raw.png')
+    # Test other post processing of the spectrum
+    sg.add_qso_spectrum()
+    sg.add_milky_way_foreground()
+    sg.apply_lsf()
+    sg.add_gaussian_noise(30)
+    sg.save_spectrum('spec_final.h5')
+    sg.plot_spectrum('spec_final.png')
+    shutil.rmtree(tempdir) 
+    print("")
+    print("Trident succeeded in testing ray and spectrum generation functionality.")
+    print("Now let's do some science!")
+    print("")
