@@ -44,7 +44,7 @@ from trident.utilities import \
     trident, \
     trident_path, \
     create_simple_dataset, \
-    test
+    verify
 
 from trident.ray_generator import \
     make_simple_ray, \
