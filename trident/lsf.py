@@ -21,22 +21,24 @@ from trident.utilities import \
 
 class LSF(object):
     """
-    Line Spread Function class
+    A class representing a spectrograph's line spread function.
 
-    The user must define either a filename or a function and a width
+    A line spread function can be defined either by a function and width
+    *or* by a filename containing a custom kernel.
 
-    Parameters
+    **Parameters**
 
-    function : string, optional
-        the function defining the LSF kernel.
+    :function: string, optional
+        The function defining the LSF kernel.
         valid functions are "boxcar" or "gaussian"
 
-    width : int, optional
-        the width of the LSF kernel.  
+    :width: int, optional
+        The width of the LSF kernel in bins.  
 
-    filename : string, optional
-        the filename of a textfile for a user-specified kernel. each line
-        in the textfile is the non-normalized flux value of the kernel
+    :filename: string, optional
+        The filename of a textfile for a user-specified kernel. Each line
+        in the textfile contains a normalized flux value of the kernel.
+        For examples, see contents of ``trident.__path__/data/lsf_kernels``
     """
     def __init__(self, function=None, width=None, filename=None):
         self.kernel = []
