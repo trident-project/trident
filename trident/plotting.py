@@ -22,52 +22,80 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
                   title=None, label=None, figsize=None, step=False,
                   stagger=0.2, features=None, axis_labels=None):
     """
-    Plot a spectrum or a collection of spectra and save to disk
+    Plot a spectrum or a collection of spectra and save to disk.
 
-    Parameters
+    This function wraps some Matplotlib plotting functionality for
+    plotting spectra generated with the :class:`~trident.SpectrumGenerator`.
+    In its simplest form, it accepts a wavelength array consisting of 
+    wavelength values and a corresponding flux array consisting of relative
+    flux values, and it plots them and saves to disk.
 
-    wavelength : array or list of arrays
-        Wavelength vals in angstroms
+    In addition, it can plot several spectra on the same axes simultaneously
+    by passing a list of arrays to the wavelength, flux, and label parameters.
 
-    flux : array or list of arrays
-        relative flux (from 0 to 1)
+    **Parameters**
 
-    filename : string, optional
+    :wavelength: array of floats or list of arrays of floats
+
+        Wavelength values in angstroms
+
+    :flux: array of floats or list of arrays of floats
+
+        Relative flux values (from 0 to 1) corresponding to wavelength array
+
+    :filename: string, optional
+
         Output filename of the plotted spectrum.  Will be a png file.
+        Default: 'spectrum.png'
 
-    lambda_limits : tuple or list of floats, optional
-        The minimum and maximum of the lambda range (x-axis) for the plot
+    :lambda_limits: tuple or list of floats, optional
+
+        The minimum and maximum of the wavelength range (x-axis) for the plot
         in angstroms.  If specified as None, will use whole lambda range
-        of spectrum.
+        of spectrum. Example: (1200, 1400) for 1200-1400 Angstroms
         Default: None
 
-    flux_limits : tuple or list of floats, optional
+    :flux_limits: tuple or list of floats, optional
+
         The minimum and maximum of the flux range (y-axis) for the plot.
         If specified as None, limits are automatically from
-        [0, 1.1*max(flux)].
+        [0, 1.1*max(flux)]. Example: (0, 1) for normal flux range before
+        postprocessing.
         Default: None
 
 
-    title : string, optional
-        Title for plot
+    :title: string, optional
 
-    label : string or list of strings, optional
-        Label for each spectrum to be plotted
-
-    stagger : float, optional
-        if plotting multiple spectra on top of each other, do we stagger them?
-        If None, no.  If set to a float, it is the value in relative flux to
-        stagger each spectrum
-
-    features : dict, optional
-        include vertical lines with labels to represent certain spectral
-        features.  
+        Optional title for plot
         Default: None
+
+    :label: string or list of strings, optional
+
+        Label for each spectrum to be plotted. Useful if plotting multiple
+        spectra simultaneously.  Will automatically trigger a legend to be
+        generated.
+        Default: None
+
+    :stagger: float, optional
+
+        If plotting multiple spectra on the same axes, do we offset them in
+        the y direction?  If set to None, no.  If set to a float, stagger them 
+        by the flux value specified by this parameter.
+
+    :features: dict, optional
+
+        Include vertical lines with labels to represent certain spectral
+        features.  Each entry in the dictionary consists of a key string to
+        be overplot and the value float as to where in wavelength space it 
+        will be plot as a vertical line with the corresponding label.
 
         Example: features={'Ly a' : 1216, 'Ly b' : 1026}
 
-    axis_labels : tuple of strings, optional
-        optionally set the axis labels directly.  If set to None, defaults to
+        Default: None
+
+    :axis_labels: tuple of strings, optional
+
+        Optionally set the axis labels directly.  If set to None, defaults to
         ('Wavelength [$\\AA$]', 'Relative Flux').
         Default: None
     """
