@@ -30,39 +30,51 @@ def uniquify(list):
    return checked
 
 class Line:
-    """An individual atomic transition identified uniquely by element,
-    ionic state, wavelength, gamma, oscillator strength, and identifier.
+    """A class representing an individual atomic transition.  Each Line object
+    is uniquely identified by element, ionic state, wavelength, gamma, 
+    oscillator strength, and identifier.
 
     **Parameters**
 
-    element : string
+    :element: string
+
         The element of the transition using element's symbol on periodic table
+        Example: 'H', 'C', 'Mg'
 
-    ion_state : string
+    :ion_state: string
+
         The roman numeral representing the ionic state of the transition
+        Example: 'I' for neutral species, 'II' for singly ionized, etc.
 
-    wavelength : float
+    :wavelength: float
+    
         The wavelength of the transition in angstroms
+        Example: 1216 for Lyman alpha
 
-    gamma : float
+    :gamma: float
+
         The gamma of the transition in Hertz
 
-    f_value: float
+    :f_value: float
+
         The oscillator strength of the transition
 
-    field : string, optional
+    :field: string, optional
+
         The default yt field name associated with the ion responsible for
         this line
+        Example: 'H_p1_number_density' for HII
 
-    identifier : string, optional
+    :identifier: string, optional
+
         An optional identifier for the transition
+        Example: 'Ly a' for Lyman alpha
 
-
-    Example:
+    **Example**
 
     Create a Line object for the neutral hydrogen 1215 Angstroms transition.
 
-    >>> HI = Line('H', 'I', 1215.67, 469860000, 0.41641, 'Lya')
+    >>> HI = Line('H', 'I', 1215.67, 469860000, 0.41641, 'Ly a')
 
     """
     def __init__(self, element, ion_state, wavelength, gamma, f_value,
@@ -89,8 +101,42 @@ class Line:
 
 class LineDatabase:
     """
-    LineDatabase is the class that holds all of the spectral lines to be used
-    by the SpectrumGenerator.
+    Class for storing and selecting collections of spectral lines.  These lines
+    will be used in the :class:`~trident.SpectrumGenerator` and 
+    :class:`~trident.add_ion_fields()` functionality.
+
+    Without arguments, the LineDatabase will be empty, and you must
+    manually add individual lines to it using the 
+    :class:`~trident.LineDatabase.add_line` function.
+    If LineDatabase is provided with an optional :input_file:, it will 
+    automatically add spectral lines for each corresponding line in the list.
+
+    Once created, you can select a subset of the total lines present in 
+    the database for further use.  Use the 
+    :class:`~trident.LineDatabase.parse_subset`
+    function to accomplish this.
+
+    **Parameters**
+
+    :input_file: string, optional
+
+        An optional input_file can be provided to pre-store a list of Line
+        objects.  input_file should be a tab delimited text file of the 
+        format:
+
+        element, ion_state, wavelength, gamma, f_value, (name)
+
+        H,         I,        1215.67,  4.69e8, 4.16e-1, Ly a
+
+    **Example**
+
+    >>> # Create a LineDatabase using the lines present in lines.txt
+    >>> ldb = LineDatabase('lines.txt')
+
+    >>> # Parse ldb and only select Lyman alpha, Mg II and Fe lines
+    >>> lines = ldb.parse_subset(lines=['H I 1216', 'Mg II', 'Fe'])
+    >>> print lines
+
     """
     def __init__(self, input_file=None):
         self.lines_all = []
@@ -104,11 +150,74 @@ class LineDatabase:
     def add_line(self, element, ion_state, wavelength, gamma,
                  f_value, field=None, identifier=None):
         """
+        Manually add a line to the :class:`~trident.LineDatabase`.
+
+        **Parameters**
+
+        :element: string
+
+            The element of the transition using element's symbol on periodic table
+            Example: 'H', 'C', 'Mg'
+    
+        :ion_state: string
+
+            The roman numeral representing the ionic state of the transition
+            Example: 'I' for neutral species, 'II' for singly ionized, etc.
+    
+        :wavelength: float
+
+            The wavelength of the transition in angstroms
+            Example: 1216 for Lyman alpha
+
+        :gamma: float
+
+            The gamma of the transition in Hertz
+
+        :f_value: float
+
+            The oscillator strength of the transition
+
+        :field: string, optional
+
+            The default yt field name associated with the ion responsible for
+            this line
+            Example: 'H_p1_number_density' for HII
+
+        :identifier: string, optional
+
+            An optional identifier for the transition
+            Example: 'Ly a' for Lyman alpha
+
+
+        **Example**
+
+
+        >>> # Create a LineDatabase using the lines present in lines.txt
+        >>> ldb = LineDatabase('lines.txt')
+
+        >>> # Manually add the neutral hydrogen line to ldb
+        >>> ldb.add_line('H', 'I', 1215.67, 469860000, 0.41641, 'Ly a')
+        >>> print ldb.lines_all
         """
         self.lines_all.append(Line(element, ion_state, wavelength, gamma,
                                    f_value, field, identifier))
 
     def load_line_list_from_file(self, filename):
+        """
+        Load a line list from a file into the LineDatabase.
+        Line list file is a tab-delimited text file in the format:
+
+        element, ion_state, wavelength, gamma, f_value, (name)
+
+        H,         I,        1215.67,  4.69e8, 4.16e-1, Ly a
+
+        **Parameters**
+
+        filename : string
+
+            The filename of the list to add.  First looks in 
+            trident.__path__/data/line_lists directory, then in cwd.
+        """
         # check to see if file exists in trident/data/line_lists
         # if not, look in cwd
         filename = os.path.join(trident_path(), "data", "line_lists", filename)
@@ -138,6 +247,45 @@ class LineDatabase:
     def select_lines(self, element=None, ion_state=None, wavelength=None,
                     identifier=None):
         """
+        Select lines based on atom, ion state, identifier, and/or wavelength.
+        Once you've created a LineDatabase, you can subselect certain lines 
+        from it based on line characteristics.  Recommended to use 
+        :method:`~trident.LineDatabase.parse_subset` instead which allows 
+        selecting of multiple sets of lines simultaneously.
+
+        **Parameters**
+        
+        :element: string, optional
+
+            The element of the transition using element's symbol on periodic table
+            Example: 'H', 'C', 'Mg'
+
+        :ion_state: string, optional
+        
+            The roman numeral representing the ionic state of the transition
+            Example: 'I' for neutral species, 'II' for singly ionized, etc.
+
+        :wavelength: float, optional
+
+            The wavelength of the transition in angstroms
+            Example: 1216 for Lyman alpha
+
+        :identifier: string, optional
+
+            An optional identifier for the transition
+            Example: 'Ly a' for Lyman alpha
+
+        **Returns**
+            
+        :counter: int 
+
+            A counter indicating how many lines were selected and added to 
+            the line_subset list attribute.
+
+        **Example**
+        
+        >>> ldb = LineDatabase('lines.txt')
+        >>> ldb.select_lines(element='Mg', ion_state='II')
         """
         counter = 0
         for line in self.lines_all:
@@ -165,9 +313,39 @@ class LineDatabase:
                     counter += 1
         return counter
 
-    def parse_subset(self, subsets):
+    def parse_subset(self, subsets=None):
         """
-        ["C", "C II", "C II 1402", "H I"]
+        Select multiple lines based on atom, ion state, identifier, and/or 
+        wavelength.  Once you've created a LineDatabase, you can subselect 
+        certain lines from it based on line characteristics.  Preferred to 
+        use this method over :class:`~trident.LineDatabase.select_lines`.
+
+        Will return the unique union of all lines matching the specified 
+        subsets from the :class:`~trident.LineDatabase`.
+
+        **Parameters**
+        
+        :subsets: list of strings, optional
+
+            List strings matching possible lines.  Strings can be of the
+            form:
+                * Atom - Examples: "H", "C", "Mg"
+                * Ion - Examples: "H I", "H II", "C IV", "Mg II"
+                * Line - Examples: "H I 1216", "C II 1336", "Mg II 1240"
+                * Identifier - Examples: "Ly a", "Ly b"
+
+        **Returns**
+            
+        :line subset: list of :class:`trident.Line` objects
+
+            A list of the Lines that were selected
+
+        **Example**
+        
+        >>> # Get a list of all lines of Carbon, Mg II and Lyman alpha
+        >>> ldb = LineDatabase('lines.txt')
+        >>> lines = ldb.parse_subset(['C', 'Mg II', 'H I 1216'])
+        >>> print lines
         """
         # if no subsets specified, then use all lines available
         if subsets is None:
@@ -203,9 +381,43 @@ class LineDatabase:
 
     def parse_subset_to_ions(self, subsets):
         """
-        Parse the lines based on the desired subsets, and output a list of 
-        ion tuples required to produce these desired lines
-        """
+        Select ions based on those needed to create specific lines.  
+        Once you've created a LineDatabase, you can subselect 
+        certain ions from it based on the line characteristics of atom,
+        ion state, identifier, and/or wavelength.  Similar to 
+        :class:`~trident.LineDatabase.parse_subset` but outputs a list of
+        ion tuples (e.g. ('H', 1), ('Fe', 2)), instead of a list of 
+        :class:`~trident.Line` objects.
+
+        Will return the unique union of all ions matching the specified 
+        subsets from the :class:`~trident.LineDatabase`.
+
+        **Parameters**
+        
+        :subsets: list of strings, optional
+
+            List strings matching possible lines.  Strings can be of the
+            form:
+                * Atom - Examples: "H", "C", "Mg"
+                * Ion - Examples: "H I", "H II", "C IV", "Mg II"
+                * Line - Examples: "H I 1216", "C II 1336", "Mg II 1240"
+                * Identifier - Examples: "Ly a", "Ly b"
+
+        **Returns**
+            
+        :ion subset: list of ion tuples
+
+            A list of the ions necessary to produce the desired lines
+            Each ion tuple is of the form ('H', 1) = neutral hydrogen
+
+        **Example**
+        
+        >>> # Get a list of all ions necessary to generate lines for Carbon, 
+        >>> # Mg II and Lyman alpha
+        >>> ldb = LineDatabase('lines.txt')
+        >>> ions = ldb.parse_subset_to_ions(['C', 'Mg II', 'H I 1216'])
+        >>> print ions
+"""
         self.parse_subset(subsets)
         ions = []
         for line in self.lines_subset:
