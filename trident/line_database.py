@@ -334,6 +334,10 @@ class LineDatabase:
                 * Line - Examples: "H I 1216", "C II 1336", "Mg II 1240"
                 * Identifier - Examples: "Ly a", "Ly b"
 
+            If set to None, selects **all** lines in 
+            :class:`~trident.LineDatabase`.
+            Default: None
+
         **Returns**
             
         :line subset: list of :class:`trident.Line` objects
@@ -379,7 +383,7 @@ class LineDatabase:
         self.lines_subset = uniquify(self.lines_subset)
         return self.lines_subset
 
-    def parse_subset_to_ions(self, subsets):
+    def parse_subset_to_ions(self, subsets=None):
         """
         Select ions based on those needed to create specific lines.  
         Once you've created a LineDatabase, you can subselect 
@@ -402,6 +406,10 @@ class LineDatabase:
                 * Ion - Examples: "H I", "H II", "C IV", "Mg II"
                 * Line - Examples: "H I 1216", "C II 1336", "Mg II 1240"
                 * Identifier - Examples: "Ly a", "Ly b"
+            
+            If set to None, selects ions necessary to produce **all** lines
+            in :class:`~trident.LineDatabase`.
+            Default: None
 
         **Returns**
             
@@ -417,7 +425,7 @@ class LineDatabase:
         >>> ldb = LineDatabase('lines.txt')
         >>> ions = ldb.parse_subset_to_ions(['C', 'Mg II', 'H I 1216'])
         >>> print ions
-"""
+        """
         self.parse_subset(subsets)
         ions = []
         for line in self.lines_subset:
