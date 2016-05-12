@@ -2,6 +2,10 @@
 
 {% block methods %}
 {% if methods %}
+
+Methods
+^^^^^^^
+
 .. autosummary::
    :toctree:
    :nosignatures:
@@ -14,6 +18,10 @@
 
 {% block attributes %}
 {% if attributes %}
+
+Attributes
+^^^^^^^^^^
+
 .. autosummary::
    :toctree:
    :nosignatures:
