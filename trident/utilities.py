@@ -349,9 +349,9 @@ def create_simple_dataset(density=1e-26, temperature=1000,
     return load_uniform_grid(data, one.shape, length_unit='cm',
                               mass_unit='g', bbox=bbox)
 
-def test():
+def verify():
     """
-    A test function that can be run to demonstrate that the bulk of Trident's
+    A test function that can be run to verify that the bulk of Trident's
     functionality is working.  This creates a single-cell grid-based dataset
     in memory, then creates a ray by sending a sightline through that dataset,
     then creates a spectrum from the ray object.  Saves all data to a tempdir
@@ -399,8 +399,9 @@ def test():
     sg.add_gaussian_noise(30)
     sg.save_spectrum('spec_final.h5')
     sg.plot_spectrum('spec_final.png')
+    print("Removing all temporary data files...")
     shutil.rmtree(tempdir) 
     print("")
-    print("Trident succeeded in testing ray and spectrum generation functionality.")
-    print("Now let's do some science!")
+    print("Congratulations, you have verified that Trident is installed correctly.")
+    print("Now let's science!")
     print("")
