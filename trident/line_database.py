@@ -420,8 +420,9 @@ class LineDatabase:
 
         **Example**
         
-        >>> # Get a list of all ions necessary to generate lines for Carbon, 
-        >>> # Mg II and Lyman alpha
+        Get a list of all ions necessary to generate lines for Carbon, 
+        Mg II and Lyman alpha
+
         >>> ldb = LineDatabase('lines.txt')
         >>> ions = ldb.parse_subset_to_ions(['C', 'Mg II', 'H I 1216'])
         >>> print ions
