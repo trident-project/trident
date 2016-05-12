@@ -300,6 +300,8 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
 
     **Example**
 
+    Add C IV (triply-ionized carbon) ion fraction field to dataset
+
     >>> import yt
     >>> import trident
     >>> ds = yt.load('path/to/file')
@@ -375,7 +377,7 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
                                  field_suffix=False,
                                  force_override=False):
     """
-    Add ion number density field to a yt data object.
+    Add ion number density field to a yt dataset for the desired ion.
 
     .. note:: 
 
@@ -434,6 +436,8 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
 
     **Example**
 
+    Add C IV (triply-ionized carbon) number density field to dataset
+
     >>> import yt
     >>> import trident
     >>> ds = yt.load('path/to/file')
@@ -489,7 +493,7 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
                           field_suffix=False,
                           force_override=False):
     """
-    Add ion mass density field to a yt data object.
+    Add ion mass density field to a yt dataset for the desired ion.
 
     .. note:: 
 
@@ -548,6 +552,8 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
 
     **Example**
 
+    Add C IV (triply-ionized carbon) mass density field to dataset
+
     >>> import yt
     >>> import trident
     >>> ds = yt.load('path/to/file')
@@ -604,7 +610,7 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
                        field_suffix=False,
                        force_override=False):
     """
-    Add ion mass fields (g and Msun) to a yt data object.
+    Add ion mass field to a yt dataset for the desired ion.
 
     .. note:: 
 
@@ -663,6 +669,8 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
         Default: False
 
     **Example**
+
+    Add C IV (triply-ionized carbon) mass field to dataset
 
     >>> import yt
     >>> import trident
