@@ -13,32 +13,38 @@ Instrument class and member functions.
 
 class Instrument(object):
     """
-    An instrument template for specifying a spectrograph/telescope pair
+    An instrument class for specifying a spectrograph/telescope pair
 
     **Parameters**
 
-    lambda_min : int
+    :lambda_min: int
+
         Minimum desired wavelength for generated spectrum in angstroms
 
-    lambda_max : int
+    :lambda_max: int
+
         Maximum desired wavelength for generated spectrum in angstroms
 
-    n_lambda : int
+    :n_lambda: int
+
         Number of desired wavelength bins for the spectrum
         Setting dlambda overrides n_lambda value
         Default: None
 
-    dlambda : float
+    :dlambda: float
+
         Desired bin width for the spectrum in angstroms
         Setting dlambda overrides n_lambda value
         Default: None
 
-    lsf_kernel : string
-        The filename for the LSF kernel
+    :lsf_kernel: string
+
+        The filename for the :class:`~trident.LSF` kernel
         Default: None
 
-    name : string
-        Name assigned to the Instrument object
+    :name: string
+
+        Name assigned to the :class:`~trident.Instrument` object
         Default: None
 
     """
