@@ -250,7 +250,7 @@ class LineDatabase:
         Select lines based on atom, ion state, identifier, and/or wavelength.
         Once you've created a LineDatabase, you can subselect certain lines 
         from it based on line characteristics.  Recommended to use 
-        :method:`~trident.LineDatabase.parse_subset` instead which allows 
+        :class:`~trident.LineDatabase.parse_subset` instead which allows 
         selecting of multiple sets of lines simultaneously.
 
         **Parameters**
@@ -329,10 +329,10 @@ class LineDatabase:
 
             List strings matching possible lines.  Strings can be of the
             form:
-                * Atom - Examples: "H", "C", "Mg"
-                * Ion - Examples: "H I", "H II", "C IV", "Mg II"
-                * Line - Examples: "H I 1216", "C II 1336", "Mg II 1240"
-                * Identifier - Examples: "Ly a", "Ly b"
+            * Atom - Examples: "H", "C", "Mg"
+            * Ion - Examples: "H I", "H II", "C IV", "Mg II"
+            * Line - Examples: "H I 1216", "C II 1336", "Mg II 1240"
+            * Identifier - Examples: "Ly a", "Ly b"
 
             If set to None, selects **all** lines in 
             :class:`~trident.LineDatabase`.
@@ -402,10 +402,10 @@ class LineDatabase:
 
             List strings matching possible lines.  Strings can be of the
             form:
-                * Atom - Examples: "H", "C", "Mg"
-                * Ion - Examples: "H I", "H II", "C IV", "Mg II"
-                * Line - Examples: "H I 1216", "C II 1336", "Mg II 1240"
-                * Identifier - Examples: "Ly a", "Ly b"
+            * Atom - Examples: "H", "C", "Mg"
+            * Ion - Examples: "H I", "H II", "C IV", "Mg II"
+            * Line - Examples: "H I 1216", "C II 1336", "Mg II 1240"
+            * Identifier - Examples: "Ly a", "Ly b"
             
             If set to None, selects ions necessary to produce **all** lines
             in :class:`~trident.LineDatabase`.
