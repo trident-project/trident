@@ -44,6 +44,10 @@ Adding Ion Fields
    :nosignatures:
 
    ~trident.add_ion_fields
+   ~trident.add_ion_fraction_field
+   ~trident.add_ion_number_density_field
+   ~trident.add_ion_density_field
+   ~trident.add_ion_mass_field
 
 Miscellaneous Utilities
 -----------------------
