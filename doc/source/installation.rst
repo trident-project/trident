@@ -76,7 +76,7 @@ access to your ``$HOME`` directory, or this step fails for any reason, please
 follow our documentation on :ref:`manual-config`.
 
 Step 4: Verify Installation
--------------------------
+---------------------------
 
 Once you've installed yt, Trident, and downloaded your ion table data file, 
 everything *should* be working, but it's good to verify your installation.
