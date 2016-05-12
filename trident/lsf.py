@@ -29,16 +29,35 @@ class LSF(object):
     **Parameters**
 
     :function: string, optional
+
         The function defining the LSF kernel.
         valid functions are "boxcar" or "gaussian"
 
     :width: int, optional
+
         The width of the LSF kernel in bins.  
 
     :filename: string, optional
+
         The filename of a textfile for a user-specified kernel. Each line
         in the textfile contains a normalized flux value of the kernel.
         For examples, see contents of ``trident.__path__/data/lsf_kernels``
+        Trident searches for these files either in the aforementioned 
+        directory or in the execution directory.
+
+    **Examples**
+
+    Generate an LSF based on a text file:
+
+    >>> LSF(filename='avg_COS.txt')
+
+    Generate a boxcar-based LSF:
+
+    >>> LSF(function='boxcar', width=30)
+
+    Generate a gaussian-based LSF:
+
+    >>> LSF(function='guassian', width=7)
     """
     def __init__(self, function=None, width=None, filename=None):
         self.kernel = []
