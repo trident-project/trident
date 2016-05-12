@@ -3,8 +3,8 @@
 API Reference
 =============
 
-Interface for Generating Rays
------------------------------
+Generating Rays
+---------------
 
 .. autosummary::
    :toctree: generated/
@@ -14,8 +14,8 @@ Interface for Generating Rays
    ~trident.make_compound_ray
    ~trident.LightRay
 
-Interface for Generating Spectra
---------------------------------
+Generating Spectra
+------------------
 
 .. autosummary::
    :toctree: generated/
@@ -27,8 +27,8 @@ Interface for Generating Spectra
    ~trident.LineDatabase
    ~trident.LSF
 
-Interface for Plotting Spectra
-------------------------------
+Plotting Spectra
+----------------
 
 .. autosummary::
    :toctree: generated/
@@ -36,8 +36,8 @@ Interface for Plotting Spectra
 
    ~trident.plot_spectrum
 
-Interface for Adding Ion Fields
--------------------------------
+Adding Ion Fields
+-----------------
 
 .. autosummary::
    :toctree: generated/
