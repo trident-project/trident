@@ -44,23 +44,26 @@ ion_table_filepath = os.path.join(ion_table_dir, ion_table_file)
 class IonBalanceTable(object):
     def __init__(self, filename=None, atom=None):
         """
-        IonBalanceTable class
+        Base class for building additional ion fields
 
         Used to load in an HDF5 file that contains the values for the 
         elemental ionization state of the gas as a function of density, 
-        temperature, and metallcity.
+        temperature, metallcity, and redshift (for metagalactic photoionizing 
+        radiation field).  
 
         **Parameters**
 
-        filename : string, optional
+        :filename: string, optional
+
             Name of the HDF5 file that contains the ionization table data.  
 
-            default: it uses the table specified in ~/.trident/config
+            Default: it uses the table specified in ~/.trident/config
  
-        atom : string, optional
+        :atom: string, optional
+
             The atomic species for which you want to create an IonBalanceTable 
 
-            default: None
+            Default: None
         """
         if filename is None:
             filename = ion_table_filepath
@@ -70,7 +73,9 @@ class IonBalanceTable(object):
         self._load_hdf5_table(atom)
 
     def _load_hdf5_table(self, atom):
-        "Read in ion balance table from hdf5."
+        """
+        Read in the HDF5 ion balance table
+        """
 
         input = h5py.File(self.filename, 'r')
         self.ion_fraction = input[atom].value
@@ -82,6 +87,10 @@ class IonBalanceTable(object):
         input.close()
 
 def _log_nH(field, data):
+    """
+    One index of ion balance table is in log of density, so this translates
+    dataset's density values into the same format for indexing the table
+    """
     if isinstance(field.name, tuple):
         ftype = field.name[0]
     else:
@@ -89,6 +98,10 @@ def _log_nH(field, data):
     return np.log10(data[ftype, "density"] * to_nH)
 
 def _redshift(field, data):
+    """
+    One index of ion balance table is in redshift, so this translates
+    dataset's redshift values into the same format for indexing the table
+    """
     if isinstance(field.name, tuple):
         ftype = field.name[0]
     else:
@@ -97,6 +110,10 @@ def _redshift(field, data):
         np.ones(data[ftype, "density"].shape, dtype=data[ftype, "density"].dtype)
 
 def _log_T(field, data):
+    """
+    One index of ion balance table is in log of temperature, so this translates
+    dataset's temperature values into the same format for indexing the table
+    """
     if isinstance(field.name, tuple):
         ftype = field.name[0]
     else:
@@ -109,46 +126,95 @@ def add_ion_fields(ds, ions=None, ftype='gas',
                    line_database='lines.txt',
                    force_override=False):
     """
-    Add specified ion fields to a yt dataset 
+    Preferred method for adding ion fields to a yt dataset.
 
-    This is a wrapper around the various add_ion_mass, add_ion_density, 
-    etc. functions.
+    Select ions based on the selection indexing set up in 
+    :class:`~trident.LineDatabase.parse_subset_to_ions` function, that is, 
+    by specifying a list of strings where each string represents an ion or
+    line.  Selected ions will be a subset of the ions necessary to
+    produce the lines present in the file specified in :line_database:, 
+    nominally located in ``trident.__path__/data/line_lists``.
 
-    You specify what ions you want to add in the ions kwarg as a list of
-    strings.  Each string can contain an element, or an element and an 
-    ionization state, or even an element, ionization state, and line.
+    For each ion species selected, 4 fields will be added (example for Mg II):
 
-    Example: 
-    To add ionized hydrogen, doubly-ionized Carbon, and all of the Magnesium
-    species fields to a dataset, you would run:
+        * Ion fraction field. e.g. (ftype, 'Mg_p1_ion_fraction')
+        * Number density field. e.g. (ftype, 'Mg_p1_number_density') 
+        * Density field. e.g. (ftype, 'Mg_p1_density')
+        * Mass field. e.g. (ftype, 'Mg_p1_mass')
 
-    >>> add_ion_fields(ds, ions=['H II', 'C III', 'Mg'])
+    This function is the preferred method for adding ion fields to one's
+    dataset, but for more fine-grained control, one can also employ the 
+    :class:`~trident.add_ion_fraction_field`, 
+    :class:`~trident.add_ion_number_density_field`, 
+    :class:`~trident.add_ion_density_field`, 
+    :class:`~trident.add_ion_mass_field` functions individually.
+
+    Fields are added assuming collisional ionization equilibrium and
+    photoionization in the optically thin limit from a redshift-dependent
+    metagalactic ionizing background using the ionization_table specified.
 
     **Parameters**
 
-    ds : yt dataset object
+    :ds: yt dataset object
+
         This is the dataset to which the ion fraction field will be added.
 
-    ions : 
+    :ions: list of strings, optional
 
-    ftype : string, optional
+            List of strings matching possible lines.  Strings can be of the
+            form:
+            * Atom - Examples: "H", "C", "Mg"
+            * Ion - Examples: "H I", "H II", "C IV", "Mg II"
+            * Line - Examples: "H I 1216", "C II 1336", "Mg II 1240"
+            * Identifier - Examples: "Ly a", "Ly b"
+
+            If set to None, selects ions necessary to produce **all** lines
+            in :class:`~trident.LineDatabase` specified by :line_database:.
+            Default: None
+
+    :ftype: string, optional
+
         The field type of the field to add.  it is the first string in the 
         field tuple e.g. "gas" in ("gas", "O_p5_ion_fraction")
         ftype must correspond to the ftype of the 'density', and 'temperature'
         fields in your dataset you wish to use to generate the ion field.
         Default: "gas"
 
-    ionization_table : string, optional
+    :ionization_table: string, optional
+
         Path to an appropriately formatted HDF5 table that can be used to 
         compute the ion fraction as a function of density, temperature, 
         metallicity, and redshift.  By default, it uses the table specified in
         ~/.trident/config
  
-    field_suffix : boolean, optional
-        Determines whether or not to append a suffix to the field name that 
-        indicates what ionization table was used
+    :field_suffix: boolean, optional
 
-    line_database : 
+        Determines whether or not to append a suffix to the field name that 
+        indicates what ionization table was used.  Useful when using generating
+        ion_fields that already exist in a dataset.
+
+    :line_database: string, optional
+
+        Ions are selected out of the set of ions present in the line_database
+        constructed from the line list filename specified here.  See
+        :class:`~trident.LineDatabase` for more information.
+
+    :force_override: boolean, optional
+        
+        Set to True if you wish to clobber existing ion fields with any
+        created with this functionality.  Otherwise, existing fields will
+        remain untouched.
+        Default: False
+
+    **Example**
+
+    To add ionized hydrogen, doubly-ionized Carbon, and all of the Magnesium
+    species fields to a dataset, you would run:
+
+    >>> import yt
+    >>> import trident
+    >>> ds = yt.load('path/to/file')
+    >>> trident.add_ion_fields(ds, ions=['H II', 'C III', 'Mg'])
     """
 
     # Determine whether the user is trying to add a particle field 
@@ -183,38 +249,62 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
     """
     Add ion fraction field to a yt dataset for the desired ion.
 
+    .. note:: 
+
+        The preferred method for adding ion fields to a dataset is using 
+        :class:`~trident.add_ion_fields`, 
+
     For example, add_ion_fraction_field('O', 6, ds) creates a field
     called O_p5_ion_fraction for dataset ds, which represents 5-ionized
-    oxygen (O plus 5 = O VI).
+    oxygen (O plus 5 = O VI = 'O', 6).
+
+    Fields are added assuming collisional ionization equilibrium and
+    photoionization in the optically thin limit from a redshift-dependent
+    metagalactic ionizing background using the ionization_table specified.
 
     **Parameters**
 
-    atom : string
+    :atom: string
         Atomic species for desired ion fraction (e.g. 'H', 'C', 'Mg')
 
-    ion : integer
+    :ion: integer
         Ion number for desired species (e.g. 1 = neutral, 2 = singly ionized,
         3 = doubly ionized, etc.)
 
-    ds : yt dataset object
+    :ds: yt dataset object
         This is the dataset to which the ion fraction field will be added.
 
-    ftype : string, optional
+    :ftype: string, optional
         The field type of the field to add.  it is the first string in the 
         field tuple e.g. "gas" in ("gas", "O_p5_ion_fraction")
         ftype must correspond to the ftype of the 'density', and 'temperature'
         fields in your dataset you wish to use to generate the ion field.
         Default: "gas"
 
-    ionization_table : string, optional
+    :ionization_table: string, optional
         Path to an appropriately formatted HDF5 table that can be used to 
         compute the ion fraction as a function of density, temperature, 
         metallicity, and redshift.  By default, it uses the table specified in
         ~/.trident/config
  
-    field_suffix : boolean, optional
+    :field_suffix: boolean, optional
         Determines whether or not to append a suffix to the field name that 
         indicates what ionization table was used
+
+    :force_override: boolean, optional
+        
+        Set to True if you wish to clobber existing ion fields with any
+        created with this functionality.  Otherwise, existing fields will
+        remain untouched.
+        Default: False
+
+    **Example**
+
+    >>> import yt
+    >>> import trident
+    >>> ds = yt.load('path/to/file')
+    >>> trident.add_ion_fraction_field('C', 4, ds)
+    >>> yt.ProjectionPlot(ds, 'x', 'C_p3_ion_fraction').save()
     """
 
     # Determine whether the user is trying to add a particle field 
@@ -287,38 +377,68 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
     """
     Add ion number density field to a yt data object.
 
-    For example, add_ion_fraction_field('O', 6, ds) creates a field
-    called O_p5_ion_fraction for dataset ds, which represents 5-ionized
+    .. note:: 
+
+        The preferred method for adding ion fields to a dataset is using 
+        :class:`~trident.add_ion_fields`, 
+
+    For example, add_ion_number_density_field('O', 6, ds) creates a field
+    called O_p5_number_density for dataset ds, which represents 5-ionized
     oxygen (O plus 5 = O VI).
+
+    Fields are added assuming collisional ionization equilibrium and
+    photoionization in the optically thin limit from a redshift-dependent
+    metagalactic ionizing background using the ionization_table specified.
 
     **Parameters**
 
-    atom : string
+    :atom: string
+
         Atomic species for desired ion fraction (e.g. 'H', 'C', 'Mg')
 
-    ion : integer
+    :ion: integer
+
         Ion number for desired species (e.g. 1 = neutral, 2 = singly ionized,
         3 = doubly ionized, etc.)
 
-    ds : yt dataset object
+    :ds: yt dataset object
+
         This is the dataset to which the ion fraction field will be added.
 
-    ftype : string, optional
+    :ftype: string, optional
+
         The field type of the field to add.  it is the first string in the 
         field tuple e.g. "gas" in ("gas", "O_p5_ion_fraction")
         ftype must correspond to the ftype of the 'density', and 'temperature'
         fields in your dataset you wish to use to generate the ion field.
         Default: "gas"
 
-     ionization_table : string, optional
+    :ionization_table: string, optional
+
         Path to an appropriately formatted HDF5 table that can be used to 
         compute the ion fraction as a function of density, temperature, 
         metallicity, and redshift.  By default, it uses the table specified in
         ~/.trident/config
  
-    field_suffix : boolean, optional
+    :field_suffix: boolean, optional
+
         Determines whether or not to append a suffix to the field
         name that indicates what ionization table was used
+
+    :force_override: boolean, optional
+        
+        Set to True if you wish to clobber existing ion fields with any
+        created with this functionality.  Otherwise, existing fields will
+        remain untouched.
+        Default: False
+
+    **Example**
+
+    >>> import yt
+    >>> import trident
+    >>> ds = yt.load('path/to/file')
+    >>> trident.add_ion_number_density('C', 4, ds)
+    >>> yt.ProjectionPlot(ds, 'x', 'C_p3_number_density').save()
     """
     # Determine whether the user is trying to add a particle field 
     # based on the nature of other fields of that ftype in the dataset
@@ -371,38 +491,68 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
     """
     Add ion mass density field to a yt data object.
 
-    For example, add_ion_fraction_field('O', 6, ds) creates a field
-    called O_p5_ion_fraction for dataset ds, which represents 5-ionized
+    .. note:: 
+
+        The preferred method for adding ion fields to a dataset is using 
+        :class:`~trident.add_ion_fields`, 
+
+    For example, add_ion_density_field('O', 6, ds) creates a field
+    called O_p5_density for dataset ds, which represents 5-ionized
     oxygen (O plus 5 = O VI).
+
+    Fields are added assuming collisional ionization equilibrium and
+    photoionization in the optically thin limit from a redshift-dependent
+    metagalactic ionizing background using the ionization_table specified.
 
     **Parameters**
 
-    atom : string
+    :atom: string
+
         Atomic species for desired ion fraction (e.g. 'H', 'C', 'Mg')
 
-    ion : integer
+    :ion: integer
+
         Ion number for desired species (e.g. 1 = neutral, 2 = singly ionized,
         3 = doubly ionized, etc.)
 
-    ds : yt dataset object
+    :ds: yt dataset object
+
         This is the dataset to which the ion fraction field will be added.
 
-    ftype : string, optional
+    :ftype: string, optional
+
         The field type of the field to add.  it is the first string in the 
         field tuple e.g. "gas" in ("gas", "O_p5_ion_fraction")
         ftype must correspond to the ftype of the 'density', and 'temperature'
         fields in your dataset you wish to use to generate the ion field.
         Default: "gas"
 
-     ionization_table : string, optional
+    :ionization_table: string, optional
+
         Path to an appropriately formatted HDF5 table that can be used to 
         compute the ion fraction as a function of density, temperature, 
         metallicity, and redshift.  By default, it uses the table specified in
         ~/.trident/config
  
-    field_suffix : boolean, optional
+    :field_suffix: boolean, optional
+
         Determines whether or not to append a suffix to the field
         name that indicates what ionization table was used
+
+    :force_override: boolean, optional
+        
+        Set to True if you wish to clobber existing ion fields with any
+        created with this functionality.  Otherwise, existing fields will
+        remain untouched.
+        Default: False
+
+    **Example**
+
+    >>> import yt
+    >>> import trident
+    >>> ds = yt.load('path/to/file')
+    >>> trident.add_ion_density_field('C', 4, ds)
+    >>> yt.ProjectionPlot(ds, 'x', 'C_p3_density').save()
     """
     # Determine whether the user is trying to add a particle field 
     # based on the nature of other fields of that ftype in the dataset
@@ -456,39 +606,69 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
     """
     Add ion mass fields (g and Msun) to a yt data object.
 
-    For example, add_ion_fraction_field('O', 6, ds) creates a field
-    called O_p5_ion_fraction for dataset ds, which represents 5-ionized
+    .. note:: 
+
+        The preferred method for adding ion fields to a dataset is using 
+        :class:`~trident.add_ion_fields`, 
+
+    For example, add_ion_mass_field('O', 6, ds) creates a field
+    called O_p5_mass for dataset ds, which represents 5-ionized
     oxygen (O plus 5 = O VI).
+
+    Fields are added assuming collisional ionization equilibrium and
+    photoionization in the optically thin limit from a redshift-dependent
+    metagalactic ionizing background using the ionization_table specified.
 
     **Parameters**
 
-    atom : string
+    :atom: string
+
         Atomic species for desired ion fraction (e.g. 'H', 'C', 'Mg')
 
-    ion : integer
+    :ion: integer
+        
         Ion number for desired species (e.g. 1 = neutral, 2 = singly ionized,
         3 = doubly ionized, etc.)
 
-    ds : yt dataset object
+    :ds: yt dataset object
+
         This is the dataset to which the ion fraction field will be added.
         will be added.
 
-    ftype : string, optional
+    :ftype: string, optional
+
         The field type of the field to add.  it is the first string in the 
         field tuple e.g. "gas" in ("gas", "O_p5_ion_fraction")
         ftype must correspond to the ftype of the 'density', and 'temperature'
         fields in your dataset you wish to use to generate the ion field.
         Default: "gas"
 
-     ionization_table : string, optional
+    :ionization_table: string, optional
+
         Path to an appropriately formatted HDF5 table that can be used to 
         compute the ion fraction as a function of density, temperature, 
         metallicity, and redshift.  By default, it uses the table specified in
         ~/.trident/config
  
-    field_suffix : boolean, optional
+    :field_suffix: boolean, optional
+
         Determines whether or not to append a suffix to the field
         name that indicates what ionization table was used
+
+    :force_override: boolean, optional
+        
+        Set to True if you wish to clobber existing ion fields with any
+        created with this functionality.  Otherwise, existing fields will
+        remain untouched.
+        Default: False
+
+    **Example**
+
+    >>> import yt
+    >>> import trident
+    >>> ds = yt.load('path/to/file')
+    >>> trident.add_ion_mass_field('C', 4, ds)
+    >>> yt.ProjectionPlot(ds, 'x', 'C_p3_mass').save()
     """
     # Determine whether the user is trying to add a particle field 
     # based on the nature of other fields of that ftype in the dataset
