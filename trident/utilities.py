@@ -35,7 +35,18 @@ from yt import \
 
 def ensure_directory(directory):
     """
-    Ensures a directory exists by creating it if it does not.
+    Ensures a directory exists by creating it if it does not.  Works for 
+    both absolute and relative paths.
+
+    **Parameters**
+
+    :directory: string
+
+        Directory you wish to ensure exists.
+
+    **Example**
+
+    >>> ensure_directory("~/test")
     """
     if not os.path.exists(directory):
         os.makedirs(directory)
@@ -43,11 +54,36 @@ def ensure_directory(directory):
 def download_file(url, progress_bar=True, local_directory=None, 
                  local_filename=None):
     """
-    Downloads a file from the provided URL.  If progress_bar is set
-    to true, generates a progress bar for the user (Default: True).  
-    Optionally accepts a local directory and local filename in which to 
-    place the file.  By default, it will download the file into the current 
-    directory with its original filename.
+    Downloads a file from the provided URL.  
+    
+    **Parameters**
+
+    :url: string
+
+        The web address of the file to download.
+        
+    :progress_bar: boolean, optional
+
+        Will generate a progress bar for the user as the file downloads. 
+        iPython/Jupyter friendly.
+        Default: True
+
+    :local_directory: string, optional
+
+        Absolute or relative path of a local directory where the file 
+        will be downloaded.  If set to None, will default to current
+        working directory.
+        Default: None
+
+    :local_filename: string, optional
+
+        Local filename where the file will be downloaded.  If set to None, 
+        will default to filename of downloaded file.
+        Default: None
+    
+    **Example**
+    
+    >>> download_file("http://trident-project.org/data/ion_table/hm2012_lr.h5.gz")
     """
 
     # Following the base description on stack overflow:
@@ -88,10 +124,28 @@ def download_file(url, progress_bar=True, local_directory=None,
 
 def gunzip_file(in_filename, out_filename=None, cleanup=True):
     """
-    Uses gzip to unzip a file and save it to disk.  If out_filename is not
-    provided, it simply saves the gunzipped file without the ".gz" suffix.
-    if cleanup is True, removes the zipped version of the file after 
-    gunzipping.
+    Uncompress a file using gunzip.
+    
+    **Parameters**
+
+    :in_filename: string
+
+        The filename of the gzipped file.
+
+    :out_filename: string, optional
+
+        The filename where the unzipped file will be saved.  If set to None,
+        this will be the ``in_filename`` without the ``.gz`` suffix.
+        Default: None
+
+    :cleanup: boolean, optional
+        
+        Remove the zipped version of the file after unzipping it?
+        Default: True.
+    
+    **Example**
+    
+    >>> gunzip_file("hm2012_lr.h5.gz")
     """
     in_file = gzip.open(in_filename, 'rb')
     # if out_filename not set, defaults to stripping off the .gz of in_filename
@@ -106,9 +160,28 @@ def gunzip_file(in_filename, out_filename=None, cleanup=True):
 
 def gzip_file(in_filename, out_filename=None, cleanup=True):
     """
-    Uses gzip to zip a file and save it to disk.  If out_filename is not
-    provided, it simply saves the gzipped file with a ".gz" suffix.  If 
-    cleanup is True, removes the unzipped version of the file after gzipping.
+    Compress a file using gzip.
+    
+    **Parameters**
+
+    :in_filename: string
+
+        The filename of the file to be gzipped.
+
+    :out_filename: string, optional
+
+        The filename where the zipped file will be saved.  If set to None,
+        this will be the ``in_filename`` with a ``.gz`` suffix.
+        Default: None
+
+    :cleanup: boolean, optional
+        
+        Remove the unzipped version of the file after zipping it?
+        Default: True.
+    
+    **Example**
+    
+    >>> gzip_file("hm2012_lr.h5")
     """
     in_file = open(in_filename, 'rb')
     # if out_filename not set, defaults to appending .gz to the in_filename
@@ -123,11 +196,13 @@ def gzip_file(in_filename, out_filename=None, cleanup=True):
 
 def parse_config():
     """
-    This function runs every time Trident gets imported.  It assures that
-    Trident knows where to look for ion table datafiles.  If something is
-    missing, either the config file, or a valid ion table datafile, it
-    tries to set everything up for the user.  For more information about doing
-    this manually see the installation documentation.
+    Parse the Trident local configuration file.  This function is called
+    whenever Trident is imported, and it assures that Trident knows where
+    the default ion table datafiles exist.  If a ``config.tri`` file doesn't 
+    exist in ``$HOME/.trident`` or in the current working directory, then
+    Trident will launch the :class:`~trident.create_config` function to
+    try to automatically generate one for the user.  For more information
+    on this process, see the installation documentation.
     """
     # Assure the ~/.trident directory exists, and read in the config file.
     home = expanduser("~")
@@ -159,10 +234,12 @@ def parse_config():
 
 def create_config():
     """
-    This function is run if it appears that the configuration has not yet
-    been set up for the user.  It will attempt to create a configuration file
-    and download an ion table datafile from the web.  It does this using
-    user interaction from the python prompt.
+    Create a Trident configuration file using interaction with the user.
+    This function is called by :class:`~trident.parse_config` if it appears 
+    that the configuration has not yet been set up for the user.  It will 
+    attempt to create a configuration file and download an ion table 
+    datafile from the web.  It does this using user interaction from the 
+    python prompt.
     """
     default_dir = expanduser('~/.trident')
     trident()
@@ -224,8 +301,25 @@ def create_config():
 
 def get_datafiles(datadir=None, url=None):
     """
-    If the user lacks an ion table datafile, this attempts to download one
-    from the web using interaction with the user.
+    Downloads an ion table datafile through interactive prompts.  
+
+    **Parameters**
+
+    :datadir: string, optional
+
+        The directory to which to download the ion table datafile.
+        If None, uses ``$HOME/.trident``.
+        Default: None
+
+    :url: string, optional
+
+        The url to contact to get the data files.  If None, uses
+        ``http://trident-project.org/data/ion_table/``     
+        Default: None
+
+    **Example**
+
+    >>> get_datafiles()
     """
     if datadir is None:
         datadir = expanduser('~/.trident')
@@ -280,7 +374,7 @@ def get_datafiles(datadir=None, url=None):
 
 def trident():
     """
-    Prints a nice ASCII logo!
+    Print a Trident ASCII logo to the screen.
     """
     print("""
 MMMMMMMMMMMMMMMMMMM.............................................................
@@ -296,10 +390,14 @@ MMMMMMMMMMMMMMMMMMM.............................................................
 
 def trident_path():
     """
-    A function returning the path of the trident installation directory.
+    Return the path where the trident source is installed.
     Useful for identifying where data files are (e.g. path/data).  Note that
     ion table datafiles are downloaded separate and placed in another
     location according to the ~/.trident/config.tri file.
+
+    **Example**
+
+    >>> print trident_path()
     """
     path_list = os.path.dirname(__file__).split('/')[:-1]
     path_list.append('trident')
@@ -309,33 +407,54 @@ def create_simple_dataset(density=1e-26, temperature=1000,
                           metallicity=0.3, domain_width=10.):
                            
     """
-    This function creates a simple dataset consisting of a single 
-    cell matching the desired hydro quantities.  It makes an excellent
-    test dataset through which to send a sightline and test Trident's 
-    capabilities for making absorption spectra.
+    Create a simple hydro dataset for use as test data.  The dataset
+    consists of a single cubicle cell of gas with hydro quantities specified in
+    the function kwargs.  It makes an excellent test dataset through 
+    which to send a sightline and test Trident's capabilities for making 
+    absorption spectra.
 
     Using the defaults and passing a ray through the full domain should
-    result in an spectrum with a good number of absorption features.
+    result in a spectrum with a good number of absorption features.
 
     **Parameters**
 
-    density : float, optional
-        The density value of the dataset in g/cm**3
+    :density: float, optional
+
+        The gas density value of the dataset in g/cm**3
         Default: 1e-26
 
-    temperature : float, optional
-        The temperature value of the dataset in K
+    :temperature: float, optional
+
+        The gas temperature value of the dataset in K
         Default: 10**4
 
-    metallicity : float, optional
-        The metallicity value of the dataset in Zsun
+    :metallicity: float, optional
+
+        The gas metallicity value of the dataset in Zsun
         Default: 0.3
 
-    domain_width : float, optional
+    :domain_width: float, optional
+
         The width of the dataset in kpc
         Default: 10.
-    """
 
+    **Returns**
+
+    **Example**
+
+    Create a simple one-zone dataset, pass a ray through it, and generate
+    a COS spectrum for that ray.
+
+    >>> import trident
+    >>> ds = trident.create_simple_dataset()
+    >>> ray = trident.make_simple_ray(ds,
+    ...         start_position=ds.domain_left_edge,
+    ...         end_position=ds.domain_right_edge,
+    ...         fields=['density', 'temperature', 'metallicity'])
+    >>> sg = trident.SpectrumGenerator('COS')
+    >>> sg.make_spectrum(ray)
+    >>> sg.plot_spectrum('spec_raw.png')
+    """
     one = np.ones([1,1,1])
     zero = np.zeros([1,1,1])
     dens = np.array([[[density]]])*one
@@ -351,11 +470,11 @@ def create_simple_dataset(density=1e-26, temperature=1000,
 
 def verify():
     """
-    A test function that can be run to verify that the bulk of Trident's
-    functionality is working.  This creates a single-cell grid-based dataset
+    Verify that the bulk of Trident's functionality is working.  This function
+    creates a single-cell grid-based dataset
     in memory, then creates a ray by sending a sightline through that dataset,
     then creates a spectrum from the ray object.  Saves all data to a tempdir
-    to be deleted.
+    before deleting it.
     """
     from trident.spectrum_generator import SpectrumGenerator
     from trident.ray_generator import make_simple_ray
