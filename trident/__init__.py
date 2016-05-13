@@ -55,8 +55,8 @@ from trident.ray_generator import \
     make_compound_ray
 
 from trident.roman import \
-    toRoman, \
-    fromRoman
+    to_roman, \
+    from_roman
 
 # Import yt's LightRay class
 from yt.analysis_modules.cosmological_observation.api import \

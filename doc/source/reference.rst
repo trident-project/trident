@@ -56,8 +56,8 @@ Miscellaneous Utilities
    :toctree: generated/
    :nosignatures:
 
-   ~trident.toRoman
-   ~trident.fromRoman
+   ~trident.to_roman
+   ~trident.from_roman
    ~trident.trident_path
    ~trident.trident
    ~trident.verify

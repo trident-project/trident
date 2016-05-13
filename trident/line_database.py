@@ -19,7 +19,7 @@ from yt.funcs import \
 from trident.utilities import \
     trident_path
 from trident.roman import \
-    fromRoman
+    from_roman
 
 def uniquify(list):
    # order preserving method for reducing duplicates in a list
@@ -91,7 +91,7 @@ class Line:
 
         # Automatically populate the field if not defined
         if field is None:
-            ion_number = fromRoman(ion_state)
+            ion_number = from_roman(ion_state)
             keyword = "%s_p%d" %  (element, (ion_number-1))
             field = "%s_number_density" % keyword
         self.field = field
@@ -430,6 +430,6 @@ class LineDatabase:
         self.parse_subset(subsets)
         ions = []
         for line in self.lines_subset:
-            ions.append((line.element, fromRoman(line.ion_state)))
+            ions.append((line.element, from_roman(line.ion_state)))
         ions = uniquify(ions)
         return ions
