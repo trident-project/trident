@@ -16,12 +16,13 @@ ray_end = [1,1,1]
 ray = tri.make_simple_ray(fn, start_position=ray_start,
                           end_position=ray_end, data_filename='ray.h5',
                           fields=['density', 'temperature', 'metallicity',
-                          'H_number_density'])
+                          'H_p0_number_density'])
 
 # Now use the ray object to actually generate an absorption spectrum
 # Use the settings (spectral range, LSF, and spectral resolution) for COS
 # And save it as an output hdf5 file and plot it to an image.
 sg = tri.SpectrumGenerator('COS')
+import pdb; pdb.set_trace()
 sg.make_spectrum(ray)
 sg.save_spectrum('spec_raw.h5')
 sg.plot_spectrum('spec_raw.png')

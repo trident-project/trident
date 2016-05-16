@@ -188,6 +188,10 @@ class SpectrumGenerator(AbsorptionSpectrum):
         # Make sure we've produced all the necessary
         # derived fields if they aren't native to the data
         for line in active_lines:
+            # If the field generated is a neutral field, could be in
+            # the dataset as X_p0_number_density OR X_number_density
+            if line.field.split('_')[1] == 'p0':
+                XXX
             try:
                 disk_field = ad._determine_fields(line.field)[0]
             except:
