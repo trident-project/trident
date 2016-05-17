@@ -56,8 +56,8 @@ Miscellaneous Utilities
    :toctree: generated/
    :nosignatures:
 
-   ~trident.create_simple_dataset
-   ~trident.create_simple_ray
+   ~trident.make_onezone_dataset
+   ~trident.make_onezone_ray
    ~trident.to_roman
    ~trident.from_roman
    ~trident.trident_path

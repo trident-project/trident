@@ -47,8 +47,8 @@ from trident.utilities import \
     parse_config, \
     trident, \
     trident_path, \
-    create_simple_dataset, \
-    create_simple_ray, \
+    make_onezone_dataset, \
+    make_onezone_ray, \
     verify
 
 from trident.ray_generator import \

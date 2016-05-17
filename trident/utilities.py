@@ -406,11 +406,11 @@ def trident_path():
     path_list.append('trident')
     return '/'.join(path_list)
 
-def create_simple_dataset(density=1e-26, temperature=1000, 
-                          metallicity=0.3, domain_width=10.):
+def make_onezone_dataset(density=1e-26, temperature=1000, metallicity=0.3, 
+                         domain_width=10.):
                            
     """
-    Create a simple hydro dataset for use as test data.  The dataset
+    Create a one-zone hydro dataset for use as test data.  The dataset
     consists of a single cubicle cell of gas with hydro quantities specified in
     the function kwargs.  It makes an excellent test dataset through 
     which to send a sightline and test Trident's capabilities for making 
@@ -471,13 +471,19 @@ def create_simple_dataset(density=1e-26, temperature=1000,
     return load_uniform_grid(data, one.shape, length_unit='cm',
                               mass_unit='g', bbox=bbox)
 
-def create_simple_ray(density=1e-26, temperature=1000, metallicity=0.3, 
-                      length=10, redshift=0, filename='ray.h5', column_densities=None):
+def make_onezone_ray(density=1e-26, temperature=1000, metallicity=0.3, 
+                     length=10, redshift=0, filename='ray.h5', 
+                     column_densities=None):
     """
-    Create a simple ray object for use as test data.  The ray
+    Create a one-zone ray object for use as test data.  The ray
     consists of a single absorber of hydrodynamic characteristics 
     specified in the function kwargs.  It makes an excellent test dataset 
     to test Trident's capabilities for making absorption spectra.
+
+    You can specify the column densities of different ions explicitly using
+    the column_densities keyword, or you can let Trident calculate the 
+    different ion columns internally from the density, temperature, and 
+    metallicity fields.
 
     Using the defaults will produce a ray that should result in a spectrum 
     with a good number of absorption features.
@@ -532,7 +538,7 @@ def create_simple_ray(density=1e-26, temperature=1000, metallicity=0.3,
 
     **Example**
 
-    Create a simple ray, and generate a COS spectrum from that ray.
+    Create a one-zone ray, and generate a COS spectrum from that ray.
 
     >>> import trident
     >>> ds = trident.create_simple_ray()
@@ -540,7 +546,7 @@ def create_simple_ray(density=1e-26, temperature=1000, metallicity=0.3,
     >>> sg.make_spectrum(ray)
     >>> sg.plot_spectrum('spec_raw.png')
 
-    Create a simple ray with an HI column density of 1e21 (DLA) and generate
+    Create a one-zone ray with an HI column density of 1e21 (DLA) and generate
     a COS spectrum from that ray for just the Lyman alpha line.
 
     >>> import trident
