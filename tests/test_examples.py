@@ -19,3 +19,4 @@ def test_verify():
     generate a LightRay and then construct a spectrum from it.
     """
     verify()
+    assert True
