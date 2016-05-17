@@ -22,7 +22,6 @@ ray = tri.make_simple_ray(fn, start_position=ray_start,
 # Use the settings (spectral range, LSF, and spectral resolution) for COS
 # And save it as an output hdf5 file and plot it to an image.
 sg = tri.SpectrumGenerator('COS')
-import pdb; pdb.set_trace()
 sg.make_spectrum(ray)
 sg.save_spectrum('spec_raw.h5')
 sg.plot_spectrum('spec_raw.png')

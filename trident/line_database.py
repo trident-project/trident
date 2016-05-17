@@ -92,7 +92,10 @@ class Line:
         # Automatically populate the field if not defined
         if field is None:
             ion_number = from_roman(ion_state)
-            keyword = "%s_p%d" %  (element, (ion_number-1))
+            if ion_number == 1:
+                keyword = "%s" %  (element)
+            else:
+                keyword = "%s_p%d" %  (element, (ion_number-1))
             field = "%s_number_density" % keyword
         self.field = field
 
