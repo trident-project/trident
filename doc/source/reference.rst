@@ -23,9 +23,9 @@ Generating Spectra
 
    ~trident.SpectrumGenerator
    ~trident.Instrument
+   ~trident.LSF
    ~trident.Line
    ~trident.LineDatabase
-   ~trident.LSF
 
 Plotting Spectra
 ----------------
@@ -56,6 +56,8 @@ Miscellaneous Utilities
    :toctree: generated/
    :nosignatures:
 
+   ~trident.create_simple_dataset
+   ~trident.create_simple_ray
    ~trident.to_roman
    ~trident.from_roman
    ~trident.trident_path
