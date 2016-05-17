@@ -48,6 +48,7 @@ from trident.utilities import \
     trident, \
     trident_path, \
     create_simple_dataset, \
+    create_simple_ray, \
     verify
 
 from trident.ray_generator import \

@@ -31,7 +31,10 @@ from yt.units import \
     pc, \
     Zsun
 from yt import \
-    load_uniform_grid
+    load_uniform_grid, \
+    YTArray, \
+    save_as_dataset, \
+    load
 
 def ensure_directory(directory):
     """
@@ -426,7 +429,7 @@ def create_simple_dataset(density=1e-26, temperature=1000,
     :temperature: float, optional
 
         The gas temperature value of the dataset in K
-        Default: 10**4
+        Default: 10**3
 
     :metallicity: float, optional
 
@@ -467,6 +470,127 @@ def create_simple_dataset(density=1e-26, temperature=1000,
             'velocity_x':zero, 'velocity_y':zero, 'velocity_z':zero}
     return load_uniform_grid(data, one.shape, length_unit='cm',
                               mass_unit='g', bbox=bbox)
+
+def create_simple_ray(density=1e-26, temperature=1000, metallicity=0.3, 
+                      length=10, redshift=0, filename='ray.h5', column_densities=None):
+    """
+    Create a simple ray object for use as test data.  The ray
+    consists of a single absorber of hydrodynamic characteristics 
+    specified in the function kwargs.  It makes an excellent test dataset 
+    to test Trident's capabilities for making absorption spectra.
+
+    Using the defaults will produce a ray that should result in a spectrum 
+    with a good number of absorption features.
+
+    **Parameters**
+
+    :density: float, optional
+
+        The gas density value of the ray in g/cm**3
+        Default: 1e-26
+
+    :temperature: float, optional
+
+        The gas temperature value of the ray in K
+        Default: 10**3
+
+    :metallicity: float, optional
+
+        The gas metallicity value of the ray in Zsun
+        Default: 0.3
+
+    :length: float, optional
+
+        The length of the ray in kpc
+        Default: 10.
+
+    :redshift: float, optional
+
+        The redshift of the ray
+        Default: 0
+
+    :filename: string, optional
+
+        The filename to which to save the ray to disk.  Due to the 
+        mechanism for passing rays, the ray data must be saved to disk.
+        Default: 'ray.h5'
+
+    :column_densities: dict, optional
+
+        The user can create a dictionary which adds more number density ion 
+        fields to the ray.  Each key in the dictionary should be the desired 
+        ion field name according to the field name format:
+        i.e.  "<ELEMENT>_p<IONSTATE>_number_density" 
+        e.g. neutral hydrogen = "H_p0_number_density".  
+        The corresponding value for each key should be the desired column 
+        density of that ion in cm**-2.  See example below.
+        Default: None
+
+    **Returns**
+
+        A YT LightRay object
+
+    **Example**
+
+    Create a simple ray, and generate a COS spectrum from that ray.
+
+    >>> import trident
+    >>> ds = trident.create_simple_ray()
+    >>> sg = trident.SpectrumGenerator('COS')
+    >>> sg.make_spectrum(ray)
+    >>> sg.plot_spectrum('spec_raw.png')
+
+    Create a simple ray with an HI column density of 1e21 (DLA) and generate
+    a COS spectrum from that ray for just the Lyman alpha line.
+
+    >>> import trident
+    >>> ds = trident.create_simple_ray(column_densities={'H_number_density': 1e21})
+    >>> sg = trident.SpectrumGenerator('COS')
+    >>> sg.make_spectrum(ray, lines=['Ly a'])
+    >>> sg.plot_spectrum('spec_raw.png')
+    """
+    length = YTArray([length], "kpc")
+    data = {"density"            : YTArray([density], "g/cm**3"),
+            "metallicity"        : YTArray([metallicity], "Zsun"),
+            "dl"                 : length,
+            "temperature"        : YTArray([temperature], "K"),
+            "redshift"           : np.array([redshift]),
+            "redshift_eff"       : np.array([redshift]),
+            "velocity_los"       : YTArray([0.], "cm/s"),
+            "x": length/2, "dx": length,
+            "y": length/2, "dy": length,
+            "z": length/2, "dz": length
+            }
+
+    extra_attrs = {"data_type": "yt_light_ray"}
+    field_types = dict([(field, "grid") for field in data.keys()])
+
+    # Add additional number_density fields to dataset
+    if column_densities:
+        for k,v in column_densities.iteritems():
+            # Assure we add X_number_density for neutral ions
+            # instead of X_p0_number_density
+            key_string_list = k.split('_')
+            if key_string_list[1] == 'p0':
+                k = '_'.join([key_string_list[0], key_string_list[2], 
+                              key_string_list[3]])
+            v = YTArray([v], 'cm**-2')
+            data[k] = v/length
+            field_types[k] = 'grid'
+
+    ds = {"current_time": 0.,
+          "current_redshift": 0.,
+          "cosmological_simulation": 0.,
+          "domain_left_edge": np.zeros(3)*length,
+          "domain_right_edge": np.ones(3)*length,
+          "periodicity": [True]*3}
+
+    save_as_dataset(ds, filename, data, field_types=field_types,
+                       extra_attrs=extra_attrs)
+
+    # load  dataset and make spectrum
+    ray = load("ray.h5")
+    return ray
 
 def verify():
     """
@@ -524,3 +648,4 @@ def verify():
     print("Congratulations, you have verified that Trident is installed correctly.")
     print("Now let's science!")
     print("")
+
