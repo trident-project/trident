@@ -11,7 +11,7 @@ Tests to assure the code runs on examples
 # The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
-from trident import verify
+from trident.utilities import verify
 
 def test_verify():
     """
