@@ -449,7 +449,7 @@ def make_onezone_dataset(density=1e-26, temperature=1000, metallicity=0.3,
     a COS spectrum for that ray.
 
     >>> import trident
-    >>> ds = trident.create_simple_dataset()
+    >>> ds = trident.make_onezone_dataset()
     >>> ray = trident.make_simple_ray(ds,
     ...         start_position=ds.domain_left_edge,
     ...         end_position=ds.domain_right_edge,
@@ -541,7 +541,7 @@ def make_onezone_ray(density=1e-26, temperature=1000, metallicity=0.3,
     Create a one-zone ray, and generate a COS spectrum from that ray.
 
     >>> import trident
-    >>> ds = trident.create_simple_ray()
+    >>> ds = trident.make_onezone_ray()
     >>> sg = trident.SpectrumGenerator('COS')
     >>> sg.make_spectrum(ray)
     >>> sg.plot_spectrum('spec_raw.png')
@@ -550,7 +550,7 @@ def make_onezone_ray(density=1e-26, temperature=1000, metallicity=0.3,
     a COS spectrum from that ray for just the Lyman alpha line.
 
     >>> import trident
-    >>> ds = trident.create_simple_ray(column_densities={'H_number_density': 1e21})
+    >>> ds = trident.make_onezone_ray(column_densities={'H_number_density': 1e21})
     >>> sg = trident.SpectrumGenerator('COS')
     >>> sg.make_spectrum(ray, lines=['Ly a'])
     >>> sg.plot_spectrum('spec_raw.png')
@@ -613,7 +613,7 @@ def verify():
     print("----------------------------")
     print("")
     try:
-        ds = create_simple_dataset()
+        ds = make_onezone_dataset()
     except:
         print("Failed to create single-cell dataset")
         raise
