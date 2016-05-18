@@ -31,17 +31,23 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
     flux values, and it plots them and saves to disk.
 
     In addition, it can plot several spectra on the same axes simultaneously
-    by passing a list of arrays to the wavelength, flux, and label parameters.
+    by passing a list of arrays to the ``wavelength``, ``flux`` arguments 
+    (and optionally to the ``label`` and ``step`` keywords)..
 
     **Parameters**
 
     :wavelength: array of floats or list of arrays of floats
 
-        Wavelength values in angstroms
+        Wavelength values in angstroms.  Either as an array of floats in the
+        case of plotting a single spectrum, or as a list of arrays of floats
+        in the case of plotting several spectra on the same axes.
 
     :flux: array of floats or list of arrays of floats
 
-        Relative flux values (from 0 to 1) corresponding to wavelength array
+        Relative flux values (from 0 to 1) corresponding to wavelength array.
+        Either as an array of floats in the case of plotting a single 
+        spectrum, or as a list of arrays of floats in the case of plotting 
+        several spectra on the same axes.
 
     :filename: string, optional
 
@@ -63,6 +69,12 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
         postprocessing.
         Default: None
 
+    :step: boolean or list of booleans, optional
+
+        Plot the spectrum as a series of step functions.  Appropriate for 
+        plotting processed and noisy data.  Use a list of booleans when
+        plotting multiple spectra, where each boolean corresponds to the entry
+        in the ``wavelength`` and ``flux`` lists.
 
     :title: string, optional
 
@@ -108,6 +120,25 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
     >>> wavelength = np.arange(1200, 1400)
     >>> flux = np.ones(len(wavelength))
     >>> trident.plot_spectrum(wavelength, flux)
+
+    Generate a one-zone ray, create a Lyman alpha spectrum from it, and add
+    gaussian noise to it.  Plot both the raw spectrum and the noisy spectrum
+    on top of each other.
+
+    >>> import trident
+    >>> ray = trident.make_onezone_ray(column_densities={'H_p0_number_density':1e21})
+    >>> sg = trident.SpectrumGenerator(lambda_min=1200, lambda_max=1300, dlambda=0.5)
+    >>> sg.make_spectrum(ray, lines=['Ly a'])
+    >>> sg.save_spectrum('spec.h5')
+    >>> sg.add_gaussian_noise(10)
+    >>> sg.save_spectrum('noise.h5')
+    >>> sg1 = trident.SpectrumGenerator(lambda_min=1200, lambda_max=1300, dlambda=0.5)
+    >>> sg2 = trident.SpectrumGenerator(lambda_min=1200, lambda_max=1300, dlambda=0.5)
+    >>> sg1.load_spectrum('spec.h5')
+    >>> sg2.load_spectrum('noise.h5')
+    >>> trident.plot_spectrum([sg1.lambda_field, sg2.lambda_field], 
+    ... [sg1.flux_field, sg2.flux_field], stagger=0, step=[False, True],
+    ... filename='raw_and_noise.png')
     """
 
     # number of rows and columns
@@ -153,11 +184,19 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
     if not (isinstance(wavelength, list) and isinstance(flux, list)):
         wavelengths = [wavelength]
         fluxs = [flux]
-        if label is not None: labels = [label]
+        labels = [label]
+        steps = [step]
     else:
         wavelengths = wavelength
         fluxs = flux
-        if label is not None: labels = label
+        if label is not None: 
+            labels = label
+        else: 
+            labels = [None]*len(fluxs)
+        if step is not None: 
+            steps = step
+        else:
+            steps = [None]*len(fluxs)
 
     # A running maximum of flux for use in ylim scaling in final plot
     max_flux = 0.
@@ -169,16 +208,10 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
             flux -= stagger * i
 
         # Do we include labels and a legend?
-        if label is not None:
-            if step:
-                my_axes.step(wavelength, flux, label=labels[i])
-            else:
-                my_axes.plot(wavelength, flux, label=labels[i])
+        if steps[i]:
+            my_axes.step(wavelength, flux, label=labels[i])
         else:
-            if step:
-                my_axes.step(wavelength, flux)
-            else:
-                my_axes.plot(wavelength, flux)
+            my_axes.plot(wavelength, flux, label=labels[i])
 
         # Do we include a title?
         if title is not None:
