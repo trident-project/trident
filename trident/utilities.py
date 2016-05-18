@@ -541,7 +541,7 @@ def make_onezone_ray(density=1e-26, temperature=1000, metallicity=0.3,
     Create a one-zone ray, and generate a COS spectrum from that ray.
 
     >>> import trident
-    >>> ds = trident.make_onezone_ray()
+    >>> ray = trident.make_onezone_ray()
     >>> sg = trident.SpectrumGenerator('COS')
     >>> sg.make_spectrum(ray)
     >>> sg.plot_spectrum('spec_raw.png')
