@@ -170,7 +170,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                     dlambda=dlambda,
                                     lsf_kernel=lsf_kernel, name="Custom")
         self.observing_redshift = 0.
-        self.set_instrument(instrument)
+        self._set_instrument(instrument)
         mylog.info("Setting instrument to %s" % self.instrument.name)
         self.dlambda = self.instrument.dlambda
 
@@ -666,14 +666,14 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
         if isinstance(instrument, str):
             if instrument not in valid_instruments:
-                raise RuntimeError("set_instrument accepts only Instrument "
+                raise RuntimeError("_set_instrument accepts only Instrument "
                                    "objects or the names of valid "
                                    "instruments: ", valid_instruments.keys())
             self.instrument = valid_instruments[instrument]
         elif isinstance(instrument, Instrument):
             self.instrument = instrument
         else:
-            raise RuntimeError("set_instrument accepts only Instrument "
+            raise RuntimeError("_set_instrument accepts only Instrument "
                                "objects or the names of valid instruments: ",
                                valid_instruments.keys())
 
