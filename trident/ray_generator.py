@@ -27,7 +27,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
                     data_filename=None, trajectory=None, redshift=None, 
                     setup_function=None, load_kwargs=None):
     """
-    Create a yt LightRay object for a single dataset (e.g. CGM).  This is a 
+    Create a yt LightRay object for a single dataset (eg CGM).  This is a 
     wrapper function around yt's LightRay interface to reduce some of the 
     complexity there.  
     
@@ -149,7 +149,7 @@ def make_compound_ray(parameter_filename, simulation_type,
                       setup_function=None, load_kwargs=None):
 
     """
-    Create a yt LightRay object for multiple consecutive datasets (e.g. IGM).  
+    Create a yt LightRay object for multiple consecutive datasets (eg IGM).  
     This is a wrapper function around yt's LightRay interface to reduce some 
     of the complexity there.  
     
