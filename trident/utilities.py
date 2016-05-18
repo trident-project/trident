@@ -594,8 +594,8 @@ def make_onezone_ray(density=1e-26, temperature=1000, metallicity=0.3,
     save_as_dataset(ds, filename, data, field_types=field_types,
                        extra_attrs=extra_attrs)
 
-    # load  dataset and make spectrum
-    ray = load("ray.h5")
+    # load dataset and make spectrum
+    ray = load(filename)
     return ray
 
 def verify():
