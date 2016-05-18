@@ -11,6 +11,8 @@ Tests for Plotting functionality
 # The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
+import matplotlib
+matplotlib.use('Agg')
 from trident.plotting import plot_spectrum
 from trident.utilities import make_onezone_ray
 from trident.spectrum_generator import SpectrumGenerator
