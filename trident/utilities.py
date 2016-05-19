@@ -295,7 +295,8 @@ def create_config():
         config.write(configfile)
 
     print("")
-    print("Installation complete.  Now let's do some science!")
+    print("Installation complete.  I recommend verifying your installation")
+    print("to assure that everything is working.  Try: trident.verify()")
 
     # Return the ion_table_dir and ion_table_file so they
     # can be set as trident global variables for future use by ion_balance 
