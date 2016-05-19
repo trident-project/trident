@@ -8,17 +8,13 @@ synthetic observations appropriate for studies of the interstellar,
 circumgalactic, and intergalactic media.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    installation.rst
    making_spectra.rst
    advanced_spectra.rst
    ion_balance.rst
+   faq.rst
    reference.rst
    citation.rst
-
-Help
-----
-
-For questions, comments, and announcements, please join our low-volume 
-`mailing list <https://groups.google.com/forum/#!forum/trident-project-users>`_.
+   help.rst

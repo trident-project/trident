@@ -12,7 +12,7 @@ Update the Code
 The documentation is built for the latest version of Trident.  Try 
 :ref:`updating` to assure your code matches what the documentation describes.
 Remember to `update to the latest version of yt too
-<http://yt-project.org/docs/dev/installing.html#updating-yt-and-its-dependencies>`.
+<http://yt-project.org/docs/dev/installing.html#updating-yt-and-its-dependencies>`_.
 
 Search Documentation and Mailing List Archives
 ----------------------------------------------
@@ -28,9 +28,9 @@ addressed in our :ref:`faq`.
 Lastly, try searching the archives of our mailing list.  Chances are that 
 someone else may have encountered the problem that you have and already 
 wrote to the list.  You can search the list `here 
-<https://groups.google.com/forum/#!forum/trident-project-users>`
+<https://groups.google.com/forum/#!forum/trident-project-users>`_.
 
-Contact the Mailing List
+Contact our Mailing List
 ------------------------
 
 Compose a message to our low-volume mailing list at:

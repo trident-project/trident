@@ -179,4 +179,4 @@ involved::
 Don't forget to update your version of yt too.  Much of the latest functionality
 in Trident is built on recently added functionality in yt.  You can update it
 by following the `yt update instructions 
-<http://yt-project.org/docs/dev/installing.html#updating-yt-and-its-dependencies>`
+<http://yt-project.org/docs/dev/installing.html#updating-yt-and-its-dependencies>`_.
