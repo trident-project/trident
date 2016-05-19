@@ -33,7 +33,6 @@ from yt.units import \
 from yt import \
     load_uniform_grid, \
     YTArray, \
-    save_as_dataset, \
     load
 
 def ensure_directory(directory):
@@ -563,6 +562,7 @@ def make_onezone_ray(density=1e-26, temperature=1000, metallicity=0.3,
     >>> sg.make_spectrum(ray, lines=['Ly a'])
     >>> sg.plot_spectrum('spec_raw.png')
     """
+    from yt import save_as_dataset
     length = YTArray([length], "kpc")
     data = {"density"            : YTArray([density], "g/cm**3"),
             "metallicity"        : YTArray([metallicity], "Zsun"),
