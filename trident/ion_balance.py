@@ -27,7 +27,7 @@ import os
 from trident.line_database import \
     LineDatabase
 from trident.utilities import \
-    parse_config
+    ion_table_filepath
 
 H_mass_fraction = 0.76
 to_nH = H_mass_fraction / mh
@@ -38,8 +38,6 @@ fraction_zero_point = 1.e-9
 zero_out_value = -30.
 
 table_store = {}
-ion_table_dir, ion_table_file = parse_config()
-ion_table_filepath = os.path.join(ion_table_dir, ion_table_file)
 
 class IonBalanceTable(object):
     def __init__(self, filename=None, atom=None):
@@ -66,7 +64,7 @@ class IonBalanceTable(object):
             Default: None
         """
         if filename is None:
-            filename = ion_table_filepath
+            filename = ion_table_filepath()
         self.filename = filename
         self.parameters = []
         self.ion_fraction = []
@@ -228,7 +226,7 @@ def add_ion_fields(ds, ions=None, ftype='gas',
         raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
 
     if ionization_table is None:
-        ionization_table = ion_table_filepath
+        ionization_table = ion_table_filepath()
 
     # Parse the ions given following the LineDatabase syntax
     line_database = LineDatabase(line_database)
@@ -320,7 +318,7 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
         raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
 
     if ionization_table is None:
-        ionization_table = ion_table_filepath
+        ionization_table = ion_table_filepath()
 
     if (ftype, "log_nH") not in ds.derived_field_list:
         ds.add_field((ftype, "log_nH"), function=_log_nH, units="",
@@ -455,7 +453,7 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
         raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
 
     if ionization_table is None:
-        ionization_table = ion_table_filepath
+        ionization_table = ion_table_filepath()
     atom = string.capitalize(atom)
     # if neutral ion field, alias X_p0_number_density to X_number_density field
     if ion == 1:
@@ -571,7 +569,7 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
         raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
 
     if ionization_table is None:
-        ionization_table = ion_table_filepath
+        ionization_table = ion_table_filepath()
     atom = string.capitalize(atom)
 
     # if neutral ion field, alias X_p0_number_density to X_number_density field
@@ -689,7 +687,7 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
         raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
 
     if ionization_table is None:
-        ionization_table = ion_table_filepath
+        ionization_table = ion_table_filepath()
     atom = string.capitalize(atom)
 
     # if neutral ion field, alias X_p0_number_density to X_number_density field

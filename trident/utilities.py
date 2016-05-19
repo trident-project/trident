@@ -407,6 +407,13 @@ def trident_path():
     path_list.append('trident')
     return '/'.join(path_list)
 
+def ion_table_filepath():
+    """
+    Return the path of the default trident ion table datafile.
+    """
+    ion_table_dir, ion_table_file = parse_config()
+    return os.path.join(ion_table_dir, ion_table_file)
+
 def make_onezone_dataset(density=1e-26, temperature=1000, metallicity=0.3, 
                          domain_width=10.):
                            
@@ -601,12 +608,14 @@ def make_onezone_ray(density=1e-26, temperature=1000, metallicity=0.3,
 
 def verify():
     """
-    Verify that the bulk of Trident's functionality is working.  This function
-    creates a single-cell grid-based dataset
-    in memory, then creates a ray by sending a sightline through that dataset,
-    then creates a spectrum from the ray object.  Saves all data to a tempdir
-    before deleting it.
+    Verify that the bulk of Trident's functionality is working.  First, it
+    ensures that the user has a configuration file and ion table datafile, 
+    and creates/downloads these files if they do not exist.  Next, it
+    creates a single-cell grid-based dataset in memory, generates a ray 
+    by sending a sightline through that dataset, then makes a spectrum from 
+    the ray object.  It saves all data to a tempdir before deleting it.
     """
+    parse_config()
     from trident.spectrum_generator import SpectrumGenerator
     from trident.ray_generator import make_simple_ray
     print("")
@@ -655,4 +664,3 @@ def verify():
     print("Congratulations, you have verified that Trident is installed correctly.")
     print("Now let's science!")
     print("")
-

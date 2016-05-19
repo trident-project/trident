@@ -35,7 +35,8 @@ from trident.lsf import \
 from trident.plotting import \
     plot_spectrum
 from trident.utilities import \
-    trident_path
+    trident_path, \
+    parse_config
 
 # Valid instruments
 valid_instruments = \

@@ -45,6 +45,7 @@ from trident.spectrum_generator import \
 
 from trident.utilities import \
     parse_config, \
+    create_config, \
     trident, \
     trident_path, \
     make_onezone_dataset, \
@@ -65,4 +66,3 @@ from yt.analysis_modules.cosmological_observation.api import \
 
 # Making installation path global
 path = trident_path()
-ion_table_dir, ion_table_file = parse_config()
