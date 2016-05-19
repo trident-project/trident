@@ -21,9 +21,12 @@ There are several methods for installing yt, which are all discussed in
 detail in the `yt installation documentation 
 <http://yt-project.org/docs/dev/installing.html>`_.  Note that Trident 
 currently requires the development branch of yt to work properly.
-If you're just starting out, we recommend the `anaconda installation method 
-<http://yt-project.org/docs/dev/installing.html#installing-yt-using-anaconda>`_ 
-as the least work for new users to get yt working.
+If you're just starting out, we recommend using the all-in-one install script
+with ``INST_CONDA=1`` and ``INST_YT_SOURCE=1``::
+
+    $ wget http://bitbucket.org/yt_analysis/yt/raw/yt/doc/install_script.sh
+    $ ... edit the install_script.sh to mark INST_YT_SOURCE=1 ...
+    $ bash install_script.sh
 
 .. _install-trident:
 .. _step-2:
