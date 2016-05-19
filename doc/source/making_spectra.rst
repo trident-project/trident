@@ -3,81 +3,112 @@
 Making Spectra
 ==============
 
-Making spectra with Trident is intended to require a minimal amount of effort by the user.  This section will walk you through the steps necessary to produce a synthetic spectrum based on simulation data.
+Making spectra with Trident is intended to require a minimal amount of effort 
+by the user.  This section will walk you through the steps necessary to 
+produce a synthetic spectrum based on simulation data.
 
 The basic process requires two main steps:
 
-    1. Extract a light ray from the simulation data.
-    2. Define the desired spectrum features and use the light ray to generate the corresponding synthetic spectrum.
+    1. Generate a :class:`~trident.LightRay` from the simulation data.
+    2. Define the desired spectrum features and use the light ray to 
+       create the corresponding synthetic spectrum.
 
-First, we'll go through the process for extracting a light ray from your simulation data.
+.. note::
+
+    The actual code contained in the snippets below can be found online 
+    `here <https://bitbucket.org/trident-project/trident/src/tip/examples/working_script.py>`_,
+    or locally in ``trident.path/examples/working_script.py``
 
 Light Ray Generation
 --------------------
 
-In order to generate a light ray from your data, you need to first make sure that you've imported both the yt and Trident packages:
+A :class:`~trident.LightRay` is a 1D object representing the path a ray of
+light takes through a simulation volume on its way from some bright background
+object to the observer.  It records all of the gas fields it intersects along
+the way for use in construction of a spectrum.  
 
-.. code-block:: python
+In order to generate a light ray from your data, you need to first make sure 
+that you've imported both the yt and Trident packages::
 
    import yt
    import trident
 
-Then, you need to specify which dataset to extract the light ray from (for this example, we'll be using an Enzo dataset but the process should work for other data formats and simulation types):
-
-.. code-block:: python
+Then, you need to specify from which dataset to extract the light ray.  For 
+this example, we'll be using a `sample Enzo dataset 
+<http://yt-project.org/data/>`_ but the process should work for other data 
+formats and simulation types::
 
    fn = 'enzo_cosmology_plus/RD0009/RD0009'
 
-From here, we can generate the light ray using the LightRay class and the make_light_ray function contained within that class:
+We need to decide the trajectory that the :class:`~trident.LightRay` will take
+through our simulation volume.  This arbitrary trajectory is specified with
+coordinates in code length units (e.g. ``[x_start, y_start, z_start]`` to 
+``[x_end, y_end, z_end]``), but probably the simplest trajectory is to go
+diagonally from the origin of the simulation volume to its outermost corner
+using the yt ``domain_left_edge`` and ``domain_right_edge`` attributes.  Here
+we load the dataset into yt to get access to these attributes::
 
-.. code-block:: python
+    ds = yt.load(fn)
+    ray_start = ds.domain_left_edge
+    ray_end = ds.domain_right_edge
 
-    light_ray = trident.LightRay(fn)
-    ray = light_ray.make_light_ray(start_position=[0,0,0],
-                                   end_position=[1,1,1],
-                                   solution_filename="ray_solution.txt",
-                                   data_filename="ray.h5",
-                                   fields=['temperature', 'density',
-                                           'H_number_density', 'metallicity'])
+We can now generate the light ray using the :class:`~trident.make_simple_ray`
+function by passing the dataset and the trajectory endpoints to it.  In 
+addition, we're telling trident to save the resulting ray dataset to an HDF5
+file and to explicitly include a few fields in the resulting ray.  We include
+the ``density``, ``temperature``, and ``metallicity`` fields at a minimum
+to generate all of the ion fields, but we also include ``H_p0_number_density``
+since the neutral hydrogen field exists in the original simulation::
+
+    ray = trident.make_simple_ray(ds,
+                                  start_position=ray_start,
+                                  end_position=ray_end,
+                                  data_filename="ray.h5",
+                                  fields=['density', 'temperature',
+                                          'metallicity', 
+                                          'H_p0_number_density'])
 
 .. note::
-    In this example we are extracting a light ray from a single dataset and specifying the start and end point of the light ray.  It is also possible to generate a random light ray that spans a random in redshift space and is generated from multiple simulation snapshots.  For the details on creating such a light ray, refer to **WE NEED TO PUT A REFERENCE TO SOMETHING HERE**
-
-Now that we have our light ray, we can use it to generate a spectrum.
+    it is also possible to generate a :class:`~trident.LightRay` spanning 
+    multiple consecutive datasets to approximate an IGM sightline.  Additional
+    documentation will be added soon, but in the meanwhile, take a look at 
+    :class:`~trident.make_compound_ray`.
 
 Spectrum Generation
 -------------------
 
-To generate a spectrum, we first need to initialize a SpectrumGenerator object and then we can make a basic "clean" spectrum that just contains the absorption features created by the densities, temperatures, and metallicities of the line elements in the light ray.
+Now that we have our light ray, we can use it to generate a spectrum.
+To create a spectrum, we need to make a :class:`~trident.SpectrumGenerator`
+object defining our desired wavelength range and bin size.  You can do this
+by manually setting these features, or just using one of the presets for 
+an instrument.  Currently, the only working instrument we have is for COS,
+the Cosmic Origins Spectrograph aboard the Hubble Space Telescope, but this
+will be supplemented in the future.  We then use this 
+:class:`~trident.SpectrumGenerator` to make a *raw* spectrum according to the
+intersecting fields it encountered in the corresponding 
+:class:`~trident.LightRay`::
 
-.. code-block:: python
-
-    # Create a spectrum that uses the wavelength range, line spread function,
-    # and spectral resolution of the Cosmic Origins Spectrograph ('COS')
     sg = trident.SpectrumGenerator('COS')
-    sg.make_spectrum(ray, output_file="spec.h5")
+    sg.make_spectrum(ray)
 
-From here we can modify the spectrum to include additional features that would be present in an observed spectrum.
+From here we can do some post-processing to the spectrum to include 
+additional features that would be present in an actual observed spectrum.
+We add a background quasar spectrum, a Milky Way foreground, apply the
+COS line spread function, and add gaussian noise with SNR=30::
 
-.. code-block:: python
-
-    # Modify the clean spectrum to produce an "observed" spectrum with added
-    # composite quasar spectrum, MW foreground features, and gaussian noise
-    # with SNR=30
     sg.add_qso_spectrum()
     sg.add_milky_way_foreground()
     sg.apply_lsf()
     sg.add_gaussian_noise(30)
 
-Finally, we use Trident's plot_spectrum function to plot the spectrum that we've created by accessing the wavelength and flux values contained within our SpectrumGenerator object.
+Finally, we use plot and save the resulting spectrum to disk::
 
-.. code-block:: python
-
-    trident.plot_spectrum(sg.lambda_field, sg.flux_field, 'spectrum.png')
+    sg.save_spectrum('spec_final.txt')
+    sg.plot_spectrum('spec_final.png')
 
 which produces:
 
 .. image:: _images/spec.png
    :width: 700
 
-To create more complex or ion-specific spectra, refer to :ref:`advanced-spectra`
+To create more complex or ion-specific spectra, refer to :ref:`advanced-spectra`.
