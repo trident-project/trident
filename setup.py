@@ -33,5 +33,5 @@ spectra from astrophysical hydrodynamical data"""),
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
     ],
-    install_requires=['yt', 'h5py', 'numpy', 'matplotlib', 'astropy'],
+    install_requires=['yt', 'h5py', 'numpy', 'matplotlib', 'astropy', 'requests'],
 )
