@@ -1,0 +1,36 @@
+.. _faq:
+
+Frequently Asked Questions
+==========================
+
+Trident fails with error: ``IndexError: list index out of range``
+-----------------------------------------------------------------
+
+One of our dependencies, `astropy <http://astropy.readthedocs.io/en/stable/>`_, 
+has problems when you try to import it while you're in another package's
+directory.  If you're in the Trident home directory when you run python
+and import Trident, which imports astropy, you'll get this error::
+
+    $ cd <path/to/trident>
+    $ python
+    >>> import trident
+    Traceback (most recent call last):
+    File "<stdin>", line 1, in <module>
+    File "trident/__init__.py", line 42, in <module>
+        from trident.spectrum_generator import \
+    File "trident/spectrum_generator.py", line 18, in <module>
+        from yt.analysis_modules.absorption_spectrum.api import \
+    File "/Users/me/src/yt/yt/analysis_modules/absorption_spectrum/api.py", line 16, in <module>
+        from .absorption_spectrum import \
+    File "/Users/me/src/yt/yt/analysis_modules/absorption_spectrum/absorption_spectrum.py", line 36, in <module>
+        pyfits = _astropy.pyfits
+    File "/Users/me/src/yt/yt/utilities/on_demand_imports.py", line 38, in pyfits
+        import astropy.io.fits as pyfits
+    File "/Users/me/src/miniconda2/lib/python2.7/site-packages/astropy/__init__.py", line 274, in <module>
+        __bibtex__ = _get_bibtex()
+    File "/Users/me/src/miniconda2/lib/python2.7/site-packages/astropy/__init__.py", line 268, in _get_bibtex
+        refcontents = re.findall(r'\{[^()]*\}', citation.read())[0]
+    IndexError: list index out of range
+
+To avoid this error, just move into another directory outside the Trident home 
+directory.
