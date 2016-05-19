@@ -33,4 +33,4 @@ dependencies:
 - yt=3.2.3=py27_0
 - zlib=1.2.8=0
 - pip:
-  - trident==0.5
+  - trident==0.5.1
