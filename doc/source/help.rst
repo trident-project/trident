@@ -33,9 +33,11 @@ wrote to the list.  You can search the list `here
 Contact our Mailing List
 ------------------------
 
-Compose a message to our low-volume mailing list at:
-https://groups.google.com/forum/#!forum/trident-project-users .  Remember to
+Compose a message to our low-volume mailing list.  Remember to
 include details like the operating system you're using, the type of dataset
 you're trying to reduce, the version of Trident and yt you're using (find it
-out here), and of course, a description of the problem you're having with 
-any relevant traceback errors.
+out :ref:`here what-version-am-i-running`), and of course, a description of 
+the problem you're having with any relevant traceback errors.  
+Our mailing list is located here:
+
+https://groups.google.com/forum/#!forum/trident-project-users 

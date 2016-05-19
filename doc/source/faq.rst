@@ -34,3 +34,39 @@ and import Trident, which imports astropy, you'll get this error::
 
 To avoid this error, just move into another directory outside the Trident home 
 directory.
+
+.. _what-version-am-i-running:
+
+What version of Trident am I running?
+-------------------------------------
+
+To learn what version of Trident you're running, type::
+
+    $ python
+    >>> import trident
+    >>> print trident.__version__
+
+If you have a version ending in dev, it means you're on the development branch
+and you should also figure out which particular changeset you're running.  You
+can do this by::
+
+    $ cd <path/to/trident>
+    $ hg id
+
+To figure out what version of yt you're running, type::
+
+    $ yt version
+
+If you're writing to the mailing list with a problem, be sure to include all
+of the above with your bug report or question.
+
+Where is Trident installed?  Where are its data files?
+------------------------------------------------------
+
+One can easily identify where Trident is installed::
+
+    $ python
+    >>> import trident
+    >>> print trident.path
+
+The data files are located in that path with an appended ``/data``.
