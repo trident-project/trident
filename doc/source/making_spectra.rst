@@ -42,8 +42,8 @@ formats and simulation types::
 
 We need to decide the trajectory that the :class:`~trident.LightRay` will take
 through our simulation volume.  This arbitrary trajectory is specified with
-coordinates in code length units (e.g. ``[x_start, y_start, z_start]`` to 
-``[x_end, y_end, z_end]``), but probably the simplest trajectory is to go
+coordinates in code length units (e.g. [x_start, y_start, z_start] to 
+[x_end, y_end, z_end]), but probably the simplest trajectory is to go
 diagonally from the origin of the simulation volume to its outermost corner
 using the yt ``domain_left_edge`` and ``domain_right_edge`` attributes.  Here
 we load the dataset into yt to get access to these attributes::
