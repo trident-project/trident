@@ -5,6 +5,8 @@ Installation
 
 Follow these steps to successfully install Trident and its dependencies.
 
+.. _step-1:
+
 Step 1: Install yt  
 ------------------
 
@@ -24,6 +26,7 @@ If you're just starting out, we recommend the `anaconda installation method
 as the least work for new users to get yt working.
 
 .. _install-trident:
+.. _step-2:
 
 Step 2: Install Trident
 -----------------------
@@ -55,48 +58,47 @@ Go to your desired source code installation directory and run::
     $ cd trident
     $ pip install -e .
 
-Step 3: Get Ionization Table
-----------------------------
+.. _step-3:
+
+Step 3: Get Ionization Table and Verify Installation
+----------------------------------------------------
 
 In order to calculate the ionization fractions for various ions from 
 density, temperature, metallicity fields, you will need an ionization table 
 datafile and a configuration file.  Because this datafile can be large, it is
-not packaged with the main source code.  The first time you import Trident into 
-Python, the code will attempt to automatically set this all up for you with 
-a series of interactive prompts.  **This step requires an internet connection.**
+not packaged with the main source code.  The first time you try to do anything
+that requires it, Trident will attempt to automatically set this all up for 
+you with a series of interactive prompts.  **This step requires an internet 
+connection the first time you run it.**
 
-.. code-block:: bash
+In addition, Trident provides a simple test function to verify that your 
+install is functioning correctly.  This function not only tries to set up
+your configuration and download your ion table file, but it will 
+create a simple one-zone dataset, generate a ray through it, and 
+create a spectrum from that ray.  This should execute very quickly, 
+and if it succeeds it demonstrates that your installation has been totally 
+successful.  Run the following from a directory other than your Trident
+source directory to avoid :ref:`this <astropy-problem>`::
 
     $ python
     >>> import trident
+    >>> trident.verify()
     ...Series of Interactive Prompts...
 
 If you cannot directly access the internet on this computer, or you lack write
 access to your ``$HOME`` directory, or this step fails for any reason, please 
 follow our documentation on :ref:`manual-config`.
 
-Step 4: Verify Installation
----------------------------
+.. _step-4:
 
-Once you've installed yt, Trident, and downloaded your ion table data file, 
-everything *should* be working, but it's good to verify your installation.
-Trident provides a simple test function to verify that your install is 
-able to create a simple one-zone dataset, generate a ray through it, and 
-create a spectrum from that ray.  This should take about 5 seconds to run 
-on a modern computer, and if it succeeds it demonstrates that your installation
-has been totally successful::
-
-    $ python
-    >>> import trident
-    >>> trident.verify()
-
-Step 5: Science!
+Step 4: Science!
 ----------------
 
 Congratulations, you're now ready to use Trident!  Please refer to the 
 documentation for how to use it with your data or with one of our sample 
-datasets.
-
+datasets.  Because Trident is in beta, the docs are not complete, and 
+the API may still change in slight ways.  Please join our :ref:`mailing list 
+<mailing-list>` for announcements about when the code is officially released.
 
 .. _manual-config:
 
@@ -124,13 +126,9 @@ when you import trident, the ion_table datafile can exist anywhere on the
 file system.  Just assure that the config file points to the proper location 
 and filename of the ion table datafile.
 
-Now, to confirm everything is working properly, try to load Trident in a python 
-session::
-
-    $ python
-    >>> import trident
-
-If this fails or you have additional problems, please contact our mailing list.
+Now, to confirm everything is working properly, verify your installation
+following :ref:`step-3`.  If this fails or you have additional problems, 
+please contact our mailing list.
 
 .. _uninstallation:
 

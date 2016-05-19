@@ -3,6 +3,8 @@
 Frequently Asked Questions
 ==========================
 
+.. _astropy-problem:
+
 Trident fails with error: ``IndexError: list index out of range``
 -----------------------------------------------------------------
 
@@ -70,3 +72,13 @@ One can easily identify where Trident is installed::
     >>> print trident.path
 
 The data files are located in that path with an appended ``/data``.
+
+.. _mailing-list:
+
+How do I join the mailing list?
+-------------------------------
+
+You can join our mailing list for announcements, bugs reports, and changes
+at:
+
+https://groups.google.com/forum/#!forum/trident-project-users
