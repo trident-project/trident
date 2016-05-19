@@ -15,7 +15,7 @@ http://yt-project.org
 # The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
-__version__ = "0.5.1"
+__version__ = "0.5.1-dev"
 
 from trident.ion_balance import \
     add_ion_fields, \
