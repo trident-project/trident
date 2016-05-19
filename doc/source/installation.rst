@@ -156,3 +156,22 @@ To fully remove the code from your system, remember to remove any ion table
 datafiles you may have downloaded in your ``$HOME/.trident`` directory, 
 and follow the instructions for how to `uninstall yt 
 <http://yt-project.org/docs/dev/installing.html>`_.
+
+.. _updating:
+
+Updating to the Latest Version
+------------------------------
+
+If you want more recent features, you should periodically update your Trident
+codebase.  If you installed the "stable" version of the code using pip, then 
+simply run::
+
+    $ pip install -U trident
+
+If you installed the "development" version of the code, it's slightly more
+involved::
+
+    $ cd <path/to/trident>
+    $ hg pull
+    $ hg up
+    $ pip install -e .
