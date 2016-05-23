@@ -606,7 +606,7 @@ def make_onezone_ray(density=1e-26, temperature=1000, metallicity=0.3,
     ray = load(filename)
     return ray
 
-def verify():
+def verify(save=False):
     """
     Verify that the bulk of Trident's functionality is working.  First, it
     ensures that the user has a configuration file and ion table datafile, 
@@ -614,6 +614,24 @@ def verify():
     creates a single-cell grid-based dataset in memory, generates a ray 
     by sending a sightline through that dataset, then makes a spectrum from 
     the ray object.  It saves all data to a tempdir before deleting it.
+
+    **Parameters**
+
+    :save: boolean, optional
+
+        By default, verify saves all of its outputs to a temporary directory
+        and then removes it upon completion.  If you would like to see the
+        resulting data from verify(), set this to be True and it will save
+        a light ray, and raw and processed spectra in the current working 
+        directory.
+        Default: False
+        
+    **Example**
+
+    Verify Trident works.
+
+    >>> import trident
+    >>> trident.verify()
     """
     parse_config()
     from trident.spectrum_generator import SpectrumGenerator
@@ -632,7 +650,12 @@ def verify():
     print("Creating ray object through single-cell dataset")
     print("-----------------------------------------------")
     print("")
-    tempdir = tempfile.mkdtemp()
+
+    if save == True:
+        tempdir = '.'
+    else:
+        tempdir = tempfile.mkdtemp()
+
     try:
         ray = make_simple_ray(ds,
                 start_position=ds.domain_left_edge,
@@ -658,8 +681,11 @@ def verify():
     sg.add_gaussian_noise(30)
     sg.save_spectrum(os.path.join(tempdir, 'spec_final.h5'))
     sg.plot_spectrum(os.path.join(tempdir, 'spec_final.png'))
-    print("Removing all temporary data files...")
-    shutil.rmtree(tempdir) 
+
+    if save == False:
+        print("Removing all temporary data files...")
+        shutil.rmtree(tempdir) 
+
     print("")
     print("Congratulations, you have verified that Trident is installed correctly.")
     print("Now let's science!")
