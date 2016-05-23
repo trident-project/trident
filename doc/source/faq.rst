@@ -37,6 +37,29 @@ and import Trident, which imports astropy, you'll get this error::
 To avoid this error, just move into another directory outside the Trident home 
 directory.
 
+.. _pyplot-problem:
+
+Trident fails with error: ``RuntimeError: Invalid DISPLAY variable``
+--------------------------------------------------------------------
+
+In order to plot spectra, we use underlying infrastructure from Matplotlib's
+``pyplot`` interface.  On headless systems like supercomputers that lack a
+``$DISPLAY`` variable, matplotlib gets confused and doesn't know where to
+send the output from the :class:`~trident.plot_spectrum` function 
+(notably in the :class:`~trident.verify` function), and it
+raises: ``RuntimeError: Invalid DISPLAY variable``.  In order to avoid this,
+you need to tell Matplotlib to use a different backend that doesn't expect
+a local display.  The simplest way to address this is by setting an environment
+variable prior to calling Trident::
+
+    $ export MPLBACKEND="Agg"
+
+Alternatively, at the beginning of each Trident session or script, you can 
+call::
+
+    import matplotlib
+    matplotlib.use('Agg')
+
 .. _what-version-am-i-running:
 
 What version of Trident am I running?
