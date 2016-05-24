@@ -203,7 +203,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         else:
             self.ionization_table = None
 
-    def make_spectrum(self, ray, lines=None,
+    def make_spectrum(self, ray, lines='all',
                       output_file=None,
                       use_peculiar_velocity=True, 
                       observing_redshift=0.0,
@@ -225,8 +225,9 @@ class SpectrumGenerator(AbsorptionSpectrum):
             List of strings that determine which lines will be added
             to the spectrum.  List can include things like "C", "O VI",
             or "Mg II ####", where #### would be the integer wavelength
-            value of the desired line.  If set to None, includes all lines
+            value of the desired line.  If set to 'all', includes all lines
             in LineDatabase set in SpectrumGenerator.
+            Default: 'all'
 
         :output_file: optional, string
 

@@ -89,7 +89,7 @@ intersecting fields it encountered in the corresponding
 :class:`~trident.LightRay`::
 
     sg = trident.SpectrumGenerator('COS')
-    sg.make_spectrum(ray)
+    sg.make_spectrum(ray, lines='all')
 
 From here we can do some post-processing to the spectrum to include 
 additional features that would be present in an actual observed spectrum.

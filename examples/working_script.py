@@ -24,7 +24,7 @@ ray = trident.make_simple_ray(ds, start_position=ray_start,
 # Use the settings (spectral range, LSF, and spectral resolution) for COS
 # And save it as an output text file and plot it to an image.
 sg = trident.SpectrumGenerator('COS')
-sg.make_spectrum(ray)
+sg.make_spectrum(ray, lines='all')
 sg.save_spectrum('spec_raw.txt')
 sg.plot_spectrum('spec_raw.png')
 
