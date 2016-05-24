@@ -28,6 +28,8 @@ from trident.line_database import \
     LineDatabase
 from trident.utilities import \
     ion_table_filepath
+from trident.roman import \
+    from_roman
 
 H_mass_fraction = 0.76
 to_nH = H_mass_fraction / mh
@@ -121,7 +123,7 @@ def _log_T(field, data):
 def add_ion_fields(ds, ions=None, ftype='gas', 
                    ionization_table=None, 
                    field_suffix=False, 
-                   line_database='lines.txt',
+                   line_database=None,
                    force_override=False):
     """
     Preferred method for adding ion fields to a yt dataset.
@@ -214,7 +216,7 @@ def add_ion_fields(ds, ions=None, ftype='gas',
     >>> ds = yt.load('path/to/file')
     >>> trident.add_ion_fields(ds, ions=['H II', 'C III', 'Mg'])
     """
-
+    ion_list = []
     # Determine whether the user is trying to add a particle field 
     # based on the nature of other fields of that ftype in the dataset
     try:
@@ -229,14 +231,36 @@ def add_ion_fields(ds, ions=None, ftype='gas',
         ionization_table = ion_table_filepath()
 
     # Parse the ions given following the LineDatabase syntax
-    line_database = LineDatabase(line_database)
-    ions = line_database.parse_subset_to_ions(ions)
+
+    # If line_database is set, then use the underlying file as the line list
+    # to select ions from.
+    if line_database is not None:
+        line_database = LineDatabase(line_database)
+        ion_list = line_database.parse_subset_to_ions(ions)
+
+    # Otherwise, any ion can be selected (not just ones in the line list).
+    else:
+        if ions == 'all' or ions == ['all']:
+            for k, v in atomic_number.iteritems():
+                for j in range(v+1):
+                    ion_list.append((k, j+1))
+        else:
+            for ion in ions:
+                ionn = ion.split()
+                if len(ionn) >= 2:
+                    ion_list.append((ionn[0], from_roman(ionn[1])))
+                elif len(ionn) == 1:
+                    num_states = atomic_number[ionn[0]]
+                    for j in range(num_states+1):
+                        ion_list.append((ionn[0], j+1))
+                else:
+                    raise RuntimeError("Cannot add a blank ion.")
 
     # adding X_p#_ion_mass field triggers the addition of:
     # - X_P#_ion_fraction
     # - X_P#_number_density
     # - X_P#_density
-    for (atom, ion) in ions:
+    for (atom, ion) in ion_list:
         add_ion_mass_field(atom, ion, ds, ftype, ionization_table,
             field_suffix=field_suffix, force_override=force_override)
 
