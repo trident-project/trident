@@ -25,7 +25,8 @@ import h5py
 import copy
 import os
 from trident.line_database import \
-    LineDatabase
+    LineDatabase, \
+    uniquify
 from trident.utilities import \
     ion_table_filepath
 from trident.roman import \
@@ -262,6 +263,9 @@ def add_ion_fields(ds, ions, ftype='gas',
                         ion_list.append((ionn[0], j+1))
                 else:
                     raise RuntimeError("Cannot add a blank ion.")
+
+    # make sure ion list is unique
+    ion_list = uniquify(ion_list)
 
     # adding X_p#_ion_mass field triggers the addition of:
     # - X_P#_ion_fraction
