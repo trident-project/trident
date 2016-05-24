@@ -120,7 +120,7 @@ def _log_T(field, data):
         ftype = "gas"
     return np.log10(data[ftype, "temperature"])
 
-def add_ion_fields(ds, ions=None, ftype='gas', 
+def add_ion_fields(ds, ions, ftype='gas', 
                    ionization_table=None, 
                    field_suffix=False, 
                    line_database=None,
@@ -131,11 +131,18 @@ def add_ion_fields(ds, ions=None, ftype='gas',
     Select ions based on the selection indexing set up in 
     :class:`~trident.LineDatabase.parse_subset_to_ions` function, that is, 
     by specifying a list of strings where each string represents an ion or
-    line.  Selected ions will be a subset of the ions necessary to
-    produce the lines present in the file specified in :line_database:, 
+    line.  Strings are of one of three forms:
+
+        * <element>
+        * <element> <ion state>
+        * <element> <ion state> <line_wavelength>
+
+    If a line_database is selected, then the ions chosen will be a subset
+    of the ions present in the equivalent :class:`~trident.LineDatabase`,
     nominally located in ``trident.__path__/data/line_lists``.
 
-    For each ion species selected, 4 fields will be added (example for Mg II):
+    For each ion species selected, four fields will be added (example for 
+    Mg II):
 
         * Ion fraction field. e.g. (ftype, 'Mg_p1_ion_fraction')
         * Number density field. e.g. (ftype, 'Mg_p1_number_density') 
@@ -159,18 +166,18 @@ def add_ion_fields(ds, ions=None, ftype='gas',
 
         This is the dataset to which the ion fraction field will be added.
 
-    :ions: list of strings, optional
+    :ions: list of strings
 
             List of strings matching possible lines.  Strings can be of the
             form:
             * Atom - Examples: "H", "C", "Mg"
             * Ion - Examples: "H I", "H II", "C IV", "Mg II"
             * Line - Examples: "H I 1216", "C II 1336", "Mg II 1240"
-            * Identifier - Examples: "Ly a", "Ly b"
 
-            If set to None, selects ions necessary to produce **all** lines
-            in :class:`~trident.LineDatabase` specified by :line_database:.
-            Default: None
+            If set to 'all', creates **all** ions for the first 30 elements:
+            (ie hydrogen to zinc).  If set to 'all' with ``line_database``
+            keyword set, then creates **all** ions associated with the lines
+            specified in the equivalent :class:`~trident.LineDatabase`.
 
     :ftype: string, optional
 

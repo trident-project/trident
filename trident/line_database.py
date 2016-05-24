@@ -316,7 +316,7 @@ class LineDatabase:
                     counter += 1
         return counter
 
-    def parse_subset(self, subsets=None):
+    def parse_subset(self, subsets='all'):
         """
         Select multiple lines based on atom, ion state, identifier, and/or 
         wavelength.  Once you've created a LineDatabase, you can subselect 
@@ -355,11 +355,13 @@ class LineDatabase:
         >>> print lines
         """
         # if no subsets specified, then use all lines available
-        if subsets is None:
+        if subsets is 'all':
             self.lines_subset = self.lines_all
             mylog.info("Using all %d available lines in '%s'." % \
                        (len(self.lines_all), self.input_file))
             return self.lines_subset
+        if subsets is None:
+            subsets = []
         if isinstance(subsets, basestring):
             subsets = [subsets]
         for val in subsets:
