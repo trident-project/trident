@@ -174,6 +174,28 @@ def test_add_ion_mass_fields_to_amr_ds():
     yt.SlicePlot(ds, 'x', field).save(dirpath)
     shutil.rmtree(dirpath)
 
+def test_add_ion_fields_to_grid_ds():
+    """
+    Test to add various ion fields
+    """
+    ds = fake_random_ds(8, fields=("density", "velocity_x", "velocity_y",
+                                   "velocity_z", "temperature", "metallicity"),
+                           units= ('g/cm**3', 'cm/s', 'cm/s',
+                                   'cm/s', 'K', ''))
+    ftype = 'stream'
+    ad = ds.all_data()
+    ions = ['H', 'O', 'N V']
+    tri.add_ion_fields(ds, ions, ftype='stream')
+    fields = ['H_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
+    # Assure that a sampling of fields are added and can be sliced
+    dirpath = tempfile.mkdtemp()
+    for field in fields:
+        field = (ftype, field)
+        assert field in ds.derived_field_list
+        assert isinstance(ad[field], np.ndarray)
+        yt.SlicePlot(ds, 'x', field).save(dirpath)
+    shutil.rmtree(dirpath)
+
 def test_add_all_ion_fields_to_grid_ds():
     """
     Test to add various ion fields
@@ -184,7 +206,28 @@ def test_add_all_ion_fields_to_grid_ds():
                                    'cm/s', 'K', ''))
     ftype = 'stream'
     ad = ds.all_data()
-    tri.add_ion_fields(ds, ftype='stream')
+    tri.add_ion_fields(ds, 'all', ftype='stream')
+    fields = ['H_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
+    # Assure that a sampling of fields are added and can be sliced
+    dirpath = tempfile.mkdtemp()
+    for field in fields:
+        field = (ftype, field)
+        assert field in ds.derived_field_list
+        assert isinstance(ad[field], np.ndarray)
+        yt.SlicePlot(ds, 'x', field).save(dirpath)
+    shutil.rmtree(dirpath)
+
+def test_add_all_ion_fields_to_grid_ds_from_file():
+    """
+    Test to add various ion fields
+    """
+    ds = fake_random_ds(8, fields=("density", "velocity_x", "velocity_y",
+                                   "velocity_z", "temperature", "metallicity"),
+                           units= ('g/cm**3', 'cm/s', 'cm/s',
+                                   'cm/s', 'K', ''))
+    ftype = 'stream'
+    ad = ds.all_data()
+    tri.add_ion_fields(ds, 'all', ftype='stream', line_database='lines.txt')
     fields = ['H_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
     # Assure that a sampling of fields are added and can be sliced
     dirpath = tempfile.mkdtemp()
@@ -203,7 +246,8 @@ def test_add_all_ion_fields_to_amr_ds():
                              "velocity_z", "temperature", "metallicity"))
     ftype = 'stream'
     ad = ds.all_data()
-    tri.add_ion_fields(ds, ftype='stream')
+    ions = ['H', 'O', 'N V']
+    tri.add_ion_fields(ds, ions, ftype='stream')
     fields = ['H_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
     # Assure that a sampling of fields are added and can be sliced
     dirpath = tempfile.mkdtemp()
@@ -253,7 +297,7 @@ def test_add_all_ion_fields_to_particle_ds():
                                      False))
     ftype = 'io',
     ad = ds.all_data()
-    tri.add_ion_fields(ds, ftype='io')
+    tri.add_ion_fields(ds, ['H', 'N IV'], ftype='io')
     #len(ad[('gas', 'S_p3_ion_fraction')])
     #len(ad[('gas', 'H_mass')])
     #import pdb; pdb.set_trace()
