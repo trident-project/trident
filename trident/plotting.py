@@ -13,8 +13,6 @@ Spectrum plotting functions.
 
 from yt.funcs import \
     mylog
-from matplotlib import \
-    pyplot
 import numpy as np
 
 def plot_spectrum(wavelength, flux, filename="spectrum.png",
@@ -141,6 +139,7 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
     ... filename='raw_and_noise.png')
     """
 
+    import matplotlib.pyplot as pyplot
     # number of rows and columns
     n_rows = 1
     n_columns = 1
