@@ -14,6 +14,9 @@ Spectrum plotting functions.
 from yt.funcs import \
     mylog
 import numpy as np
+import matplotlib.figure
+from matplotlib.backends.backend_agg import \
+    FigureCanvasAgg
 
 def plot_spectrum(wavelength, flux, filename="spectrum.png",
                   lambda_limits=None, flux_limits=None,
@@ -139,7 +142,6 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
     ... filename='raw_and_noise.png')
     """
 
-    import matplotlib.pyplot as pyplot
     # number of rows and columns
     n_rows = 1
     n_columns = 1
@@ -163,7 +165,7 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
     # create a figure (figsize is in inches)
     if figsize is None:
         figsize = (12, 4)
-    pyplot.figure(figsize=figsize)
+    figure = matplotlib.figure.Figure(figsize=figsize, frameon=True)
 
     # get the row and column number
     my_row = 0
@@ -177,7 +179,7 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
     bottom_side = top_side - panel_height
 
     # create an axes object on which we will make the plot
-    my_axes = pyplot.axes((left_side, bottom_side, panel_width, panel_height))
+    my_axes = figure.add_axes((left_side, bottom_side, panel_width, panel_height))
 
     # Are we overplotting several spectra?  or just one?
     if not (isinstance(wavelength, list) and isinstance(flux, list)):
@@ -212,13 +214,13 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
         else:
             my_axes.plot(wavelength, flux, label=labels[i])
 
-        # Do we include a title?
-        if title is not None:
-            pyplot.title(title)
-
         new_max_flux = np.max(flux)
         if new_max_flux > max_flux:
             max_flux = new_max_flux
+
+    # Do we include a title?
+    if title is not None:
+        my_axes.set_title(title)
 
     if lambda_limits is None:
         lambda_limits = (wavelength.min(), wavelength.max())
@@ -235,7 +237,7 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
     # Don't let the x-axis switch to offset values for tick labels
     my_axes.get_xaxis().get_major_formatter().set_useOffset(False)
 
-    if label is not None: pyplot.legend()
+    if label is not None: my_axes.legend()
 
     # Overplot the relevant features on the plot
     if features is not None:
@@ -253,5 +255,5 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
 
     #pyplot.tight_layout()
     mylog.info("Writing spectrum plot to png file: %s" % filename)
-    pyplot.savefig(filename)
-    pyplot.close()
+    canvas = FigureCanvasAgg(figure)
+    canvas.print_figure(filename)
