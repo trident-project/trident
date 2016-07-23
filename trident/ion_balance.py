@@ -107,7 +107,12 @@ def _redshift(field, data):
         ftype = field.name[0]
     else:
         ftype = "gas"
-    return data.ds.current_redshift * \
+    # Assure that redshift is defined for dataset--if not, assume z=0
+    try:
+        current_redshift = data.ds.current_redshift
+    except AttributeError:
+        current_redshift = 0.
+    return current_redshift * \
         np.ones(data[ftype, "density"].shape, dtype=data[ftype, "density"].dtype)
 
 def _log_T(field, data):
