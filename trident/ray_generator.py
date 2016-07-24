@@ -294,6 +294,8 @@ def make_compound_ray(parameter_filename, simulation_type,
     """
     if fields is None:
         fields = ['density', 'temperature', 'metallicity']
+    if data_filename is None:
+        data_filename = 'ray.h5'
     lr = LightRay(parameter_filename, 
                   simulation_type=simulation_type, 
                   near_redshift=near_redshift, 
