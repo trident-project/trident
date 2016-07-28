@@ -130,7 +130,8 @@ def add_ion_fields(ds, ions, ftype='gas',
                    ionization_table=None, 
                    field_suffix=False, 
                    line_database=None,
-                   force_override=False):
+                   force_override=False,
+                   particle_type='auto'):
     """
     Preferred method for adding ion fields to a yt dataset.
 
@@ -219,6 +220,14 @@ def add_ion_fields(ds, ions, ftype='gas',
         remain untouched.
         Default: False
 
+    :particle_type: boolean, optional
+
+        Set to True if you are adding ion fields to particles, as specified
+        by the 'ftype'.  Set to False if you are not.  Set to 'auto', if
+        you want the code to autodetermine if the field specified by the
+        'ftype' is particle or not.
+        Default: 'auto'
+
     **Example**
 
     To add ionized hydrogen, doubly-ionized Carbon, and all of the Magnesium
@@ -230,15 +239,16 @@ def add_ion_fields(ds, ions, ftype='gas',
     >>> trident.add_ion_fields(ds, ions=['H II', 'C III', 'Mg'])
     """
     ion_list = []
-    # Determine whether the user is trying to add a particle field 
-    # based on the nature of other fields of that ftype in the dataset
-    try:
-        field_list_arr = np.asarray(ds.derived_field_list)
-        mask = field_list_arr[:,0] == ftype
-        valid_field = tuple(field_list_arr[mask][0])
-        particle_type = ds.field_info[valid_field].particle_type
-    except IndexError:
-        raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
+    # If unspecified, determine whether the user is trying to add a particle 
+    # field based on the nature of other fields of that ftype in the dataset
+    if particle_type == 'auto':
+        try:
+            field_list_arr = np.asarray(ds.derived_field_list)
+            mask = field_list_arr[:,0] == ftype
+            valid_field = tuple(field_list_arr[mask][0])
+            particle_type = ds.field_info[valid_field].particle_type
+        except IndexError:
+            raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
 
     if ionization_table is None:
         ionization_table = ion_table_filepath()
@@ -278,12 +288,14 @@ def add_ion_fields(ds, ions, ftype='gas',
     # - X_P#_density
     for (atom, ion) in ion_list:
         add_ion_mass_field(atom, ion, ds, ftype, ionization_table,
-            field_suffix=field_suffix, force_override=force_override)
+            field_suffix=field_suffix, force_override=force_override, 
+            particle_type=particle_type)
 
 def add_ion_fraction_field(atom, ion, ds, ftype="gas",
                            ionization_table=None,
                            field_suffix=False,
-                           force_override=False):
+                           force_override=False,
+                           particle_type='auto'):
     """
     Add ion fraction field to a yt dataset for the desired ion.
 
@@ -336,6 +348,14 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
         remain untouched.
         Default: False
 
+    :particle_type: boolean, optional
+
+        Set to True if you are adding ion fields to particles, as specified
+        by the 'ftype'.  Set to False if you are not.  Set to 'auto', if
+        you want the code to autodetermine if the field specified by the
+        'ftype' is particle or not.
+        Default: 'auto'
+
     **Example**
 
     Add C IV (triply-ionized carbon) ion fraction field to dataset
@@ -347,15 +367,16 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
     >>> yt.ProjectionPlot(ds, 'x', 'C_p3_ion_fraction').save()
     """
 
-    # Determine whether the user is trying to add a particle field 
-    # based on the nature of other fields of that ftype in the dataset
-    try:
-        field_list_arr = np.asarray(ds.derived_field_list)
-        mask = field_list_arr[:,0] == ftype
-        valid_field = tuple(field_list_arr[mask][0])
-        particle_type = ds.field_info[valid_field].particle_type
-    except IndexError:
-        raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
+    # If unspecified, determine whether the user is trying to add a particle 
+    # field based on the nature of other fields of that ftype in the dataset
+    if particle_type == 'auto':
+        try:
+            field_list_arr = np.asarray(ds.derived_field_list)
+            mask = field_list_arr[:,0] == ftype
+            valid_field = tuple(field_list_arr[mask][0])
+            particle_type = ds.field_info[valid_field].particle_type
+        except IndexError:
+            raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
 
     if ionization_table is None:
         ionization_table = ion_table_filepath()
@@ -413,7 +434,8 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
 def add_ion_number_density_field(atom, ion, ds, ftype="gas",
                                  ionization_table=None,
                                  field_suffix=False,
-                                 force_override=False):
+                                 force_override=False,
+                                 particle_type='auto'):
     """
     Add ion number density field to a yt dataset for the desired ion.
 
@@ -472,6 +494,14 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
         remain untouched.
         Default: False
 
+    :particle_type: boolean, optional
+
+        Set to True if you are adding ion fields to particles, as specified
+        by the 'ftype'.  Set to False if you are not.  Set to 'auto', if
+        you want the code to autodetermine if the field specified by the
+        'ftype' is particle or not.
+        Default: 'auto'
+
     **Example**
 
     Add C IV (triply-ionized carbon) number density field to dataset
@@ -482,15 +512,16 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
     >>> trident.add_ion_number_density('C', 4, ds)
     >>> yt.ProjectionPlot(ds, 'x', 'C_p3_number_density').save()
     """
-    # Determine whether the user is trying to add a particle field 
-    # based on the nature of other fields of that ftype in the dataset
-    try:
-        field_list_arr = np.asarray(ds.derived_field_list)
-        mask = field_list_arr[:,0] == ftype
-        valid_field = tuple(field_list_arr[mask][0])
-        particle_type = ds.field_info[valid_field].particle_type
-    except IndexError:
-        raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
+    # If unspecified, determine whether the user is trying to add a particle 
+    # field based on the nature of other fields of that ftype in the dataset
+    if particle_type == 'auto':
+        try:
+            field_list_arr = np.asarray(ds.derived_field_list)
+            mask = field_list_arr[:,0] == ftype
+            valid_field = tuple(field_list_arr[mask][0])
+            particle_type = ds.field_info[valid_field].particle_type
+        except IndexError:
+            raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
 
     if ionization_table is None:
         ionization_table = ion_table_filepath()
@@ -508,7 +539,8 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
 
     add_ion_fraction_field(atom, ion, ds, ftype, ionization_table,
                            field_suffix=field_suffix, 
-                           force_override=force_override)
+                           force_override=force_override,
+                           particle_type=particle_type)
     ds.add_field((ftype, field),function=_ion_number_density,
                  units="cm**-3", particle_type=particle_type, 
                  force_override=force_override)
@@ -529,7 +561,8 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
 def add_ion_density_field(atom, ion, ds, ftype="gas",
                           ionization_table=None,
                           field_suffix=False,
-                          force_override=False):
+                          force_override=False,
+                          particle_type='auto'):
     """
     Add ion mass density field to a yt dataset for the desired ion.
 
@@ -588,6 +621,14 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
         remain untouched.
         Default: False
 
+    :particle_type: boolean, optional
+
+        Set to True if you are adding ion fields to particles, as specified
+        by the 'ftype'.  Set to False if you are not.  Set to 'auto', if
+        you want the code to autodetermine if the field specified by the
+        'ftype' is particle or not.
+        Default: 'auto'
+
     **Example**
 
     Add C IV (triply-ionized carbon) mass density field to dataset
@@ -598,15 +639,16 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
     >>> trident.add_ion_density_field('C', 4, ds)
     >>> yt.ProjectionPlot(ds, 'x', 'C_p3_density').save()
     """
-    # Determine whether the user is trying to add a particle field 
-    # based on the nature of other fields of that ftype in the dataset
-    try:
-        field_list_arr = np.asarray(ds.derived_field_list)
-        mask = field_list_arr[:,0] == ftype
-        valid_field = tuple(field_list_arr[mask][0])
-        particle_type = ds.field_info[valid_field].particle_type
-    except IndexError:
-        raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
+    # If unspecified, determine whether the user is trying to add a particle 
+    # field based on the nature of other fields of that ftype in the dataset
+    if particle_type == 'auto':
+        try:
+            field_list_arr = np.asarray(ds.derived_field_list)
+            mask = field_list_arr[:,0] == ftype
+            valid_field = tuple(field_list_arr[mask][0])
+            particle_type = ds.field_info[valid_field].particle_type
+        except IndexError:
+            raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
 
     if ionization_table is None:
         ionization_table = ion_table_filepath()
@@ -625,7 +667,8 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
 
     add_ion_number_density_field(atom, ion, ds, ftype, ionization_table,
                                  field_suffix=field_suffix,
-                                 force_override=force_override)
+                                 force_override=force_override,
+                                 particle_type=particle_type)
     ds.add_field((ftype, field), function=_ion_density,
                  units="g/cm**3", particle_type=particle_type,
                  force_override=force_override)
@@ -646,7 +689,8 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
 def add_ion_mass_field(atom, ion, ds, ftype="gas",
                        ionization_table=None,
                        field_suffix=False,
-                       force_override=False):
+                       force_override=False,
+                       particle_type='auto'):
     """
     Add ion mass field to a yt dataset for the desired ion.
 
@@ -706,6 +750,14 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
         remain untouched.
         Default: False
 
+    :particle_type: boolean, optional
+
+        Set to True if you are adding ion fields to particles, as specified
+        by the 'ftype'.  Set to False if you are not.  Set to 'auto', if
+        you want the code to autodetermine if the field specified by the
+        'ftype' is particle or not.
+        Default: 'auto'
+
     **Example**
 
     Add C IV (triply-ionized carbon) mass field to dataset
@@ -716,15 +768,16 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
     >>> trident.add_ion_mass_field('C', 4, ds)
     >>> yt.ProjectionPlot(ds, 'x', 'C_p3_mass').save()
     """
-    # Determine whether the user is trying to add a particle field 
-    # based on the nature of other fields of that ftype in the dataset
-    try:
-        field_list_arr = np.asarray(ds.derived_field_list)
-        mask = field_list_arr[:,0] == ftype
-        valid_field = tuple(field_list_arr[mask][0])
-        particle_type = ds.field_info[valid_field].particle_type
-    except IndexError:
-        raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
+    # If unspecified, determine whether the user is trying to add a particle 
+    # field based on the nature of other fields of that ftype in the dataset
+    if particle_type == 'auto':
+        try:
+            field_list_arr = np.asarray(ds.derived_field_list)
+            mask = field_list_arr[:,0] == ftype
+            valid_field = tuple(field_list_arr[mask][0])
+            particle_type = ds.field_info[valid_field].particle_type
+        except IndexError:
+            raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
 
     if ionization_table is None:
         ionization_table = ion_table_filepath()
@@ -743,7 +796,8 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
 
     add_ion_density_field(atom, ion, ds, ftype, ionization_table,
                           field_suffix=field_suffix,
-                          force_override=force_override)
+                          force_override=force_override,
+                          particle_type=particle_type)
     ds.add_field((ftype, field), function=_ion_mass, units=r"g",
                  particle_type=particle_type,
                  force_override=force_override)
