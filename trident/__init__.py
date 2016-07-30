@@ -41,7 +41,8 @@ from trident.plotting import \
 
 from trident.spectrum_generator import \
     SpectrumGenerator, \
-    valid_instruments
+    valid_instruments, \
+    load_spectrum
 
 from trident.utilities import \
     parse_config, \
