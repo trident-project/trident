@@ -37,6 +37,9 @@ from trident.plotting import \
 from trident.utilities import \
     trident_path, \
     parse_config
+from yt.utilities.on_demand_imports import \
+    _h5py, \
+    _astropy
 
 # Valid instruments
 valid_instruments = \
@@ -597,7 +600,56 @@ class SpectrumGenerator(AbsorptionSpectrum):
         from astropy.convolution import convolve
         self.flux_field = convolve(self.flux_field, lsf.kernel)
 
-    def load_spectrum(self, filename=None):
+    def load_spectrum(self, lambda_field=None, tau_field=None, flux_field=None):
+        """
+        Load data arrays into an existing spectrum object.
+
+        **Parameters**
+
+        :lambda_field: array
+
+            The array of valid wavelengths
+            Default: None
+
+        :tau_field: array
+
+            The array of optical depths for the corresponding wavelengths
+            Default: None
+
+        :flux_field: array
+
+            The array of flux values for the corresponding wavelengths
+            Default: None
+
+        **Example**
+
+        Loading a custom set of data into an existing SpectrumGenerator object:
+
+        >>> import trident
+        >>> import numpy as np
+        >>> lambda_field = np.arange(1200,1400)
+        >>> flux_field = np.ones(len(lambda_field))
+        >>> sg = trident.SpectrumGenerator('COS')
+        >>> sg.load_spectrum(lambda_field=lambda_field, flux_field=flux_field)
+        >>> sg.plot_spectrum('temp.png')
+        """
+        if lambda_field is not None:
+            self.lambda_field = lambda_field
+            self.lambda_min = self.lambda_field[0]
+            self.lambda_max = self.lambda_field[-1]
+            self.n_lambda = len(self.lambda_field)
+            self.dlambda = self.lambda_field[1] - self.lambda_field[0]
+        if tau_field is not None:
+            self.tau_field = tau_field
+        if flux_field is not None:
+            self.flux_field = flux_field
+        if not len(self.flux_field) == len(self.lambda_field):
+            raise RuntimeError("Loaded spectra must have the same dimensions"
+                               "for lambda_field and flux_field.  Currently:"
+                               "len(lambda_field) = %d, len(flux_field) = %d" 
+                               % (self.lambda_field, self.flux_field))
+
+    def _load_spectrum_ascii(self, filename):
         """
         Load a previously generated spectrum.
 
@@ -862,3 +914,99 @@ class SpectrumGenerator(AbsorptionSpectrum):
         disp += "    flux_field: %s\n" % self.flux_field
         disp += "%s" % self.instrument
         return disp
+
+def load_spectrum(filename, format='auto', instrument=None, lsf_kernel=None,
+                  line_database='lines.txt', ionization_table=None):
+    """
+    Load a previously saved spectrum from disk.
+
+    **Parameters**
+
+    :filename: string
+    
+        Filename of the saved spectrum.
+
+    :format: string
+    
+        File format of the saved spectrum file.  Valid values are: "auto", 
+        "hdf5", "fits", and "ascii".  If you select "auto", the code will
+        attempt to auto-detect the file format from the extension of the data
+        file: ".h5" or ".hdf5" -> hdf5, ".fits" or ".FITS" -> fits, all other
+        -> ascii.
+        Default: "auto"
+
+    :instrument: string, optional
+    
+        The telescope+instrument combination to use for the loaded spectrum.
+        Default: None
+
+    :lsf_kernel: string, optional
+
+        The filename for the LSF kernel to use for the loaded spectrum.
+        Default: None
+
+    :line_database: string, optional
+
+        A text file listing the various lines to insert into the line database
+        to use for the loaded spectrum.
+        Default: None
+
+    :ionization_table: hdf5 file, optional
+
+        An HDF5 file used for computing the ionization fraction of the gas
+        based on its density, temperature, metallicity, and redshift.  
+        Default: None
+
+    **Example**
+
+    Create a simple spectrum, save it to disk, and load it back as a new 
+    SpectrumGenerator object.
+
+    >>> import trident
+    >>> ray = trident.make_onezone_ray()
+    >>> sg = trident.SpectrumGenerator('COS')
+    >>> sg.make_spectrum(ray)
+    >>> sg.save_spectrum('spec.h5')
+    >>> sg_copy = trident.load_spectrum('spec.h5')
+    """
+    if format == 'auto':
+        if filename.endswith('.h5') or filename.endswith('.hdf5'):
+            format = 'hdf5'
+        elif filename.endswith('.fits') or filename.endswith('.FITS'):
+            format = 'fits'
+        else:
+            format = 'ascii'
+    if format == 'hdf5':
+        f = _h5py.File(filename, 'r')    
+        lambda_field = f['wavelength'].value
+        flux_field = f['flux'].value
+        tau_field = f['tau'].value
+    elif format == 'fits':
+        pyfits = _astropy.pyfits
+        hdulist = pyfits.open(filename)
+        data = hdulist[1].data
+        lambda_field = data['wavelength']
+        tau_field = None
+        # Switch above line to tau_field = data['tau'] when yt PR #2314 is merged.
+        flux_field = data['flux']
+    elif format == 'ascii':
+        data = np.genfromtxt(filename)
+        lambda_field = data[:,0]
+        tau_field = data[:,1]
+        flux_field = data[:,2]
+    else:
+        raise RuntimeError("load_spectrum 'format' keyword must be 'hdf5', 'ascii', 'fits', or 'auto'")
+        
+    lambda_min = lambda_field[0]
+    lambda_max = lambda_field[-1]
+    n_lambda = lambda_field.size
+    sg = SpectrumGenerator(instrument=instrument, lambda_min=lambda_min,
+                           lambda_max=lambda_max, n_lambda=n_lambda, 
+                           lsf_kernel=lsf_kernel, line_database=line_database,
+                           ionization_table=ionization_table)
+    if tau_field is not None:
+        sg.load_spectrum(lambda_field=lambda_field, tau_field=tau_field, 
+                         flux_field=flux_field)
+    else:
+        sg.load_spectrum(lambda_field=lambda_field, flux_field=flux_field)
+    return sg
