@@ -5,6 +5,22 @@ Installation
 
 Follow these steps to successfully install Trident and its dependencies.
 
+.. _versions:
+
+Versions of Trident
+-------------------
+
+Currently, there are two versions of Trident: the `stable version 
+<http://trident.readthedocs.io/en/stable>`_, and the `developent version
+<http://trident.readthedocs.io/en/latest>`_.  The stable version is tried,
+tested, and stable.  The development version has new features under
+current development, which may lead to the occasional error but is generally
+very stable too.  The installation steps are slightly different between the two
+(easier for stable than dev) so pay attention in the steps below.
+Don't worry if you want to change later, you can always 
+switch between the two versions easily enough by following the directions
+in :ref:`uninstallation`.
+
 .. _step-1:
 
 Step 1: Install yt  
@@ -12,17 +28,37 @@ Step 1: Install yt
 
 `yt <http://yt-project.org>`_ is a python-based software package for the 
 analysis and visualization of a variety of different datasets, including 
-astrophysical hydrodynamical data.  Installation of Trident currently 
-requires that you install the development version of yt as described below.  
-If you already have a working installation of the development branch of yt, 
-then skip to step 2.
+astrophysical hydrodynamical data.  yt is a dependency of Trident, so you
+must install it before Trident will work.  There are several methods for 
+installing yt, which are all discussed in detail in the `yt installation 
+documentation <http://yt-project.org/doc/installing.html>`_.  
 
-There are several methods for installing yt, which are all discussed in 
-detail in the `yt installation documentation 
-<http://yt-project.org/docs/dev/installing.html>`_.  Note that Trident 
-currently requires the development branch of yt to work properly.
-If you're just starting out, we recommend using the all-in-one install script
-with ``INST_CONDA=1`` and ``INST_YT_SOURCE=1``::
+Installing yt for the Stable Release
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The stable release of Trident runs off of the latest stable release of yt.
+You can install yt by following any of the methods on its `installation page
+<http://yt-project.org/doc/installing.html>`_, but we find that the easiest
+is to use the all-in-one install script::
+
+    $ wget http://bitbucket.org/yt_analysis/yt/raw/stable/doc/install_script.sh
+    $ bash install_script.py
+
+If you already have the development version of yt, you can skip the above
+steps and just update to the stable version::
+
+    $ cd <path/to/yt>
+    $ hg up stable
+
+Installing yt for the Development Version
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The development version of Trident runs off of the development version of yt,
+since much of the functionality is co-developed between the two packages.
+You can install yt by following any of the methods on its `installation page
+<http://yt-project.org/docs/dev/installing.html>`_, but we find that the 
+easiest is to use the all-in-one install script and build from source
+(i.e. with settings ``INST_CONDA=1`` and ``INST_YT_SOURCE=1``)::
 
     $ wget http://bitbucket.org/yt_analysis/yt/raw/yt/doc/install_script.sh
     $ ... edit the install_script.sh to mark INST_YT_SOURCE=1 ...
@@ -34,14 +70,6 @@ with ``INST_CONDA=1`` and ``INST_YT_SOURCE=1``::
 Step 2: Install Trident
 -----------------------
 
-There are two ways to install the Trident code itself.  The easiest 
-method is to use pip to install the most recent stable version of Trident.  
-Alternatively, you can install the development version of Trident--the version 
-appropriate for users who want to hack on the code and get access 
-to features not yet available in the stable release.  Don't worry, you can 
-always switch between the two versions easily enough by following the directions
-in :ref:`uninstallation`.
-
 Installing the Stable Release
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -49,8 +77,8 @@ You can install the most recent stable release of Trident using pip::
 
     $ pip install trident
 
-Installing the Development Branch
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Installing the Development Version
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To get the development version, you'll pull the source code from its 
 repository using mercurial, which should be installed as part of your yt 
@@ -164,10 +192,19 @@ Updating to the Latest Version
 ------------------------------
 
 If you want more recent features, you should periodically update your Trident
-codebase.  If you installed the "stable" version of the code using pip, then 
-simply run::
+codebase.  
+
+Updating to the Latest Stable Release
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you installed the "stable" version of the code using pip, then 
+you can easily update your trident and yt installations::
 
     $ pip install -U trident
+    $ yt update
+
+Updating to the Latest Development Version
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If you installed the "development" version of the code, it's slightly more
 involved::
@@ -176,8 +213,8 @@ involved::
     $ hg pull
     $ hg up
     $ pip install -e .
+    $ yt update
 
-Don't forget to update your version of yt too.  Much of the latest functionality
-in Trident is built on recently added functionality in yt.  You can update it
-by following the `yt update instructions 
+For more information on updating your yt installation, see the `yt update 
+instructions 
 <http://yt-project.org/docs/dev/installing.html#updating-yt-and-its-dependencies>`_.
