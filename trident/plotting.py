@@ -33,7 +33,9 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
 
     In addition, it can plot several spectra on the same axes simultaneously
     by passing a list of arrays to the ``wavelength``, ``flux`` arguments 
-    (and optionally to the ``label`` and ``step`` keywords)..
+    (and optionally to the ``label`` and ``step`` keywords).
+
+    Returns the Matplotlib Figure object for further processing.
 
     **Parameters**
 
@@ -112,6 +114,10 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
         ('Wavelength [$\\AA$]', 'Relative Flux').
         Default: None
 
+    **Returns**
+
+    Matplotlib Figure object for further processing
+
     **Example**
 
     Plot a flat spectrum
@@ -128,18 +134,14 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
 
     >>> import trident
     >>> ray = trident.make_onezone_ray(column_densities={'H_p0_number_density':1e21})
-    >>> sg = trident.SpectrumGenerator(lambda_min=1200, lambda_max=1300, dlambda=0.5)
-    >>> sg.make_spectrum(ray, lines=['Ly a'])
-    >>> sg.save_spectrum('spec.h5')
-    >>> sg.add_gaussian_noise(10)
-    >>> sg.save_spectrum('noise.h5')
-    >>> sg1 = trident.SpectrumGenerator(lambda_min=1200, lambda_max=1300, dlambda=0.5)
-    >>> sg2 = trident.SpectrumGenerator(lambda_min=1200, lambda_max=1300, dlambda=0.5)
-    >>> sg1.load_spectrum('spec.h5')
-    >>> sg2.load_spectrum('noise.h5')
-    >>> trident.plot_spectrum([sg1.lambda_field, sg2.lambda_field], 
-    ... [sg1.flux_field, sg2.flux_field], stagger=0, step=[False, True],
-    ... filename='raw_and_noise.png')
+    >>> sg_final = trident.SpectrumGenerator(lambda_min=1200, lambda_max=1300, dlambda=0.5)
+    >>> sg_final.make_spectrum(ray, lines=['Ly a'])
+    >>> sg_final.save_spectrum('spec_raw.h5')
+    >>> sg_final.add_gaussian_noise(10)
+    >>> sg_raw = trident.load_spectrum('spec_raw.h5')
+    >>> trident.plot_spectrum([sg_raw.lambda_field, sg_final.lambda_field], 
+    ... [sg_raw.flux_field, sg_final.flux_field], stagger=0, step=[False, True],
+    ... label=['Raw', 'Noisy'], filename='raw_and_noise.png')
     """
 
     # number of rows and columns
@@ -251,9 +253,8 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
             my_axes.text(wavelength, text_location, label, 
                     horizontalalignment='right', 
                     verticalalignment='top', rotation='vertical')
-                    #transform=ax.transAxes) 
 
-    #pyplot.tight_layout()
     mylog.info("Writing spectrum plot to png file: %s" % filename)
     canvas = FigureCanvasAgg(figure)
     canvas.print_figure(filename)
+    return figure
