@@ -26,6 +26,7 @@ Generating Spectra
    ~trident.LSF
    ~trident.Line
    ~trident.LineDatabase
+   ~trident.load_spectrum
 
 Plotting Spectra
 ----------------
