@@ -69,3 +69,43 @@ def test_save_load_spectrum_fits():
     sg.plot_spectrum(filename=os.path.join(dirpath, 'spec.png'))
     shutil.rmtree(dirpath)
     assert True
+
+def test_create_spectrum_all_lines():
+    """
+    Test that we can create a basic spectrum with all available lines
+    """
+    dirpath = tempfile.mkdtemp()
+    filename = os.path.join(dirpath, 'ray.h5')
+    ray = make_onezone_ray(filename=filename)
+    sg = SpectrumGenerator(lambda_min=1200, lambda_max=1300, dlambda=0.5)
+    sg.make_spectrum(ray, lines='all')
+    sg.plot_spectrum(os.path.join(dirpath, 'spec.png'))
+    shutil.rmtree(dirpath)
+    assert True
+
+def test_create_spectrum_H_O_lines():
+    """
+    Test that we can create a basic spectrum with hydrogen and oxygen lines
+    """
+    dirpath = tempfile.mkdtemp()
+    filename = os.path.join(dirpath, 'ray.h5')
+    ray = make_onezone_ray(filename=filename)
+    sg = SpectrumGenerator(lambda_min=1200, lambda_max=1300, dlambda=0.5)
+    sg.make_spectrum(ray, lines=['H', 'O'])
+    sg.plot_spectrum(os.path.join(dirpath, 'spec.png'))
+    shutil.rmtree(dirpath)
+    assert True
+
+def test_create_spectrum_H_lines_no_continuum():
+    """
+    Test that we can create a basic spectrum with H I lines but no Lyman 
+    continuum
+    """
+    dirpath = tempfile.mkdtemp()
+    filename = os.path.join(dirpath, 'ray.h5')
+    ray = make_onezone_ray(filename=filename)
+    sg = SpectrumGenerator(lambda_min=1200, lambda_max=1300, dlambda=0.5)
+    sg.make_spectrum(ray, lines=['H I'], ly_continuum=False)
+    sg.plot_spectrum(os.path.join(dirpath, 'spec.png'))
+    shutil.rmtree(dirpath)
+    assert True
