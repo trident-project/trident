@@ -210,6 +210,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                       output_file=None,
                       use_peculiar_velocity=True, 
                       observing_redshift=0.0,
+                      Ly_continuum=True,
                       njobs="auto"):
         """
         Make a spectrum from ray data depositing the desired lines.  Make sure
@@ -252,6 +253,12 @@ class SpectrumGenerator(AbsorptionSpectrum):
             This is the value of the redshift at which the observer of this
             spectrum exists.  In most cases, this will be a redshift of 0.
             Default: 0.
+
+        :Ly_continuum: optional, boolean
+            
+            If any H I lines are used in the line list, this assures a
+            Lyman continuum will be included in the spectral generation.
+            Default: True
 
         :njobs: optional, int or "auto"
 
@@ -312,6 +319,17 @@ class SpectrumGenerator(AbsorptionSpectrum):
                           float(line.gamma),
                           atomic_mass[line.element],
                           label_threshold=1e3)
+
+        # If there are H I lines present, add a Lyman continuum source
+        # Lyman continuum source starts at wavelength where last Lyman line
+        # is deposited (Ly 40), as opposed to true Lyman Limit at 911.763 A
+        # so there won't be a gap between lines and continuum.  Using 
+        # power law of index 3.0 and normalization to match the opacity of
+        # the final Lyman line into the FUV.
+        H_lines = self.line_database.select_lines(source_list=active_lines, 
+                                                  element='H', ion_state='I')
+        if (len(H_lines) > 0) and (Ly_continuum == True):
+            self.add_continuum('Ly C', H_lines[0].field, 912.32336, 1.6e17, 3.0)
 
         AbsorptionSpectrum.make_spectrum(self, ray,
                                          output_file=None,
