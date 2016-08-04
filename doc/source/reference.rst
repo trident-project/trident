@@ -26,7 +26,6 @@ Generating Spectra
    ~trident.LSF
    ~trident.Line
    ~trident.LineDatabase
-   ~trident.load_spectrum
 
 Plotting Spectra
 ----------------
@@ -35,6 +34,7 @@ Plotting Spectra
    :toctree: generated/
    :nosignatures:
 
+   ~trident.load_spectrum
    ~trident.plot_spectrum
 
 Adding Ion Fields
