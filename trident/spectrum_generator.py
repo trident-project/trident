@@ -210,7 +210,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                       output_file=None,
                       use_peculiar_velocity=True, 
                       observing_redshift=0.0,
-                      Ly_continuum=True,
+                      ly_continuum=True,
                       njobs="auto"):
         """
         Make a spectrum from ray data depositing the desired lines.  Make sure
@@ -254,10 +254,14 @@ class SpectrumGenerator(AbsorptionSpectrum):
             spectrum exists.  In most cases, this will be a redshift of 0.
             Default: 0.
 
-        :Ly_continuum: optional, boolean
+        :ly_continuum: optional, boolean
             
             If any H I lines are used in the line list, this assures a
             Lyman continuum will be included in the spectral generation.
+            Lyman continuum begins at final Lyman line deposited (Ly 39 = 
+            912.32 A) not at formal Lyman Limit (911.76 A) so as to not have
+            a gap between final Lyman lines and continuum.  Uses power law
+            of index 3 and normalization to match opacity of final Lyman lines.
             Default: True
 
         :njobs: optional, int or "auto"
