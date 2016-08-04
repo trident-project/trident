@@ -373,30 +373,34 @@ class LineDatabase:
             subsets = [subsets]
         for val in subsets:
             # try to add line based on identifier
-            lines_subset = self.select_lines(identifier=val)
-            if len(lines_subset) > 0:
+            new_lines = self.select_lines(identifier=val)
+            if len(new_lines) > 0:
+                self.lines_subset.extend(new_lines)
                 continue
             val = val.split()
             if len(val) == 1:
                 # add all lines associated with an element
-                lines_subset = self.select_lines(val[0])
-                if len(lines_subset) == 0:
+                new_lines = self.select_lines(val[0])
+                self.lines_subset.extend(new_lines)
+                if len(new_lines) == 0:
                     mylog.info("No lines found in subset '%s'." % val[0])
             elif len(val) == 2:
                 # add all lines associated with an ion
-                lines_subset = self.select_lines(val[0], val[1])
-                if len(lines_subset) == 0:
+                new_lines = self.select_lines(val[0], val[1])
+                self.lines_subset.extend(new_lines)
+                if len(new_lines) == 0:
                     mylog.info("No lines found in subset '%s %s'." % \
                                (val[0], val[1]))
             elif len(val) == 3:
                 # add only one line
-                lines_subset = self.select_lines(val[0], val[1], val[2])
-                if len(lines_subset) == 0:
+                new_lines = self.select_lines(val[0], val[1], val[2])
+                self.lines_subset.extend(new_lines)
+                if len(new_lines) == 0:
                     mylog.info("No lines found in subset '%s %s %s'." %
                                (val[0], val[1], val[2]))
 
         # Get rid of duplicates in subset and re-sort
-        self.lines_subset = uniquify(lines_subset)
+        self.lines_subset = uniquify(self.lines_subset)
         return self.lines_subset
 
     def parse_subset_to_ions(self, subsets=None):
