@@ -248,7 +248,7 @@ class LineDatabase:
                           identifier=identifier)
 
     def select_lines(self, element=None, ion_state=None, wavelength=None,
-                    identifier=None):
+                    identifier=None, source_list=None):
         """
         Select lines based on atom, ion state, identifier, and/or wavelength.
         Once you've created a LineDatabase, you can subselect certain lines 
@@ -262,59 +262,66 @@ class LineDatabase:
 
             The element of the transition using element's symbol on periodic table
             Example: 'H', 'C', 'Mg'
+            Default: None
 
         :ion_state: string, optional
         
             The roman numeral representing the ionic state of the transition
             Example: 'I' for neutral species, 'II' for singly ionized, etc.
+            Default: None
 
         :wavelength: float, optional
 
             The wavelength of the transition in angstroms
             Example: 1216 for Lyman alpha
+            Default: None
 
         :identifier: string, optional
 
             An optional identifier for the transition
             Example: 'Ly a' for Lyman alpha
+            Default: None
+
+        :source_list: list of :class:`~trident.Line` objects, optional
+
+            The source list from which to select lines.  If set to None,
+            use the LineDatabase's list 'lines_all'.
+            Default: None
 
         **Returns**
             
-        :counter: int 
+        :selected_lines: list 
 
-            A counter indicating how many lines were selected and added to 
-            the line_subset list attribute.
+            A list of which lines were selected.
 
         **Example**
         
         >>> ldb = LineDatabase('lines.txt')
-        >>> ldb.select_lines(element='Mg', ion_state='II')
+        >>> selected_lines = ldb.select_lines(element='Mg', ion_state='II')
         """
-        counter = 0
-        for line in self.lines_all:
+        if source_list is None:
+            source_list = self.lines_all
+        selected_lines = []
+        for line in source_list:
             # identifier set; use it to find line
             if identifier is not None:
                 if line.identifier == identifier:
-                    self.lines_subset.append(line)
-                    counter += 1
+                    selected_lines.append(line)
             # element, ion, and wavelength set; use them to find line
             elif ion_state is not None and wavelength is not None:
                 if line.element == element and line.ion_state == ion_state \
                    and round(float(line.wavelength), 0) == \
                        round(float(wavelength), 0):
-                    self.lines_subset.append(line)
-                    counter += 1
+                    selected_lines.append(line)
             # element and ion set; use them to find line
             elif ion_state is not None:
                 if line.element == element and line.ion_state == ion_state:
-                    self.lines_subset.append(line)
-                    counter += 1
+                    selected_lines.append(line)
             # only element set; use it to find line
             else:
                 if line.element == element:
-                    self.lines_subset.append(line)
-                    counter += 1
-        return counter
+                    selected_lines.append(line)
+        return selected_lines
 
     def parse_subset(self, subsets='all'):
         """
@@ -354,7 +361,7 @@ class LineDatabase:
         >>> lines = ldb.parse_subset(['C', 'Mg II', 'H I 1216'])
         >>> print lines
         """
-        # if no subsets specified, then use all lines available
+        # if all specified, then use all lines available
         if subsets is 'all':
             self.lines_subset = self.lines_all
             mylog.info("Using all %d available lines in '%s'." % \
@@ -366,26 +373,30 @@ class LineDatabase:
             subsets = [subsets]
         for val in subsets:
             # try to add line based on identifier
-            if self.select_lines(identifier=val) > 0:
+            lines_subset = self.select_lines(identifier=val)
+            if len(lines_subset) > 0:
                 continue
             val = val.split()
             if len(val) == 1:
                 # add all lines associated with an element
-                if self.select_lines(val[0]) == 0:
+                lines_subset = self.select_lines(val[0])
+                if len(lines_subset) == 0:
                     mylog.info("No lines found in subset '%s'." % val[0])
             elif len(val) == 2:
                 # add all lines associated with an ion
-                if self.select_lines(val[0], val[1]) == 0:
+                lines_subset = self.select_lines(val[0], val[1])
+                if len(lines_subset) == 0:
                     mylog.info("No lines found in subset '%s %s'." % \
                                (val[0], val[1]))
             elif len(val) == 3:
                 # add only one line
-                if self.select_lines(val[0], val[1], val[2]) == 0:
+                lines_subset = self.select_lines(val[0], val[1], val[2])
+                if len(lines_subset) == 0:
                     mylog.info("No lines found in subset '%s %s %s'." %
                                (val[0], val[1], val[2]))
 
         # Get rid of duplicates in subset and re-sort
-        self.lines_subset = uniquify(self.lines_subset)
+        self.lines_subset = uniquify(lines_subset)
         return self.lines_subset
 
     def parse_subset_to_ions(self, subsets=None):
