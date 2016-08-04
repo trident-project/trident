@@ -332,7 +332,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         # the final Lyman line into the FUV.
         H_lines = self.line_database.select_lines(source_list=active_lines, 
                                                   element='H', ion_state='I')
-        if (len(H_lines) > 0) and (Ly_continuum == True):
+        if (len(H_lines) > 0) and (ly_continuum == True):
             self.add_continuum('Ly C', H_lines[0].field, 912.32336, 1.6e17, 3.0)
 
         AbsorptionSpectrum.make_spectrum(self, ray,
