@@ -44,10 +44,14 @@ is to use the all-in-one install script::
     $ wget http://bitbucket.org/yt_analysis/yt/raw/stable/doc/install_script.sh
     $ bash install_script.py
 
-If you already have the development version of yt, you can skip the above
-steps and just update to the stable version::
+If you already have conda installed, it's even faster and easier::
 
-    $ cd <path/to/yt>
+    $ conda install -c conda-forge yt
+
+Finally, if you already have the development version of yt, you can skip the 
+above steps and just update to the stable version::
+
+    $ cd <path/to/yt/repo>
     $ hg up stable
 
 Installing yt for the Development Version
@@ -63,6 +67,11 @@ easiest is to use the all-in-one install script and build from source
     $ wget http://bitbucket.org/yt_analysis/yt/raw/yt/doc/install_script.sh
     $ ... edit the install_script.sh to mark INST_YT_SOURCE=1 ...
     $ bash install_script.sh
+
+Alternatively, if you already have conda installed, you can get the most
+recent nightly build of the development version of yt with::
+
+    $ conda install -c http://use.yt/with_conda yt
 
 .. _install-trident:
 .. _step-2:
@@ -175,7 +184,7 @@ If you installed the dev version of Trident, you'll have to delete the source
 as well::
 
     $ pip uninstall trident
-    $ rm -rf /path/to/trident/source
+    $ rm -rf </path/to/trident/repo>
 
 If you want to switch between the two stable and development versions, just
 *uninstall* your version of the code as above, and then install the desired
@@ -209,7 +218,7 @@ Updating to the Latest Development Version
 If you installed the "development" version of the code, it's slightly more
 involved::
 
-    $ cd <path/to/trident>
+    $ cd <path/to/trident/repo>
     $ hg pull
     $ hg up
     $ pip install -e .
