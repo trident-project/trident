@@ -65,11 +65,11 @@ def test_line_database_from_input():
 
 def test_select_lines_from_line_database():
     ld = LineDatabase('lines.txt')
-    assert ld.select_lines('Ne') == 8 # 8 listed Ne lines
-    assert ld.select_lines('O', 'VI') == 2 # 2 listed OVI lines
-    assert ld.select_lines('H', 'I') == 39 # 39 listed HI lines
-    assert ld.select_lines('H', 'I', 1216) == 1 # 1 listed HI lines
-    assert ld.select_lines(identifier='Ly b') == 1 # 1 listed Ly beta
+    assert len(ld.select_lines('Ne')) == 8 # 8 listed Ne lines
+    assert len(ld.select_lines('O', 'VI')) == 2 # 2 listed OVI lines
+    assert len(ld.select_lines('H', 'I')) == 39 # 39 listed HI lines
+    assert len(ld.select_lines('H', 'I', 1216)) == 1 # 1 listed HI lines
+    assert len(ld.select_lines(identifier='Ly b')) == 1 # 1 listed Ly beta
 
 def test_parse_subset_from_line_database():
     ld = LineDatabase('lines.txt')
