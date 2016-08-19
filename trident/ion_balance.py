@@ -903,7 +903,6 @@ def _ion_number_density(field, data):
         # then we will want to remove the "to_nH" below
         # (this applies above as well)
         # data['H_nuclei_density']
-    field[field <= 0.0] = 1.e-50
     # the "to_nH", does the final conversion to number density
     return field * to_nH
 
