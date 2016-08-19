@@ -84,7 +84,7 @@ class Line:
         self.wavelength = wavelength
         self.gamma = gamma
         self.f_value = f_value
-        self.name = '%s%s %d' % (element, ion_state, round(float(wavelength), 0))
+        self.name = '%s %s %d' % (element, ion_state, round(float(wavelength), 0))
         if identifier is None:
             identifier = self.name
         self.identifier = identifier
