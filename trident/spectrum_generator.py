@@ -88,7 +88,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         The telescope+instrument combination to use.  Currently, the Cosmic
         Origins Spectrograph 'COS' is the only automatic option, but this should
         automatically set ``lambda_min`` = 1150, ``lambda_max`` = 1450, 
-        ``dlambda`` = 0.1, and ``lsf_kernel`` = 'COS_avg.txt'.  If you're going
+        ``dlambda`` = 0.1, and ``lsf_kernel`` = 'avg_COS.txt'.  If you're going
         to set ``lambda_min``, ``lambda_max``, et al manually, leave this
         set to None.
         Default: None
