@@ -948,7 +948,7 @@ def _ion_fraction_field(field, data):
     fraction[fraction <= fraction_zero_point] = 0.0
     if not isinstance(data, FieldDetector) and (fraction > 1.0).any():
         greater_than = fraction > 1.0
-        mylog.warning("An ion fraction greater than 1 was calculated--capping at 1. ")
+        mylog.warning("%s > 1 was calculated. Capping at 1." % field_name)
         mylog.warning("Original values: %s" % fraction[greater_than])
         fraction = np.clip(fraction, 0.0, 1.0)
     return fraction
