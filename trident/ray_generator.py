@@ -21,11 +21,28 @@ from yt.convenience import \
 from yt.funcs import \
     mylog, \
     YTArray
+from trident.line_database import \
+    LineDatabase, \
+    uniquify
+from trident.roman import \
+    from_roman
+from yt.data_objects.static_output import \
+    Dataset
+from trident.ion_balance import \
+    add_ion_number_density_field, \
+    atomic_number
+from trident.utilities import \
+    ion_table_filepath
+import string
+from yt.geometry.particle_geometry_handler import \
+    ParticleIndex
 
 def make_simple_ray(dataset_file, start_position, end_position,
-                    fields=None, solution_filename=None, 
+                    lines=None, fields=None, solution_filename=None, 
                     data_filename=None, trajectory=None, redshift=None, 
-                    setup_function=None, load_kwargs=None):
+                    setup_function=None, load_kwargs=None,
+                    ftype="gas", line_database=None, 
+                    ionization_table=None):
     """
     Create a yt LightRay object for a single dataset (eg CGM).  This is a 
     wrapper function around yt's LightRay interface to reduce some of the 
@@ -52,6 +69,11 @@ def make_simple_ray(dataset_file, start_position, end_position,
     or it can load a dataset if you pass it the dataset's filename and 
     optionally any load_kwargs or setup_function necessary to load/process it
     properly before generating the LightRay object.
+
+    If using the :lines: keyword with an SPH dataset, it is very important
+    to set the :ftype: keyword appropriately, or you may end up calculating 
+    ion fields by interpolating on data already smoothed to the grid.  This is
+    generally not desired.
     
     **Parameters**
 
@@ -67,11 +89,33 @@ def make_simple_ray(dataset_file, start_position, end_position,
         ray.  If providing a raw list, coordinates are assumed to be in 
         code length units, but if providing a YTArray, any units can be
         specified.
+                    lines=None, fields=None, solution_filename=None, 
+                    data_filename=None, trajectory=None, redshift=None, 
+                    line_database=None, ftype="gas", 
+                    setup_function=None, load_kwargs=None,
+                    ionization_table=None):
+
+    :lines: optional, list of strings
+
+        List of strings that determine which fields will be added to the ray
+        to support line deposition to an absorption line spectrum.  List can
+        include things like "C", "O VI", or "Mg II ####", where #### would be
+        the integer wavelength value of the desired line.  If set to 'all',
+        includes all lines available in LineDatabase. :lines: can be used
+        in conjunction with :fields: as they will not override each other.
+        If using the :lines: keyword with an SPH dataset, it is very important
+        to set the :ftype: keyword appropriately, or you may end up calculating 
+        ion fields by interpolating on data already smoothed to the grid.  
+        This is generally not desired.
+        Default: None
 
     :fields: optional, list of strings
 
         The list of which fields to store in the output LightRay.  If none
         selected, defaults to ['density', 'temperature', 'metallicity'].
+        See :lines: keyword for additional functionality that will add fields
+        necessary for creating absorption line spectra for certain line 
+        features.
         Default: None
 
     :solution_filename: optional, string
@@ -115,6 +159,36 @@ def make_simple_ray(dataset_file, start_position, end_position,
         Tipsy, etc. for passing in "bounding_box", "unit_base", etc.
         Default: None
 
+    :ftype: optional, string
+
+        For use with the :lines: keyword.  It is the field type of the fields to 
+        be added.  It is the first string in the field tuple e.g. "gas" in
+        ("gas", "O_p5_number_density"). For SPH datasets, it is important to
+        set this to the field type of the gas particles in your dataset, 
+        as it determines the source data for the ion interpolation.  If you
+        leave it set to "gas", it will calculate the ion fields based on the
+        hydro fields already smoothed on the grid, which is usually not 
+        desired.
+        Default: "gas"
+
+    :line_database: optional, string
+
+        For use with the :lines: keyword. If you want to limit the available
+        ion fields to be added to those available in a particular subset,
+        you can use a :class:`~trident.LineDatabase`.  This means when you
+        set :lines:='all', it will only use those ions present in the 
+        corresponding LineDatabase.  If :LineDatabase: is set to None,
+        and :lines:='all', it will add every ion of every element up to Zinc.
+        Default: None
+
+    :ionization_table: optional, string
+
+        For use with the :lines: keyword.  Path to an appropriately formatted
+        HDF5 table that can be used to compute the ion fraction as a function 
+        of density, temperature, metallicity, and redshift.  When set to None,
+        it uses the table specified in ~/.trident/config
+        Default: None
+
     **Example**
 
     Generate a simple ray passing from the lower left corner to the upper 
@@ -128,10 +202,124 @@ def make_simple_ray(dataset_file, start_position, end_position,
     ... fields=['density', 'temperature', 'metallicity'])
     """
     if fields is None:
-        fields = ['density', 'temperature', 'metallicity']
+        fields = []
     if data_filename is None:
         data_filename = 'ray.h5'
-    lr = LightRay(dataset_file, load_kwargs=load_kwargs)
+
+    if isinstance(dataset_file, str):
+        ds = load(dataset_file, **self.load_kwargs)
+    elif isinstance(dataset_file, Dataset):
+        ds = dataset_file
+
+    lr = LightRay(ds, load_kwargs=load_kwargs)
+
+    if ionization_table is None:
+        ionization_table = ion_table_filepath()
+
+    # If 'lines' kwarg is set, we need to get all the fields required to
+    # create the desired absorption lines in the grid format, since grid-based
+    # fields are what are directly probed by the LightRay object.  
+
+    # We first determine what fields are necessary for the desired lines, and
+    # inspect the dataset to see if they already exist.  If so, we add them
+    # to the field list for the ray.  If not, we have to create them.
+
+    if lines is not None:
+        if line_database is not None:
+            line_database = LineDatabase(line_database)
+            ion_list = line_database.parse_subset_to_ions(lines)
+        else:
+            ion_list = []
+            if lines == 'all' or lines == ['all']:
+                for k,v in atomic_number.iteritems():
+                    for j in range(v+1):
+                        ion_list.append((k, j+1))
+            else:
+                for line in lines:
+                    linen = line.split()
+                    if len(line) >= 2:
+                        ion_list.append((linen[0], from_roman(linen[1])))
+                    elif len(linen) == 1:
+                        num_states = atomic_number[linen[0]]
+                        for j in range(num_states+1):
+                            ion_list.append((line[0], j+1))
+                    else:
+                        raise RuntimeError("Cannot add a blank ion.")
+
+        ion_list = uniquify(ion_list)        
+
+        # determine whether the dataset fields are particle or grid based
+        # based on checking those of other fields with ftype
+        try:
+            field_list_arr = np.asarray(ds.derived_field_list)
+            mask = field_list_arr[:,0] == ftype
+            valid_field = tuple(field_list_arr[mask][0])
+            particle_type = ds.field_info[valid_field].particle_type
+        except IndexError:
+            raise RuntimeError('ftype %s not found in dataaset %s' % (ftype, ds))
+        if (not particle_type) and \
+           (ds._index_class is ParticleIndex):
+            mylog.warning("Adding grid-based ion fields to SPH dataset. This is probably wrong.")
+            mylog.warning("To correct, change `ftype` in make_simple_ray() to SPH field type.")
+
+        # for sph (determined by particle_type):
+        # Identify if the number_density fields for the desired ions already 
+        # exist on the dataset, and if so, just add them to the list
+        # of fields to be added to the ray.
+        # If not, add these ion fields to the dataset as particle fields, 
+        # which prompts them being smoothed to the grid, and add these smoothed
+        # fields (i.e. ("gas", "x_number_density")) to the list of fields 
+        # to be added to the ray.  Include the 'temperature' field for 
+        # calculating the width of voigt profiles in the absorption spectrum.
+
+        # for grid:
+        # check if the number_density fields for these ions exist, if so, add 
+        # them to field list. if not, leave them off, as they'll be generated 
+        # on the fly by absorption field as long as we include the 'density',
+        # 'temperature', and 'metallicity' fields.
+
+        for ion in ion_list:
+            atom = string.capitalize(ion[0])
+            ion_state = ion[1]
+            nuclei_field = "%s_nuclei_mass_density" % atom
+            metallicity_field = "%s_metallicity" % atom
+            if ion_state == 1:
+                field = "%s_number_density" % atom
+                alias_field = "%s_p0_number_density" % atom
+            else:
+                field = "%s_p%d_number_density" % (atom, ion_state-1)
+                alias_field = "%s_p%d_number_density" % (atom, ion_state-1)
+
+            # This is ugly, but I couldn't find a way around it to hit
+            # all 6 cases of when fields were present or not and particle
+            # type or not.
+            if (ftype, field) not in ds.derived_field_list:
+                if (ftype, alias_field) not in ds.derived_field_list:
+                    if particle_type is True:
+                        add_ion_number_density_field(atom, ion_state, ds, 
+                                             ftype=ftype,
+                                             ionization_table=ionization_table,
+                                             particle_type=particle_type)
+                        fields.append(("gas", alias_field))
+                    else:
+                        # If this is a  grid-based field where the ion field 
+                        # doesn't yet exist, just append the density and 
+                        # appropriate metal field for ion field calculation 
+                        # on the ray itself instead of adding it to the full ds
+                        fields.append(('gas', 'density'))
+                        if ('gas', metallicity_field) in ds.derived_field_list:
+                            fields.append(('gas', metallicity_field))
+                        elif ('gas', nuclei_field) in ds.derived_field_list:
+                            fields.append(('gas', nuclei_field))
+                        else:
+                            fields.append(('gas', 'metallicity'))
+                else:
+                    fields.append(("gas", alias_field))
+            else:
+                fields.append(("gas", field))
+        fields.append(("gas", 'temperature'))
+        fields = uniquify(fields)        
+
     return lr.make_light_ray(start_position=start_position,
                              end_position=end_position,
                              trajectory=trajectory,
