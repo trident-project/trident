@@ -201,13 +201,15 @@ def make_simple_ray(dataset_file, start_position, end_position,
     ... start_position=ds.domain_left_edge, end_position=ds.domain_right_edge,
     ... fields=['density', 'temperature', 'metallicity'])
     """
+    if load_kwargs is None:
+        load_kwargs = {}
     if fields is None:
         fields = []
     if data_filename is None:
         data_filename = 'ray.h5'
 
     if isinstance(dataset_file, str):
-        ds = load(dataset_file, **self.load_kwargs)
+        ds = load(dataset_file, **load_kwargs)
     elif isinstance(dataset_file, Dataset):
         ds = dataset_file
 
