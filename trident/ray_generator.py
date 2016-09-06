@@ -260,7 +260,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
         except IndexError:
             raise RuntimeError('ftype %s not found in dataaset %s' % (ftype, ds))
         if (not particle_type) and \
-           (ds._index_class is ParticleIndex):
+           (isinstance(ds.index, ParticleIndex)):
             mylog.warning("Adding grid-based ion fields to SPH dataset. This is probably wrong.")
             mylog.warning("To correct, change `ftype` in make_simple_ray() to SPH field type.")
 
