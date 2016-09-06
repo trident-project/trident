@@ -237,12 +237,12 @@ def make_simple_ray(dataset_file, start_position, end_position,
             else:
                 for line in lines:
                     linen = line.split()
-                    if len(line) >= 2:
+                    if len(linen) >= 2:
                         ion_list.append((linen[0], from_roman(linen[1])))
                     elif len(linen) == 1:
                         num_states = atomic_number[linen[0]]
                         for j in range(num_states+1):
-                            ion_list.append((line[0], j+1))
+                            ion_list.append((linen[0], j+1))
                     else:
                         raise RuntimeError("Cannot add a blank ion.")
 
