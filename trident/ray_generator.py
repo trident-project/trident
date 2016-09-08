@@ -100,7 +100,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
                     setup_function=None, load_kwargs=None,
                     ionization_table=None):
 
-    :lines: optional, list of strings
+    :lines: list of strings, optional
 
         List of strings that determine which fields will be added to the ray
         to support line deposition to an absorption line spectrum.  List can
@@ -114,7 +114,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
         This is generally not desired.
         Default: None
 
-    :ftype: optional, string
+    :ftype: string, optional
 
         For use with the :lines: keyword.  It is the field type of the fields to 
         be added.  It is the first string in the field tuple e.g. "gas" in
@@ -126,7 +126,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
         which is usually not desired.
         Default: "gas"
 
-    :fields: optional, list of strings
+    :fields: list of strings, optional
 
         The list of which fields to store in the output LightRay.  If none
         selected, defaults to ['density', 'temperature', 'metallicity'].
@@ -135,33 +135,33 @@ def make_simple_ray(dataset_file, start_position, end_position,
         features.
         Default: None
 
-    :solution_filename: optional, string
+    :solution_filename: string, optional
 
         Output filename of text file containing trajectory of LightRay
         through the dataset.
         Default: None
 
-    :data_filename: optional, string
+    :data_filename: string, optional
     
         Output filename for ray data stored as an HDF5 file.  Note that 
         at present, you *must* save a ray to disk in order for it to be
         returned by this function.  If set to None, defaults to 'ray.h5'.
         Default: None
 
-    :trajectory: optional, list of floats
+    :trajectory: list of floats, optional
 
         The (r, theta, phi) direction of the LightRay.  Use either end_position
         or trajectory, but not both.
         Default: None
 
-    :redshift: optional, float
+    :redshift: float, optional
 
         Sets the highest cosmological redshift of the ray.  By default, it will
         use the cosmological redshift of the dataset, if set, and if not set,
         it will use a redshift of 0.
         Default: None
 
-    :setup_function: optional, function
+    :setup_function: function, optional
 
         A function that will be called on the dataset as it is loaded but 
         before the LightRay is generated.  Very useful for adding derived 
@@ -169,14 +169,14 @@ def make_simple_ray(dataset_file, start_position, end_position,
         creation.
         Default: None
 
-    :load_kwargs: optional, dict
+    :load_kwargs: dict, optional
 
         Dictionary of kwargs to be passed to the yt "load" function prior to
         creating the LightRay.  Very useful for many frontends like Gadget,
         Tipsy, etc. for passing in "bounding_box", "unit_base", etc.
         Default: None
 
-    :line_database: optional, string
+    :line_database: string, optional
 
         For use with the :lines: keyword. If you want to limit the available
         ion fields to be added to those available in a particular subset,
@@ -186,7 +186,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
         and :lines:='all', it will add every ion of every element up to Zinc.
         Default: None
 
-    :ionization_table: optional, string
+    :ionization_table: string, optional
 
         For use with the :lines: keyword.  Path to an appropriately formatted
         HDF5 table that can be used to compute the ion fraction as a function 
@@ -411,26 +411,26 @@ def make_compound_ray(parameter_filename, simulation_type,
         The near and far redshift bounds of the LightRay through the 
         simulation datasets.
 
-    :fields: optional, list of strings
+    :fields: list of strings, optional
 
         The list of which fields to store in the output LightRay.  If none
         selected, defaults to ['density', 'temperature', 'metallicity'].
         Default: None
 
-    :solution_filename: optional, string
+    :solution_filename: string, optional
 
         Output filename of text file containing trajectory of LightRay
         through the dataset.
         Default: None
 
-    :data_filename: optional, string
+    :data_filename: string, optional
 
         Output filename for ray data stored as an HDF5 file.  Note that 
         at present, you *must* save a ray to disk in order for it to be
         returned by this function.  If set to None, defaults to 'ray.h5'.
         Default: None
 
-    :use_minimum_datasets: optional, bool
+    :use_minimum_datasets: bool, optional
 
         Use the minimum number of datasets to make the ray continuous 
         through the supplied datasets from the near_redshift to the 
@@ -439,20 +439,20 @@ def make_compound_ray(parameter_filename, simulation_type,
         desired redshift interval.
         Default: True
 
-    :deltaz_min: optional, float
+    :deltaz_min: float, optional
 
         The minimum delta-redshift value between consecutive datasets used
         in the LightRay solution.
         Default: 0.0
 
-    :minimum_coherent_box_fraction: optional, float
+    :minimum_coherent_box_fraction: float, optional
 
         When use_minimum_datasets is set to False, this parameter specifies
         the fraction of the total box width to be traversed before 
         rerandomizing the ray location and trajectory.
         Default: 0.0
 
-    :seed: optional, int
+    :seed: int, optional
 
         Sets the seed for the random number generator used to determine the
         location and trajectory of the LightRay as it traverses the 
@@ -460,7 +460,7 @@ def make_compound_ray(parameter_filename, simulation_type,
         use the same seed value.
         Default: None
 
-    :setup_function: optional, function
+    :setup_function: function, optional
 
         A function that will be called on the dataset as it is loaded but 
         before the LightRay is generated.  Very useful for adding derived 
@@ -468,7 +468,7 @@ def make_compound_ray(parameter_filename, simulation_type,
         creation.
         Default: None
 
-    :load_kwargs: optional, dict
+    :load_kwargs: dict, optional
 
         Dictionary of kwargs to be passed to the yt "load" function prior to
         creating the LightRay.  Very useful for many frontends like Gadget,
