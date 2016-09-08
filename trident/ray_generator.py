@@ -232,100 +232,27 @@ def make_simple_ray(dataset_file, start_position, end_position,
     # to the field list for the ray.  If not, we have to create them.
 
     if lines is not None:
-        if line_database is not None:
-            line_database = LineDatabase(line_database)
-            ion_list = line_database.parse_subset_to_ions(lines)
-        else:
-            ion_list = []
-            if lines == 'all' or lines == ['all']:
-                for k,v in atomic_number.iteritems():
-                    for j in range(v+1):
-                        ion_list.append((k, j+1))
-            else:
-                for line in lines:
-                    linen = line.split()
-                    if len(linen) >= 2:
-                        ion_list.append((linen[0], from_roman(linen[1])))
-                    elif len(linen) == 1:
-                        num_states = atomic_number[linen[0]]
-                        for j in range(num_states+1):
-                            ion_list.append((linen[0], j+1))
-                    else:
-                        raise RuntimeError("Cannot add a blank ion.")
 
-        ion_list = uniquify(ion_list)        
+        ion_list = _determine_ions_from_lines(line_database, lines)
 
-        # determine whether the dataset fields are particle or grid based
-        # based on checking those of other fields with ftype
-        try:
-            field_list_arr = np.asarray(ds.derived_field_list)
-            mask = field_list_arr[:,0] == ftype
-            valid_field = tuple(field_list_arr[mask][0])
-            particle_type = ds.field_info[valid_field].particle_type
-        except IndexError:
-            raise RuntimeError('ftype %s not found in dataaset %s' % (ftype, ds))
+        particle_type = _determine_particle_type_from_ftype(ds, ftype)
+
         if (not particle_type) and \
            (isinstance(ds.index, ParticleIndex)):
             mylog.warning("Adding grid-based ion fields to SPH dataset. This is probably wrong.")
             mylog.warning("To correct, change `ftype` in make_simple_ray() to SPH field type.")
 
-        # for sph (determined by particle_type):
-        # Identify if the number_density fields for the desired ions already 
-        # exist on the dataset, and if so, just add them to the list
-        # of fields to be added to the ray.
-        # If not, add these ion fields to the dataset as particle fields, 
-        # which prompts them being smoothed to the grid, and add these smoothed
-        # fields (i.e. ("gas", "x_number_density")) to the list of fields 
-        # to be added to the ray.  Include the 'temperature' field for 
-        # calculating the width of voigt profiles in the absorption spectrum.
+        fields, fields_to_add_to_ds = _determine_fields_from_ions(ds, ion_list, 
+                                        fields, ftype, particle_type)
 
-        # for grid:
-        # check if the number_density fields for these ions exist, if so, add 
-        # them to field list. if not, leave them off, as they'll be generated 
-        # on the fly by absorption field as long as we include the 'density',
-        # 'temperature', and 'metallicity' fields.
+        # actually add the fields we need to add to the dataset
+        for atom, ion_state in fields_to_add_to_ds:
+            add_ion_number_density_field(atom, ion_state, ds, 
+                                         ftype=ftype,
+                                         ionization_table=ionization_table,
+                                         particle_type=particle_type)
 
-        for ion in ion_list:
-            atom = string.capitalize(ion[0])
-            ion_state = ion[1]
-            nuclei_field = "%s_nuclei_mass_density" % atom
-            metallicity_field = "%s_metallicity" % atom
-            if ion_state == 1:
-                field = "%s_number_density" % atom
-                alias_field = "%s_p0_number_density" % atom
-            else:
-                field = "%s_p%d_number_density" % (atom, ion_state-1)
-                alias_field = "%s_p%d_number_density" % (atom, ion_state-1)
-
-            # This is ugly, but I couldn't find a way around it to hit
-            # all 6 cases of when fields were present or not and particle
-            # type or not.
-            if (ftype, field) not in ds.derived_field_list:
-                if (ftype, alias_field) not in ds.derived_field_list:
-                    if particle_type is True:
-                        add_ion_number_density_field(atom, ion_state, ds, 
-                                             ftype=ftype,
-                                             ionization_table=ionization_table,
-                                             particle_type=particle_type)
-                        fields.append(("gas", alias_field))
-                    else:
-                        # If this is a  grid-based field where the ion field 
-                        # doesn't yet exist, just append the density and 
-                        # appropriate metal field for ion field calculation 
-                        # on the ray itself instead of adding it to the full ds
-                        fields.append(('gas', 'density'))
-                        if ('gas', metallicity_field) in ds.derived_field_list:
-                            fields.append(('gas', metallicity_field))
-                        elif ('gas', nuclei_field) in ds.derived_field_list:
-                            fields.append(('gas', nuclei_field))
-                        else:
-                            fields.append(('gas', 'metallicity'))
-                else:
-                    fields.append(("gas", alias_field))
-            else:
-                fields.append(("gas", field))
-        fields.append(("gas", 'temperature'))
-        fields = uniquify(fields)        
+    fields = uniquify(fields)        
 
     return lr.make_light_ray(start_position=start_position,
                              end_position=end_position,
@@ -506,3 +433,108 @@ def make_compound_ray(parameter_filename, simulation_type,
                              solution_filename=solution_filename,
                              data_filename=data_filename,
                              redshift=None, njobs=-1)
+
+def _determine_ions_from_lines(line_database, lines):
+    """
+    Figure out what ions are necessary to produce the desired lines
+    """
+    if line_database is not None:
+        line_database = LineDatabase(line_database)
+        ion_list = line_database.parse_subset_to_ions(lines)
+    else:
+        ion_list = []
+        if lines == 'all' or lines == ['all']:
+            for k,v in atomic_number.iteritems():
+                for j in range(v+1):
+                    ion_list.append((k, j+1))
+        else:
+            for line in lines:
+                linen = line.split()
+                if len(linen) >= 2:
+                    ion_list.append((linen[0], from_roman(linen[1])))
+                elif len(linen) == 1:
+                    num_states = atomic_number[linen[0]]
+                    for j in range(num_states+1):
+                        ion_list.append((linen[0], j+1))
+                else:
+                    raise RuntimeError("Cannot add a blank ion.")
+
+    return uniquify(ion_list)        
+
+def _determine_particle_type_from_ftype(ds, ftype):
+    """
+    Determine whether the dataset fields are particle or grid based
+    based on checking those of other fields in ds with same ftype
+    """
+    try:
+        field_list_arr = np.asarray(ds.derived_field_list)
+        mask = field_list_arr[:,0] == ftype
+        valid_field = tuple(field_list_arr[mask][0])
+        particle_type = ds.field_info[valid_field].particle_type
+    except IndexError:
+        raise RuntimeError('ftype %s not found in dataaset %s' % (ftype, ds))
+
+    return particle_type
+
+def _determine_fields_from_ions(ds, ion_list, fields, ftype, particle_type):
+    """
+    Figure out what fields need to be added based on the ions present
+    and the particle type
+
+    For sph (determined by particle_type):
+    Identify if the number_density fields for the desired ions already 
+    exist on the dataset, and if so, just add them to the list
+    of fields to be added to the ray.
+    If not, add these ion fields to the dataset as particle fields, 
+    which prompts them being smoothed to the grid, and add the resulting 
+    smoothed fields (e.g. ("gas", "x_number_density")) to the list of fields 
+    to be added to the ray.  Include the 'temperature' field for 
+    calculating the width of voigt profiles in the absorption spectrum.
+
+    For grid:
+    Check if the number_density fields for these ions exist, and if so, add 
+    them to field list. If not, leave them off, as they'll be generated 
+    on the fly by SpectrumGenerator as long as we include the 'density',
+    'temperature', and appropriate 'metallicity' fields.
+    """
+    fields_to_add_to_ds = []
+
+    for ion in ion_list:
+        atom = string.capitalize(ion[0])
+        ion_state = ion[1]
+        nuclei_field = "%s_nuclei_mass_density" % atom
+        metallicity_field = "%s_metallicity" % atom
+        if ion_state == 1:
+            field = "%s_number_density" % atom
+            alias_field = "%s_p0_number_density" % atom
+        else:
+            field = "%s_p%d_number_density" % (atom, ion_state-1)
+            alias_field = "%s_p%d_number_density" % (atom, ion_state-1)
+
+        # This is ugly, but I couldn't find a way around it to hit
+        # all 6 cases of when fields were present or not and particle
+        # type or not.
+        if (ftype, field) not in ds.derived_field_list:
+            if (ftype, alias_field) not in ds.derived_field_list:
+                if particle_type is True:
+                    fields_to_add_to_ds.append((atom, ion_state))
+                    fields.append(("gas", alias_field))
+                else:
+                    # If this is a  grid-based field where the ion field 
+                    # doesn't yet exist, just append the density and 
+                    # appropriate metal field for ion field calculation 
+                    # on the ray itself instead of adding it to the full ds
+                    fields.append(('gas', 'density'))
+                    if ('gas', metallicity_field) in ds.derived_field_list:
+                        fields.append(('gas', metallicity_field))
+                    elif ('gas', nuclei_field) in ds.derived_field_list:
+                        fields.append(('gas', nuclei_field))
+                    else:
+                        fields.append(('gas', 'metallicity'))
+            else:
+                fields.append(("gas", alias_field))
+        else:
+            fields.append(("gas", field))
+    fields.append(("gas", 'temperature'))
+
+    return fields, fields_to_add_to_ds
