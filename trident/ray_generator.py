@@ -38,11 +38,11 @@ from yt.geometry.particle_geometry_handler import \
     ParticleIndex
 
 def make_simple_ray(dataset_file, start_position, end_position,
-                    lines=None, fields=None, solution_filename=None, 
-                    data_filename=None, trajectory=None, redshift=None, 
+                    lines=None, ftype="gas", fields=None, 
+                    solution_filename=None, data_filename=None, 
+                    trajectory=None, redshift=None, 
                     setup_function=None, load_kwargs=None,
-                    ftype="gas", line_database=None, 
-                    ionization_table=None):
+                    line_database=None, ionization_table=None):
     """
     Create a yt LightRay object for a single dataset (eg CGM).  This is a 
     wrapper function around yt's LightRay interface to reduce some of the 
@@ -69,6 +69,11 @@ def make_simple_ray(dataset_file, start_position, end_position,
     or it can load a dataset if you pass it the dataset's filename and 
     optionally any load_kwargs or setup_function necessary to load/process it
     properly before generating the LightRay object.
+
+    The :lines: keyword can be set to automatically add all fields to the 
+    resulting ray necessary for later use with the SpectrumGenerator class.
+    If the necessary fields do not exist for your line of choice, they will
+    be added to your dataset before adding them to the ray.  
 
     If using the :lines: keyword with an SPH dataset, it is very important
     to set the :ftype: keyword appropriately, or you may end up calculating 
@@ -108,6 +113,18 @@ def make_simple_ray(dataset_file, start_position, end_position,
         ion fields by interpolating on data already smoothed to the grid.  
         This is generally not desired.
         Default: None
+
+    :ftype: optional, string
+
+        For use with the :lines: keyword.  It is the field type of the fields to 
+        be added.  It is the first string in the field tuple e.g. "gas" in
+        ("gas", "O_p5_number_density"). For SPH datasets, it is important to
+        set this to the field type of the gas particles in your dataset
+        (e.g. 'PartType0'), as it determines the source data for the ion 
+        fields to be added. If you leave it set to "gas", it will calculate 
+        the ion fields based on the hydro fields already smoothed on the grid, 
+        which is usually not desired.
+        Default: "gas"
 
     :fields: optional, list of strings
 
@@ -158,18 +175,6 @@ def make_simple_ray(dataset_file, start_position, end_position,
         creating the LightRay.  Very useful for many frontends like Gadget,
         Tipsy, etc. for passing in "bounding_box", "unit_base", etc.
         Default: None
-
-    :ftype: optional, string
-
-        For use with the :lines: keyword.  It is the field type of the fields to 
-        be added.  It is the first string in the field tuple e.g. "gas" in
-        ("gas", "O_p5_number_density"). For SPH datasets, it is important to
-        set this to the field type of the gas particles in your dataset, 
-        as it determines the source data for the ion interpolation.  If you
-        leave it set to "gas", it will calculate the ion fields based on the
-        hydro fields already smoothed on the grid, which is usually not 
-        desired.
-        Default: "gas"
 
     :line_database: optional, string
 
