@@ -324,6 +324,16 @@ def make_compound_ray(parameter_filename, simulation_type,
     and effective redshift (combined doppler and cosmological) for each
     element of the ray.
 
+    The :lines: keyword can be set to automatically add all fields to the 
+    resulting ray necessary for later use with the SpectrumGenerator class.
+    If the necessary fields do not exist for your line of choice, they will
+    be added to your datasets before adding them to the ray.  
+
+    If using the :lines: keyword with SPH datasets, it is very important
+    to set the :ftype: keyword appropriately, or you may end up calculating 
+    ion fields by interpolating on data already smoothed to the grid.  This is
+    generally not desired.
+ 
     **Parameters**
 
     :parameter_filename: string
