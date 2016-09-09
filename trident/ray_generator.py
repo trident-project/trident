@@ -17,7 +17,8 @@ import os
 from yt.analysis_modules.cosmological_observation.api import \
     LightRay
 from yt.convenience import \
-    load
+    load, \
+    simulation
 from yt.funcs import \
     mylog, \
     YTArray
@@ -265,11 +266,12 @@ def make_simple_ray(dataset_file, start_position, end_position,
 
 def make_compound_ray(parameter_filename, simulation_type,
                       near_redshift, far_redshift,
-                      fields=None, solution_filename=None, data_filename=None, 
+                      lines=None, ftype='gas', fields=None, 
+                      solution_filename=None, data_filename=None, 
                       use_minimum_datasets=True, deltaz_min=0.0,
                       minimum_coherent_box_fraction=0.0, seed=None, 
-                      setup_function=None, load_kwargs=None):
-
+                      setup_function=None, load_kwargs=None,
+                      line_database=None, ionization_table=None):
     """
     Create a yt LightRay object for multiple consecutive datasets (eg IGM).  
     This is a wrapper function around yt's LightRay interface to reduce some 
@@ -409,15 +411,18 @@ def make_compound_ray(parameter_filename, simulation_type,
 
     >>> import trident
     >>> import yt
-    >>> ds = yt.load('path/to/simulation/parameter/file')
+    >>> fn = 'path/to/simulation/parameter/file'
     >>> ray = trident.make_compound_ray(fn, simulation_type='Enzo',
     ... near_redshift=0.0, far_redshift=0.05,
     ... fields=['density', 'temperature', 'metallicity'])
     """
+    if load_kwargs is None:
+        load_kwargs = {}
     if fields is None:
-        fields = ['density', 'temperature', 'metallicity']
+        fields = []
     if data_filename is None:
         data_filename = 'ray.h5'
+
     lr = LightRay(parameter_filename, 
                   simulation_type=simulation_type, 
                   near_redshift=near_redshift, 
@@ -427,9 +432,60 @@ def make_compound_ray(parameter_filename, simulation_type,
                   minimum_coherent_box_fraction=minimum_coherent_box_fraction,
                   load_kwargs=load_kwargs)
 
+    if ionization_table is None:
+        ionization_table = ion_table_filepath()
+
+    # If 'lines' kwarg is set, we need to get all the fields required to
+    # create the desired absorption lines in the grid format, since grid-based
+    # fields are what are directly probed by the LightRay object.  
+
+    # We first determine what fields are necessary for the desired lines, and
+    # inspect the dataset to see if they already exist.  If so, we add them
+    # to the field list for the ray.  If not, we have to create them.
+
+    # We use the final dataset from the simulation in order to test it for 
+    # the particle_type of the field, what fields are present, etc.  This 
+    # all assumes that the fields present in this output will be present in 
+    # ALL outputs.  Hopefully this is true, because testing each dataset
+    # is going to be slow and a pain.
+
+    if lines is not None:
+
+        # load the final dataset from the simulation to use for testing
+        sim = simulation(parameter_filename, simulation_type)
+        ds = load(sim.all_outputs[-1]['filename'])
+
+        ion_list = _determine_ions_from_lines(line_database, lines)
+
+        particle_type = _determine_particle_type_from_ftype(ds, ftype)
+
+        if (not particle_type) and \
+           (isinstance(ds.index, ParticleIndex)):
+            mylog.warning("Adding grid-based ion fields to SPH dataset. This is probably wrong.")
+            mylog.warning("To correct, change `ftype` in make_compound_ray() to SPH field type.")
+
+        fields, fields_to_add_to_ds = _determine_fields_from_ions(ds, ion_list, 
+                                        fields, ftype, particle_type)
+
+        # actually add the fields we need to add to the dataset
+        # by adding the fields to the setup_function passed to each dataset
+        # as it is loaded by make_light_ray()
+
+        def setup_ds(ds):
+
+            for atom, ion_state in fields_to_add_to_ds:
+                add_ion_number_density_field(atom, ion_state, ds, 
+                                            ftype=ftype,
+                                            ionization_table=ionization_table,
+                                            particle_type=particle_type)
+            if setup_function is not None:
+                setup_function(ds)
+
+    fields = uniquify(fields)        
+
     return lr.make_light_ray(seed=seed, 
                              fields=fields, 
-                             setup_function=setup_function,
+                             setup_function=setup_ds,
                              solution_filename=solution_filename,
                              data_filename=data_filename,
                              redshift=None, njobs=-1)
