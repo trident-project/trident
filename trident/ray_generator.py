@@ -107,7 +107,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
         to support line deposition to an absorption line spectrum.  List can
         include things like "C", "O VI", or "Mg II ####", where #### would be
         the integer wavelength value of the desired line.  If set to 'all',
-        includes all lines available in LineDatabase. :lines: can be used
+        includes all possible ions from H to Zn. :lines: can be used
         in conjunction with :fields: as they will not override each other.
         If using the :lines: keyword with an SPH dataset, it is very important
         to set the :ftype: keyword appropriately, or you may end up calculating 
@@ -129,8 +129,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
 
     :fields: list of strings, optional
 
-        The list of which fields to store in the output LightRay.  If none
-        selected, defaults to ['density', 'temperature', 'metallicity'].
+        The list of which fields to store in the output LightRay.  
         See :lines: keyword for additional functionality that will add fields
         necessary for creating absorption line spectra for certain line 
         features.
@@ -198,14 +197,15 @@ def make_simple_ray(dataset_file, start_position, end_position,
     **Example**
 
     Generate a simple ray passing from the lower left corner to the upper 
-    right corner through some dataset
+    right corner through some Gizmo dataset where gas particles are 
+    ftype='PartType0':
 
     >>> import trident
     >>> import yt
     >>> ds = yt.load('path/to/dataset')
     >>> ray = trident.make_simple_ray(ds, 
     ... start_position=ds.domain_left_edge, end_position=ds.domain_right_edge,
-    ... fields=['density', 'temperature', 'metallicity'])
+    ... lines=['H', 'O', 'Mg II'], ftype='PartType0')
     """
     if load_kwargs is None:
         load_kwargs = {}
@@ -340,10 +340,38 @@ def make_compound_ray(parameter_filename, simulation_type,
         The near and far redshift bounds of the LightRay through the 
         simulation datasets.
 
+    :lines: list of strings, optional
+
+        List of strings that determine which fields will be added to the ray
+        to support line deposition to an absorption line spectrum.  List can
+        include things like "C", "O VI", or "Mg II ####", where #### would be
+        the integer wavelength value of the desired line.  If set to 'all',
+        includes all possible ions from H to Zn. :lines: can be used
+        in conjunction with :fields: as they will not override each other.
+        If using the :lines: keyword with an SPH dataset, it is very important
+        to set the :ftype: keyword appropriately, or you may end up calculating 
+        ion fields by interpolating on data already smoothed to the grid.  
+        This is generally not desired.
+        Default: None
+
+    :ftype: string, optional
+
+        For use with the :lines: keyword.  It is the field type of the fields to 
+        be added.  It is the first string in the field tuple e.g. "gas" in
+        ("gas", "O_p5_number_density"). For SPH datasets, it is important to
+        set this to the field type of the gas particles in your dataset
+        (e.g. 'PartType0'), as it determines the source data for the ion 
+        fields to be added. If you leave it set to "gas", it will calculate 
+        the ion fields based on the hydro fields already smoothed on the grid, 
+        which is usually not desired.
+        Default: "gas"
+
     :fields: list of strings, optional
 
-        The list of which fields to store in the output LightRay.  If none
-        selected, defaults to ['density', 'temperature', 'metallicity'].
+        The list of which fields to store in the output LightRay.  
+        See :lines: keyword for additional functionality that will add fields
+        necessary for creating absorption line spectra for certain line 
+        features.
         Default: None
 
     :solution_filename: string, optional
@@ -404,17 +432,43 @@ def make_compound_ray(parameter_filename, simulation_type,
         Tipsy, etc. for passing in "bounding_box", "unit_base", etc.
         Default: None
 
+    :line_database: string, optional
+
+        For use with the :lines: keyword. If you want to limit the available
+        ion fields to be added to those available in a particular subset,
+        you can use a :class:`~trident.LineDatabase`.  This means when you
+        set :lines:='all', it will only use those ions present in the 
+        corresponding LineDatabase.  If :LineDatabase: is set to None,
+        and :lines:='all', it will add every ion of every element up to Zinc.
+        Default: None
+
+    :ionization_table: string, optional
+
+        For use with the :lines: keyword.  Path to an appropriately formatted
+        HDF5 table that can be used to compute the ion fraction as a function 
+        of density, temperature, metallicity, and redshift.  When set to None,
+        it uses the table specified in ~/.trident/config
+        Default: None
+
     **Example**
 
     Generate a compound ray passing from the redshift 0 to redshift 0.05
-    through a multi-output simulation.
+    through a multi-output enzo simulation.
 
     >>> import trident
-    >>> import yt
     >>> fn = 'path/to/simulation/parameter/file'
     >>> ray = trident.make_compound_ray(fn, simulation_type='Enzo',
+    ... near_redshift=0.0, far_redshift=0.05, ftype='gas',
+    ... lines=['H', 'O', 'Mg II'])
+
+    Generate a compound ray passing from the redshift 0 to redshift 0.05
+    through a multi-output gadget simulation.
+
+    >>> import trident
+    >>> fn = 'path/to/simulation/parameter/file'
+    >>> ray = trident.make_compound_ray(fn, simulation_type='Gadget',
     ... near_redshift=0.0, far_redshift=0.05,
-    ... fields=['density', 'temperature', 'metallicity'])
+    ... lines=['H', 'O', 'Mg II'], ftype='PartType0')
     """
     if load_kwargs is None:
         load_kwargs = {}
