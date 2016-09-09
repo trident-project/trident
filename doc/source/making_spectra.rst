@@ -53,20 +53,20 @@ we load the dataset into yt to get access to these attributes::
     ray_end = ds.domain_right_edge
 
 We can now generate the light ray using the :class:`~trident.make_simple_ray`
-function by passing the dataset and the trajectory endpoints to it.  In 
-addition, we're telling trident to save the resulting ray dataset to an HDF5
-file and to explicitly include a few fields in the resulting ray.  We include
-the ``density``, ``temperature``, and ``metallicity`` fields at a minimum
-to generate all of the ion fields, but we also include ``H_p0_number_density``
-since the neutral hydrogen field exists in the original simulation::
+function by passing the dataset and the trajectory endpoints to it as well
+as telling trident to save the resulting ray dataset to an HDF5 file. We
+explicitly instruct trident to include all necessary fields to the ray
+so that we can use the ray to deposit certain lines.  In this case, we want
+to deposit all hydrogen, carbon, nitrogen, oxygen, and magnesium lines.  
+Lastly, we set the ftype keyword to represent the field type of the fields
+to search where we might find these ion fields::
 
     ray = trident.make_simple_ray(ds,
                                   start_position=ray_start,
                                   end_position=ray_end,
                                   data_filename="ray.h5",
-                                  fields=['density', 'temperature',
-                                          'metallicity', 
-                                          'H_p0_number_density'])
+                                  lines=['H', 'C', 'N', 'O', 'Mg'],
+                                  ftype='gas')
 
 .. note::
     it is also possible to generate a :class:`~trident.LightRay` spanning 
@@ -89,7 +89,7 @@ intersecting fields it encountered in the corresponding
 :class:`~trident.LightRay`::
 
     sg = trident.SpectrumGenerator('COS')
-    sg.make_spectrum(ray, lines='all')
+    sg.make_spectrum(ray, lines=['H', 'C', 'N', 'O', 'Mg'])
 
 From here we can do some post-processing to the spectrum to include 
 additional features that would be present in an actual observed spectrum.
