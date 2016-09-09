@@ -11,20 +11,18 @@ ds = yt.load(fn)
 ray_start = ds.domain_left_edge
 ray_end = ds.domain_right_edge
 
-# Make a LightRay object including the temperature, density, and metallicity
-# fields of our dataset. Include HI field calculated in simulation to 
-# override the ion_balance estimation of HI.  
+# Make a LightRay object including all necessary fields so you can add
+# all H, C, N, O, and Mg fields to the resulting spectrum from your dataset.
 # Save LightRay to ray.h5 and use it locally as ray object.
 ray = trident.make_simple_ray(ds, start_position=ray_start,
                               end_position=ray_end, data_filename='ray.h5',
-                              fields=['density', 'temperature', 'metallicity',
-                              'H_p0_number_density'])
+                              lines=['H', 'C', 'N', 'O', 'Mg'], ftype='gas')
 
 # Now use the ray object to actually generate an absorption spectrum
 # Use the settings (spectral range, LSF, and spectral resolution) for COS
 # And save it as an output text file and plot it to an image.
 sg = trident.SpectrumGenerator('COS')
-sg.make_spectrum(ray, lines='all')
+sg.make_spectrum(ray, lines=['H', 'C', 'N', 'O', 'Mg'])
 sg.save_spectrum('spec_raw.txt')
 sg.plot_spectrum('spec_raw.png')
 
