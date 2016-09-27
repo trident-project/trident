@@ -8,7 +8,7 @@ http://yt-project.org
 """
 
 #-----------------------------------------------------------------------------
-# Copyright (c) 2106, Trident Development Team.
+# Copyright (c) 2016, Trident Development Team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
