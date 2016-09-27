@@ -17,10 +17,10 @@ from yt.fields.local_fields import add_field
 from yt.utilities.linear_interpolators import \
     TrilinearFieldInterpolator, \
     UnilinearFieldInterpolator
+import six
 from yt.utilities.physical_constants import mh
 from yt.funcs import mylog
 import numpy as np
-import string
 import h5py
 import copy
 import os
@@ -265,7 +265,7 @@ def add_ion_fields(ds, ions, ftype='gas',
     # Otherwise, any ion can be selected (not just ones in the line list).
     else:
         if ions == 'all' or ions == ['all']:
-            for k, v in atomic_number.iteritems():
+            for k, v in six.iteritems(atomic_number):
                 for j in range(v+1):
                     ion_list.append((k, j+1))
         else:
@@ -397,7 +397,7 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
                      particle_type=particle_type,
                      force_override=force_override)
 
-    atom = string.capitalize(atom)
+    atom = atom.capitalize()
 
     # if neutral ion field, alias X_p0_ion_fraction to X_ion_fraction field
     if ion == 1:
@@ -410,7 +410,7 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
         if ion == 1:
             alias_field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
 
-    if not table_store.has_key(field):
+    if not field in table_store:
         ionTable = IonBalanceTable(ionization_table, atom)
         table_store[field] = {'fraction': copy.deepcopy(ionTable.ion_fraction[ion-1]),
                               'parameters': copy.deepcopy(ionTable.parameters)}
@@ -526,7 +526,7 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
 
     if ionization_table is None:
         ionization_table = ion_table_filepath()
-    atom = string.capitalize(atom)
+    atom = atom.capitalize()
     # if neutral ion field, alias X_p0_number_density to X_number_density field
     if ion == 1:
         field = "%s_number_density" % atom
@@ -653,7 +653,7 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
 
     if ionization_table is None:
         ionization_table = ion_table_filepath()
-    atom = string.capitalize(atom)
+    atom = atom.capitalize()
 
     # if neutral ion field, alias X_p0_number_density to X_number_density field
     if ion == 1:
@@ -782,7 +782,7 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
 
     if ionization_table is None:
         ionization_table = ion_table_filepath()
-    atom = string.capitalize(atom)
+    atom = atom.capitalize()
 
     # if neutral ion field, alias X_p0_number_density to X_number_density field
     if ion == 1:

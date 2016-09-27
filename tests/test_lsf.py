@@ -11,6 +11,8 @@ Tests for Line Spread Function class and functions
 # The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
+from __future__ import absolute_import
+from __future__ import print_function
 import pytest
 from trident.lsf import LSF
 import numpy as np
@@ -33,7 +35,7 @@ def test_lsf_from_filename():
     assert isinstance(lsf.kernel, np.ndarray)
     assert len(lsf.kernel) > 0
     assert lsf.width == len(lsf.kernel)
-    print lsf
+    print(lsf)
 
 def test_boxcar_lsf():
     """
@@ -43,7 +45,7 @@ def test_boxcar_lsf():
     assert isinstance(lsf.kernel, np.ndarray)
     assert len(lsf.kernel) == 5
     assert lsf.width == 5
-    print lsf
+    print(lsf)
 
 def test_gaussian_lsf():
     """
@@ -53,5 +55,5 @@ def test_gaussian_lsf():
     assert isinstance(lsf.kernel, astropy.convolution.kernels.Gaussian1DKernel)
     assert len(lsf.kernel.array) == 41
     assert lsf.width == 5
-    print lsf
+    print(lsf)
 

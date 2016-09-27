@@ -11,13 +11,13 @@ Miscellaneous Utilities for Trident
 # The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
-import urllib2
 import gzip
 import os
 import sys
 from os.path import \
     expanduser
-from ConfigParser import \
+import six
+from six.moves.configparser import \
     SafeConfigParser
 import requests
 import tempfile
@@ -26,6 +26,8 @@ from yt.funcs import \
     get_pbar
 import h5py as h5
 import numpy as np
+from six.moves import input
+from six.moves import urllib
 from yt.units import \
     cm, \
     pc, \
@@ -103,7 +105,7 @@ def download_file(url, progress_bar=True, local_directory=None,
     filehandle = open(filepath, 'wb')
 
     # Get information about remote filesize
-    u = urllib2.urlopen(url)
+    u = urllib.request.urlopen(url)
     meta = u.info()
     filesize = int(meta.getheaders("Content-Length")[0])/2**10 # in kB
     if progress_bar:
@@ -255,7 +257,7 @@ def create_config():
     print("do it automatically now if you have web access.")
     print("")
     print("Would you like to do this automatically? ([y]/n)")
-    value = raw_input().rstrip()
+    value = input().rstrip()
     if not value == '' and not value == 'y':
         sys.exit('Instructions at http://trident.readthedocs.org/en/latest/installation.html')
 
@@ -267,7 +269,7 @@ def create_config():
     # the config file.
     ensure_directory(default_dir)
 
-    datadir = raw_input().rstrip()
+    datadir = input().rstrip()
     if datadir == '':
         datadir = default_dir
     datadir = expanduser(datadir)
@@ -354,7 +356,7 @@ def get_datafiles(datadir=None, url=None):
     # User chooses which file
     print("")
     print("Which number would you like to download and use? [1]")
-    value = raw_input().rstrip()
+    value = input().rstrip()
     if value == '':
         value = '1'
     while 1:
@@ -400,7 +402,7 @@ def trident_path():
 
     **Example**
 
-    >>> print trident_path()
+    >>> print(trident_path())
     """
     path_list = os.path.dirname(__file__).split('/')[:-1]
     path_list.append('trident')
@@ -581,7 +583,7 @@ def make_onezone_ray(density=1e-26, temperature=1000, metallicity=0.3,
 
     # Add additional number_density fields to dataset
     if column_densities:
-        for k,v in column_densities.iteritems():
+        for k,v in six.iteritems(column_densities):
             # Assure we add X_number_density for neutral ions
             # instead of X_p0_number_density
             key_string_list = k.split('_')

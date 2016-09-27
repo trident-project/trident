@@ -53,9 +53,9 @@ def to_roman(n):
     >>> num = to_roman(5)
     """
 	if not (0 < n < 5000):
-		raise OutOfRangeError, "number out of range (must be 1..4999)"
-	if int(n) <> n:
-		raise NotIntegerError, "non-integers can not be converted"
+		raise OutOfRangeError("number out of range (must be 1..4999)")
+	if int(n) != n:
+		raise NotIntegerError("non-integers can not be converted")
 
 	result = ""
 	for numeral, integer in romanNumeralMap:
@@ -96,9 +96,9 @@ def from_roman(s):
     >>> num = from_roman('V')
     """
 	if not s:
-		raise InvalidRomanNumeralError, 'Input can not be blank'
+		raise InvalidRomanNumeralError('Input can not be blank')
 	if not romanNumeralPattern.search(s):
-		raise InvalidRomanNumeralError, 'Invalid Roman numeral: %s' % s
+		raise InvalidRomanNumeralError('Invalid Roman numeral: {s}'.format(s))
 
 	result = 0
 	index = 0

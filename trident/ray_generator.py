@@ -13,6 +13,7 @@ SpectrumGenerator class and member functions.
 
 import numpy as np
 import os
+import six
 
 from yt.analysis_modules.cosmological_observation.api import \
     LightRay
@@ -34,7 +35,6 @@ from trident.ion_balance import \
     atomic_number
 from trident.utilities import \
     ion_table_filepath
-import string
 from yt.geometry.particle_geometry_handler import \
     ParticleIndex
 
@@ -564,7 +564,7 @@ def _determine_ions_from_lines(line_database, lines):
     else:
         ion_list = []
         if lines == 'all' or lines == ['all']:
-            for k,v in atomic_number.iteritems():
+            for k,v in six.iteritems(atomic_number):
                 for j in range(v+1):
                     ion_list.append((k, j+1))
         else:
@@ -620,7 +620,7 @@ def _determine_fields_from_ions(ds, ion_list, fields, ftype, particle_type):
     fields_to_add_to_ds = []
 
     for ion in ion_list:
-        atom = string.capitalize(ion[0])
+        atom = ion[0].capitalize()
         ion_state = ion[1]
         nuclei_field = "%s_nuclei_mass_density" % atom
         metallicity_field = "%s_metallicity" % atom

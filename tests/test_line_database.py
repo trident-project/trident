@@ -11,6 +11,8 @@ Tests for Line Database classes and functions
 # The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
+from __future__ import absolute_import
+from __future__ import print_function
 import pytest
 from trident.line_database import \
     uniquify, \
@@ -21,12 +23,13 @@ from trident.utilities import \
 import numpy as np
 from shutil import copyfile
 import os.path
+from six.moves import range
 
 def test_uniquify():
     """
     Test uniquify function
     """
-    l = range(3)
+    l = list(range(3))
     l[1] = 0
     l_unique = uniquify(l)
     assert len(l_unique) == len(l)-1
@@ -43,17 +46,17 @@ def test_uniquify():
 def test_line():
     HI = Line('H', 'I', 1216, 1.5, 2.3, identifier='Ly a')
     assert HI.field == "H_number_density"
-    print HI
+    print(HI)
 
 def test_line_database_from_stored_file():
     ld = LineDatabase('lines.txt')
-    print ld
+    print(ld)
 
 def test_line_database_from_local_file():
     line_file = os.path.join(trident_path(), 'data/line_lists/lines.txt')
     copyfile(line_file, 'test_lines.txt')
     ld = LineDatabase('test_lines.txt')
-    print ld
+    print(ld)
     os.remove('test_lines.txt')
 
 def test_line_database_from_input():
@@ -61,7 +64,7 @@ def test_line_database_from_input():
     HI = Line('H', 'I', 1216, 1.5, 2.3, identifier='Ly a')
     ld.add_line('H', 'I', 1216, 1.5, 2.3, identifier='Ly a')
     assert ld.lines_all[0].identifier == HI.identifier
-    print ld
+    print(ld)
 
 def test_select_lines_from_line_database():
     ld = LineDatabase('lines.txt')

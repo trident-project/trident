@@ -11,6 +11,7 @@ Tests to assure the code runs on example pipelines
 # The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
+from __future__ import absolute_import
 from trident.utilities import verify
 
 def test_verify():

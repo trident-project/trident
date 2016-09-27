@@ -12,14 +12,16 @@ Line, LineDatabase class and member functions.
 #-----------------------------------------------------------------------------
 
 import os
-from sets import \
-    Set
 from yt.funcs import \
     mylog
 from trident.utilities import \
     trident_path
 from trident.roman import \
     from_roman
+
+import six
+
+
 
 def uniquify(list):
    # order preserving method for reducing duplicates in a list
@@ -138,7 +140,7 @@ class LineDatabase:
 
     >>> # Parse ldb and only select Lyman alpha, Mg II and Fe lines
     >>> lines = ldb.parse_subset(lines=['H I 1216', 'Mg II', 'Fe'])
-    >>> print lines
+    >>> print(lines)
 
     """
     def __init__(self, input_file=None):
@@ -200,7 +202,7 @@ class LineDatabase:
 
         >>> # Manually add the neutral hydrogen line to ldb
         >>> ldb.add_line('H', 'I', 1215.67, 469860000, 0.41641, 'Ly a')
-        >>> print ldb.lines_all
+        >>> print(ldb.lines_all)
         """
         self.lines_all.append(Line(element, ion_state, wavelength, gamma,
                                    f_value, field, identifier))
@@ -359,7 +361,7 @@ class LineDatabase:
         >>> # Get a list of all lines of Carbon, Mg II and Lyman alpha
         >>> ldb = LineDatabase('lines.txt')
         >>> lines = ldb.parse_subset(['C', 'Mg II', 'H I 1216'])
-        >>> print lines
+        >>> print(lines)
         """
         # if all specified, then use all lines available
         if subsets is 'all':
@@ -369,7 +371,7 @@ class LineDatabase:
             return self.lines_subset
         if subsets is None:
             subsets = []
-        if isinstance(subsets, basestring):
+        if isinstance(subsets, six.string_types):
             subsets = [subsets]
         for val in subsets:
             # try to add line based on identifier
@@ -445,7 +447,7 @@ class LineDatabase:
 
         >>> ldb = LineDatabase('lines.txt')
         >>> ions = ldb.parse_subset_to_ions(['C', 'Mg II', 'H I 1216'])
-        >>> print ions
+        >>> print(ions)
         """
         self.parse_subset(subsets)
         ions = []

@@ -11,6 +11,8 @@ Tests for Instrument Class and Functions
 # The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
+from __future__ import absolute_import
+from __future__ import print_function
 from trident.instrument import Instrument
 
 def test_instrument():
@@ -23,7 +25,7 @@ def test_instrument():
     assert inst.lambda_max == 2000
     assert inst.n_lambda == 101
     assert inst.dlambda == 10
-    print inst
+    print(inst)
 
     inst = Instrument(100, 20000, dlambda=10, lsf_kernel='COS', name='test')
     assert inst.lambda_min == 100
@@ -32,4 +34,4 @@ def test_instrument():
     assert inst.dlambda == 10
     assert inst.lsf_kernel == 'COS'
     assert inst.name == 'test'
-    print inst
+    print(inst)

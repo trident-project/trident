@@ -11,6 +11,7 @@ Tests for ion balance code
 # The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
+from __future__ import absolute_import
 import trident as tri
 from trident.ion_balance import \
     add_ion_fraction_field, \
