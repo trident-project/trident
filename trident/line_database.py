@@ -234,7 +234,7 @@ class LineDatabase:
                                % (filename.split('/')[-1]))
 
         # Step through each line of text in file and add to database
-        for line in file(filename).readlines():
+        for line in open(filename).readlines():
             online = line.rstrip().split()
             if line.startswith("#") or len(online) < 5:
                 continue
