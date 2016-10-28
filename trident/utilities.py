@@ -578,7 +578,7 @@ def make_onezone_ray(density=1e-26, temperature=1000, metallicity=0.3,
             "z": length/2, "dz": length
             }
 
-    extra_attrs = {"data_type": "yt_light_ray"}
+    extra_attrs = {"data_type": "yt_light_ray", "dimensionality": 3}
     field_types = dict([(field, "grid") for field in data.keys()])
 
     # Add additional number_density fields to dataset
