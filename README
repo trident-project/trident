@@ -1,5 +1,10 @@
+Python2.7: 
 .. image:: https://drone.io/bitbucket.org/trident-project/trident/status.png
    :target: https://drone.io/bitbucket.org/trident-project/trident/latest
+
+Python3.3:
+.. image:: https://drone.io/bitbucket.org/chummels/trident/status.png
+   :target: https://drone.io/bitbucket.org/chummels/trident/latest
 
 .. image:: https://readthedocs.org/projects/trident/badge/?version=latest
   :target: http://trident.readthedocs.org/en/latest/
