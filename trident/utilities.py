@@ -198,7 +198,7 @@ def gzip_file(in_filename, out_filename=None, cleanup=True):
     if cleanup:
         os.remove(in_filename)
 
-def parse_config():
+def parse_config(variable=None):
     """
     Parse the Trident local configuration file.  This function is called
     whenever Trident is imported, and it assures that Trident knows where
@@ -207,6 +207,14 @@ def parse_config():
     Trident will launch the :class:`~trident.create_config` function to
     try to automatically generate one for the user.  For more information
     on this process, see the installation documentation.
+
+    **Parameters**
+
+    :variable: string, optional
+
+        If you wish to get the value a variable is set to in the config
+        file, specify that variable name here.  Will return the result
+        value of that variable. Default: None
     """
     # Assure the ~/.trident directory exists, and read in the config file.
     home = expanduser("~")
@@ -234,7 +242,12 @@ def parse_config():
         parser.set('Trident', 'ion_table_file', ion_table_file)
         with open(config_filename, 'w') as configfile:
             parser.write(configfile)
-    return ion_table_dir, ion_table_file
+
+    # value to return depends on what was set for "variable"
+    if variable is None:
+        return ion_table_dir, ion_table_file
+    else:
+        return parser.get('Trident', variable)
 
 def create_config():
     """
