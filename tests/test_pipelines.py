@@ -50,7 +50,8 @@ def test_enzo_small_simple(generate_answers=False):
     First, get the dataset and answer for this dataset.
     Then, unzip and untar the dataset somewhere in your filesystem.
     Finally, modify your .trident/config.tri file so trident knows where you
-    put the unzipped dataset.
+    put the unzipped dataset.  Make sure you're using the hm2012_lr.h5 
+    ion table too.
 
     All of this can be accomplished with the commands:
 
@@ -155,7 +156,8 @@ def test_enzo_small_compound(generate_answers=False):
     First, get the dataset and answer for this dataset.
     Then, unzip and untar the dataset somewhere in your filesystem.
     Finally, modify your .trident/config.tri file so trident knows where you
-    put the unzipped dataset.
+    put the unzipped dataset.  Make sure you're using the hm2012_lr.h5 
+    ion table too.
 
     All of this can be accomplished with the commands:
 
