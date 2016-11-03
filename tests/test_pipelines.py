@@ -20,7 +20,7 @@ from trident import \
     SpectrumGenerator, \
     parse_config
 from yt.testing import \
-    assert_equal, \
+    assert_almost_equal, \
     requires_file
 import tempfile
 import shutil
@@ -30,6 +30,7 @@ import h5py as h5
 # Datasets required for running some answer tests
 answer_test_data_dir = parse_config('answer_test_data_dir')
 enzo_small = os.path.join(answer_test_data_dir, 'enzo_small')
+err_precision = 8
 
 def test_verify():
     """
@@ -123,9 +124,10 @@ def test_enzo_small_simple(generate_answers=False):
         new_spec_fn = os.path.join(tempdir, 'enzo_small_simple_spec_raw.h5')
         new_spec = h5.File(new_spec_fn, 'r')
         for key in old_spec.keys():
-            assert_equal(new_spec[key].value, old_spec[key].value, \
-                        'Raw spectrum array does not match for '+\
-                        'enzo_small_simple answer test')
+            assert_almost_equal(new_spec[key].value, old_spec[key].value, \
+                                decimal=err_precision, 
+                                err_msg='Raw spectrum array does not match '+\
+                                'for enzo_small_simple answer test')
         old_spec.close()
         new_spec.close()
 
@@ -135,9 +137,10 @@ def test_enzo_small_simple(generate_answers=False):
         new_spec_fn = os.path.join(tempdir, 'enzo_small_simple_spec_final.h5')
         new_spec = h5.File(new_spec_fn, 'r')
         for key in old_spec.keys():
-            assert_equal(new_spec[key].value, old_spec[key].value, \
-                        'Final spectrum array does not match for '+\
-                        'enzo_small_simple answer test')
+            assert_almost_equal(new_spec[key].value, old_spec[key].value, \
+                                decimal=err_precision, 
+                                err_msg='Final spectrum array does not match '+\
+                                'for enzo_small_simple answer test')
         old_spec.close()
         new_spec.close()
 
@@ -230,9 +233,10 @@ def test_enzo_small_compound(generate_answers=False):
         new_spec_fn = os.path.join(tempdir, 'enzo_small_compound_spec_raw.h5')
         new_spec = h5.File(new_spec_fn, 'r')
         for key in old_spec.keys():
-            assert_equal(new_spec[key].value, old_spec[key].value, \
-                        'Raw spectrum array does not match for '+\
-                        'enzo_small_compound answer test')
+            assert_almost_equal(new_spec[key].value, old_spec[key].value, \
+                                decimal=err_precision, 
+                                err_msg='Raw spectrum array does not match '+\
+                                'for enzo_small_compound answer test')
         old_spec.close()
         new_spec.close()
 
@@ -242,9 +246,10 @@ def test_enzo_small_compound(generate_answers=False):
         new_spec_fn = os.path.join(tempdir, 'enzo_small_compound_spec_final.h5')
         new_spec = h5.File(new_spec_fn, 'r')
         for key in old_spec.keys():
-            assert_equal(new_spec[key].value, old_spec[key].value, \
-                        'Final spectrum array does not match for '+\
-                        'enzo_small_compound answer test')
+            assert_almost_equal(new_spec[key].value, old_spec[key].value, \
+                                decimal=err_precision, 
+                                err_msg='Final spectrum array does not match '+\
+                                'for enzo_small_compound answer test')
         old_spec.close()
         new_spec.close()
 
