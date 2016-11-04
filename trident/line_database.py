@@ -83,9 +83,9 @@ class Line:
                  field=None, identifier=None):
         self.element = element
         self.ion_state = ion_state
-        self.wavelength = wavelength
-        self.gamma = gamma
-        self.f_value = f_value
+        self.wavelength = float(wavelength)
+        self.gamma = float(gamma)
+        self.f_value = float(f_value)
         self.name = '%s %s %d' % (element, ion_state, round(float(wavelength), 0))
         if identifier is None:
             identifier = self.name
