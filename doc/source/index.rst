@@ -1,39 +1,26 @@
-.. trident documentation master file, created by
-   sphinx-quickstart on Fri Oct  2 16:18:37 2015.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Trident Documentation
+=====================
 
-Welcome to the documentation for Trident!
-=========================================
+Trident is a Python package for creating synthetic absorption-line spectra 
+from astrophysical hydrodynamics simulations.  It utilizes the yt package
+to read in simulation datasets and extends it to provide realistic 
+synthetic observations appropriate for studies of the interstellar,
+circumgalactic, and intergalactic media.
 
-Trident is a Python package for creating synthetic QSO spectra from simulations.
-
-Contents:
+To avoid confusion, make sure you are viewing the correct documentation for 
+the version of Trident you are using: 
+`stable <http://trident.readthedocs.io/en/stable>`_ vs.
+`development <http://trident.readthedocs.io/en/latest>`_.  For more 
+information, see :ref:`versions`.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   Installation.rst
-   MakingSpectra.rst
-   AdvancedSpectra.rst
-   Reference.rst
-
-Help
-----
-
-Got questions?  Join the `Trident Project Google Group
-<https://groups.google.com/forum/#!forum/trident-project-users>`_!  Feel
-free to post any questions or ideas for development.
-
-Citing Trident
---------------
-
-We don't have a Trident paper yet, so why don't you just offer us
-permanent jobs?
-
-Indices and tables
-------------------
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   installation.rst
+   making_spectra.rst
+   advanced_spectra.rst
+   ion_balance.rst
+   faq.rst
+   reference.rst
+   citation.rst
+   help.rst

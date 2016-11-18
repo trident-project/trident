@@ -1,0 +1,4 @@
+include CITATION CREDITS LICENSE README
+recursive-include trident *.py *.txt
+recursive-include doc *.rst *.py *.png
+recursive-include examples *.py

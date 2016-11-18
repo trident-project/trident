@@ -8,14 +8,17 @@ http://yt-project.org
 """
 
 #-----------------------------------------------------------------------------
-# Copyright (c) 2015, Trident Development Team.
+# Copyright (c) 2016, Trident Development Team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
-# The full license is in the file COPYING.txt, distributed with this software.
+# The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
-from ion_balance import \
+__version__ = "0.5.1-dev"
+
+from trident.ion_balance import \
+    add_ion_fields, \
     add_ion_fraction_field, \
     add_ion_number_density_field, \
     add_ion_density_field, \
@@ -23,28 +26,44 @@ from ion_balance import \
     solar_abundance, \
     atomic_mass
 
-from instrument import \
+from trident.instrument import \
     Instrument
 
-from line_database import \
+from trident.line_database import \
     LineDatabase, \
     Line
 
-from lsf import \
+from trident.lsf import \
     LSF
 
-from plotting import \
+from trident.plotting import \
     plot_spectrum
 
-from spectrum_generator import \
+from trident.spectrum_generator import \
     SpectrumGenerator, \
-    valid_instruments
+    valid_instruments, \
+    load_spectrum
 
-from utilities import \
-    print_logo
+from trident.utilities import \
+    parse_config, \
+    create_config, \
+    trident, \
+    trident_path, \
+    make_onezone_dataset, \
+    make_onezone_ray, \
+    verify
+
+from trident.ray_generator import \
+    make_simple_ray, \
+    make_compound_ray
+
+from trident.roman import \
+    to_roman, \
+    from_roman
 
 # Import yt's LightRay class
 from yt.analysis_modules.cosmological_observation.api import \
     LightRay
 
-print_logo()
+# Making installation path global
+path = trident_path()

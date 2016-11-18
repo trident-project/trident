@@ -4,41 +4,47 @@ Instrument class and member functions.
 """
 
 #-----------------------------------------------------------------------------
-# Copyright (c) 2015, Trident Development Team.
+# Copyright (c) 2016, Trident Development Team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
-# The full license is in the file COPYING.txt, distributed with this software.
+# The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
 class Instrument(object):
     """
-    An instrument template for specifying a spectrograph/telescope pair
+    An instrument class for specifying a spectrograph/telescope pair
 
     **Parameters**
 
-    lambda_min : int
+    :lambda_min: int
+
         Minimum desired wavelength for generated spectrum in angstroms
 
-    lambda_max : int
+    :lambda_max: int
+
         Maximum desired wavelength for generated spectrum in angstroms
 
-    n_lambda : int
+    :n_lambda: int
+
         Number of desired wavelength bins for the spectrum
         Setting dlambda overrides n_lambda value
         Default: None
 
-    dlambda : float
+    :dlambda: float
+
         Desired bin width for the spectrum in angstroms
         Setting dlambda overrides n_lambda value
         Default: None
 
-    lsf_kernel : string
-        The filename for the LSF kernel
+    :lsf_kernel: string
+
+        The filename for the :class:`~trident.LSF` kernel
         Default: None
 
-    name : string
-        Name assigned to the Instrument object
+    :name: string
+
+        Name assigned to the :class:`~trident.Instrument` object
         Default: None
 
     """
@@ -47,6 +53,7 @@ class Instrument(object):
         self.lambda_min = lambda_min
         self.lambda_max = lambda_max
         self.lsf_kernel = lsf_kernel
+        self.name = name
         if n_lambda is None and dlambda is None:
             raise RuntimeError("Either n_lambda or dlambda must be set to "
                                "specify the binsize")
@@ -58,9 +65,6 @@ class Instrument(object):
             # adding 1 here to assure we cover full lambda range
             dlambda = (lambda_max - lambda_min) / float(n_lambda - 1)
         self.dlambda = dlambda
-
-        if name is not None:
-            self.name = name
 
     def __repr__(self):
         disp = "<Instrument>:\n"

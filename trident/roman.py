@@ -34,12 +34,28 @@ romanNumeralMap = (('M',  1000),
 				   ('IV', 4),
 				   ('I',  1))
 
-def toRoman(n):
-	"""convert integer to Roman numeral"""
+def to_roman(n):
+	"""
+    Convert an integer to a Roman numeral.  Only works for integers > 0.
+
+    **Parameters**
+    
+    :n: int
+
+        Integer to convert to Roman numeral
+
+    **Returns**
+
+    String representing the roman numeral equivalent of argument **n**.
+
+    **Example**
+    
+    >>> num = to_roman(5)
+    """
 	if not (0 < n < 5000):
-		raise OutOfRangeError, "number out of range (must be 1..4999)"
-	if int(n) <> n:
-		raise NotIntegerError, "non-integers can not be converted"
+		raise OutOfRangeError("number out of range (must be 1..4999)")
+	if int(n) != n:
+		raise NotIntegerError("non-integers can not be converted")
 
 	result = ""
 	for numeral, integer in romanNumeralMap:
@@ -61,12 +77,28 @@ romanNumeralPattern = re.compile('''
 	$				   # end of string
 	''' ,re.VERBOSE)
 
-def fromRoman(s):
-	"""convert Roman numeral to integer"""
+def from_roman(s):
+	"""
+    Convert a Roman numeral to an integer.  
+
+    **Parameters**
+    
+    :s: string
+
+        String representing Roman numeral.  Examples: 'I', "II', 'XI', "MCMXC".
+
+    **Returns**
+
+    Integer value equivalent to **s** Roman numeral argument.
+
+    **Example**
+    
+    >>> num = from_roman('V')
+    """
 	if not s:
-		raise InvalidRomanNumeralError, 'Input can not be blank'
+		raise InvalidRomanNumeralError('Input can not be blank')
 	if not romanNumeralPattern.search(s):
-		raise InvalidRomanNumeralError, 'Invalid Roman numeral: %s' % s
+		raise InvalidRomanNumeralError('Invalid Roman numeral: {s}'.format(s))
 
 	result = 0
 	index = 0
