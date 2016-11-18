@@ -96,7 +96,11 @@ def _log_nH(field, data):
         ftype = field.name[0]
     else:
         ftype = "gas"
-    return np.log10(data[ftype, "density"] * to_nH)
+    if (ftype, "H_nuclei_density") in data.ds.derived_field_list:
+        log_nH_field = np.log10(data[ftype, "H_nuclei_density"])
+    else:
+        log_nH_field = np.log10(data[ftype, "density"] * to_nH)
+    return log_nH_field
 
 def _redshift(field, data):
     """
@@ -891,21 +895,18 @@ def _ion_number_density(field, data):
                   atomic_mass[atom] / mh
 
     if atom == 'H' or atom == 'He':
-        field = solar_abundance[atom] * data[fraction_field_name] * \
-                data[ftype, "density"]
+        field = solar_abundance[atom] * data[fraction_field_name]
     else:
         field = data.ds.quan(solar_abundance[atom], "1.0/Zsun") * \
           data[ftype, fraction_field_name] * \
-          data[ftype, "metallicity"] * \
-          data[ftype, "density"]
-        # Ideally we'd like to use the following line
-        # but it is very slow to compute.
-        # If we get H_nuclei_density sped up
-        # then we will want to remove the "to_nH" below
-        # (this applies above as well)
-        # data['H_nuclei_density']
-    # the "to_nH", does the final conversion to number density
-    return field * to_nH
+          data[ftype, "metallicity"]
+    # convert to number density
+    # use the on disk hydrogen number density if possible
+    if (ftype, "H_nuclei_density") in data.ds.derived_field_list:
+        field = field * data[ftype, "H_nuclei_density"]
+    else:
+        field = field * data[ftype, "density"] * to_nH
+    return field
 
 def _ion_fraction_field(field, data):
     """
