@@ -895,18 +895,18 @@ def _ion_number_density(field, data):
                   atomic_mass[atom] / mh
 
     if atom == 'H' or atom == 'He':
-        field = solar_abundance[atom] * data[fraction_field_name]
+        number_density = solar_abundance[atom] * data[fraction_field_name]
     else:
-        field = data.ds.quan(solar_abundance[atom], "1.0/Zsun") * \
+        number_density = data.ds.quan(solar_abundance[atom], "1.0/Zsun") * \
           data[ftype, fraction_field_name] * \
           data[ftype, "metallicity"]
     # convert to number density
     # use the on disk hydrogen number density if possible
     if (ftype, "H_nuclei_density") in data.ds.derived_field_list:
-        field = field * data[ftype, "H_nuclei_density"]
+        number_density = number_density * data[ftype, "H_nuclei_density"]
     else:
-        field = field * data[ftype, "density"] * to_nH
-    return field
+        number_density = number_density * data[ftype, "density"] * to_nH
+    return number_density
 
 def _ion_fraction_field(field, data):
     """
