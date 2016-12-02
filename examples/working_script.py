@@ -1,7 +1,6 @@
 # Example of a currently working script using trident to generate a COS
 # spectrum from an Enzo dataset
 
-from __future__ import absolute_import
 import yt
 import trident
 
