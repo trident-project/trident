@@ -649,8 +649,12 @@ def _determine_fields_from_ions(ds, ion_list, fields, ftype, particle_type):
                         fields.append(('gas', metallicity_field))
                     elif ('gas', nuclei_field) in ds.derived_field_list:
                         fields.append(('gas', nuclei_field))
-                    else:
+                    elif atom != 'H':
                         fields.append(('gas', 'metallicity'))
+                    else:
+                        # Don't need metallicity field if we're just looking
+                        # at hydrogen
+                        pass
             else:
                 fields.append(("gas", alias_field))
         else:
