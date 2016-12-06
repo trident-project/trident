@@ -215,10 +215,15 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
             my_axes.step(wavelength, flux, label=labels[i])
         else:
             my_axes.plot(wavelength, flux, label=labels[i])
-
+            
         new_max_flux = np.max(flux)
         if new_max_flux > max_flux:
             max_flux = new_max_flux
+
+        # Return the fluxes to their normal values
+        # if they've been staggered
+        if stagger is not None:
+            flux += stagger * i
 
     # Do we include a title?
     if title is not None:
