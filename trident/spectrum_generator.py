@@ -931,7 +931,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         :axis_labels: tuple of strings, optional
 
             Optionally set the axis labels directly.  If set to None, defaults to
-            ('Wavelength [$\\AA$]', 'Relative Flux').
+            ('Wavelength [$\\rm\\AA$]', 'Relative Flux').
             Default: None
 
         **Example**

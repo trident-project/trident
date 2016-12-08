@@ -111,7 +111,7 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
     :axis_labels: tuple of strings, optional
 
         Optionally set the axis labels directly.  If set to None, defaults to
-        ('Wavelength [$\\AA$]', 'Relative Flux').
+        ('Wavelength [$\\rm\\AA$]', 'Relative Flux').
         Default: None
 
     **Returns**
@@ -232,7 +232,7 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
         flux_limits = (0, 1.1*max_flux)
     my_axes.set_ylim(flux_limits[0], flux_limits[1])
     if axis_labels is None:
-        axis_labels = ('Wavelength [$\\AA$]', 'Relative Flux')
+        axis_labels = ('Wavelength [$\\rm\\AA$]', 'Relative Flux')
     my_axes.xaxis.set_label_text(axis_labels[0])
     my_axes.yaxis.set_label_text(axis_labels[1])
 
