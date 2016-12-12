@@ -705,3 +705,16 @@ def verify(save=False):
     print("Congratulations, you have verified that Trident is installed correctly.")
     print("Now let's science!")
     print("")
+
+def import_check():
+    """
+    """
+    # Avoid astropy error when importing from trident package directory.
+    plist = os.path.dirname(os.path.abspath(__file__)).split('/')
+    package_path = '/'.join(plist[:-1])
+    if os.getcwd() == package_path:
+        raise RuntimeError(
+            """
+
+The Trident package does not work correctly when imported from its
+installation directory.  Please try moving to another directory.""")

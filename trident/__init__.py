@@ -17,6 +17,11 @@ http://yt-project.org
 
 __version__ = "0.5.1-dev"
 
+# Must run import_check() before anything else is imported to avoid
+# astropy error when importing trident in trident package directory
+from trident.utilities import import_check
+import_check()
+
 from trident.ion_balance import \
     add_ion_fields, \
     add_ion_fraction_field, \
