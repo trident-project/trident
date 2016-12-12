@@ -117,8 +117,7 @@ your configuration and download your ion table file, but it will
 create a simple one-zone dataset, generate a ray through it, and 
 create a spectrum from that ray.  This should execute very quickly, 
 and if it succeeds it demonstrates that your installation has been totally 
-successful.  Run the following from a directory other than your Trident
-source directory to avoid :ref:`this <astropy-problem>`::
+successful::
 
     $ python
     >>> import trident
