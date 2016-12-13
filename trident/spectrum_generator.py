@@ -91,7 +91,12 @@ class SpectrumGenerator(AbsorptionSpectrum):
         set to None.
         Default: None
 
-    :lambda_min:, :lambda_max: int
+    :lambda_min: int
+
+        The wavelength extrema of the spectra in angstroms
+        Defaults: None
+
+    :lambda_max: int
 
         The wavelength extrema of the spectra in angstroms
         Defaults: None
