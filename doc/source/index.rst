@@ -17,7 +17,7 @@ information, see :ref:`versions`.
    :maxdepth: 1
 
    installation.rst
-   making_spectra.rst
+   annotated_example.rst
    advanced_spectra.rst
    ion_balance.rst
    faq.rst
