@@ -83,12 +83,13 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
     :instrument: string, optional
     
-        The telescope+instrument combination to use.  Currently, the Cosmic
-        Origins Spectrograph 'COS' is the only automatic option, but this should
-        automatically set ``lambda_min`` = 1150, ``lambda_max`` = 1450, 
-        ``dlambda`` = 0.1, and ``lsf_kernel`` = 'avg_COS.txt'.  If you're going
-        to set ``lambda_min``, ``lambda_max``, et al manually, leave this
-        set to None.
+        The spectrograph to use.  Currently, the only named options are 
+        different observing modes of the Cosmic Origins Spectrograph 'COS':
+        'COS-G130M', 'COS-G160M', and 'COS-G140L' as well as 'COS' which 
+        aliases to 'COS-G130M'. These automatically set the ``lambda_min``,
+        ``lambda_max``, ``dlambda`` and ``lsf_kernel``s appropriately.
+        If you're going to set ``lambda_min``, ``lambda_max``, et al manually, 
+        leave this set to None.
         Default: None
 
     :lambda_min: int
