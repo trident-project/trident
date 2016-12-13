@@ -44,15 +44,13 @@ from yt.utilities.on_demand_imports import \
 # Valid instruments
 valid_instruments = \
     {'COS' :
-       Instrument(1150, 1450, dlambda=0.01, lsf_kernel='avg_COS.txt', name='COS'),
-     'HIRES' :
-       Instrument(1200, 1400, dlambda=0.01, name='HIRES'),
-     'UVES' :
-       Instrument(1200, 1400, dlambda=0.01, name='UVES'),
-     'MODS' :
-       Instrument(1200, 1400, dlambda=0.01, name='MODS'),
-     'SDSS' :
-       Instrument(1200, 1400, dlambda=0.01, name='SDSS')}
+       Instrument(1150, 1450, dlambda=0.01, lsf_kernel='avg_COS_G130M.txt', name='COS'),
+     'COS-G130M' :
+       Instrument(1150, 1450, dlambda=0.01, lsf_kernel='avg_COS_G130M.txt', name='COS-G130M'),
+     'COS-G140L' :
+       Instrument(1130, 2330, dlambda=0.08, lsf_kernel='avg_COS_G140L.txt', name='COS-G140L'),
+     'COS-G160M' :
+       Instrument(1405, 1777, dlambda=0.012, lsf_kernel='avg_COS_G160M.txt', name='COS-G160M')}
 
 class SpectrumGenerator(AbsorptionSpectrum):
     """
