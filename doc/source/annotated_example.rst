@@ -59,7 +59,7 @@ Let's define what lines or species we want to be added to our final spectrum.
 In this case, we want to deposit all hydrogen, carbon, nitrogen, oxygen,
 and magnesium lines to the resulting spectrum from the dataset::
 
-    line_list = [‘H’, 'C', 'N', "O', 'Mg']
+    line_list = ['H', 'C', 'N', 'O', 'Mg']
 
 We can now generate the light ray using the :class:`~trident.make_simple_ray`
 function by passing the dataset and the trajectory endpoints to it as well
@@ -93,9 +93,9 @@ Here we create a projection of the density field along the x axis of the
 dataset, and then overplot the path the LightRay takes through the simulation,
 before saving it to disk::
 
-    p = yt.ProjectionPlot(ds, ‘x’, ‘density’)
+    p = yt.ProjectionPlot(ds, 'x', 'density')
     p.annotate_ray(ray, arrow=True)
-    p.save(‘projection.png’)
+    p.save('projection.png')
 
 .. image:: http://trident-project.org/data/doc_images/annotated_example/projection.png
 
