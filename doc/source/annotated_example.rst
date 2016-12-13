@@ -22,8 +22,8 @@ The basic process requires three main steps:
     `here <https://bitbucket.org/trident-project/trident/src/tip/examples/working_script.py>`_,
     or locally in ``trident.path/examples/working_script.py``
 
-LightRay Generation
---------------------
+Simple LightRay Generation
+--------------------------
 
 A :class:`~trident.LightRay` is a 1D object representing the path a ray of
 light takes through a simulation volume on its way from some bright background
@@ -59,7 +59,7 @@ Let's define what lines or species we want to be added to our final spectrum.
 In this case, we want to deposit all hydrogen, carbon, nitrogen, oxygen,
 and magnesium lines to the resulting spectrum from the dataset::
 
-    line_list = [‘H’, 'C', 'N', "O', 'Mg']
+    line_list = [‘H’, 'C', 'N', 'O', 'Mg']
 
 We can now generate the light ray using the :class:`~trident.make_simple_ray`
 function by passing the dataset and the trajectory endpoints to it as well
@@ -145,3 +145,42 @@ which produces:
    :width: 700
 
 To create more complex or ion-specific spectra, refer to :ref:`advanced-spectra`.
+
+Compound LightRays
+------------------
+
+In some cases (e.g. studying redshift evolution of the IGM), it may be
+desirable to create a ``LightRay`` that covers a range in redshift
+that is larger than the domain width of a single simulation snaptshot.
+Rather than simply sampling the same dataset repeatedly, which is
+inherently unphysical since large scale structure evolves with cosmic
+time, Trident allows the user to create a ray that samples multiple
+datasets from different redshifts to produce a much longer ray that is
+continuous in redshift space.  This is done by using the
+:class:`~trident.make_compound_ray` function.  This function is
+similar to the previously mentioned :class:`~trident.make_simple_ray`
+function, but instead of accepting an individual dataset, it takes a
+simulation parameter file, the associated simulation type, and the
+desired range in redshift to be probed by the ray, while still
+allowing the user to specify the same sort of line list as before:::
+
+  fn = 'enzo_cosmology_plus/AMRCosmology.enzo'
+  ray = trident.make_compound_ray(fn, simulation_type='Enzo',
+                                  near_redshift=0.0, far_redshift=0.1,
+				  ftype='gas',
+                                  lines=line_list)
+
+In this example, we've created a ray from an Enzo simulation (the same
+one used above) that goes from z = 0 to z = 0.1. This ray can now be
+used to generate spectra in the exact same ways that were demonstrated
+above. We encourage you to look at the detailed documentation for
+:class:`~trident.make_compound_ray` in the :ref:`reference` section to
+understand how to control how the ray itself is constructed from the
+available data.
+
+.. note::
+        
+        The compound ray functionality has only been implemented for the
+        Enzo and Gadget code.  If you would like to help us implement
+        this functionality for your simulation code, please contact us
+        about this on the mailing list.
