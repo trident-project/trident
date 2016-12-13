@@ -172,11 +172,11 @@ allowing the user to specify the same sort of line list as before:::
 
 In this example, we've created a ray from an Enzo simulation (the same
 one used above) that goes from z = 0 to z = 0.1. This ray can now be
-used to generate spectra in the exact same ways that were demonstrated
-above. We encourage you to look at the detailed documentation for
-:class:`~trident.make_compound_ray` in the :ref:`reference` section to
-understand how to control how the ray itself is constructed from the
-available data.
+used to generate spectra in the exact same ways as before. We
+encourage you to look at the detailed documentation for
+:class:`~trident.make_compound_ray` in the :ref:`api-reference`
+section to understand how to control how the ray itself is constructed
+from the available data.
 
 .. note::
         
