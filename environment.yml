@@ -1,4 +1,6 @@
 name: trident
+channels:
+- conda-forge
 dependencies:
 - cairo=1.12.18=6
 - cycler=0.10.0=py27_0
