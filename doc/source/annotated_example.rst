@@ -3,24 +3,26 @@
 Annotated Example
 =================
 
-Making spectra with Trident is intended to require a minimal amount of effort 
-by the user.  This section will walk you through the steps necessary to 
+The best way to get a feel for what Trident can do is to go through an 
+annotated example of its use.  
+This section will walk you through the steps necessary to 
 produce a synthetic spectrum based on simulation data and to view its path
-through the parent dataset.
+through the parent dataset.  The following example, `available in the source
+code itself 
+<https://bitbucket.org/trident-project/trident/src/tip/examples/working_script.py>`_,
+can be applied to datasets from any of the different simulation codes that 
+`Trident and yt support <http://yt-project.org/docs/dev/reference/code_support.html#code-support>`_, 
+but if you want to recreate the following analysis with the 
+exact dataset used, it can be downloaded `here <http://yt-project.org/data/>`_.
 
-The basic process requires three main steps:
+The basic process for generating a spectrum and overplotting a sightline's 
+trajectory through the dataset goes in three steps:
 
     1. Generate a :class:`~trident.LightRay` from the simulation data 
        representing a sightline through the data.
-    2. Define the desired spectrum features and use the ``LightRay`` to 
+    2. Define the desired spectrum features and use the :class:`~trident.LightRay` to 
        create a corresponding synthetic spectrum.
-    3. Create a projected image and overplot the path of the ``LightRay``.
-
-.. note::
-
-    The actual code contained in the snippets below can be found online 
-    `here <https://bitbucket.org/trident-project/trident/src/tip/examples/working_script.py>`_,
-    or locally in ``trident.path/examples/working_script.py``
+    3. Create a projected image and overplot the path of the :class:`~trident.LightRay`.
 
 Simple LightRay Generation
 --------------------------
@@ -30,17 +32,12 @@ light takes through a simulation volume on its way from some bright background
 object to the observer.  It records all of the gas fields it intersects along
 the way for use in construction of a spectrum.  
 
-In order to generate a ``LightRay`` from your data, you need to first make sure 
-that you've imported both the yt and Trident packages::
+In order to generate a :class:`~trident.LightRay` from your data, you need to first make sure 
+that you've imported both the yt and Trident packages, and 
+specify the filename of the dataset from which to extract the light ray::
 
    import yt
    import trident
-
-Then, you need to specify from which dataset to extract the light ray.  For 
-this example, we'll be using a `sample Enzo dataset 
-<http://yt-project.org/data/>`_ but the process should work for other data 
-formats and simulation types::
-
    fn = 'enzo_cosmology_plus/RD0009/RD0009'
 
 We need to decide the trajectory that the :class:`~trident.LightRay` will take
@@ -81,17 +78,18 @@ building the required ion fields::
     It is imperative that you set the `ftype` keyword properly for your dataset.
     An ``ftype`` of 'gas' is adequate for grid-based codes, but not particle.
     Particle-based datasets must set ``ftype`` to the field type
-    of their gas particles (e.g. ``PartType0``) to assure that Trident builds 
+    of their gas particles (e.g. 'PartType0') to assure that Trident builds 
     the ion fields on the particles themselves before smoothing these fields 
     to the grid.  By not setting this correctly, you risk bad ion values by
     building from smoothed gas fields.
 
-Overlaying a LightRay's Trajectory on a Projection
+Overplotting a LightRay's Trajectory on a Projection
 --------------------------------------------------
 
 Here we create a projection of the density field along the x axis of the 
-dataset, and then overplot the path the LightRay takes through the simulation,
-before saving it to disk::
+dataset, and then overplot the path the :class:`~trident.LightRay` takes through the simulation,
+before saving it to disk.  The ``annotate_ray()`` operation should work for
+any volumentric plot, including slices, and off-axis plots::
 
     p = yt.ProjectionPlot(ds, 'x', 'density')
     p.annotate_ray(ray, arrow=True)
@@ -102,7 +100,7 @@ before saving it to disk::
 Spectrum Generation
 -------------------
 
-Now that we have our ``LightRay``, we can use it to generate a spectrum.
+Now that we have our :class:`~trident.LightRay` we can use it to generate a spectrum.
 To create a spectrum, we need to make a :class:`~trident.SpectrumGenerator`
 object defining our desired wavelength range and bin size.  You can do this
 by manually setting these features, or just using one of the presets for 
@@ -172,8 +170,15 @@ allowing the user to specify the same sort of line list as before:::
 
 In this example, we've created a ray from an Enzo simulation (the same
 one used above) that goes from z = 0 to z = 0.1. This ray can now be
-used to generate spectra in the exact same ways as before. We
-encourage you to look at the detailed documentation for
+used to generate spectra in the exact same ways as before. 
+
+Obviously, there need to be sufficient simulation outputs over the desired
+redshift range of the compound ray in order to have continuous sampling.
+To assure adequate simulation output frequency for this, one can use yt's
+``plan_cosmology_splice()`` function.  See an example of its usage in
+the `yt documentation <http://yt-project.org/docs/dev/analyzing/analysis_modules/planning_cosmology_simulations.html>`_.
+
+We encourage you to look at the detailed documentation for
 :class:`~trident.make_compound_ray` in the :ref:`api-reference`
 section to understand how to control how the ray itself is constructed
 from the available data.
@@ -181,6 +186,6 @@ from the available data.
 .. note::
 
         The compound ray functionality has only been implemented for the
-        Enzo and Gadget code.  If you would like to help us implement
-        this functionality for your simulation code, please contact us
-        about this on the mailing list.
+        Enzo and Gadget simulation codes.  If you would like to help us 
+        implement this functionality for your simulation code, please contact 
+        us about this on the mailing list.
