@@ -3,12 +3,7 @@
 Citation
 ========
 
-We do not currently have a method paper available for citation, but we 
-anticipate having one out soon.  This location will be updated when we do.  
-Currently, if you use Trident in a publication, please cite Trident as::
-
-    Hummels, C. B., Smith, B. D., Silvia, D. in prep.
-
-In the body of the text, please add a footnote to the Trident webpage:
-
-http://trident-project.org/
+Trident has a `code method paper <https://arxiv.org/abs/1612.03935>`_ available 
+for citation.  If you use Trident for a research application, please cite it
+accordingly.  In addition, please include a footnote in the body of the 
+text denoting its web location: http://trident-project.org.
