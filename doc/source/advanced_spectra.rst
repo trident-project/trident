@@ -30,7 +30,7 @@ Now, we'll load up a ray using yt::
 We then generate a spectrum that goes from 1150 angstroms to 1250 angstroms 
 with a resolution of 0.01 angstroms::
 
-   sg = tri.SpectrumGenerator(lambda_min=1150, lambda_max=1250, dlambda=0.01)
+   sg = trident.SpectrumGenerator(lambda_min=1150, lambda_max=1250, dlambda=0.01)
 
 From here, we can pass the ray to the SpectrumGenerator object to use in the 
 construction of a spectrum.  As a first pass, we'll create a spectrum that 
