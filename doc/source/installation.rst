@@ -13,10 +13,13 @@ Versions of Trident
 Currently, there are two versions of Trident: the `stable version 
 <http://trident.readthedocs.io/en/stable>`_, and the `developent version
 <http://trident.readthedocs.io/en/latest>`_.  The stable version is tried,
-tested, and stable.  The development version has new features under
-current development, which may lead to the occasional error but is generally
-very stable too.  The installation steps are slightly different between the two
-(easier for stable than dev) so pay attention in the steps below.
+and tested, and it operates on a stable version of yt.  The development 
+version is actively being updated with new features, and it is also tied to
+the development version of yt, so occasionally unforseen bugs can crop
+up as these new features are added.  
+The installation steps are slightly different between the two versions,
+in that installing stable is easier and faster than dev, so pay attention in 
+the steps below.
 Don't worry if you want to change later, you can always 
 switch between the two versions easily enough by following the directions
 in :ref:`uninstallation`.
