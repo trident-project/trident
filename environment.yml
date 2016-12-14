@@ -32,5 +32,5 @@ dependencies:
 - sympy=1.0=py27_0
 - tk=8.5.18=0
 - wheel=0.29.0=py27_0
-- yt=3.3.3=py27_0
+- yt=3.3.2=py27_0
 - zlib=1.2.8=0
