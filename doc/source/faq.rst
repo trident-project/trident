@@ -48,3 +48,19 @@ You can join our mailing list for announcements, bugs reports, and changes
 at:
 
 https://groups.google.com/forum/#!forum/trident-project-users
+
+How do I learn more about the algorithms used in Trident?
+---------------------------------------------------------
+
+We have a full description of all the methods used in Trident including
+citations to previous related works in our `Trident method paper 
+<https://arxiv.org/abs/1612.03935>`_.
+
+How do I cite Trident in my research?
+-------------------------------------
+
+Please cite our `method paper <https://arxiv.org/abs/1612.03935>`_ and also 
+include a footnote to our `website <http://trident-project.org>`_ so others 
+know where to acquire the Trident software.
+
+
