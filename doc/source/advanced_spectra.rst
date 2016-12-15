@@ -4,28 +4,31 @@ Advanced Spectrum Generation
 ============================
 
 Outside of generating a basic "observed" spectrum with the standard features 
-that might present in a realistic asborption spectrum, the user can also 
+that might be present in a realistic asborption spectrum, the user can also 
 customize the generated spectrum to have an arbitrary set of desired 
 properties, e.g. wavelength range, spectral resolution, and included 
 absorption lines. The following code goes through the process of setting 
 such properties and displays the resulting spectra.
 
-For this demostation, we'll be using a light ray that we've previously 
-generated from a RAMSES dataset.  If you'd like to try to reproduce the 
-spectra included below you can get the ray from the Trident project space using:
+For this demonstation, we'll be using a light ray passing through a very dense
+disk of gas, taken from the initial output from the AGORA isolated box 
+simulation using ART-II in `Kim et al. 
+<http://adsabs.harvard.edu/abs/2016arXiv161003066K>`_.
+If you'd like to try to reproduce the spectra included below you can get 
+the :class:`~trident.LightRay` from the Trident sample data using the command:
 
 .. highlight:: none
 
 ::
 
-   $ wget http://trident-project.org/data/sample_rays/ramses_ray.h5
+   $ wget http://trident-project.org/data/sample_rays/ART-II_ray.h5
 
 Now, we'll load up a ray using yt::
 
    import yt
    import trident
 
-   ray = yt.load("ramses_ray.h5")
+   ray = yt.load('ART-II_ray.h5')
 
 We then generate a spectrum that goes from 1150 angstroms to 1250 angstroms 
 with a resolution of 0.01 angstroms::
@@ -36,7 +39,7 @@ From here, we can pass the ray to the SpectrumGenerator object to use in the
 construction of a spectrum.  As a first pass, we'll create a spectrum that 
 just include the lines produced by hydrogen::
 
-    sg.make_spectrum(ray, lines=["H"])
+    sg.make_spectrum(ray, lines=['H'])
     sg.plot_spectrum('spec_H.png')
 
 The resulting spectrum contains a nice, big Lyman-alpha feature.
@@ -46,7 +49,7 @@ The resulting spectrum contains a nice, big Lyman-alpha feature.
 If, instead, we want to shows the lines that would be in our spectral range 
 due to carbon, nitrogen, and oxygen, we can do the following::
 
-    sg.make_spectrum(ray, lines=["C", "N", "O"])
+    sg.make_spectrum(ray, lines=['C', 'N', 'O'])
     sg.plot_spectrum('spec_CNO.png')
 
 And now we have:
@@ -56,7 +59,7 @@ And now we have:
 We can see how these two spectra combined when we include all of the same 
 lines::
 
-    sg.make_spectrum(ray, lines=["H", "C", "N", "O"])
+    sg.make_spectrum(ray, lines=['H', 'C', 'N', 'O'])
     sg.plot_spectrum('spec_HCNO.png')
 
 which gives:
@@ -67,7 +70,7 @@ We can get even more specific, by generating a spectrum that only contains
 lines due to a single ion species.  For example, we might just want the 
 lines from four-times-ionized nitrogen, N V::
 
-    sg.make_spectrum(ray, lines=["N V"])
+    sg.make_spectrum(ray, lines=['N V'])
     sg.plot_spectrum('spec_NV.png')
 
 This spectrum only shows a couple of small lines on the right hand side.
@@ -76,12 +79,21 @@ This spectrum only shows a couple of small lines on the right hand side.
 
 But if that level of specificity isn't enough, we can request individual lines::
 
-    sg.make_spectrum(ray, lines=["C I 1193", "C I 1194"])
+    sg.make_spectrum(ray, lines=['C I 1193', 'C I 1194'])
     sg.plot_spectrum('spec_CI_1193_1194.png')
 
 And we end up with:
 
 .. image:: http://trident-project.org/data/doc_images/spectra/spec_CI_1193_1194.png
+
+Or we can just include all of the available lines in our line list with::
+
+    sg.make_spectrum(ray, lines='all')
+    sg.plot_spectrum('spec_all.png')
+
+Giving us:
+
+.. image:: http://trident-project.org/data/doc_images/spectra/spec_all.png
 
 To understand how to further customize your spectra, look at the documentation 
 for the :class:`~trident.SpectrumGenerator` class and other 
