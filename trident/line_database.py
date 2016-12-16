@@ -455,3 +455,9 @@ class LineDatabase:
             ions.append((line.element, from_roman(line.ion_state)))
         ions = uniquify(ions)
         return ions
+
+    def __repr__(self):
+        disp = ""
+        for line in self.lines_all:
+            disp += "%s\n" % line
+        return disp

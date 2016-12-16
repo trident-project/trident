@@ -73,5 +73,5 @@ class Instrument(object):
         disp += "    lambda_max: %f\n" % self.lambda_max
         disp += "    n_lambda: %d\n" % self.n_lambda
         disp += "    dlambda: %f\n" % self.dlambda
-        disp += "    lsf_kernel: %s" % self.lsf_kernel
+        disp += "    lsf_kernel: %s\n" % self.lsf_kernel
         return disp

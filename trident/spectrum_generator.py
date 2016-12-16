@@ -50,7 +50,8 @@ valid_instruments = \
      'COS-G140L' :
        Instrument(1130, 2330, dlambda=0.08, lsf_kernel='avg_COS_G140L.txt', name='COS-G140L'),
      'COS-G160M' :
-       Instrument(1405, 1777, dlambda=0.012, lsf_kernel='avg_COS_G160M.txt', name='COS-G160M')}
+       Instrument(1405, 1777, dlambda=0.012, lsf_kernel='avg_COS_G160M.txt', name='COS-G160M')
+     }
 
 class SpectrumGenerator(AbsorptionSpectrum):
     """
