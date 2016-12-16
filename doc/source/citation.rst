@@ -4,7 +4,7 @@ Citation
 ========
 
 If you use Trident for a research application, please cite the 
-`Trident method paper <http://adsabs.harvard.edu/abs/2016arXiv161203935H>`_, 
+`Trident method paper <http://adsabs.harvard.edu/abs/2016arXiv161203935H>`_ 
 in your work with the bibtex entry below::
 
     @ARTICLE{2016arXiv161203935H,
