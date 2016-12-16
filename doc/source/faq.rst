@@ -28,6 +28,8 @@ To figure out what version of yt you're running, type::
 If you're writing to the mailing list with a problem, be sure to include all
 of the above with your bug report or question.
 
+.. _where-installed:
+
 Where is Trident installed?  Where are its data files?
 ------------------------------------------------------
 
