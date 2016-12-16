@@ -22,7 +22,7 @@ command:
 
 ::
 
-   $ wget http://trident-project.org/data/sample_rays/ART-II_ray.h5
+   $ wget http://trident-project.org/data/sample_data/ART-II_ray.h5
 
 Now, we'll load up the ray using yt::
 
