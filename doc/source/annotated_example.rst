@@ -75,7 +75,7 @@ building the required ion fields::
                                   ftype='gas')
 
 .. warning::
-    It is imperative that you set the `ftype` keyword properly for your dataset.
+    It is imperative that you set the ``ftype`` keyword properly for your dataset.
     An ``ftype`` of 'gas' is adequate for grid-based codes, but not particle.
     Particle-based datasets must set ``ftype`` to the field type
     of their gas particles (e.g. 'PartType0') to assure that Trident builds 
