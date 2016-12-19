@@ -39,7 +39,7 @@ and line spread function explicitly, or we can choose one of the preset
 instruments that come with Trident.  To list the presets and their respective
 values, use this command::
 
-    print trident.valid_instruments
+    print(trident.valid_instruments)
     
 Currently, we have `three settings for the Cosmic Origins Spectrograph 
 <http://www.stsci.edu/hst/cos/design/gratings/>`_ available:
@@ -68,7 +68,7 @@ with different lines.  To see a list of all the lines included in the default
 line list::
 
     ldb = trident.LineDatabase('lines.txt')
-    print ldb
+    print(ldb)
 
 which is reading lines from the 'lines.txt' file present in the 
 data directory (see :ref:`where is Trident installed? <where-installed>`)
@@ -77,7 +77,7 @@ spectrum from our master line list.  So if you're interested in just looking
 at neutral hydrogen lines in your spectrum, you can see what lines will be 
 included with the command::
 
-    print ldb.parse_subset('H I')
+    print(ldb.parse_subset('H I'))
 
 As a first pass, we'll create a spectrum that just include lines produced 
 by hydrogen::

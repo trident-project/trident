@@ -12,7 +12,7 @@ To learn what version of Trident you're running, type::
 
     $ python
     >>> import trident
-    >>> print trident.__version__
+    >>> print(trident.__version__)
 
 If you have a version ending in dev, it means you're on the development branch
 and you should also figure out which particular changeset you're running.  You
@@ -37,7 +37,7 @@ One can easily identify where Trident is installed::
 
     $ python
     >>> import trident
-    >>> print trident.path
+    >>> print(trident.path)
 
 The data files are located in that path with an appended ``/data``.
 
