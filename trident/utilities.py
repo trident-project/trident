@@ -24,7 +24,6 @@ import tempfile
 import shutil
 from yt.funcs import \
     get_pbar
-import h5py as h5
 import numpy as np
 from six.moves import input
 from yt.units import \
