@@ -545,6 +545,12 @@ def make_compound_ray(parameter_filename, simulation_type,
             if setup_function is not None:
                 setup_function(ds)
 
+    else:
+        # Define setup_ds in cases when no lines are specified.
+
+        def setup_ds(ds):
+            pass
+
     fields = uniquify(fields)        
 
     return lr.make_light_ray(seed=seed, 
