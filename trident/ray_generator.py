@@ -253,6 +253,12 @@ def make_simple_ray(dataset_file, start_position, end_position,
                                          ionization_table=ionization_table,
                                          particle_type=particle_type)
 
+    # To assure there are no fields that are double specified or that collide
+    # based on being specified as "density" as well as ("gas", "density"), 
+    # we will just assume that all non-tuple fields requested are ftype "gas".
+    for i in range(len(fields)):
+        if isinstance(fields[i], str):
+            fields[i] = ('gas', fields[i])
     fields = uniquify(fields)        
 
     return lr.make_light_ray(start_position=start_position,
@@ -551,6 +557,12 @@ def make_compound_ray(parameter_filename, simulation_type,
         def setup_ds(ds):
             pass
 
+    # To assure there are no fields that are double specified or that collide
+    # based on being specified as "density" as well as ("gas", "density"), 
+    # we will just assume that all non-tuple fields requested are ftype "gas".
+    for i in range(len(fields)):
+        if isinstance(fields[i], str):
+            fields[i] = ('gas', fields[i])
     fields = uniquify(fields)        
 
     return lr.make_light_ray(seed=seed, 
