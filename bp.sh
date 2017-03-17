@@ -27,4 +27,4 @@ wget --quiet http://trident-project.org/data/tests/enzo_small.tar.gz
 tar -zxvf enzo_small.tar.gz
 
 # start the tests themselves
-py.test tests
+py.test
