@@ -24,10 +24,8 @@ import tempfile
 import shutil
 from yt.funcs import \
     get_pbar
-import h5py as h5
 import numpy as np
 from six.moves import input
-from six.moves import urllib
 from yt.units import \
     cm, \
     pc, \
@@ -105,21 +103,17 @@ def download_file(url, progress_bar=True, local_directory=None,
     filehandle = open(filepath, 'wb')
 
     # Get information about remote filesize
-    u = urllib.request.urlopen(url)
-    meta = u.info()
-    filesize = int(meta.getheaders("Content-Length")[0])/2**10 # in kB
+    r = requests.get(url, stream=True)
+    filesize = int(r.headers["content-length"])/2**10  # in kB
     if progress_bar:
         pbar = get_pbar("Downloading file: %s" % local_filename, filesize)
     filesize_dl = 0
-    block_sz = 8192
+    chunk_size = 8192
 
-    # Download file in blocks and update statusbar until done with transfer
-    while True:
-        buffer = u.read(block_sz)
-        if not buffer:
-            break
-        filesize_dl += int(len(buffer))/2**10
-        filehandle.write(buffer)
+    # Download file in chunks and update statusbar until done with transfer
+    for content in r.iter_content(chunk_size):
+        filesize_dl += len(content)/2**10
+        filehandle.write(content)
         if progress_bar:
             pbar.update(filesize_dl)
     if progress_bar:
