@@ -20,11 +20,10 @@ pip install -e .
 # install data file and create config.tri file in CWD
 # so trident works, despite not having access to ~/.trident
 cd tests
-wget --quiet http://trident-project.org/data/ion_table/config.tri
-wget --quiet http://trident-project.org/data/ion_table/hm2012_lr.h5.gz
+export RUN_DOWNLOAD_TEST=1
+py.test test_download.py
 gunzip hm2012_lr.h5.gz
-wget --quiet http://trident-project.org/data/tests/enzo_small.tar.gz
 tar -zxvf enzo_small.tar.gz
-
 # start the tests themselves
+export RUN_DOWNLOAD_TEST=0
 py.test
