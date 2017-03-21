@@ -251,7 +251,10 @@ def add_ion_fields(ds, ions, ftype='gas',
             field_list_arr = np.asarray(ds.derived_field_list)
             mask = field_list_arr[:,0] == ftype
             valid_field = tuple(field_list_arr[mask][0])
-            particle_type = ds.field_info[valid_field].particle_type
+            if ds.field_info[valid_field].sampling_type == 'particle':
+                particle_type = True
+            else:
+                particle_type = False
         except IndexError:
             raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
         # LightRays are reloaded as particle type regardless of the 
@@ -387,7 +390,10 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
             field_list_arr = np.asarray(ds.derived_field_list)
             mask = field_list_arr[:,0] == ftype
             valid_field = tuple(field_list_arr[mask][0])
-            particle_type = ds.field_info[valid_field].particle_type
+            if ds.field_info[valid_field].sampling_type == 'particle':
+                particle_type = True
+            else:
+                particle_type = False
         except IndexError:
             raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
         # LightRays are reloaded as particle type regardless of the 
@@ -540,7 +546,10 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
             field_list_arr = np.asarray(ds.derived_field_list)
             mask = field_list_arr[:,0] == ftype
             valid_field = tuple(field_list_arr[mask][0])
-            particle_type = ds.field_info[valid_field].particle_type
+            if ds.field_info[valid_field].sampling_type == 'particle':
+                particle_type = True
+            else:
+                particle_type = False
         except IndexError:
             raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
         # LightRays are reloaded as particle type regardless of the 
@@ -675,7 +684,10 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
             field_list_arr = np.asarray(ds.derived_field_list)
             mask = field_list_arr[:,0] == ftype
             valid_field = tuple(field_list_arr[mask][0])
-            particle_type = ds.field_info[valid_field].particle_type
+            if ds.field_info[valid_field].sampling_type == 'particle':
+                particle_type = True
+            else:
+                particle_type = False
         except IndexError:
             raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
         # LightRays are reloaded as particle type regardless of the 
@@ -812,7 +824,10 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
             field_list_arr = np.asarray(ds.derived_field_list)
             mask = field_list_arr[:,0] == ftype
             valid_field = tuple(field_list_arr[mask][0])
-            particle_type = ds.field_info[valid_field].particle_type
+            if ds.field_info[valid_field].sampling_type == 'particle':
+                particle_type = True
+            else:
+                particle_type = False
         except IndexError:
             raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
         # LightRays are reloaded as particle type regardless of the 

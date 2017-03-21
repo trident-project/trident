@@ -608,7 +608,10 @@ def _determine_particle_type_from_ftype(ds, ftype):
         field_list_arr = np.asarray(ds.derived_field_list)
         mask = field_list_arr[:,0] == ftype
         valid_field = tuple(field_list_arr[mask][0])
-        particle_type = ds.field_info[valid_field].particle_type
+        if ds.field_info[valid_field].sampling_type == 'particle':
+            particle_type = True
+        else:
+            particle_type = False
     except IndexError:
         raise RuntimeError('ftype %s not found in dataaset %s' % (ftype, ds))
 
