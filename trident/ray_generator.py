@@ -614,6 +614,14 @@ def _determine_particle_type_from_ftype(ds, ftype):
             particle_type = False
     except IndexError:
         raise RuntimeError('ftype %s not found in dataaset %s' % (ftype, ds))
+    # LightRays are reloaded as particle type regardless of the 
+    # underlying frontend, and they should always be treated as grid
+    # if they are of that datatype.  Sometimes data_type is not defined.
+    try:
+        if ds.data_type == 'yt_light_ray':
+            particle_type = False
+    except AttributeError:
+        pass
 
     return particle_type
 
