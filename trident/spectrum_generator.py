@@ -697,41 +697,6 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                "len(lambda_field) = %d, len(flux_field) = %d" 
                                % (self.lambda_field, self.flux_field))
 
-    def _load_spectrum_ascii(self, filename):
-        """
-        Load a previously generated spectrum.
-
-        **Parameters**
-
-        :filename: string
-
-            The HDF5 file from which the previously generated spectrum
-            should be read.  Note: only HDF5 files can currently be reloaded.
-            Default: None
-
-        **Example**
-
-        Save a spectrum to disk, load it from disk, and plot it.
-
-        >>> import trident
-        >>> ray = trident.make_onezone_ray()
-        >>> sg = trident.SpectrumGenerator('COS')
-        >>> sg.make_spectrum(ray)
-        >>> sg.save_spectrum('temp.h5')
-        >>> sg.clear_spectrum()
-        >>> sg.load_spectrum('temp.h5')
-        >>> sg.plot_spectrum('temp.png')
-        """
-        try:
-            in_file = h5py.File(filename, "r")
-        except:
-            print("Only hdf5 format supported for loading spectra.")
-            raise
-
-        self.lambda_field = in_file['wavelength'].value
-        self.flux_field = in_file['flux'].value
-        in_file.close()
-
     def clear_spectrum(self):
         """
         Clear the current spectrum in the SpectrumGenerator.
@@ -1044,7 +1009,8 @@ def load_spectrum(filename, format='auto', instrument=None, lsf_kernel=None,
         flux_field = data[:,2]
     else:
         raise RuntimeError("load_spectrum 'format' keyword must be 'hdf5', 'ascii', 'fits', or 'auto'")
-        
+
+    lambda_field = YTArray(lambda_field, "angstrom")
     lambda_min = lambda_field[0]
     lambda_max = lambda_field[-1]
     n_lambda = lambda_field.size
