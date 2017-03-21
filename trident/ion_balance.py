@@ -254,6 +254,14 @@ def add_ion_fields(ds, ions, ftype='gas',
             particle_type = ds.field_info[valid_field].particle_type
         except IndexError:
             raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
+        # LightRays are reloaded as particle type regardless of the 
+        # underlying frontend, and they should always be treated as grid
+        # if they are of that datatype.  Sometimes data_type is not defined.
+        try:
+            if ds.data_type == 'yt_light_ray':
+                particle_type = False
+        except AttributeError:
+            pass
 
     if ionization_table is None:
         ionization_table = ion_table_filepath()
@@ -382,6 +390,14 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
             particle_type = ds.field_info[valid_field].particle_type
         except IndexError:
             raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
+        # LightRays are reloaded as particle type regardless of the 
+        # underlying frontend, and they should always be treated as grid
+        # if they are of that datatype.  Sometimes data_type is not defined.
+        try:
+            if ds.data_type == 'yt_light_ray':
+                particle_type = False
+        except AttributeError:
+            pass
 
     if ionization_table is None:
         ionization_table = ion_table_filepath()
@@ -527,6 +543,14 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
             particle_type = ds.field_info[valid_field].particle_type
         except IndexError:
             raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
+        # LightRays are reloaded as particle type regardless of the 
+        # underlying frontend, and they should always be treated as grid
+        # if they are of that datatype.  Sometimes data_type is not defined.
+        try:
+            if ds.data_type == 'yt_light_ray':
+                particle_type = False
+        except AttributeError:
+            pass
 
     if ionization_table is None:
         ionization_table = ion_table_filepath()
@@ -654,6 +678,14 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
             particle_type = ds.field_info[valid_field].particle_type
         except IndexError:
             raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
+        # LightRays are reloaded as particle type regardless of the 
+        # underlying frontend, and they should always be treated as grid
+        # if they are of that datatype.  Sometimes data_type is not defined.
+        try:
+            if ds.data_type == 'yt_light_ray':
+                particle_type = False
+        except AttributeError:
+            pass
 
     if ionization_table is None:
         ionization_table = ion_table_filepath()
@@ -783,6 +815,14 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
             particle_type = ds.field_info[valid_field].particle_type
         except IndexError:
             raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
+        # LightRays are reloaded as particle type regardless of the 
+        # underlying frontend, and they should always be treated as grid
+        # if they are of that datatype.  Sometimes data_type is not defined.
+        try:
+            if ds.data_type == 'yt_light_ray':
+                particle_type = False
+        except AttributeError:
+            pass
 
     if ionization_table is None:
         ionization_table = ion_table_filepath()
