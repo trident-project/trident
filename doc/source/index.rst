@@ -20,6 +20,7 @@ information, see :ref:`versions`.
    annotated_example.rst
    advanced_spectra.rst
    ion_balance.rst
+   internals.rst
    faq.rst
    reference.rst
    citation.rst
