@@ -15,16 +15,19 @@ import numpy as np
 from yt.convenience import \
     load
 from yt.testing import \
-    assert_array_equal, \
-    requires_file
-from trident import LightRay
+    assert_array_equal
+from trident import \
+    LightRay, \
+    parse_config
 import os
 import shutil
-from yt.utilities.answer_testing.framework import data_dir_load
 import tempfile
 
-COSMO_PLUS = "enzo_cosmology_plus/AMRCosmology.enzo"
-COSMO_PLUS_SINGLE = "enzo_cosmology_plus/RD0009/RD0009"
+answer_test_data_dir = parse_config('answer_test_data_dir')
+COSMO_PLUS = os.path.join(answer_test_data_dir,
+                          "enzo_cosmology_plus/AMRCosmology.enzo")
+COSMO_PLUS_SINGLE = os.path.join(answer_test_data_dir,
+                                 "enzo_cosmology_plus/RD0009/RD0009")
 
 def compare_light_ray_solutions(lr1, lr2):
     assert len(lr1.light_ray_solution) == len(lr2.light_ray_solution)
@@ -39,7 +42,6 @@ def compare_light_ray_solutions(lr1, lr2):
             else:
                 assert s1[field] == s2[field]
 
-@requires_file(COSMO_PLUS)
 def test_light_ray_cosmo():
     """
     This test generates a cosmological light ray
@@ -62,7 +64,6 @@ def test_light_ray_cosmo():
     os.chdir(curdir)
     shutil.rmtree(tmpdir)
 
-@requires_file(COSMO_PLUS)
 def test_light_ray_cosmo_nested():
     """
     This test generates a cosmological light ray confing the ray to a subvolume
@@ -88,7 +89,6 @@ def test_light_ray_cosmo_nested():
     os.chdir(curdir)
     shutil.rmtree(tmpdir)
 
-@requires_file(COSMO_PLUS)
 def test_light_ray_cosmo_nonperiodic():
     """
     This test generates a cosmological light ray using non-periodic segments
@@ -111,7 +111,6 @@ def test_light_ray_cosmo_nonperiodic():
     os.chdir(curdir)
     shutil.rmtree(tmpdir)
 
-@requires_file(COSMO_PLUS_SINGLE)
 def test_light_ray_non_cosmo():
     """
     This test generates a non-cosmological light ray
@@ -137,7 +136,6 @@ def test_light_ray_non_cosmo():
     os.chdir(curdir)
     shutil.rmtree(tmpdir)
 
-@requires_file(COSMO_PLUS_SINGLE)
 def test_light_ray_non_cosmo_from_dataset():
     """
     This test generates a non-cosmological light ray created from an already
@@ -149,7 +147,7 @@ def test_light_ray_non_cosmo_from_dataset():
     curdir = os.getcwd()
     os.chdir(tmpdir)
 
-    ds = data_dir_load(COSMO_PLUS_SINGLE)
+    ds = load(COSMO_PLUS_SINGLE)
     lr = LightRay(ds)
 
     ray_start = [0,0,0]
