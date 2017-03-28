@@ -6,8 +6,9 @@ Fitting Absorption Spectra
 .. sectionauthor:: Hilary Egan <hilary.egan@colorado.edu>
 
 This tool can be used to fit absorption spectra, particularly those
-generated using the (``AbsorptionSpectrum``) tool. For more details
-on its uses and implementation please see (`Egan et al. (2013)
+generated using the
+:class:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum`.
+For more details on its uses and implementation please see (`Egan et al. (2013)
 <http://arxiv.org/abs/1307.2244>`_). If you find this tool useful we
 encourage you to cite accordingly.
 
@@ -15,8 +16,8 @@ Loading an Absorption Spectrum
 ------------------------------
 
 To load an absorption spectrum created by
-(:class:`~yt.analysis_modules.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum``),
-we specify the output file name. It is advisable to use either an .h5
+:class:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum`,
+specify the output file name. It is advisable to use either an .h5
 or .fits file, rather than an ascii file to save the spectrum as rounding
 errors produced in saving to a ascii file will negatively impact fit quality.
 
@@ -56,7 +57,7 @@ we set up a fit as shown below.
 
 .. code-block:: python
 
-    HI_parameters = {'name':'HI',
+   HI_parameters = {'name':'HI',
             'f': [.4164],
             'Gamma':[6.265E8],
             'wavelength':[1215.67],
@@ -67,7 +68,7 @@ we set up a fit as shown below.
             'init_b':30,
             'init_N':1E14}
 
-    OVI_parameters = {'name':'OVI',
+   OVI_parameters = {'name':'OVI',
             'f':[.1325,.06580],
             'Gamma':[4.148E8,4.076E8],
             'wavelength':[1031.9261,1037.6167],
@@ -78,7 +79,7 @@ we set up a fit as shown below.
             'init_b':20,
             'init_N':1E12}
 
-    speciesDicts = {'HI':HI_parameters,'OVI':OVI_parameters}
+   speciesDicts = {'HI':HI_parameters,'OVI':OVI_parameters}
 
 
 Generating Fit of Spectrum
@@ -89,10 +90,12 @@ used to generate the spectrum, an appropriate fit can be generated.
 
 .. code-block:: python
 
-    orderFits = ['OVI','HI']
+   from trident.absorption_spectrum.absorption_spectrum_fit import generate_total_fit
 
-    fitted_lines, fitted_flux = generate_total_fit(wavelength,
-        flux, orderFits, speciesDicts)
+   orderFits = ['OVI','HI']
+
+   fitted_lines, fitted_flux = generate_total_fit(wavelength,
+       flux, orderFits, speciesDicts)
 
 The orderFits variable is used to determine in what order the species
 should be fitted. This may affect the results of the resulting fit,
@@ -132,7 +135,7 @@ Procedure for Generating Fits
 .. sectionauthor:: Hilary Egan <hilary.egan@colorado.edu>
 
 To generate a fit for a spectrum
-:func:`~yt.analysis_modules.absorption_spectrum.absorption_spectrum_fit.generate_total_fit`
+:func:`~trident.absorption_spectrum.absorption_spectrum_fit.generate_total_fit`
 is called.
 This function controls the identification of line complexes, the fit
 of a series of absorption lines for each appropriate species, checks of
@@ -141,8 +144,7 @@ those fits, and returns the results of the fits.
 Finding Line Complexes
 ----------------------
 
-Line complexes are found using the
-:func:`~yt.analysis_modules.absorption_spectrum.absorption_spectrum_fit.find_complexes`
+Line complexes are found using the ``_find_complexes``
 function. The process by which line complexes are found involves walking
 through the array of flux in order from minimum to maximum wavelength, and
 finding series of spatially contiguous cells whose flux is less than some
@@ -217,7 +219,7 @@ The complex is considered successfully fit when the sum of the squares of
 the difference between the flux generated from the fit and the desired flux
 profile is less than ``errBound``. ``errBound`` is related to the optional
 parameter to
-:meth:`~yt.analysis_modules.cosmological_observation.light_ray.light_ray.LightRay.generate_total_fit`,
+:func:`~trident.absorption_spectrum.absorption_spectrum_fit.generate_total_fit`
 ``maxAvgError`` by the number of array elements in the region such that
 ``errBound`` = number of elements * ``maxAvgError``.
 
@@ -261,8 +263,7 @@ more robust set of fitting tools is used to try and remedy the situation.
 The basic approach is to simply try a much wider range of initial parameter
 guesses in order to find the true optimization minimum, rather than getting
 stuck in a local minimum. A set of hard coded initial parameter guesses
-for Lyman alpha lines is given by the function
-:func:`~yt.analysis_modules.absorption_spectrum.absorption_spectrum_fit.get_test_lines`.
+for Lyman alpha lines is given by the ``_get_test_lines`` function
 Also included in these parameter guesses is an an initial guess of a high
 column cool line overlapping a lower column warm line, indictive of a
 broad Lyman alpha (BLA) absorber.
