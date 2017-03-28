@@ -1,49 +1,31 @@
 .. _absorption_spectrum:
 
-Creating Absorption Spectra
-===========================
+AbsorptionSpectrum
+==================
 
-.. sectionauthor:: Britton Smith <brittonsmith@gmail.com>
+For documentation on the main interface to spectrum creation in Trident,
+see :ref:`spectrum-generation`.
 
-Absorption line spectra are spectra generated using bright background sources
-to illuminate tenuous foreground material and are primarily used in studies
-of the circumgalactic medium and intergalactic medium.  These spectra can
-be created using the
-:class:`~yt.analysis_modules.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum`
-and
-:class:`~yt.analysis_modules.cosmological_observation.light_ray.light_ray.LightRay`
-analysis modules.
-
-The 
-:class:`~yt.analysis_modules.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum` class
+The :class:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum`
+is the internal class for creating absorption spectra in Trident from
+:class:`~trident.LightRay` objects. The
+:class:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum`
 and its workhorse method
-:meth:`~yt.analysis_modules.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum.make_spectrum`
+:meth:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum.make_spectrum`
 return two arrays, one with wavelengths, the other with the normalized
 flux values at each of the wavelength values.  It can also output a text file
 listing all important lines.
 
-For example, here is an absorption spectrum for the wavelength range from 900 
-to 1800 Angstroms made with a light ray extending from z = 0 to z = 0.4:
-
-.. image:: _images/spectrum_full.png
-   :width: 500
-
-And a zoom-in on the 1425-1450 Angstrom window:
-
-.. image:: _images/spectrum_zoom.png
-   :width: 500
-
 Method for Creating Absorption Spectra
 --------------------------------------
 
-Once a
-:class:`~yt.analysis_modules.cosmological_observation.light_ray.light_ray.LightRay`
+Once a :class:`~trident.LightRay`
 has been created traversing a dataset using the :ref:`light-ray-generator`,
 a series of arrays store the various fields of the gas parcels (represented
 as cells) intersected along the ray.
-:class:`~yt.analysis_modules.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum`
+:class:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum`
 steps through each element of the
-:class:`~yt.analysis_modules.cosmological_observation.light_ray.light_ray.LightRay`'s
+:class:`~trident.LightRay`'s
 arrays and calculates the column density for desired ion by multiplying its
 number density with the path length through the cell.  Using these column
 densities along with temperatures to calculate thermal broadening, voigt
@@ -56,33 +38,33 @@ Subgrid Deposition
 
 For features not resolved (i.e. possessing narrower width than the spectral
 resolution),
-:class:`~yt.analysis_modules.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum`
+:class:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum`
 performs subgrid deposition.  The subgrid deposition algorithm creates a number
 of smaller virtual bins, by default the width of the virtual bins is 1/10th
 the width of the spectral feature.  The Voigt profile is then deposited
 into these virtual bins where it is resolved, and then these virtual bins
 are numerically integrated back to the resolution of the original spectral bin
 size, yielding accurate equivalent widths values.
-:class:`~yt.analysis_modules.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum`
+:class:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum`
 informs the user how many spectral features are deposited in this fashion.
 
-Tutorial on Creating an Absorption Spectrum
--------------------------------------------
+Creating an Absorption Spectrum
+-------------------------------
 
-Initializing `AbsorptionSpectrum` Class
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Initialization
+^^^^^^^^^^^^^^
 
 To instantiate an
-:class:`~yt.analysis_modules.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum`
+:class:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum`
 object, the arguments required are the
 minimum and maximum wavelengths (assumed to be in Angstroms), and the number
 of wavelength bins to span this range (including the endpoints)
 
 .. code-block:: python
 
-  from yt.analysis_modules.absorption_spectrum.api import AbsorptionSpectrum
+   from trident.absorption_spectrum.absorption_spectrum import AbsorptionSpectrum
 
-  sp = AbsorptionSpectrum(900.0, 1800.0, 10001)
+   sp = AbsorptionSpectrum(900.0, 1800.0, 10001)
 
 Adding Features to the Spectrum
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -106,15 +88,19 @@ add the H Lyman-alpha line, which is tied to the neutral hydrogen field
 
   sp.add_line(my_label, field, wavelength, f_value, gamma, mass, label_threshold=1.e10)
 
-In the above example, the *field* argument tells the spectrum generator which
+In the the call to
+:meth:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum.add_line`
+the ``field`` argument tells the spectrum generator which
 field from the ray data to use to calculate the column density.  The
 ``label_threshold`` keyword tells the spectrum generator to add all lines
 above a column density of 10 :superscript:`10` cm :superscript:`-2` to the
 text line list output at the end.  If None is provided, as is the default,
 no lines of this type will be added to the text list.
 
-Continuum features with optical depths that follow a power law can also be
-added.  Like adding lines, you must specify details like the wavelength
+Continuum features with optical depths that follow a power law can be added
+with the
+:meth:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum.add_continuum`
+function.  Like adding lines, you must specify details like the wavelength
 and the field in the dataset and LightRay that is tied to this feature.
 The wavelength refers to the location at which the continuum begins to be 
 applied to the dataset, and as it moves to lower wavelength values, the 
@@ -136,8 +122,9 @@ Lyman continuum.
 Making the Spectrum
 ^^^^^^^^^^^^^^^^^^^
 
-Once all the lines and continuua are added, it is time to make a spectrum out
-of some light ray data.
+Once all the lines and continuua are added, the spectrum is made with the
+:meth:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum.make_spectrum`
+function.
 
 .. code-block:: python
 
@@ -160,11 +147,20 @@ in the ``output_file`` keyword: ``.fits`` for a fits file,
 Generating Spectra in Parallel
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The `AbsorptionSpectrum` analysis module can be run in parallel simply by
-following the procedures laid out in :ref:`parallel-computation` for running
-yt scripts in parallel.  Spectrum generation is parallelized using a multi-level
+Spectrum generation is parallelized using a multi-level
 strategy where each absorption line is deposited by a different processor.
 If the number of available processors is greater than the number of lines,
 then the deposition of individual lines will be divided over multiple
 processors.
 
+Absorption spectrum creation can be run in parallel simply by adding the following
+to the top of the script and running with ``mpirun``.
+
+.. code-block:: python
+
+   import yt
+   yt.enable_parallelism()
+
+For more information on parallelism in yt, see
+`Parallel Computation With yt
+<http://yt-project.org/docs/dev/analyzing/parallel_computation.html>`__.

@@ -99,6 +99,8 @@ any volumentric plot, including slices, and off-axis plots::
 
 .. image:: http://trident-project.org/data/doc_images/annotated_example/projection.png
 
+.. _spectrum-generation:
+
 Spectrum Generation
 -------------------
 
