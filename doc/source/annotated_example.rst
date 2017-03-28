@@ -24,6 +24,8 @@ trajectory through the dataset goes in three steps:
        create a corresponding synthetic spectrum.
     3. Create a projected image and overplot the path of the :class:`~trident.LightRay`.
 
+.. _simple-ray:
+
 Simple LightRay Generation
 --------------------------
 
@@ -84,7 +86,7 @@ building the required ion fields::
     building from smoothed gas fields.
 
 Overplotting a LightRay's Trajectory on a Projection
---------------------------------------------------
+----------------------------------------------------
 
 Here we create a projection of the density field along the x axis of the 
 dataset, and then overplot the path the :class:`~trident.LightRay` takes through the simulation,
@@ -143,6 +145,8 @@ which produces:
    :width: 700
 
 To create more complex or ion-specific spectra, refer to :ref:`advanced-spectra`.
+
+.. _compound-ray:
 
 Compound LightRays
 ------------------

@@ -64,3 +64,13 @@ Miscellaneous Utilities
    ~trident.trident_path
    ~trident.trident
    ~trident.verify
+
+Internals and Extensions
+------------------------
+
+.. autosummary::
+   :toctree: generated/
+   :nosignatures:
+
+   ~trident.light_ray.light_ray.LightRay
+   ~trident.light_ray.light_ray.LightRay.make_light_ray
