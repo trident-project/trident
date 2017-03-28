@@ -17,7 +17,7 @@ from yt.convenience import \
 from yt.testing import \
     assert_array_equal, \
     requires_file
-from yt.analysis_modules.cosmological_observation.api import LightRay
+from trident import LightRay
 import os
 import shutil
 from yt.utilities.answer_testing.framework import data_dir_load

@@ -14,10 +14,11 @@ import numpy as np
 from yt.testing import \
     assert_allclose_units, requires_file, requires_module, \
     assert_almost_equal
-from yt.analysis_modules.absorption_spectrum.absorption_line import \
+from trident.absorption_spectrum.absorption_line import \
     voigt_old, voigt_scipy
-from yt.analysis_modules.absorption_spectrum.api import AbsorptionSpectrum
-from yt.analysis_modules.cosmological_observation.api import LightRay
+from trident.absorption_spectrum.absorption_spectrum import \
+    AbsorptionSpectrum
+from trident import LightRay
 from yt.utilities.answer_testing.framework import \
     GenericArrayTest, \
     requires_answer_testing
