@@ -18,7 +18,8 @@ from __future__ import absolute_import
 from yt.utilities.on_demand_imports import _h5py as h5py
 import numpy as np
 
-from .absorption_line import tau_profile
+from trident.absorption_spectrum.absorption_line import \
+    tau_profile
 
 from yt.extern.six import string_types
 from yt.convenience import load

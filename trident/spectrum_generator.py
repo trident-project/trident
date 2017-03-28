@@ -15,7 +15,7 @@ import h5py
 import numpy as np
 import os
 
-from yt.analysis_modules.absorption_spectrum.api import \
+from trident.absorption_spectrum.absorption_spectrum import \
     AbsorptionSpectrum
 from yt.convenience import \
     load
