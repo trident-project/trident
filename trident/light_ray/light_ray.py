@@ -383,8 +383,7 @@ class LightRay(CosmologySplice):
         Make a light ray from multiple datasets:
 
         >>> import yt
-        >>> from yt.analysis_modules.cosmological_observation.light_ray.api import \
-        ...     LightRay
+        >>> from trident import LightRay
         >>> my_ray = LightRay("enzo_tiny_cosmology/32Mpc_32.enzo", "Enzo",
         ...                   0., 0.1, time_data=False)
         ...
@@ -397,8 +396,7 @@ class LightRay(CosmologySplice):
         Make a light ray from a single dataset:
 
         >>> import yt
-        >>> from yt.analysis_modules.cosmological_observation.light_ray.api import \
-        ...     LightRay
+        >>> from trident import LightRay
         >>> my_ray = LightRay("IsolatedGalaxy/galaxy0030/galaxy0030")
         ...
         >>> my_ray.make_light_ray(start_position=[0., 0., 0.],
