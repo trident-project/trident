@@ -1,9 +1,21 @@
-We do not currently have a method paper available for citation, but this
-document will be updated when we do.  Currently, if you use Trident in a
-publication, please cite Trident as: 
+If you use Trident for your scientific research, please include the following
+bibtex to cite our Trident method paper:
 
-Hummels, C. B., Smith, B. D., Silvia, D. in prep.
+@ARTICLE{2016arXiv161203935H,
+       author = {{Hummels}, C. and {Smith}, B. and {Silvia}, D.},
+        title = "{Trident: a universal tool for generating synthetic absorption spectra from astrophysical simulations}",
+      journal = {ArXiv e-prints},
+archivePrefix = "arXiv",
+       eprint = {1612.03935},
+ primaryClass = "astro-ph.IM",
+     keywords = {Astrophysics - Instrumentation and Methods for Astrophysics, Astrophysics - Astrophysics of Galaxies},
+         year = 2016,
+        month = dec,
+       adsurl = {http://adsabs.harvard.edu/abs/2016arXiv161203935H},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
+}
 
-In the body of the text, please add a footnote to the Trident webpage:
+In addition, you can add a footnote to the Trident webpage in the body of the 
+paper:
 
 http://trident-project.org/
