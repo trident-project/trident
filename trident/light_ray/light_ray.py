@@ -291,18 +291,11 @@ class LightRay(CosmologySplice):
                        get_los_velocity=None, use_peculiar_velocity=True,
                        redshift=None, field_parameters=None, njobs=-1):
         """
-        make_light_ray(seed=None, periodic=True,
-                       left_edge=None, right_edge=None, min_level=None,
-                       start_position=None, end_position=None,
-                       trajectory=None, fields=None, setup_function=None,
-                       solution_filename=None, data_filename=None,
-                       use_peculiar_velocity=True, redshift=None,
-                       njobs=-1)
+        Actually generate the LightRay by traversing the desired dataset.
 
-        Create a light ray and get field values for each lixel.  A light
-        ray consists of a list of field values for cells intersected by
-        the ray and the path length of the ray through those cells.
-        Light ray data must be written out to an hdf5 file.
+        A light ray consists of a list of field values for cells
+        intersected by the ray and the path length of the ray through
+        those cells. Light ray data must be written out to an hdf5 file.
 
         Parameters
         ----------
