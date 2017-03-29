@@ -34,6 +34,8 @@ from yt import \
     load_uniform_grid, \
     YTArray, \
     load
+from yt.geometry.particle_geometry_handler import \
+    ParticleIndex
 
 def ensure_directory(directory):
     """
@@ -712,3 +714,22 @@ def import_check():
 
 The Trident package does not work correctly when imported from its
 installation directory.  Please try moving to another directory.""")
+
+def _determine_particle_type(ds):
+    """
+    Determine whether the dataset is particle-based or grid-based.
+
+    LightRays datasets are reloaded as particle type regardless of the
+    underlying frontend, and they should always be treated as grid.
+    """
+    # Particle-based datasets like Gadget, Gizmo, Gasoline, Changa
+    if isinstance(ds.index, ParticleIndex):
+        part_type = True
+    else:
+        part_type = False
+
+    # LightRays should always be treated as grid datasets.
+    # Sometimes data_type is not defined.
+    if getattr(ds, "data_type", None) == "yt_light_ray":
+        part_type = False
+    return part_type
