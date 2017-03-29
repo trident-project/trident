@@ -19,9 +19,10 @@ def generate_total_fit(x, fluxData, orderFits, speciesDicts,
         output_file=None):
 
     """
-    This function is designed to fit an absorption spectrum by breaking
-    the spectrum up into absorption complexes, and iteratively adding
-    and optimizing voigt profiles to each complex.
+    Fit an absorption-line spectrum into line profiles.
+
+    Fits the spectrum into absorption complexes and iteratively adds and
+    optimizes voigt profiles for each complex.
 
     Parameters
     ----------
