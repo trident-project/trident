@@ -15,7 +15,7 @@ import numpy as np
 import os
 import six
 
-from trident.light_ray.light_ray import \
+from trident.light_ray import \
     LightRay
 from yt.convenience import \
     load, \

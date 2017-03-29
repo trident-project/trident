@@ -66,7 +66,7 @@ from trident.roman import \
     to_roman, \
     from_roman
 
-from trident.light_ray.light_ray import \
+from trident.light_ray import \
     LightRay
 
 # Making installation path global
