@@ -1,3 +1,7 @@
+# This shell script installs both Trident as well as its dependencies.
+# It is needed by Bitbucket's Pipelines functionality for continuous 
+# integration of automated testing.
+
 # install conda and yt dependencies with conda
 cd ..
 wget --quiet https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh
