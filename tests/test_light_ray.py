@@ -3,7 +3,8 @@ Unit test for the light_ray analysis module
 """
 
 #-----------------------------------------------------------------------------
-# Copyright (c) 2016, yt Development Team.
+# Copyright (c) 2016-2017, yt Development Team.
+# Copyright (c) 2017, Trident Development Team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
