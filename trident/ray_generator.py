@@ -34,7 +34,8 @@ from trident.ion_balance import \
     add_ion_number_density_field, \
     atomic_number
 from trident.utilities import \
-    ion_table_filepath
+    ion_table_filepath, \
+    _determine_particle_type
 from yt.geometry.particle_geometry_handler import \
     ParticleIndex
 
@@ -236,7 +237,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
 
         ion_list = _determine_ions_from_lines(line_database, lines)
 
-        particle_type = _determine_particle_type_from_ftype(ds, ftype)
+        particle_type = _determine_particle_type(ds)
 
         if (not particle_type) and \
            (isinstance(ds.index, ParticleIndex)):
@@ -527,7 +528,7 @@ def make_compound_ray(parameter_filename, simulation_type,
 
         ion_list = _determine_ions_from_lines(line_database, lines)
 
-        particle_type = _determine_particle_type_from_ftype(ds, ftype)
+        particle_type = _determine_particle_type(ds)
 
         if (not particle_type) and \
            (isinstance(ds.index, ParticleIndex)):
@@ -598,32 +599,6 @@ def _determine_ions_from_lines(line_database, lines):
                     raise RuntimeError("Cannot add a blank ion.")
 
     return uniquify(ion_list)        
-
-def _determine_particle_type_from_ftype(ds, ftype):
-    """
-    Determine whether the dataset fields are particle or grid based
-    based on checking those of other fields in ds with same ftype
-    """
-    try:
-        field_list_arr = np.asarray(ds.derived_field_list)
-        mask = field_list_arr[:,0] == ftype
-        valid_field = tuple(field_list_arr[mask][0])
-        if ds.field_info[valid_field].sampling_type == 'particle':
-            particle_type = True
-        else:
-            particle_type = False
-    except IndexError:
-        raise RuntimeError('ftype %s not found in dataaset %s' % (ftype, ds))
-    # LightRays are reloaded as particle type regardless of the 
-    # underlying frontend, and they should always be treated as grid
-    # if they are of that datatype.  Sometimes data_type is not defined.
-    try:
-        if ds.data_type == 'yt_light_ray':
-            particle_type = False
-    except AttributeError:
-        pass
-
-    return particle_type
 
 def _determine_fields_from_ions(ds, ion_list, fields, ftype, particle_type):
     """

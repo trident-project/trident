@@ -28,7 +28,8 @@ from trident.line_database import \
     LineDatabase, \
     uniquify
 from trident.utilities import \
-    ion_table_filepath
+    ion_table_filepath, \
+    _determine_particle_type
 from trident.roman import \
     from_roman
 
@@ -244,27 +245,8 @@ def add_ion_fields(ds, ions, ftype='gas',
     >>> trident.add_ion_fields(ds, ions=['H II', 'C III', 'Mg'])
     """
     ion_list = []
-    # If unspecified, determine whether the user is trying to add a particle 
-    # field based on the nature of other fields of that ftype in the dataset
     if particle_type == 'auto':
-        try:
-            field_list_arr = np.asarray(ds.derived_field_list)
-            mask = field_list_arr[:,0] == ftype
-            valid_field = tuple(field_list_arr[mask][0])
-            if ds.field_info[valid_field].sampling_type == 'particle':
-                particle_type = True
-            else:
-                particle_type = False
-        except IndexError:
-            raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
-        # LightRays are reloaded as particle type regardless of the 
-        # underlying frontend, and they should always be treated as grid
-        # if they are of that datatype.  Sometimes data_type is not defined.
-        try:
-            if ds.data_type == 'yt_light_ray':
-                particle_type = False
-        except AttributeError:
-            pass
+        particle_type = _determine_particle_type(ds)
 
     if ionization_table is None:
         ionization_table = ion_table_filepath()
@@ -383,27 +365,8 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
     >>> yt.ProjectionPlot(ds, 'x', 'C_p3_ion_fraction').save()
     """
 
-    # If unspecified, determine whether the user is trying to add a particle 
-    # field based on the nature of other fields of that ftype in the dataset
     if particle_type == 'auto':
-        try:
-            field_list_arr = np.asarray(ds.derived_field_list)
-            mask = field_list_arr[:,0] == ftype
-            valid_field = tuple(field_list_arr[mask][0])
-            if ds.field_info[valid_field].sampling_type == 'particle':
-                particle_type = True
-            else:
-                particle_type = False
-        except IndexError:
-            raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
-        # LightRays are reloaded as particle type regardless of the 
-        # underlying frontend, and they should always be treated as grid
-        # if they are of that datatype.  Sometimes data_type is not defined.
-        try:
-            if ds.data_type == 'yt_light_ray':
-                particle_type = False
-        except AttributeError:
-            pass
+        particle_type = _determine_particle_type(ds)
 
     if ionization_table is None:
         ionization_table = ion_table_filepath()
@@ -539,27 +502,8 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
     >>> trident.add_ion_number_density('C', 4, ds)
     >>> yt.ProjectionPlot(ds, 'x', 'C_p3_number_density').save()
     """
-    # If unspecified, determine whether the user is trying to add a particle 
-    # field based on the nature of other fields of that ftype in the dataset
     if particle_type == 'auto':
-        try:
-            field_list_arr = np.asarray(ds.derived_field_list)
-            mask = field_list_arr[:,0] == ftype
-            valid_field = tuple(field_list_arr[mask][0])
-            if ds.field_info[valid_field].sampling_type == 'particle':
-                particle_type = True
-            else:
-                particle_type = False
-        except IndexError:
-            raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
-        # LightRays are reloaded as particle type regardless of the 
-        # underlying frontend, and they should always be treated as grid
-        # if they are of that datatype.  Sometimes data_type is not defined.
-        try:
-            if ds.data_type == 'yt_light_ray':
-                particle_type = False
-        except AttributeError:
-            pass
+        particle_type = _determine_particle_type(ds)
 
     if ionization_table is None:
         ionization_table = ion_table_filepath()
@@ -677,27 +621,8 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
     >>> trident.add_ion_density_field('C', 4, ds)
     >>> yt.ProjectionPlot(ds, 'x', 'C_p3_density').save()
     """
-    # If unspecified, determine whether the user is trying to add a particle 
-    # field based on the nature of other fields of that ftype in the dataset
     if particle_type == 'auto':
-        try:
-            field_list_arr = np.asarray(ds.derived_field_list)
-            mask = field_list_arr[:,0] == ftype
-            valid_field = tuple(field_list_arr[mask][0])
-            if ds.field_info[valid_field].sampling_type == 'particle':
-                particle_type = True
-            else:
-                particle_type = False
-        except IndexError:
-            raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
-        # LightRays are reloaded as particle type regardless of the 
-        # underlying frontend, and they should always be treated as grid
-        # if they are of that datatype.  Sometimes data_type is not defined.
-        try:
-            if ds.data_type == 'yt_light_ray':
-                particle_type = False
-        except AttributeError:
-            pass
+        particle_type = _determine_particle_type(ds)
 
     if ionization_table is None:
         ionization_table = ion_table_filepath()
@@ -817,27 +742,8 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
     >>> trident.add_ion_mass_field('C', 4, ds)
     >>> yt.ProjectionPlot(ds, 'x', 'C_p3_mass').save()
     """
-    # If unspecified, determine whether the user is trying to add a particle 
-    # field based on the nature of other fields of that ftype in the dataset
     if particle_type == 'auto':
-        try:
-            field_list_arr = np.asarray(ds.derived_field_list)
-            mask = field_list_arr[:,0] == ftype
-            valid_field = tuple(field_list_arr[mask][0])
-            if ds.field_info[valid_field].sampling_type == 'particle':
-                particle_type = True
-            else:
-                particle_type = False
-        except IndexError:
-            raise RuntimeError('ftype %s not found in dataset %s' % (ftype, ds))
-        # LightRays are reloaded as particle type regardless of the 
-        # underlying frontend, and they should always be treated as grid
-        # if they are of that datatype.  Sometimes data_type is not defined.
-        try:
-            if ds.data_type == 'yt_light_ray':
-                particle_type = False
-        except AttributeError:
-            pass
+        particle_type = _determine_particle_type(ds)
 
     if ionization_table is None:
         ionization_table = ion_table_filepath()
