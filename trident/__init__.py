@@ -66,8 +66,7 @@ from trident.roman import \
     to_roman, \
     from_roman
 
-# Import yt's LightRay class
-from yt.analysis_modules.cosmological_observation.api import \
+from trident.light_ray import \
     LightRay
 
 # Making installation path global

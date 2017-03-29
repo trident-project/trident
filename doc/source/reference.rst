@@ -64,3 +64,18 @@ Miscellaneous Utilities
    ~trident.trident_path
    ~trident.trident
    ~trident.verify
+
+Internals and Extensions
+------------------------
+
+.. autosummary::
+   :toctree: generated/
+   :nosignatures:
+
+   ~trident.light_ray.light_ray.LightRay
+   ~trident.light_ray.light_ray.LightRay.make_light_ray
+   ~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum
+   ~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum.add_continuum
+   ~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum.add_line
+   ~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum.make_spectrum
+   ~trident.absorption_spectrum.absorption_spectrum_fit.generate_total_fit

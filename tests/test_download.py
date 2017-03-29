@@ -9,7 +9,8 @@ def test_download_file():
         local_dir = "."
         urls = ["http://trident-project.org/data/ion_table/config.tri",
                 "http://trident-project.org/data/ion_table/hm2012_lr.h5.gz",
-                "http://trident-project.org/data/tests/enzo_small.tar.gz"]
+                "http://trident-project.org/data/tests/enzo_small.tar.gz",
+                "http://yt-project.org/data/enzo_cosmology_plus.tar.gz"]
         for url in urls:
             download_file(url, local_directory=local_dir)
             assert os.path.exists(

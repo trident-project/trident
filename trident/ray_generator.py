@@ -15,7 +15,7 @@ import numpy as np
 import os
 import six
 
-from yt.analysis_modules.cosmological_observation.api import \
+from trident.light_ray import \
     LightRay
 from yt.convenience import \
     load, \
