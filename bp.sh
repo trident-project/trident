@@ -27,8 +27,6 @@ cd tests
 export RUN_DOWNLOAD_TEST=1
 py.test test_download.py
 gunzip hm2012_lr.h5.gz
-tar -zxvf enzo_small.tar.gz
-tar -zxvf enzo_cosmology_plus.tar.gz
 # start the tests themselves
 export RUN_DOWNLOAD_TEST=0
 py.test
