@@ -26,6 +26,8 @@ pip install -e .
 cd tests
 export RUN_DOWNLOAD_TEST=1
 py.test test_download.py
+wget http://trident-project.org/data/ion_table/config.tri
+wget http://trident-project.org/data/ion_table/hm2012_lr.h5.gz
 gunzip hm2012_lr.h5.gz
 # start the tests themselves
 export RUN_DOWNLOAD_TEST=0
