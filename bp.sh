@@ -25,10 +25,10 @@ pip install -e .
 # so trident works, despite not having access to ~/.trident
 cd tests
 export RUN_DOWNLOAD_TEST=1
-py.test test_download.py
 wget http://trident-project.org/data/ion_table/config.tri
 wget http://trident-project.org/data/ion_table/hm2012_lr.h5.gz
 gunzip hm2012_lr.h5.gz
+py.test test_download.py
 # start the tests themselves
 export RUN_DOWNLOAD_TEST=0
 py.test
