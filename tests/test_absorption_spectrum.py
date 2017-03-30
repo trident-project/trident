@@ -12,29 +12,24 @@ Unit test for the AbsorptionSpectrum analysis module
 #-----------------------------------------------------------------------------
 
 import numpy as np
+import os
+from yt.convenience import load
+from yt.funcs import ensure_dir
 from yt.testing import \
     assert_allclose_units, \
     assert_almost_equal
+
 from trident.absorption_spectrum.absorption_line import \
     voigt_old, voigt_scipy
 from trident.absorption_spectrum.absorption_spectrum import \
     AbsorptionSpectrum
+from trident.light_ray import \
+    LightRay
 from trident.testing import \
-    h5_dataset_compare, \
+    answer_test_data_dir, \
+    h5_answer_test, \
     in_tmpdir
-from trident import \
-    LightRay, \
-    parse_config
-import os
-import shutil
-from yt.convenience import load
-from yt.funcs import ensure_dir
 
-# If GENERATE_TEST_RESULTS=1, just generate test results.
-generate_results = int(os.environ.get("GENERATE_TEST_RESULTS", 0)) == 1
-
-answer_test_data_dir = \
-  os.path.abspath(parse_config('answer_test_data_dir'))
 COSMO_PLUS = os.path.join(answer_test_data_dir,
                           "enzo_cosmology_plus/AMRCosmology.enzo")
 COSMO_PLUS_SINGLE = os.path.join(answer_test_data_dir,
@@ -48,22 +43,12 @@ ISO_GALAXY = os.path.join(answer_test_data_dir,
 FIRE = os.path.join(answer_test_data_dir,
                     "FIRE_M12i_ref11/snapshot_600.hdf5")
 
-test_results_dir = ensure_dir(
-    os.path.join(answer_test_data_dir, "test_results"))
-
-@in_tmpdir
+@h5_answer_test
 def test_absorption_spectrum_cosmo():
     """
     This test generates an absorption spectrum from a compound light ray on a
     grid dataset
     """
-
-    test_name = "absorption_spectrum_cosmo"
-    output_filename = "%s.h5" % test_name
-    result_filename = os.path.join(test_results_dir, output_filename)
-    if not generate_results:
-        assert os.path.exists(result_filename), \
-          "Result file, %s, not found!" % result_filename
 
     lr = LightRay(COSMO_PLUS, 'Enzo', 0.0, 0.03)
 
@@ -91,29 +76,19 @@ def test_absorption_spectrum_cosmo():
 
     sp.add_continuum(my_label, field, wavelength, normalization, index)
 
+    filename = "spectrum.h5"
     wavelength, flux = sp.make_spectrum('lightray.h5',
-                                        output_file=output_filename,
+                                        output_file=filename,
                                         line_list_file='lines.txt',
                                         use_peculiar_velocity=True)
+    return filename
 
-    if generate_results:
-        os.rename(output_filename, result_filename)
-    else:
-        h5_dataset_compare(output_filename, result_filename)
-
-@in_tmpdir
+@h5_answer_test
 def test_absorption_spectrum_non_cosmo():
     """
     This test generates an absorption spectrum from a simple light ray on a
     grid dataset
     """
-
-    test_name = "absorption_spectrum_non_cosmo"
-    output_filename = "%s.h5" % test_name
-    result_filename = os.path.join(test_results_dir, output_filename)
-    if not generate_results:
-        assert os.path.exists(result_filename), \
-          "Result file, %s, not found!" % result_filename
 
     lr = LightRay(COSMO_PLUS_SINGLE)
 
@@ -135,29 +110,19 @@ def test_absorption_spectrum_non_cosmo():
     sp.add_line(my_label, field, wavelength, f_value,
                 gamma, mass, label_threshold=1.e10)
 
+    filename = "spectrum.h5"
     wavelength, flux = sp.make_spectrum('lightray.h5',
-                                        output_file=output_filename,
+                                        output_file=filename,
                                         line_list_file='lines.txt',
                                         use_peculiar_velocity=True)
+    return filename
 
-    if generate_results:
-        os.rename(output_filename, result_filename)
-    else:
-        h5_dataset_compare(output_filename, result_filename)
-
-@in_tmpdir
+@h5_answer_test
 def test_absorption_spectrum_non_cosmo_novpec():
     """
     This test generates an absorption spectrum from a simple light ray on a
     grid dataset
     """
-
-    test_name = "absorption_spectrum_non_cosmo_novpec"
-    output_filename = "%s.h5" % test_name
-    result_filename = os.path.join(test_results_dir, output_filename)
-    if not generate_results:
-        assert os.path.exists(result_filename), \
-          "Result file, %s, not found!" % result_filename
 
     lr = LightRay(COSMO_PLUS_SINGLE)
 
@@ -179,15 +144,12 @@ def test_absorption_spectrum_non_cosmo_novpec():
     sp.add_line(my_label, field, wavelength, f_value,
                 gamma, mass, label_threshold=1.e10)
 
+    filename = "spectrum.h5"
     wavelength, flux = sp.make_spectrum('lightray.h5',
-                                        output_file=output_filename,
+                                        output_file=filename,
                                         line_list_file='lines.txt',
                                         use_peculiar_velocity=False)
-
-    if generate_results:
-        os.rename(output_filename, result_filename)
-    else:
-        h5_dataset_compare(output_filename, result_filename)
+    return filename
 
 @in_tmpdir
 def test_equivalent_width_conserved():
@@ -273,19 +235,12 @@ def test_voigt_profiles():
     x = np.linspace(5.0, -3.6, 60)
     assert_allclose_units, voigt_old(a, x), voigt_scipy(a, x), 1e-8
 
-@in_tmpdir
+@h5_answer_test
 def test_absorption_spectrum_cosmo_sph():
     """
     This test generates an absorption spectrum from a compound light ray on a
     particle dataset
     """
-
-    test_name = "absorption_spectrum_cosmo_sph"
-    output_filename = "%s.h5" % test_name
-    result_filename = os.path.join(test_results_dir, output_filename)
-    if not generate_results:
-        assert os.path.exists(result_filename), \
-          "Result file, %s, not found!" % result_filename
 
     lr = LightRay(GIZMO_PLUS, 'Gadget', 0.0, 0.01)
 
@@ -314,29 +269,19 @@ def test_absorption_spectrum_cosmo_sph():
 
     sp.add_continuum(my_label, field, wavelength, normalization, index)
 
+    filename = "spectrum.h5"
     wavelength, flux = sp.make_spectrum('lightray.h5',
-                                        output_file=output_filename,
+                                        output_file=filename,
                                         line_list_file='lines.txt',
                                         use_peculiar_velocity=True)
+    return filename
 
-    if generate_results:
-        os.rename(output_filename, result_filename)
-    else:
-        h5_dataset_compare(output_filename, result_filename)
-
-@in_tmpdir
+@h5_answer_test
 def test_absorption_spectrum_non_cosmo_sph():
     """
     This test generates an absorption spectrum from a simple light ray on a
     particle dataset
     """
-
-    test_name = "absorption_spectrum_non_cosmo_sph"
-    output_filename = "%s.h5" % test_name
-    result_filename = os.path.join(test_results_dir, output_filename)
-    if not generate_results:
-        assert os.path.exists(result_filename), \
-          "Result file, %s, not found!" % result_filename
 
     ds = load(GIZMO_PLUS_SINGLE)
     lr = LightRay(ds)
@@ -359,29 +304,19 @@ def test_absorption_spectrum_non_cosmo_sph():
     sp.add_line(my_label, field, wavelength, f_value,
                 gamma, mass, label_threshold=1.e10)
 
+    filename = "spectrum.h5"
     wavelength, flux = sp.make_spectrum('lightray.h5',
-                                        output_file=output_filename,
+                                        output_file=filename,
                                         line_list_file='lines.txt',
                                         use_peculiar_velocity=True)
+    return filename
 
-    if generate_results:
-        os.rename(output_filename, result_filename)
-    else:
-        h5_dataset_compare(output_filename, result_filename)
-
-@in_tmpdir
+@h5_answer_test
 def test_absorption_spectrum_with_continuum():
     """
     This test generates an absorption spectrum from a simple light ray on a
     grid dataset and adds Lyman alpha and Lyman continuum to it
     """
-
-    test_name = "absorption_spectrum_with_continuum"
-    output_filename = "%s.h5" % test_name
-    result_filename = os.path.join(test_results_dir, output_filename)
-    if not generate_results:
-        assert os.path.exists(result_filename), \
-          "Result file, %s, not found!" % result_filename
 
     ds = load(ISO_GALAXY)
     lr = LightRay(ds)
@@ -412,15 +347,12 @@ def test_absorption_spectrum_with_continuum():
 
     sp.add_continuum(my_label, field, wavelength, normalization, index)
 
+    filename = "spectrum.h5"
     wavelength, flux = sp.make_spectrum('lightray.h5',
-                                        output_file=output_filename,
+                                        output_file=filename,
                                         line_list_file='lines.txt',
                                         use_peculiar_velocity=True)
-
-    if generate_results:
-        os.rename(output_filename, result_filename)
-    else:
-        h5_dataset_compare(output_filename, result_filename)
+    return filename
 
 @in_tmpdir
 def test_absorption_spectrum_with_zero_field():
