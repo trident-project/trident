@@ -12,8 +12,6 @@ Unit test for download_file function
 
 import os
 
-from download_test_data import \
-    download_datasets
 from trident.utilities import \
     download_file
 
@@ -27,4 +25,7 @@ def test_download_file():
             download_file(url, local_directory=local_dir)
             assert os.path.exists(
                 os.path.join(local_dir, os.path.basename(url)))
+
+        # have to wait until we've downloaded config file to import
+        from download_test_data import download_datasets
         download_datasets(local_dir=local_dir)
