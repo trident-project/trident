@@ -13,7 +13,7 @@ from __future__ import absolute_import
 #
 # Distributed under the terms of the Modified BSD License.
 #
-# The full license is in the file COPYING.txt, distributed with this software.
+# The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
 from yt.utilities.on_demand_imports import _h5py as h5py
