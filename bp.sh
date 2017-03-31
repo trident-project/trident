@@ -21,12 +21,14 @@ cd $BITBUCKET_CLONE_DIR
 hg up tip
 pip install -e .
 
-# install data file and create config.tri file in CWD
-# so trident works, despite not having access to ~/.trident
-cd tests
 wget http://trident-project.org/data/ion_table/config.tri
 wget http://trident-project.org/data/ion_table/hm2012_lr.h5.gz
 gunzip hm2012_lr.h5.gz
+mkdir -p $HOME/.trident
+mv config.tri $HOME/.trident
+mv hm2012_lr.h5 $HOME/.trident
+
+cd tests
 export RUN_DOWNLOAD_TEST=1
 py.test test_download.py
 
