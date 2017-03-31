@@ -18,6 +18,8 @@ from numpy.testing import \
 import os
 import shutil
 import tempfile
+from unittest import \
+    TestCase
 from yt.funcs import \
     ensure_dir
 from trident.utilities import \
@@ -30,22 +32,19 @@ answer_test_data_dir = \
 test_results_dir = ensure_dir(
   os.path.join(answer_test_data_dir, "test_results"))
 
-def in_tmpdir(func):
+class TestInTempDir(TestCase):
     """
-    Make a temp dir, cd into it, run operation,
-    return to original location, remove temp dir.
+    A test class that runs in a temporary directory and removes it afterward.
     """
 
-    @wraps(func)
-    def do_in_tmpdir(*args, **kwargs):
-        tmpdir = tempfile.mkdtemp()
-        curdir = os.getcwd()
-        os.chdir(tmpdir)
-        func(*args, **kwargs)
-        os.chdir(curdir)
-        shutil.rmtree(tmpdir)
+    def setUp(self):
+        self.curdir = os.getcwd()
+        self.tmpdir = tempfile.mkdtemp()
+        os.chdir(self.tmpdir)
 
-    return do_in_tmpdir
+    def tearDown(self):
+        os.chdir(self.curdir)
+        shutil.rmtree(self.tmpdir)
 
 def h5_answer_test(func):
     """
@@ -63,7 +62,6 @@ def h5_answer_test(func):
     output of the test function.
     """
 
-    @in_tmpdir
     def do_h5_answer_test(*args, **kwargs):
         # name the file after the function
         filename = "%s.h5" % func.__name__
@@ -81,15 +79,17 @@ def h5_answer_test(func):
 
     return do_h5_answer_test
 
-def h5_dataset_compare(fn1, fn2):
+def h5_dataset_compare(fn1, fn2, compare=None):
     """
     Compare all datasets between two hdf5 files.
     """
 
+    if compare is None:
+        compare = assert_array_equal
     fh1 = h5py.File(fn1, "r")
     fh2 = h5py.File(fn2, "r")
     assert list(fh1.keys()) == list(fh2.keys()), \
       "Files have different datasets!"
     for key in fh1.keys():
-        assert_array_equal(fh1[key].value, fh2[key].value,
-                           err_msg="%s field not equal!" % key)
+        compare(fh1[key].value, fh2[key].value,
+                err_msg="%s field not equal!" % key)
