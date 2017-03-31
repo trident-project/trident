@@ -46,7 +46,7 @@ class TestInTempDir(TestCase):
         os.chdir(self.curdir)
         shutil.rmtree(self.tmpdir)
 
-def h5_answer_test(func):
+def h5_answer_test(compare=None, **kwargs):
     """
     HDF5 answer test decorator.
 
@@ -62,24 +62,27 @@ def h5_answer_test(func):
     output of the test function.
     """
 
-    def do_h5_answer_test(*args, **kwargs):
-        # name the file after the function
-        filename = "%s.h5" % func.__name__
-        result_filename = os.path.join(test_results_dir, filename)
+    def my_h5_answer_test(func):
+        def do_h5_answer_test():
+            # name the file after the function
+            filename = "%s.h5" % func.__name__
+            result_filename = os.path.join(test_results_dir, filename)
 
-        if not generate_results:
-            assert os.path.exists(result_filename), \
-              "Result file, %s, not found!" % result_filename
+            if not generate_results:
+                assert os.path.exists(result_filename), \
+                  "Result file, %s, not found!" % result_filename
 
-        output_filename = func(*args, **kwargs)
-        if generate_results:
-            os.rename(output_filename, result_filename)
-        else:
-            h5_dataset_compare(output_filename, result_filename)
+            output_filename = func()
+            if generate_results:
+                os.rename(output_filename, result_filename)
+            else:
+                h5_dataset_compare(output_filename, result_filename,
+                                   compare=compare, **kwargs)
 
-    return do_h5_answer_test
+        return do_h5_answer_test
+    return my_h5_answer_test
 
-def h5_dataset_compare(fn1, fn2, compare=None):
+def h5_dataset_compare(fn1, fn2, compare=None, **kwargs):
     """
     Compare all datasets between two hdf5 files.
     """
