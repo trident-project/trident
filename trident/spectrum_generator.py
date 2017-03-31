@@ -23,6 +23,10 @@ from yt.funcs import \
     mylog, \
     YTArray
 
+from trident.config import \
+    ion_table_dir, \
+    ion_table_file, \
+    ion_table_filepath
 from trident.instrument import \
     Instrument
 from trident.ion_balance import \
@@ -197,8 +201,6 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
         if ionization_table is not None:
             # figure out where the user-specified files lives
-            ion_table_dir, ion_table_file = parse_config()
-            ion_table_filepath = os.path.join(ion_table_dir, ion_table_file)
             if os.path.isfile(ion_table_file):
                 self.ionization_table = ion_table_file
             elif os.path.isfile(ion_table_filepath):

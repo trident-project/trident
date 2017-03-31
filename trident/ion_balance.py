@@ -24,11 +24,12 @@ import numpy as np
 import h5py
 import copy
 import os
+from trident.config import \
+    ion_table_filepath
 from trident.line_database import \
     LineDatabase, \
     uniquify
 from trident.utilities import \
-    ion_table_filepath, \
     _determine_particle_type
 from trident.roman import \
     from_roman
@@ -68,7 +69,7 @@ class IonBalanceTable(object):
             Default: None
         """
         if filename is None:
-            filename = ion_table_filepath()
+            filename = ion_table_filepath
         self.filename = filename
         self.parameters = []
         self.ion_fraction = []
@@ -249,7 +250,7 @@ def add_ion_fields(ds, ions, ftype='gas',
         particle_type = _determine_particle_type(ds)
 
     if ionization_table is None:
-        ionization_table = ion_table_filepath()
+        ionization_table = ion_table_filepath
 
     # Parse the ions given following the LineDatabase syntax
 
@@ -369,7 +370,7 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
         particle_type = _determine_particle_type(ds)
 
     if ionization_table is None:
-        ionization_table = ion_table_filepath()
+        ionization_table = ion_table_filepath
 
     if (ftype, "log_nH") not in ds.derived_field_list:
         ds.add_field((ftype, "log_nH"), function=_log_nH, units="",
@@ -506,7 +507,7 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
         particle_type = _determine_particle_type(ds)
 
     if ionization_table is None:
-        ionization_table = ion_table_filepath()
+        ionization_table = ion_table_filepath
     atom = atom.capitalize()
     # if neutral ion field, alias X_p0_number_density to X_number_density field
     if ion == 1:
@@ -625,7 +626,7 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
         particle_type = _determine_particle_type(ds)
 
     if ionization_table is None:
-        ionization_table = ion_table_filepath()
+        ionization_table = ion_table_filepath
     atom = atom.capitalize()
 
     # if neutral ion field, alias X_p0_number_density to X_number_density field
@@ -746,7 +747,7 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
         particle_type = _determine_particle_type(ds)
 
     if ionization_table is None:
-        ionization_table = ion_table_filepath()
+        ionization_table = ion_table_filepath
     atom = atom.capitalize()
 
     # if neutral ion field, alias X_p0_number_density to X_number_density field

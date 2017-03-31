@@ -23,6 +23,8 @@ from yt.convenience import \
 from yt.funcs import \
     mylog, \
     YTArray
+from trident.config import \
+    ion_table_filepath
 from trident.line_database import \
     LineDatabase, \
     uniquify
@@ -34,7 +36,6 @@ from trident.ion_balance import \
     add_ion_number_density_field, \
     atomic_number
 from trident.utilities import \
-    ion_table_filepath, \
     _determine_particle_type
 from yt.geometry.particle_geometry_handler import \
     ParticleIndex
@@ -223,7 +224,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
     lr = LightRay(ds, load_kwargs=load_kwargs)
 
     if ionization_table is None:
-        ionization_table = ion_table_filepath()
+        ionization_table = ion_table_filepath
 
     # If 'lines' kwarg is set, we need to get all the fields required to
     # create the desired absorption lines in the grid format, since grid-based
@@ -504,7 +505,7 @@ def make_compound_ray(parameter_filename, simulation_type,
                   load_kwargs=load_kwargs)
 
     if ionization_table is None:
-        ionization_table = ion_table_filepath()
+        ionization_table = ion_table_filepath
 
     # If 'lines' kwarg is set, we need to get all the fields required to
     # create the desired absorption lines in the grid format, since grid-based
