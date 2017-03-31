@@ -28,7 +28,7 @@ from trident.utilities import \
 # If GENERATE_TEST_RESULTS=1, just generate test results.
 generate_results = int(os.environ.get("GENERATE_TEST_RESULTS", 0)) == 1
 answer_test_data_dir = \
-  os.path.abspath(parse_config('answer_test_data_dir'))
+  os.path.abspath(os.path.expanduser(parse_config('answer_test_data_dir')))
 test_results_dir = ensure_dir(
   os.path.join(answer_test_data_dir, "test_results"))
 
