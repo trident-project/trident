@@ -16,6 +16,7 @@ import numpy as np
 from yt.convenience import \
     load
 from yt.testing import \
+    answer_test_data_dir, \
     assert_array_equal
 from trident import \
     LightRay, \
@@ -26,8 +27,6 @@ import os
 import shutil
 import tempfile
 
-answer_test_data_dir = \
-  os.path.abspath(parse_config('answer_test_data_dir'))
 COSMO_PLUS = os.path.join(answer_test_data_dir,
                           "enzo_cosmology_plus/AMRCosmology.enzo")
 COSMO_PLUS_SINGLE = os.path.join(answer_test_data_dir,
