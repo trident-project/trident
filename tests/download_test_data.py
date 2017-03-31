@@ -18,7 +18,7 @@ from trident.testing import \
 from trident.utilities import \
     download_file
 
-def download_datasets(local_dir=None):
+def download_datasets(local_dir=None, progress_bar=True):
     if local_dir is None:
         local_dir = answer_test_data_dir
     urls = open("test_datasets", "r").readlines()
@@ -28,7 +28,7 @@ def download_datasets(local_dir=None):
         url = url.strip()
         print ("Downloading %s to %s." % (url, local_dir))
         filename = os.path.join(local_dir, os.path.basename(url))
-        download_file(url, local_directory=local_dir)
+        download_file(url, local_directory=local_dir, progress_bar=True)
         assert os.path.exists(filename), \
           "Failed to download %s." % url
         print ("Untarring %s." % filename)

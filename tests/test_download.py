@@ -18,4 +18,4 @@ from download_test_data import \
 def test_download_file():
     env = os.environ
     if int(env.get("RUN_DOWNLOAD_TEST", 0)) == 1:
-        download_datasets()
+        download_datasets(progress_bar=False)
