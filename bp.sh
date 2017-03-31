@@ -7,7 +7,7 @@ cd ..
 wget --quiet https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh
 bash ./Miniconda2-latest-Linux-x86_64.sh -b -p ./trident-conda -f
 export PATH=$PWD/trident-conda/bin:$PATH
-conda install -q -y mercurial cython h5py matplotlib sympy numpy pytest flake8
+conda install -q -y mercurial cython h5py matplotlib sympy numpy scipy pytest flake8
 
 # set up development build of yt
 hg clone https://bitbucket.org/yt_analysis/yt yt-hg
@@ -24,11 +24,12 @@ pip install -e .
 # install data file and create config.tri file in CWD
 # so trident works, despite not having access to ~/.trident
 cd tests
-export RUN_DOWNLOAD_TEST=1
 wget http://trident-project.org/data/ion_table/config.tri
 wget http://trident-project.org/data/ion_table/hm2012_lr.h5.gz
 gunzip hm2012_lr.h5.gz
+export RUN_DOWNLOAD_TEST=1
 py.test test_download.py
+
 # start the tests themselves
 export RUN_DOWNLOAD_TEST=0
 py.test

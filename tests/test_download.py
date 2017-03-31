@@ -18,5 +18,4 @@ from download_test_data import \
 def test_download_file():
     env = os.environ
     if int(env.get("RUN_DOWNLOAD_TEST", 0)) == 1:
-        local_dir = "."
-        download_datasets(local_dir=local_dir)
+        download_datasets()
