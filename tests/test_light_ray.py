@@ -16,12 +16,12 @@ import numpy as np
 from yt.convenience import \
     load
 from yt.testing import \
-    answer_test_data_dir, \
     assert_array_equal
 from trident import \
     LightRay, \
     parse_config
 from trident.testing import \
+    answer_test_data_dir, \
     TestInTempDir
 import os
 import shutil
