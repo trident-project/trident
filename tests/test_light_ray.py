@@ -20,6 +20,8 @@ from yt.testing import \
 from trident import \
     LightRay, \
     parse_config
+from trident.testing import \
+    TestInTempDir
 import os
 import shutil
 import tempfile
@@ -44,124 +46,78 @@ def compare_light_ray_solutions(lr1, lr2):
             else:
                 assert s1[field] == s2[field]
 
-def test_light_ray_cosmo():
-    """
-    This test generates a cosmological light ray
-    """
-    # Set up in a temp dir
-    tmpdir = tempfile.mkdtemp()
-    curdir = os.getcwd()
-    os.chdir(tmpdir)
+class LightRayTest(TestInTempDir):
 
-    lr = LightRay(COSMO_PLUS, 'Enzo', 0.0, 0.03)
+    def test_light_ray_cosmo(self):
+        """
+        This test generates a cosmological light ray
+        """
+        lr = LightRay(COSMO_PLUS, 'Enzo', 0.0, 0.03)
 
-    lr.make_light_ray(seed=1234567,
-                      fields=['temperature', 'density', 'H_number_density'],
-                      data_filename='lightray.h5')
+        lr.make_light_ray(seed=1234567,
+                          fields=['temperature', 'density', 'H_number_density'],
+                          data_filename='lightray.h5')
 
-    ds = load('lightray.h5')
-    compare_light_ray_solutions(lr, ds)
+        ds = load('lightray.h5')
+        compare_light_ray_solutions(lr, ds)
 
-    # clean up
-    os.chdir(curdir)
-    shutil.rmtree(tmpdir)
+    def test_light_ray_cosmo_nested(self):
+        """
+        This test generates a cosmological light ray confing the ray to a subvolume
+        """
+        left = np.ones(3) * 0.25
+        right = np.ones(3) * 0.75
 
-def test_light_ray_cosmo_nested():
-    """
-    This test generates a cosmological light ray confing the ray to a subvolume
-    """
-    # Set up in a temp dir
-    tmpdir = tempfile.mkdtemp()
-    curdir = os.getcwd()
-    os.chdir(tmpdir)
+        lr = LightRay(COSMO_PLUS, 'Enzo', 0.0, 0.03)
 
-    left = np.ones(3) * 0.25
-    right = np.ones(3) * 0.75
+        lr.make_light_ray(seed=1234567, left_edge=left, right_edge=right,
+                          fields=['temperature', 'density', 'H_number_density'],
+                          data_filename='lightray.h5')
 
-    lr = LightRay(COSMO_PLUS, 'Enzo', 0.0, 0.03)
+        ds = load('lightray.h5')
+        compare_light_ray_solutions(lr, ds)
 
-    lr.make_light_ray(seed=1234567, left_edge=left, right_edge=right,
-                      fields=['temperature', 'density', 'H_number_density'],
-                      data_filename='lightray.h5')
+    def test_light_ray_cosmo_nonperiodic(self):
+        """
+        This test generates a cosmological light ray using non-periodic segments
+        """
+        lr = LightRay(COSMO_PLUS, 'Enzo', 0.0, 0.03)
 
-    ds = load('lightray.h5')
-    compare_light_ray_solutions(lr, ds)
+        lr.make_light_ray(seed=1234567, periodic=False,
+                          fields=['temperature', 'density', 'H_number_density'],
+                          data_filename='lightray.h5')
 
-    # clean up
-    os.chdir(curdir)
-    shutil.rmtree(tmpdir)
+        ds = load('lightray.h5')
+        compare_light_ray_solutions(lr, ds)
 
-def test_light_ray_cosmo_nonperiodic():
-    """
-    This test generates a cosmological light ray using non-periodic segments
-    """
-    # Set up in a temp dir
-    tmpdir = tempfile.mkdtemp()
-    curdir = os.getcwd()
-    os.chdir(tmpdir)
+    def test_light_ray_non_cosmo(self):
+        """
+        This test generates a non-cosmological light ray
+        """
+        lr = LightRay(COSMO_PLUS_SINGLE)
 
-    lr = LightRay(COSMO_PLUS, 'Enzo', 0.0, 0.03)
+        ray_start = [0,0,0]
+        ray_end = [1,1,1]
+        lr.make_light_ray(start_position=ray_start, end_position=ray_end,
+                          fields=['temperature', 'density', 'H_number_density'],
+                          data_filename='lightray.h5')
 
-    lr.make_light_ray(seed=1234567, periodic=False,
-                      fields=['temperature', 'density', 'H_number_density'],
-                      data_filename='lightray.h5')
+        ds = load('lightray.h5')
+        compare_light_ray_solutions(lr, ds)
 
-    ds = load('lightray.h5')
-    compare_light_ray_solutions(lr, ds)
+    def test_light_ray_non_cosmo_from_dataset(self):
+        """
+        This test generates a non-cosmological light ray created from an already
+        loaded dataset
+        """
+        ds = load(COSMO_PLUS_SINGLE)
+        lr = LightRay(ds)
 
-    # clean up
-    os.chdir(curdir)
-    shutil.rmtree(tmpdir)
+        ray_start = [0,0,0]
+        ray_end = [1,1,1]
+        lr.make_light_ray(start_position=ray_start, end_position=ray_end,
+                          fields=['temperature', 'density', 'H_number_density'],
+                          data_filename='lightray.h5')
 
-def test_light_ray_non_cosmo():
-    """
-    This test generates a non-cosmological light ray
-    """
-
-    # Set up in a temp dir
-    tmpdir = tempfile.mkdtemp()
-    curdir = os.getcwd()
-    os.chdir(tmpdir)
-
-    lr = LightRay(COSMO_PLUS_SINGLE)
-
-    ray_start = [0,0,0]
-    ray_end = [1,1,1]
-    lr.make_light_ray(start_position=ray_start, end_position=ray_end,
-                      fields=['temperature', 'density', 'H_number_density'],
-                      data_filename='lightray.h5')
-
-    ds = load('lightray.h5')
-    compare_light_ray_solutions(lr, ds)
-
-    # clean up
-    os.chdir(curdir)
-    shutil.rmtree(tmpdir)
-
-def test_light_ray_non_cosmo_from_dataset():
-    """
-    This test generates a non-cosmological light ray created from an already
-    loaded dataset
-    """
-
-    # Set up in a temp dir
-    tmpdir = tempfile.mkdtemp()
-    curdir = os.getcwd()
-    os.chdir(tmpdir)
-
-    ds = load(COSMO_PLUS_SINGLE)
-    lr = LightRay(ds)
-
-    ray_start = [0,0,0]
-    ray_end = [1,1,1]
-    lr.make_light_ray(start_position=ray_start, end_position=ray_end,
-                      fields=['temperature', 'density', 'H_number_density'],
-                      data_filename='lightray.h5')
-
-    ds = load('lightray.h5')
-    compare_light_ray_solutions(lr, ds)
-
-    # clean up
-    os.chdir(curdir)
-    shutil.rmtree(tmpdir)
-
+        ds = load('lightray.h5')
+        compare_light_ray_solutions(lr, ds)
