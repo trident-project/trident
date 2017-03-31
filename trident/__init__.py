@@ -22,6 +22,10 @@ __version__ = "1.0.1"
 from trident.utilities import import_check
 import_check()
 
+from trident.config import \
+    parse_config, \
+    create_config
+
 from trident.ion_balance import \
     add_ion_fields, \
     add_ion_fraction_field, \
@@ -50,8 +54,6 @@ from trident.spectrum_generator import \
     load_spectrum
 
 from trident.utilities import \
-    parse_config, \
-    create_config, \
     trident, \
     trident_path, \
     make_onezone_dataset, \

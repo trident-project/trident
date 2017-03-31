@@ -34,7 +34,7 @@ def parse_config(variable=None):
         value of that variable. Default: None
     """
     # Assure the ~/.trident directory exists, and read in the config file.
-    home = expanduser("~")
+    home = os.path.expanduser("~")
     directory = os.path.join(home, '.trident')
     config_filename = os.path.join(directory, 'config.tri')
 
@@ -83,7 +83,7 @@ def create_config():
     datafile from the web.  It does this using user interaction from the
     python prompt.
     """
-    default_dir = expanduser('~/.trident')
+    default_dir = os.path.expanduser('~/.trident')
     trident()
     print("It appears that this is your first time using Trident.  To finalize your")
     print("Trident installation, you must:")
@@ -110,7 +110,7 @@ def create_config():
     datadir = input().rstrip()
     if datadir == '':
         datadir = default_dir
-    datadir = expanduser(datadir)
+    datadir = os.path.expanduser(datadir)
 
     # Try to create data directory if it doesn't exist
     try:
@@ -129,7 +129,7 @@ def create_config():
     config.add_section('Trident')
     config.set('Trident', 'ion_table_dir', datadir)
     config.set('Trident', 'ion_table_file', datafile)
-    config_filename = expanduser('~/.trident/config.tri')
+    config_filename = os.path.expanduser('~/.trident/config.tri')
     with open(config_filename, 'w') as configfile:
         config.write(configfile)
 
