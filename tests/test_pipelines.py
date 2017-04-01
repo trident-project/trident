@@ -26,7 +26,7 @@ from trident.testing import \
     answer_test_data_dir, \
     generate_results, \
     test_results_dir, \
-    TridentAnswerTest
+    TempDirTest
 
 # Datasets required for running some answer tests
 enzo_small = os.path.join(answer_test_data_dir, 'enzo_small')
@@ -40,7 +40,7 @@ def test_verify():
     verify()
     assert True
 
-class PipelineTest(TridentAnswerTest):
+class PipelineTest(TempDirTest):
 
     def test_enzo_small_simple(self):
         """

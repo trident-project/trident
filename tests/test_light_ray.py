@@ -22,7 +22,7 @@ from trident import \
     parse_config
 from trident.testing import \
     answer_test_data_dir, \
-    TridentAnswerTest
+    TempDirTest
 import os
 import shutil
 import tempfile
@@ -45,7 +45,7 @@ def compare_light_ray_solutions(lr1, lr2):
             else:
                 assert s1[field] == s2[field]
 
-class LightRayTest(TridentAnswerTest):
+class LightRayTest(TempDirTest):
 
     def test_light_ray_cosmo(self):
         """

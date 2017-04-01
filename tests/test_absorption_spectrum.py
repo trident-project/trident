@@ -12,6 +12,8 @@ Unit test for the AbsorptionSpectrum analysis module
 #-----------------------------------------------------------------------------
 
 import numpy as np
+from numpy.testing import \
+    assert_array_equal
 import os
 from yt.convenience import load
 from yt.funcs import ensure_dir
@@ -29,7 +31,7 @@ from trident.testing import \
     answer_test_data_dir, \
     assert_array_rel_equal, \
     h5_answer_test, \
-    TridentAnswerTest
+    TempDirTest
 
 COSMO_PLUS = os.path.join(answer_test_data_dir,
                           "enzo_cosmology_plus/AMRCosmology.enzo")
@@ -49,9 +51,9 @@ def test_voigt_profiles():
     x = np.linspace(5.0, -3.6, 60)
     assert_allclose_units, voigt_old(a, x), voigt_scipy(a, x), 1e-8
 
-class AbsorptionSpectrumTest(TridentAnswerTest):
+class AbsorptionSpectrumTest(TempDirTest):
 
-    @h5_answer_test
+    @h5_answer_test(assert_array_equal)
     def test_absorption_spectrum_cosmo(self):
         """
         This test generates an absorption spectrum from a compound light ray on a
@@ -91,7 +93,7 @@ class AbsorptionSpectrumTest(TridentAnswerTest):
                                             use_peculiar_velocity=True)
         return filename
 
-    @h5_answer_test
+    @h5_answer_test(assert_array_equal)
     def test_absorption_spectrum_non_cosmo(self):
         """
         This test generates an absorption spectrum from a simple light ray on a
@@ -125,7 +127,7 @@ class AbsorptionSpectrumTest(TridentAnswerTest):
                                             use_peculiar_velocity=True)
         return filename
 
-    @h5_answer_test
+    @h5_answer_test(assert_array_equal)
     def test_absorption_spectrum_non_cosmo_novpec(self):
         """
         This test generates an absorption spectrum from a simple light ray on a
@@ -236,7 +238,7 @@ class AbsorptionSpectrumTest(TridentAnswerTest):
                                             line_list_file='lines.txt',
                                             use_peculiar_velocity=True)
 
-    @h5_answer_test
+    @h5_answer_test(assert_array_equal)
     def test_absorption_spectrum_cosmo_sph(self):
         """
         This test generates an absorption spectrum from a compound light ray on a
@@ -277,7 +279,7 @@ class AbsorptionSpectrumTest(TridentAnswerTest):
                                             use_peculiar_velocity=True)
         return filename
 
-    @h5_answer_test
+    @h5_answer_test(assert_array_equal)
     def test_absorption_spectrum_non_cosmo_sph(self):
         """
         This test generates an absorption spectrum from a simple light ray on a
