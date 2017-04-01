@@ -22,6 +22,8 @@ from unittest import \
     TestCase
 from yt.funcs import \
     ensure_dir
+from yt.testing import \
+    assert_rel_equal
 from trident.utilities import \
     parse_config
 
@@ -32,7 +34,7 @@ answer_test_data_dir = ensure_dir(
 test_results_dir = ensure_dir(
   os.path.join(answer_test_data_dir, "test_results"))
 
-class TestInTempDir(TestCase):
+class TridentAnswerTest(TestCase):
     """
     A test class that runs in a temporary directory and removes it afterward.
     """
@@ -63,7 +65,7 @@ def h5_answer_test(compare=None, **kwargs):
     """
 
     def my_h5_answer_test(func):
-        def do_h5_answer_test():
+        def do_h5_answer_test(*args):
             # name the file after the function
             filename = "%s.h5" % func.__name__
             result_filename = os.path.join(test_results_dir, filename)
@@ -72,7 +74,7 @@ def h5_answer_test(compare=None, **kwargs):
                 assert os.path.exists(result_filename), \
                   "Result file, %s, not found!" % result_filename
 
-            output_filename = func()
+            output_filename = func(*args)
             if generate_results:
                 os.rename(output_filename, result_filename)
             else:
@@ -96,3 +98,9 @@ def h5_dataset_compare(fn1, fn2, compare=None, **kwargs):
     for key in fh1.keys():
         compare(fh1[key].value, fh2[key].value,
                 err_msg="%s field not equal!" % key)
+
+def assert_array_rel_equal(a1, a2, decimals=16, **kwargs):
+    """
+    Wraps assert_rel_equal with, but decimals is a keyword arg.
+    """
+    assert_rel_equal(a1, a2, decimals, **kwargs)

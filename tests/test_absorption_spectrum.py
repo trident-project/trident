@@ -27,8 +27,9 @@ from trident.light_ray import \
     LightRay
 from trident.testing import \
     answer_test_data_dir, \
+    assert_array_rel_equal, \
     h5_answer_test, \
-    TestInTempDir
+    TridentAnswerTest
 
 COSMO_PLUS = os.path.join(answer_test_data_dir,
                           "enzo_cosmology_plus/AMRCosmology.enzo")
@@ -48,7 +49,7 @@ def test_voigt_profiles():
     x = np.linspace(5.0, -3.6, 60)
     assert_allclose_units, voigt_old(a, x), voigt_scipy(a, x), 1e-8
 
-class AbsorptionSpectrumTest(TestInTempDir):
+class AbsorptionSpectrumTest(TridentAnswerTest):
 
     @h5_answer_test
     def test_absorption_spectrum_cosmo(self):
@@ -311,7 +312,7 @@ class AbsorptionSpectrumTest(TestInTempDir):
                                             use_peculiar_velocity=True)
         return filename
 
-    @h5_answer_test
+    @h5_answer_test(compare=assert_array_rel_equal, decimals=8)
     def test_absorption_spectrum_with_continuum(self):
         """
         This test generates an absorption spectrum from a simple light ray on a
