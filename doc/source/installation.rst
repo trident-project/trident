@@ -89,6 +89,8 @@ You can install the most recent stable release of Trident using pip::
 
     $ pip install trident
 
+.. _install-dev:
+
 Installing the Development Version
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

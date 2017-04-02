@@ -21,6 +21,7 @@ information, see :ref:`versions`.
    advanced_spectra.rst
    ion_balance.rst
    internals.rst
+   testing.rst
    faq.rst
    reference.rst
    citation.rst
