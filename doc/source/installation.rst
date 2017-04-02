@@ -41,7 +41,7 @@ Installing yt for the Stable Release
 
 The stable release of Trident runs off of the latest stable release of yt.
 You can install yt by following any of the methods on its `installation page
-<http://yt-project.org/doc/installing.html>`_, but we find that the easiest
+<http://yt-project.org/doc/installing.html>`__, but we find that the easiest
 is to use the all-in-one install script::
 
     $ wget http://bitbucket.org/yt_analysis/yt/raw/stable/doc/install_script.sh
@@ -63,7 +63,7 @@ Installing yt for the Development Version
 The development version of Trident runs off of the development version of yt,
 since much of the functionality is co-developed between the two packages.
 You can install yt by following any of the methods on its `installation page
-<http://yt-project.org/docs/dev/installing.html>`_, but we find that the 
+<http://yt-project.org/docs/dev/installing.html>`__, but we find that the 
 easiest is to use the all-in-one install script and build from source
 (i.e. with settings ``INST_CONDA=1`` and ``INST_YT_SOURCE=1``)::
 

@@ -40,7 +40,7 @@ Making Light Ray Data
 ---------------------
 
 Once the LightRay object has been instantiated, the
-:func:`~trident.light_ray.light_ray.LightRay.make_light_ray`
+:func:`~trident.light_ray.LightRay.make_light_ray`
 function will trace out the rays in each dataset and collect information for all the
 fields requested.  The output file will be an yt-loadable dataset containing all the
 cell field values for all the cells that were intersected by the ray.  A
@@ -135,7 +135,7 @@ the calculation of the spacing of the segment datasets only takes into
 account the high resolution region and not the full box size.  If your
 high resolution region is not a perfect cube, specify the smallest side.
 Then, in the call to
-:func:`~trident.light_ray.light_ray.LightRay.make_light_ray`,
+:func:`~trident.light_ray.LightRay.make_light_ray`,
 use the ``left_edge`` and ``right_edge`` keyword arguments to specify the
 precise location of the high resolution region.
 

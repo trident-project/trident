@@ -72,8 +72,8 @@ Internals and Extensions
    :toctree: generated/
    :nosignatures:
 
-   ~trident.light_ray.light_ray.LightRay
-   ~trident.light_ray.light_ray.LightRay.make_light_ray
+   ~trident.light_ray.LightRay
+   ~trident.light_ray.LightRay.make_light_ray
    ~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum
    ~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum.add_continuum
    ~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum.add_line
