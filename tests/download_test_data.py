@@ -18,24 +18,37 @@ from trident.testing import \
 from trident.utilities import \
     download_file
 
+from trident.testing import \
+    test_results_version
+
 def download_datasets(local_dir=None, progress_bar=True):
     if local_dir is None:
         local_dir = answer_test_data_dir
     urls = open("test_datasets.txt", "r").readlines()
+    test_results = "http://trident-project.org/data/tests/test_results_%d.tar.gz" % \
+      test_results_version
+    urls += [test_results]
+
     for url in urls:
         if url.strip().startswith("#"):
             continue
         url = url.strip()
-        print ("Downloading %s to %s." % (url, local_dir))
         filename = os.path.join(local_dir, os.path.basename(url))
+        target_filename = filename[:filename.rfind(".tar.gz")]
+        if os.path.exists(target_filename):
+            continue
+
+        print ("Downloading %s to %s." % (url, local_dir))
         download_file(url, local_directory=local_dir, progress_bar=True)
         assert os.path.exists(filename), \
           "Failed to download %s." % url
+
         print ("Untarring %s." % filename)
         tar = tarfile.open(filename)
         tar.extractall(path=local_dir)
         tar.close()
-    print ("Data downloaded and untarred successfully. Tarfiles can be deleted")
+        os.remove(filename)
+    print ("Data downloaded and untarred successfully.")
 
 if __name__ == "__main__":
     download_datasets()
