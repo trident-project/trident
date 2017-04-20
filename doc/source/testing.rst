@@ -66,7 +66,7 @@ environment variable to 1 and rerun the tests:
 .. code-block:: bash
 
    $ cd tests
-   $ export GENERATE_TEST_RESULTS=1
+   $ export TRIDENT_GENERATE_TEST_RESULTS=1
    $ py.test
 
 The results must then be tarred up and uploaded to the Trident website.
