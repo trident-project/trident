@@ -39,8 +39,8 @@ def get_test_results_version():
         "Couldn't get test result version from %s." % filename)
 test_results_version = get_test_results_version()
 
-# If GENERATE_TEST_RESULTS=1, just generate test results.
-generate_results = int(os.environ.get("GENERATE_TEST_RESULTS", 0)) == 1
+# If TRIDENT_GENERATE_TEST_RESULTS=1, just generate test results.
+generate_results = int(os.environ.get("TRIDENT_GENERATE_TEST_RESULTS", 0)) == 1
 answer_test_data_dir = ensure_dir(
   os.path.abspath(os.path.expanduser(parse_config('answer_test_data_dir'))))
 test_results_dir = \
@@ -69,11 +69,11 @@ def h5_answer_test(compare, **kwargs):
     Put this decorator above testing functions that return a
     filename for a file generated within that file.
 
-    If the environment variable, GENERATE_TEST_RESULTS is 1,
+    If the environment variable, TRIDENT_GENERATE_TEST_RESULTS is 1,
     then the filename will be renamed to the name of the test
     function and stored.
 
-    If the GENERATE_TEST_RESULTS is 0, then check to make sure
+    If the TRIDENT_GENERATE_TEST_RESULTS is 0, then check to make sure
     the comparison file exists, then compare this file with the
     output of the test function.
     """

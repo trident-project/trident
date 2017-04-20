@@ -53,3 +53,20 @@ calling ``py.test`` from within the ``tests`` directory.
    test_spectrum_generator.py ......
 
    ========================= 52 passed in 117.32 seconds ==========================
+
+Generating Test Results
+=======================
+
+If new tests have been added or the code's behavior has changed (in a good way)
+such that the tests no longer pass, new results must be generated.  Before
+generating new results, be sure to update the results version number in
+``tests/test_results_version.txt``.  Then, set the ``TRIDENT_GENERATE_TEST_RESULTS``
+environment variable to 1 and rerun the tests:
+
+.. code-block:: bash
+
+   $ cd tests
+   $ export GENERATE_TEST_RESULTS=1
+   $ py.test
+
+The results must then be tarred up and uploaded to the Trident website.
