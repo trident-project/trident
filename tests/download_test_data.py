@@ -21,7 +21,7 @@ from trident.utilities import \
 def download_datasets(local_dir=None, progress_bar=True):
     if local_dir is None:
         local_dir = answer_test_data_dir
-    urls = open("test_datasets", "r").readlines()
+    urls = open("test_datasets.txt", "r").readlines()
     for url in urls:
         if url.strip().startswith("#"):
             continue
