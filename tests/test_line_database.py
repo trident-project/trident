@@ -18,7 +18,7 @@ from trident.line_database import \
     uniquify, \
     Line, \
     LineDatabase
-from trident.utilities import \
+from trident.config import \
     trident_path
 import numpy as np
 from shutil import copyfile

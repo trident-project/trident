@@ -24,7 +24,7 @@ from yt.funcs import \
     ensure_dir
 from yt.testing import \
     assert_rel_equal
-from trident.utilities import \
+from trident.config import \
     parse_config
 
 def get_test_results_version():
