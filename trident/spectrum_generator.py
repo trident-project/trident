@@ -38,7 +38,7 @@ from trident.lsf import \
     LSF
 from trident.plotting import \
     plot_spectrum
-from trident.utilities import \
+from trident.config import \
     trident_path
 from yt.utilities.on_demand_imports import \
     _h5py, \

@@ -16,7 +16,7 @@ import os
 import sys
 from yt.funcs import \
     mylog
-from trident.utilities import \
+from trident.config import \
     trident_path
 
 class LSF(object):

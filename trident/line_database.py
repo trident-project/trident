@@ -14,7 +14,7 @@ Line, LineDatabase class and member functions.
 import os
 from yt.funcs import \
     mylog
-from trident.utilities import \
+from trident.config import \
     trident_path
 from trident.roman import \
     from_roman

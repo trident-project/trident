@@ -24,7 +24,10 @@ import_check()
 
 from trident.config import \
     parse_config, \
-    create_config
+    create_config, \
+    trident, \
+    trident_path, \
+    verify
 
 from trident.ion_balance import \
     add_ion_fields, \
@@ -54,11 +57,8 @@ from trident.spectrum_generator import \
     load_spectrum
 
 from trident.utilities import \
-    trident, \
-    trident_path, \
     make_onezone_dataset, \
-    make_onezone_ray, \
-    verify
+    make_onezone_ray
 
 from trident.ray_generator import \
     make_simple_ray, \

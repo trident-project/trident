@@ -35,9 +35,6 @@ from yt import \
 from yt.geometry.particle_geometry_handler import \
     ParticleIndex
 
-from trident.config import \
-    parse_config
-
 def ensure_directory(directory):
     """
     Ensures a directory exists by creating it if it does not.  Works for 
@@ -268,37 +265,6 @@ def get_datafiles(datadir=None, url=None):
     shutil.rmtree(tempdir) 
     return filename[:-3]
 
-def trident():
-    """
-    Print a Trident ASCII logo to the screen.
-    """
-    print("""
-MMMMMMMMMMMMMMMMMMM.............................................................
-M...B....C....D...M.MMMMMMMMMM.......MM........MM.....................MM7.......
-M...MM...M...MM...M.....MM.....................MM.....................MM7.......
-M....MM..M..MM....M.....MM...MMMMMM..MM..MMMMMMMM..MMMMMMM..MMDMMMMM MMMMMMM....
-M....MM..M..MM....M.....MM...MM ..MM.MM. MM....MM.,MM...MM+.MM....MM..MM7.......
-M.....MMMMMMM.....M.....MM...MM......MM. MM....MM.8MMMMMMMD.MM....MM..MM7.......
-M....... M........M.....MM...MM......MM..MM...8MM. MM...._..MM....MM..MMZ.MM ...
-M........M........M.....MM...MM......MM..MMMMM.MM. MMMMMMM..MM....MM...MMMMM....
-MMMMMMMMMMMMMMMMMMM.............................................................
-""")
-
-def trident_path():
-    """
-    Return the path where the trident source is installed.
-    Useful for identifying where data files are (e.g. path/data).  Note that
-    ion table datafiles are downloaded separate and placed in another
-    location according to the ~/.trident/config.tri file.
-
-    **Example**
-
-    >>> print(trident_path())
-    """
-    path_list = os.path.dirname(__file__).split('/')[:-1]
-    path_list.append('trident')
-    return '/'.join(path_list)
-
 def make_onezone_dataset(density=1e-26, temperature=1000, metallicity=0.3, 
                          domain_width=10.):
                            
@@ -491,91 +457,6 @@ def make_onezone_ray(density=1e-26, temperature=1000, metallicity=0.3,
     # load dataset and make spectrum
     ray = load(filename)
     return ray
-
-def verify(save=False):
-    """
-    Verify that the bulk of Trident's functionality is working.  First, it
-    ensures that the user has a configuration file and ion table datafile, 
-    and creates/downloads these files if they do not exist.  Next, it
-    creates a single-cell grid-based dataset in memory, generates a ray 
-    by sending a sightline through that dataset, then makes a spectrum from 
-    the ray object.  It saves all data to a tempdir before deleting it.
-
-    **Parameters**
-
-    :save: boolean, optional
-
-        By default, verify saves all of its outputs to a temporary directory
-        and then removes it upon completion.  If you would like to see the
-        resulting data from verify(), set this to be True and it will save
-        a light ray, and raw and processed spectra in the current working 
-        directory.
-        Default: False
-        
-    **Example**
-
-    Verify Trident works.
-
-    >>> import trident
-    >>> trident.verify()
-    """
-    parse_config()
-    from trident.spectrum_generator import SpectrumGenerator
-    from trident.ray_generator import make_simple_ray
-    print("")
-    print("Creating single-cell dataset")
-    print("----------------------------")
-    print("")
-    try:
-        ds = make_onezone_dataset()
-    except:
-        print("Failed to create single-cell dataset")
-        raise
-
-    print("")
-    print("Creating ray object through single-cell dataset")
-    print("-----------------------------------------------")
-    print("")
-
-    if save == True:
-        tempdir = '.'
-    else:
-        tempdir = tempfile.mkdtemp()
-
-    try:
-        ray = make_simple_ray(ds,
-                start_position=ds.domain_left_edge,
-                end_position=ds.domain_right_edge,
-                data_filename=os.path.join(tempdir, 'ray.h5'),
-                fields=['density', 'temperature', 'metallicity'])
-    except:
-        print("Failed to create ray object")
-        raise
-
-    print("")
-    print("Create spectrum with Lyman alpha, Mg II, and O VI lines")
-    print("-------------------------------------------------------")
-    print("")
-    sg = SpectrumGenerator('COS')
-    sg.make_spectrum(ray, lines=['Ly a', 'Mg II', 'O VI'])
-    sg.save_spectrum(os.path.join(tempdir, 'spec_raw.h5'))
-    sg.plot_spectrum(os.path.join(tempdir, 'spec_raw.png'))
-    # Test other post processing of the spectrum
-    sg.add_qso_spectrum()
-    sg.add_milky_way_foreground()
-    sg.apply_lsf()
-    sg.add_gaussian_noise(30)
-    sg.save_spectrum(os.path.join(tempdir, 'spec_final.h5'))
-    sg.plot_spectrum(os.path.join(tempdir, 'spec_final.png'))
-
-    if save == False:
-        print("Removing all temporary data files...")
-        shutil.rmtree(tempdir) 
-
-    print("")
-    print("Congratulations, you have verified that Trident is installed correctly.")
-    print("Now let's science!")
-    print("")
 
 def import_check():
     """
