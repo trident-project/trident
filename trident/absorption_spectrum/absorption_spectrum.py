@@ -61,6 +61,7 @@ class AbsorptionSpectrum(object):
         self.tau_field = None
         self.flux_field = None
         self.absorbers_list = None
+        self.line_observables_list = None
         self.bin_width = YTQuantity((lambda_max - lambda_min) /
                                     float(n_lambda - 1), "angstrom")
         self.line_list = []
@@ -214,6 +215,7 @@ class AbsorptionSpectrum(object):
 
         self.tau_field = np.zeros(self.lambda_field.size)
         self.absorbers_list = []
+        self.line_observables_dict = {}
 
         if njobs == "auto":
             comm = _get_comm(())
@@ -289,11 +291,11 @@ class AbsorptionSpectrum(object):
         Add continuum features to the spectrum.  Continuua are recorded as
         a name, associated field, wavelength, normalization value, and index.
         Continuua are applied at and below the denoted wavelength, where the
-        optical depth decreases as a power law of desired index.  For positive 
-        index values, this means optical depth is highest at the denoted 
-        wavelength, and it drops with shorter and shorter wavelengths.  
-        Consequently, transmitted flux undergoes a discontinuous cutoff at the 
-        denoted wavelength, and then slowly increases with decreasing wavelength 
+        optical depth decreases as a power law of desired index.  For positive
+        index values, this means optical depth is highest at the denoted
+        wavelength, and it drops with shorter and shorter wavelengths.
+        Consequently, transmitted flux undergoes a discontinuous cutoff at the
+        denoted wavelength, and then slowly increases with decreasing wavelength
         according to the power law.
         """
         # Change the redshifts of continuum sources to account for the
@@ -301,12 +303,12 @@ class AbsorptionSpectrum(object):
         redshift, redshift_eff = self._apply_observing_redshift(field_data,
                                  use_peculiar_velocity, observing_redshift)
 
-        # min_tau is the minimum optical depth value that warrants 
-        # accounting for an absorber.  for a single absorber, noticeable 
-        # continuum effects begin for tau = 1e-3 (leading to transmitted 
+        # min_tau is the minimum optical depth value that warrants
+        # accounting for an absorber.  for a single absorber, noticeable
+        # continuum effects begin for tau = 1e-3 (leading to transmitted
         # flux of e^-tau ~ 0.999).  but we apply a cutoff to remove
-        # absorbers with insufficient column_density to contribute 
-        # significantly to a continuum (see below).  because lots of 
+        # absorbers with insufficient column_density to contribute
+        # significantly to a continuum (see below).  because lots of
         # low column density absorbers can add up to a significant
         # continuum effect, we normalize min_tau by the n_absorbers.
         n_absorbers = field_data['dl'].size
@@ -315,7 +317,7 @@ class AbsorptionSpectrum(object):
         for continuum in self.continuum_list:
 
             # Normalization is in cm**-2, so column density must be as well
-            column_density = (field_data[continuum['field_name']] * 
+            column_density = (field_data[continuum['field_name']] *
                               field_data['dl']).in_units('cm**-2')
             if (column_density == 0).all():
                 mylog.info("Not adding continuum %s: insufficient column density" % continuum['label'])
@@ -329,9 +331,9 @@ class AbsorptionSpectrum(object):
 
             # right index of continuum affected area is wavelength itself
             this_wavelength = delta_lambda + continuum['wavelength']
-            right_index = np.digitize(this_wavelength, 
+            right_index = np.digitize(this_wavelength,
                                       self.lambda_field).clip(0, self.n_lambda)
-            # left index of continuum affected area wavelength at which 
+            # left index of continuum affected area wavelength at which
             # optical depth reaches tau_min
             left_index = np.digitize((this_wavelength *
                               np.power((min_tau * continuum['normalization'] /
@@ -339,7 +341,7 @@ class AbsorptionSpectrum(object):
                                        (1. / continuum['index']))),
                               self.lambda_field).clip(0, self.n_lambda)
 
-            # Only calculate the effects of continuua where normalized 
+            # Only calculate the effects of continuua where normalized
             # column_density is greater than min_tau
             # because lower column will not have significant contribution
             valid_continuua = np.where(((column_density /
@@ -354,7 +356,7 @@ class AbsorptionSpectrum(object):
                                 (continuum['label'], continuum['wavelength']),
                             valid_continuua.size)
 
-            # Tau value is (wavelength / continuum_wavelength)**index / 
+            # Tau value is (wavelength / continuum_wavelength)**index /
             #              (column_dens / norm)
             # i.e. a power law decreasing as wavelength decreases
 
@@ -441,6 +443,7 @@ class AbsorptionSpectrum(object):
             cdens = column_density.in_units("cm**-2").d # cm**-2
             thermb = thermal_b.in_cgs().d  # thermal b coefficient; cm / s
             dlambda = delta_lambda.d  # lambda offset; angstroms
+            tau_ray = np.zeros(len(cdens))
             if use_peculiar_velocity:
                 vlos = field_data['velocity_los'].in_units("km/s").d # km/s
             else:
@@ -462,7 +465,7 @@ class AbsorptionSpectrum(object):
             #    10; this will assure we don't get spikes in the deposited
             #    spectra from uneven numbers of vbins per bin
             resolution = thermal_width / self.bin_width
-            n_vbins_per_bin = (10 ** (np.ceil( np.log10( subgrid_resolution / 
+            n_vbins_per_bin = (10 ** (np.ceil( np.log10( subgrid_resolution /
                                resolution) ).clip(0, np.inf) ) ).astype('int')
             vbin_width = self.bin_width.d / n_vbins_per_bin
 
@@ -552,7 +555,8 @@ class AbsorptionSpectrum(object):
                     self.tau_field[intersect_left_index:intersect_right_index] \
                         += EW[(intersect_left_index - left_index): \
                               (intersect_right_index - left_index)]
-
+                    tau_ray[i] = np.sum(EW[(intersect_left_index - left_index): \
+                                            (intersect_right_index - left_index)])
 
                 # write out absorbers to file if the column density of
                 # an absorber is greater than the specified "label_threshold"
@@ -575,6 +579,17 @@ class AbsorptionSpectrum(object):
                 pbar.update(i)
             pbar.finish()
 
+
+            obs_dict = {"column_density":column_density,
+                        "tau_ray":tau_ray,
+                        "delta_lambda":delta_lambda,
+                        "lambda_obs":lambda_obs,
+                        "thermal_b":thermal_b,
+                        "thermal_width":thermal_width}
+
+            self.line_observables_dict.update({line['label']:obs_dict})
+
+            del obs_dict, tau_ray
             del column_density, delta_lambda, lambda_obs, center_index, \
                 thermal_b, thermal_width, cdens, thermb, dlambda, \
                 vlos, resolution, vbin_width, n_vbins, n_vbins_per_bin
