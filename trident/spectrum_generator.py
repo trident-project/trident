@@ -536,13 +536,13 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                               filename=filename)
         flux_field *= qso_spectrum
 
-    def add_gaussian_noise(self, snr, out=None, seed=None):
+    def add_gaussian_noise(self, snr, seed=None):
         """
         Postprocess a spectrum to add gaussian random noise of a given SNR. 
 
         **Parameters**
 
-        :snr: int
+        :snr: float
 
             The desired signal-to-noise ratio for determining the amount of 
             gaussian noise
@@ -577,10 +577,41 @@ class SpectrumGenerator(AbsorptionSpectrum):
         >>> sg.plot_spectrum('spec_noise.png')
         """
         np.random.seed(seed)
-        n_bins = self.lambda_field.size
-        out = self.flux_field
-        np.add(out, np.random.normal(loc=0.0, scale=1/float(snr), size=n_bins),
-               out=out)
+        noise = np.random.normal(loc=0.0, scale=1/float(snr),
+                                 size=self.flux_field.size)
+        self.add_noise_vector(noise)
+
+    def add_noise_vector(self, noise):
+        """
+        Add an array of noise to the spectrum.
+
+        **Parameters**
+
+        :noise: array of floats
+
+            The array of noise values to be added to the spectrum.  This
+            array must be of the same size as the flux array.
+
+        **Example**
+
+        >>> import numpy as np
+        >>> import trident
+        >>> ray = trident.make_onezone_ray(column_densities={'H_p0_number_density':1e21})
+        >>> sg = trident.SpectrumGenerator(lambda_min=1200, lambda_max=1300, dlambda=0.1)
+        >>> sg.make_spectrum(ray, lines=['Ly a'])
+        >>> my_noise = np.random.normal(loc=0.0, scale=0.1, size=sg.flux_field.size)
+        >>> sg.add_noise_vector(my_noise)
+        >>> sg.plot_spectrum('spec_noise.png')
+        """
+
+        if not isinstance(noise, np.ndarray):
+            raise SyntaxError(
+                "Noise field must be a numpy array.")
+        if self.flux_field.shape != noise.shape:
+            raise SyntaxError(
+                "Flux (%s) and noise (%s) vectors must have same shape." %
+                (self.flux_field.shape, noise.shape))
+        self.flux_field += noise
 
     def apply_lsf(self, function=None, width=None, filename=None):
         """
