@@ -61,7 +61,7 @@ class AbsorptionSpectrum(object):
         self.tau_field = None
         self.flux_field = None
         self.absorbers_list = None
-        self.line_observables_list = None
+        self.line_observables_dict = None
         self.bin_width = YTQuantity((lambda_max - lambda_min) /
                                     float(n_lambda - 1), "angstrom")
         self.line_list = []
