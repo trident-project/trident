@@ -443,7 +443,7 @@ class AbsorptionSpectrum(object):
             cdens = column_density.in_units("cm**-2").d # cm**-2
             thermb = thermal_b.in_cgs().d  # thermal b coefficient; cm / s
             dlambda = delta_lambda.d  # lambda offset; angstroms
-            tau_ray = np.zeros(len(cdens))
+            tau_ray = np.zeros(cdens.size)
             if use_peculiar_velocity:
                 vlos = field_data['velocity_los'].in_units("km/s").d # km/s
             else:
@@ -552,11 +552,11 @@ class AbsorptionSpectrum(object):
                 else:
                     intersect_left_index = max(left_index, 0)
                     intersect_right_index = min(right_index, self.n_lambda-1)
+                    EW_deposit = EW[(intersect_left_index - left_index): \
+                                    (intersect_right_index - left_index)]
                     self.tau_field[intersect_left_index:intersect_right_index] \
-                        += EW[(intersect_left_index - left_index): \
-                              (intersect_right_index - left_index)]
-                    tau_ray[i] = np.sum(EW[(intersect_left_index - left_index): \
-                                            (intersect_right_index - left_index)])
+                        += EW_deposit
+                    tau_ray[i] = np.sum(EW_deposit)
 
                 # write out absorbers to file if the column density of
                 # an absorber is greater than the specified "label_threshold"
@@ -589,10 +589,10 @@ class AbsorptionSpectrum(object):
 
             self.line_observables_dict.update({line['label']:obs_dict})
 
-            del obs_dict, tau_ray
             del column_density, delta_lambda, lambda_obs, center_index, \
                 thermal_b, thermal_width, cdens, thermb, dlambda, \
-                vlos, resolution, vbin_width, n_vbins, n_vbins_per_bin
+                vlos, resolution, vbin_width, n_vbins, n_vbins_per_bin, \
+                obs_dict, tau_ray
 
         comm = _get_comm(())
         self.tau_field = comm.mpi_allreduce(self.tau_field, op="sum")
