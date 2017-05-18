@@ -392,7 +392,7 @@ class AbsorptionSpectrum(object):
 
         # step through each ionic transition (e.g. HI, HII, MgII) specified
         # and deposit the lines into the spectrum
-        for line in parallel_objects(self.line_list, njobs=njobs):
+        for store, line in parallel_objects(self.line_list, njobs=njobs, storage=self.line_observables_dict):
             column_density = field_data[line['field_name']] * field_data['dl']
             if (column_density < 0).any():
                 mylog.warn("Setting negative densities for field %s to 0! Bad!" % line['field_name'])
@@ -587,7 +587,8 @@ class AbsorptionSpectrum(object):
                         "thermal_b":thermal_b,
                         "thermal_width":thermal_width}
 
-            self.line_observables_dict.update({line['label']:obs_dict})
+            store.result_id = line['label']
+            store.result = obs_dict
 
             del column_density, delta_lambda, lambda_obs, center_index, \
                 thermal_b, thermal_width, cdens, thermb, dlambda, \
