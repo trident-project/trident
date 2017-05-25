@@ -61,7 +61,8 @@ class AbsorptionSpectrum(object):
         self.tau_field = None
         self.flux_field = None
         self.absorbers_list = None
-        self.line_observables_dict = None
+        # a dictionary that will store spectral quantities for each index in the light ray
+	self.line_observables_dict = None
         self.bin_width = YTQuantity((lambda_max - lambda_min) /
                                     float(n_lambda - 1), "angstrom")
         self.line_list = []
@@ -444,7 +445,9 @@ class AbsorptionSpectrum(object):
             cdens = column_density.in_units("cm**-2").d # cm**-2
             thermb = thermal_b.in_cgs().d  # thermal b coefficient; cm / s
             dlambda = delta_lambda.d  # lambda offset; angstroms
-            tau_ray = np.zeros(cdens.size)
+            # Array to store sum of the tau values for each index in the
+	    # light ray that is deposited to the final spectrum 
+	    tau_ray = np.zeros(cdens.size)
             if use_peculiar_velocity:
                 vlos = field_data['velocity_los'].in_units("km/s").d # km/s
             else:
@@ -580,13 +583,15 @@ class AbsorptionSpectrum(object):
                 pbar.update(i)
             pbar.finish()
 
+	    # If running in parallel, make sure that the observable 
+	    # quantities for the dictionary are combined correctly. 
             comm = _get_comm(())
             if comm.size > 1:
                 obs_dict_fields = [column_density,tau_ray,delta_lambda,
                                     lambda_obs, thermal_b, thermal_width]
                 obs_dict_fields = [comm.mpi_allreduce(field,op="sum") for field in obs_dict_fields]
 
-
+            # Update the line_observables_dict with values for this line
             obs_dict = {"column_density":column_density,
                         "tau_ray":tau_ray,
                         "delta_lambda":delta_lambda,
