@@ -221,6 +221,7 @@ class AbsorptionSpectrum(object):
             comm = _get_comm(())
             njobs = min(comm.size, len(self.line_list))
 
+        print 'njobs: ',njobs
         mylog.info("Creating spectrum")
         self._add_lines_to_spectrum(field_data, use_peculiar_velocity,
                                     output_absorbers_file,
@@ -579,6 +580,12 @@ class AbsorptionSpectrum(object):
                 pbar.update(i)
             pbar.finish()
 
+            comm = _get_comm(())
+            if comm.size > 1:
+                obs_dict_fields = [column_density,tau_ray,delta_lambda,
+                                    lambda_obs, thermal_b, thermal_width]
+                obs_dict_fields = [comm.mpi_allreduce(field,op="sum") for field in obs_dict_fields]
+
 
             obs_dict = {"column_density":column_density,
                         "tau_ray":tau_ray,
@@ -594,6 +601,7 @@ class AbsorptionSpectrum(object):
                 thermal_b, thermal_width, cdens, thermb, dlambda, \
                 vlos, resolution, vbin_width, n_vbins, n_vbins_per_bin, \
                 obs_dict, tau_ray
+
 
         comm = _get_comm(())
         self.tau_field = comm.mpi_allreduce(self.tau_field, op="sum")
