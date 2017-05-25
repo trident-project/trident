@@ -222,7 +222,6 @@ class AbsorptionSpectrum(object):
             comm = _get_comm(())
             njobs = min(comm.size, len(self.line_list))
 
-        print 'njobs: ',njobs
         mylog.info("Creating spectrum")
         self._add_lines_to_spectrum(field_data, use_peculiar_velocity,
                                     output_absorbers_file,
