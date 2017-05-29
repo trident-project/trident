@@ -481,7 +481,6 @@ class LightRay(CosmologySplice):
             else:
                 ds = self.ds
 
-            my_segment['unique_identifier'] = ds.unique_identifier
             if redshift is not None:
                 if ds.cosmological_simulation and redshift != ds.current_redshift:
                     mylog.warn("Generating light ray with different redshift than " +
@@ -524,7 +523,13 @@ class LightRay(CosmologySplice):
 
             # Prepare data structure for subsegment.
             sub_data = {}
-            sub_data['segment_redshift'] = my_segment['redshift']
+            # Put supplementary data that we want communicated across
+            # processors in here.
+            sub_data['extra_data'] = {}
+            sub_data['extra_data']['segment_redshift'] = \
+              my_segment['redshift']
+            sub_data['extra_data']['unique_identifier'] = \
+              ds.unique_identifier
             for field in all_fields:
                 sub_data[field] = []
 
@@ -588,6 +593,8 @@ class LightRay(CosmologySplice):
                 del sub_ray, asort
 
             for key in sub_data:
+                if key == "extra_data":
+                    continue
                 sub_data[key] = ds.arr(sub_data[key]).in_cgs()
 
             # Get redshift for each lixel.  Assume linear relation between l 
@@ -624,10 +631,20 @@ class LightRay(CosmologySplice):
         all_data = [my_data for my_data in all_ray_storage.values()]
         # This is now a list of segments where each one is a dictionary
         # with all the fields.
-        all_data.sort(key=lambda a:a['segment_redshift'], reverse=True)
+        all_data.sort(key=lambda a:a['extra_data']['segment_redshift'],
+                      reverse=True)
+
+        # Gather segment data to add to the light ray solution.
+        for segment_data, my_segment in \
+          zip(all_data, self.light_ray_solution):
+            my_segment["unique_identifier"] = \
+              segment_data["extra_data"]["unique_identifier"]
+
         # Flatten the list into a single dictionary containing fields
         # for the whole ray.
-        all_data = _flatten_dict_list(all_data, exceptions=['segment_redshift'])
+        all_data = _flatten_dict_list(
+            all_data, exceptions=['extra_data'])
+
         self._data = all_data
 
         if data_filename is not None:
