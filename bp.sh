@@ -12,7 +12,6 @@ conda install -q -y mercurial cython h5py matplotlib sympy numpy scipy pytest fl
 # set up development build of yt
 git clone https://github.com/yt-project/yt
 cd yt
-hg up yt
 pip install -e .
 cd ..
 
