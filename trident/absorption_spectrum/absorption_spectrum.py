@@ -123,7 +123,7 @@ class AbsorptionSpectrum(object):
                       line_list_file=None, output_absorbers_file=None,
                       use_peculiar_velocity=True,
                       subgrid_resolution=10, observing_redshift=0.,
-                      njobs="auto"):
+                      min_tau=1e-3, njobs="auto"):
         """
         Make spectrum from ray data using the line list.
 
@@ -165,6 +165,15 @@ class AbsorptionSpectrum(object):
            This is the redshift at which the observer is observing
            the absorption spectrum.
            Default: 0
+        min_tau : optional, float
+           This value determines size of the wavelength window used to
+           deposit lines or continua.  The wavelength window is expanded
+           until the optical depth at the edge is below this value.  If too
+           high, this will result in features appearing cut off at the edges.
+           Decreasing this will make features smoother but will also increase
+           run time.  An increase by a factor of ten will result in roughly a
+           2x slow down.
+           Default: 1e-3.
         njobs : optional, int or "auto"
            the number of process groups into which the loop over
            absorption lines will be divided.  If set to -1, each
@@ -224,9 +233,10 @@ class AbsorptionSpectrum(object):
                                     output_absorbers_file,
                                     subgrid_resolution=subgrid_resolution,
                                     observing_redshift=observing_redshift,
-                                    njobs=njobs)
+                                    min_tau=min_tau, njobs=njobs)
         self._add_continua_to_spectrum(field_data, use_peculiar_velocity,
-                                       observing_redshift=observing_redshift)
+                                       observing_redshift=observing_redshift,
+                                       min_tau=min_tau)
 
         self.flux_field = np.exp(-self.tau_field)
 
@@ -284,7 +294,7 @@ class AbsorptionSpectrum(object):
         return redshift, redshift_eff
 
     def _add_continua_to_spectrum(self, field_data, use_peculiar_velocity,
-                                  observing_redshift=0.):
+                                  observing_redshift=0., min_tau=1e-3):
         """
         Add continuum features to the spectrum.  Continuua are recorded as
         a name, associated field, wavelength, normalization value, and index.
@@ -310,7 +320,7 @@ class AbsorptionSpectrum(object):
         # low column density absorbers can add up to a significant
         # continuum effect, we normalize min_tau by the n_absorbers.
         n_absorbers = field_data['dl'].size
-        min_tau = 1.e-3/n_absorbers
+        min_tau = /= n_absorbers
 
         for continuum in self.continuum_list:
 
@@ -373,7 +383,7 @@ class AbsorptionSpectrum(object):
 
     def _add_lines_to_spectrum(self, field_data, use_peculiar_velocity,
                                output_absorbers_file, subgrid_resolution=10,
-                               observing_redshift=0., njobs=-1):
+                               observing_redshift=0., njobs=-1, min_tau=1e-3):
         """
         Add the absorption lines to the spectrum.
         """
@@ -382,11 +392,6 @@ class AbsorptionSpectrum(object):
         # redshift at which the observer sits
         redshift, redshift_eff = self._apply_observing_redshift(field_data,
                                  use_peculiar_velocity, observing_redshift)
-
-        # Widen wavelength window until optical depth falls below this tau
-        # value at the ends to assure that the wings of a line have been
-        # fully resolved.
-        min_tau = 1e-3
 
         # step through each ionic transition (e.g. HI, HII, MgII) specified
         # and deposit the lines into the spectrum
@@ -496,6 +501,9 @@ class AbsorptionSpectrum(object):
                 # reaches the edge of the spectrum
                 window_width_in_bins = 2
 
+                # Widen wavelength window until optical depth falls below min_tau
+                # value at the ends to assure that the wings of a line have been
+                # fully resolved.
                 while True:
                     left_index = (center_index[i] - window_width_in_bins//2)
                     right_index = (center_index[i] + window_width_in_bins//2)

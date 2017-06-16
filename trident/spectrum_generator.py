@@ -217,6 +217,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                       use_peculiar_velocity=True, 
                       observing_redshift=0.0,
                       ly_continuum=True,
+                      min_tau=1e-3,
                       njobs="auto"):
         """
         Make a spectrum from ray data depositing the desired lines.  Make sure
@@ -269,6 +270,16 @@ class SpectrumGenerator(AbsorptionSpectrum):
             a gap between final Lyman lines and continuum.  Uses power law
             of index 3 and normalization to match opacity of final Lyman lines.
             Default: True
+
+        :min_tau: optional, float
+           This value determines size of the wavelength window used to
+           deposit lines or continua.  The wavelength window is expanded
+           until the optical depth at the edge is below this value.  If too
+           high, this will result in features appearing cut off at the edges.
+           Decreasing this will make features smoother but will also increase
+           run time.  An increase by a factor of ten will result in roughly a
+           2x slow down.
+           Default: 1e-3.
 
         :njobs: optional, int or "auto"
 
@@ -367,7 +378,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                          line_list_file=None,
                                          use_peculiar_velocity=use_peculiar_velocity,
                                          observing_redshift=observing_redshift,
-                                         njobs=njobs)
+                                         min_tau=min_tau, njobs=njobs)
 
     def _get_qso_spectrum(self, emitting_redshift, observing_redshift, 
                           filename=None):
