@@ -10,9 +10,8 @@ export PATH=$PWD/trident-conda/bin:$PATH
 conda install -q -y mercurial cython h5py matplotlib sympy numpy scipy pytest flake8
 
 # set up development build of yt
-hg clone https://bitbucket.org/yt_analysis/yt yt-hg
-cd yt-hg
-hg up yt
+git clone https://github.com/yt-project/yt
+cd yt
 pip install -e .
 cd ..
 
