@@ -38,5 +38,5 @@ spectra from astrophysical hydrodynamical data"""),
         "Topic :: Scientific/Engineering :: Physics",
         "Topic :: Scientific/Engineering :: Visualization",
     ],
-    install_requires=['yt>=3.3.5', 'h5py', 'numpy', 'matplotlib', 'astropy', 'requests', 'setuptools'],
+    install_requires=['yt>=3.3.5', 'h5py', 'numpy', 'matplotlib', 'astropy', 'requests', 'setuptools', 'future'],
 )

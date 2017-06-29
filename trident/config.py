@@ -11,6 +11,7 @@ Trident config
 # The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
+from builtins import input
 import os
 from six.moves.configparser import \
     SafeConfigParser
