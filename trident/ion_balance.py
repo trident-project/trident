@@ -173,6 +173,14 @@ def add_ion_fields(ds, ions, ftype='gas',
     photoionization in the optically thin limit from a redshift-dependent
     metagalactic ionizing background using the ionization_table specified.
 
+    **WARNING**: The "ftype" must match the field type that you're using for
+    the field interpolation.  So for particle-based codes, this must be the
+    ftype of the gas particles (e.g., `PartType0`, `Gas`).  Using the
+    default of `gas` in this instance will interpolate on the grid-based
+    fields, which will give the wrong answers for particle-based codes,
+    since the ion field interpolation will take place on the already
+    deposited grid-based fields.
+
     **Parameters**
 
     :ds: yt dataset object
@@ -311,6 +319,14 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
     photoionization in the optically thin limit from a redshift-dependent
     metagalactic ionizing background using the ionization_table specified.
 
+    **WARNING**: The "ftype" must match the field type that you're using for
+    the field interpolation.  So for particle-based codes, this must be the
+    ftype of the gas particles (e.g., `PartType0`, `Gas`).  Using the
+    default of `gas` in this instance will interpolate on the grid-based
+    fields, which will give the wrong answers for particle-based codes,
+    since the ion field interpolation will take place on the already
+    deposited grid-based fields.
+
     **Parameters**
 
     :atom: string
@@ -443,6 +459,14 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
     photoionization in the optically thin limit from a redshift-dependent
     metagalactic ionizing background using the ionization_table specified.
 
+    **WARNING**: The "ftype" must match the field type that you're using for
+    the field interpolation.  So for particle-based codes, this must be the
+    ftype of the gas particles (e.g., `PartType0`, `Gas`).  Using the
+    default of `gas` in this instance will interpolate on the grid-based
+    fields, which will give the wrong answers for particle-based codes,
+    since the ion field interpolation will take place on the already
+    deposited grid-based fields.
+
     **Parameters**
 
     :atom: string
@@ -561,6 +585,14 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
     Fields are added assuming collisional ionization equilibrium and
     photoionization in the optically thin limit from a redshift-dependent
     metagalactic ionizing background using the ionization_table specified.
+
+    **WARNING**: The "ftype" must match the field type that you're using for
+    the field interpolation.  So for particle-based codes, this must be the
+    ftype of the gas particles (e.g., `PartType0`, `Gas`).  Using the
+    default of `gas` in this instance will interpolate on the grid-based
+    fields, which will give the wrong answers for particle-based codes,
+    since the ion field interpolation will take place on the already
+    deposited grid-based fields.
 
     **Parameters**
 
@@ -681,6 +713,14 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
     Fields are added assuming collisional ionization equilibrium and
     photoionization in the optically thin limit from a redshift-dependent
     metagalactic ionizing background using the ionization_table specified.
+
+    **WARNING**: The "ftype" must match the field type that you're using for
+    the field interpolation.  So for particle-based codes, this must be the
+    ftype of the gas particles (e.g., `PartType0`, `Gas`).  Using the
+    default of `gas` in this instance will interpolate on the grid-based
+    fields, which will give the wrong answers for particle-based codes,
+    since the ion field interpolation will take place on the already
+    deposited grid-based fields.
 
     **Parameters**
 
