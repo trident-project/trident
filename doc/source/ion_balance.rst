@@ -59,7 +59,21 @@ will add fields for whatever ions we specify in the form of:
 
 Let's add fields for O VI (five-times-ionized oxygen)::
 
-   trident.add_ion_fields(ds, ions=['O VI'])
+   trident.add_ion_fields(ds, ions=['O VI'], ftype="gas")
+
+.. warning::
+
+    Make sure you are using the appropriate value for `ftype` in adding your
+    ion fields to a dataset.  To get best results, the ion interpolation
+    must take place on the gas fields provided by your simulation output.  For
+    grid-based codes, these fields are typically aliased to the `gas` fields
+    (e.g., `("gas", "density")`), so using the default `ftype="gas"` is
+    fine.  But for particle-based codes, this is not usually the case, and the
+    particle-based gas fields differ based on the code (e.g. `PartType0`,
+    `Gas`, etc.).  Inspection of your dataset may be necessary 
+    (``print(ds.field_list)``).  Set `ftype` correctly to make sure
+    ion generation takes place on the particle first, before being deposited
+    to the grid-based fields, or you may get incorrect results.
 
 To show how one can use this newly generated field, we'll make a projection 
 of the O VI number density field to show its column density map::
