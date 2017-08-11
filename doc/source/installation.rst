@@ -18,8 +18,7 @@ version is actively being updated with new features, and it is also tied to
 the development version of yt, so occasionally unforseen bugs can crop
 up as these new features are added.  
 The installation steps are slightly different between the two versions,
-in that installing stable is easier and faster than dev, so pay attention in 
-the steps below.
+so pay attention in the steps below.
 Don't worry if you want to change later, you can always 
 switch between the two versions easily enough by following the directions
 in :ref:`uninstallation`.
@@ -36,45 +35,26 @@ must install it before Trident will work.  There are several methods for
 installing yt, which are all discussed in detail in the `yt installation 
 documentation <http://yt-project.org/doc/installing.html>`_.  
 
-Installing yt for the Stable Release
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+We find that the easiest way to install yt is with the all-in-one install 
+script, which installs yt and its dependencies via a new conda installation::
 
-The stable release of Trident runs off of the latest stable release of yt.
-You can install yt by following any of the methods on its `installation page
-<http://yt-project.org/doc/installing.html>`__, but we find that the easiest
-is to use the all-in-one install script::
+    $ wget https://raw.githubusercontent.com/yt-project/yt/master/doc/install_script.sh
+    $ ... edit the install_script.sh to mark INST_SCIPY=1, INST_ASTROPY=1, and INST_HG=1
+    $ ... if you want to use the dev version of yt and trident, mark INST_YT_SOURCE=1
+    $ bash install_script.sh
+    $ ... update your path flag as described by the install_script.sh
 
-    $ wget http://bitbucket.org/yt_analysis/yt/raw/stable/doc/install_script.sh
-    $ bash install_script.py
+Alternatively, if you already have conda installed, you can skip the commands
+above and just run the following command to get yt and its dependencies.  
 
-If you already have conda installed, it's even faster and easier::
+To get the stable version of yt (for the stable version of trident), type::
 
     $ conda install -c conda-forge yt
 
-Finally, if you already have the development version of yt, you can skip the 
-above steps and just update to the stable version::
+To get the nightly build of the development version of yt (for the development 
+version of trident), type::
 
-    $ cd <path/to/yt/repo>
-    $ hg up stable
-
-Installing yt for the Development Version
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The development version of Trident runs off of the development version of yt,
-since much of the functionality is co-developed between the two packages.
-You can install yt by following any of the methods on its `installation page
-<http://yt-project.org/docs/dev/installing.html>`__, but we find that the 
-easiest is to use the all-in-one install script and build from source
-(i.e. with settings ``INST_CONDA=1`` and ``INST_YT_SOURCE=1``)::
-
-    $ wget http://bitbucket.org/yt_analysis/yt/raw/yt/doc/install_script.sh
-    $ ... edit the install_script.sh to mark INST_YT_SOURCE=1 ...
-    $ bash install_script.sh
-
-Alternatively, if you already have conda installed, you can get the most
-recent nightly build of the development version of yt with::
-
-    $ conda install -c http://use.yt/with_conda yt
+    $ conda install -c http://use.yt/with_conda/ -c conda-forge yt
 
 .. _install-trident:
 .. _step-2:
@@ -96,8 +76,9 @@ Installing the Development Version
 
 To get the development version, you'll pull the source code from its 
 repository using mercurial, which should be installed as part of your yt 
-installation.  After that, you'll use pip to install the source directly.  
-Go to your desired source code installation directory and run::
+installation.  If it isn't try: ``conda install mercurial``.  After that, you'll 
+use pip to install the source directly.  Go to your desired source code 
+installation directory and run::
 
     $ hg clone http://bitbucket.org/trident-project/trident
     $ cd trident
@@ -140,9 +121,8 @@ Step 4: Science!
 
 Congratulations, you're now ready to use Trident!  Please refer to the 
 documentation for how to use it with your data or with one of our sample 
-datasets.  Because Trident is in beta, the docs are not complete, and 
-the API may still change in slight ways.  Please join our :ref:`mailing list 
-<mailing-list>` for announcements about when the code is officially released.
+datasets.  Please join our :ref:`mailing list 
+<mailing-list>` for announcements and when new features are added to the code.
 
 .. _manual-config:
 
@@ -225,6 +205,7 @@ involved::
     $ cd <path/to/trident/repo>
     $ hg pull
     $ hg up
+    $ pip uninstall trident
     $ pip install -e .
     $ yt update
 
