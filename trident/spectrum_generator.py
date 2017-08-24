@@ -217,6 +217,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                       use_peculiar_velocity=True,
                       observing_redshift=0.0,
                       ly_continuum=True,
+                      store_observables=False,
                       njobs="auto"):
         """
         Make a spectrum from ray data depositing the desired lines.  Make sure
@@ -269,6 +270,15 @@ class SpectrumGenerator(AbsorptionSpectrum):
             a gap between final Lyman lines and continuum.  Uses power law
             of index 3 and normalization to match opacity of final Lyman lines.
             Default: True
+
+        :store_observables: optional, boolean
+
+            If set to true, observable properties for each cell in the light
+            ray will be saved for each line in the line list. Properties
+            include the column density, tau, thermal b, and the wavelength
+            where tau was deposited. Best applied for a reasonable number
+            of lines.
+            Default: False
 
         :njobs: optional, int or "auto"
 
@@ -367,6 +377,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                          line_list_file=None,
                                          use_peculiar_velocity=use_peculiar_velocity,
                                          observing_redshift=observing_redshift,
+                                         store_observables=store_observables,
                                          njobs=njobs)
 
     def _get_qso_spectrum(self, emitting_redshift, observing_redshift,

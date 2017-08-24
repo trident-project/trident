@@ -124,6 +124,7 @@ class AbsorptionSpectrum(object):
     def make_spectrum(self, input_file, output_file=None,
                       line_list_file=None, output_absorbers_file=None,
                       use_peculiar_velocity=True,
+                      store_observables=False,
                       subgrid_resolution=10, observing_redshift=0.,
                       njobs="auto"):
         """
@@ -151,6 +152,10 @@ class AbsorptionSpectrum(object):
            to shift lines.  Requires similar flag to be set in LightRay
            generation.
            Default: True
+        store_observables : optional, bool
+           if True, stores observable properties of each cell along the line of
+           sight for each line, such as tau, column density, and thermal b.
+           Default: False 
         subgrid_resolution : optional, int
            When a line is being added that is unresolved (ie its thermal
            width is less than the spectral bin width), the voigt profile of
@@ -224,7 +229,7 @@ class AbsorptionSpectrum(object):
 
         mylog.info("Creating spectrum")
         self._add_lines_to_spectrum(field_data, use_peculiar_velocity,
-                                    output_absorbers_file,
+                                    output_absorbers_file,store_observables,
                                     subgrid_resolution=subgrid_resolution,
                                     observing_redshift=observing_redshift,
                                     njobs=njobs)
@@ -375,7 +380,8 @@ class AbsorptionSpectrum(object):
             pbar.finish()
 
     def _add_lines_to_spectrum(self, field_data, use_peculiar_velocity,
-                               output_absorbers_file, subgrid_resolution=10,
+                               output_absorbers_file, store_observables,
+                               subgrid_resolution=10,
                                observing_redshift=0., njobs=-1):
         """
         Add the absorption lines to the spectrum.
@@ -446,7 +452,8 @@ class AbsorptionSpectrum(object):
             dlambda = delta_lambda.d  # lambda offset; angstroms
             # Array to store sum of the tau values for each index in the
             # light ray that is deposited to the final spectrum 
-            tau_ray = np.zeros(cdens.size)
+            if store_observables:
+                tau_ray = np.zeros(cdens.size)
             if use_peculiar_velocity:
                 vlos = field_data['velocity_los'].in_units("km/s").d # km/s
             else:
@@ -559,7 +566,8 @@ class AbsorptionSpectrum(object):
                                     (intersect_right_index - left_index)]
                     self.tau_field[intersect_left_index:intersect_right_index] \
                         += EW_deposit
-                    tau_ray[i] = np.sum(EW_deposit)
+                    if store_observables:
+                        tau_ray[i] = np.sum(EW_deposit)
 
                 # write out absorbers to file if the column density of
                 # an absorber is greater than the specified "label_threshold"
@@ -582,29 +590,33 @@ class AbsorptionSpectrum(object):
                 pbar.update(i)
             pbar.finish()
 
+            ## Check keyword before storing any observables
+            if store_observables:
             # If running in parallel, make sure that the observable 
             # quantities for the dictionary are combined correctly. 
-            comm = _get_comm(())
-            if comm.size > 1:
-               obs_dict_fields = [column_density,tau_ray,delta_lambda,
-                                  lambda_obs, thermal_b, thermal_width]
-               obs_dict_fields = [comm.mpi_allreduce(field,op="sum") for field in obs_dict_fields]
+                comm = _get_comm(())
+                if comm.size > 1:
+              	    obs_dict_fields = [column_density,tau_ray,delta_lambda,
+                                       lambda_obs, thermal_b, thermal_width]
+                    obs_dict_fields = [comm.mpi_allreduce(field,op="sum") for field in obs_dict_fields]
 
-            # Update the line_observables_dict with values for this line
-            obs_dict = {"column_density":column_density,
-                        "tau_ray":tau_ray,
-                        "delta_lambda":delta_lambda,
-                        "lambda_obs":lambda_obs,
-                        "thermal_b":thermal_b,
-                        "thermal_width":thermal_width}
+                 # Update the line_observables_dict with values for this line
+                obs_dict = {"column_density":column_density,
+                            "tau_ray":tau_ray,
+                            "delta_lambda":delta_lambda,
+                            "lambda_obs":lambda_obs,
+                            "thermal_b":thermal_b,
+                            "thermal_width":thermal_width}
 
-            store.result_id = line['label']
-            store.result = obs_dict
+                store.result_id = line['label']
+                store.result = obs_dict
+                ## Can only delete these if in this statement:
+                del obs_dict, tau_ray
 
+           #These always need to be deleted
             del column_density, delta_lambda, lambda_obs, center_index, \
                 thermal_b, thermal_width, cdens, thermb, dlambda, \
-                vlos, resolution, vbin_width, n_vbins, n_vbins_per_bin, \
-                obs_dict, tau_ray
+                vlos, resolution, vbin_width, n_vbins, n_vbins_per_bin
 
 
         comm = _get_comm(())
