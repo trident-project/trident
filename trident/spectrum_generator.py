@@ -66,33 +66,33 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
     User first specifies the telescope/instrument used for generating spectra
     (e.g. 'COS' for the Cosmic Origins Spectrograph aboard the
-    Hubble Space Telescope).  This can be done by naming the 
-    :class:`~trident.Instrument`, or manually setting all of the spectral 
-    characteristics including ``lambda_min``, ``lambda_max``, ``lsf_kernel``, 
+    Hubble Space Telescope).  This can be done by naming the
+    :class:`~trident.Instrument`, or manually setting all of the spectral
+    characteristics including ``lambda_min``, ``lambda_max``, ``lsf_kernel``,
     and ``n_lambda`` or ``dlambda``.  If none of these arguments are set,
     defaults to 'COS' as the default instrument covering 1150-1450 Angstroms
-    with a binsize (``dlambda``) of 0.1 Angstroms.  
+    with a binsize (``dlambda``) of 0.1 Angstroms.
 
-    Once a :class:`~trident.SpectrumGenerator` has been initialized, pass it 
-    ``LightRay`` objects using :class:`~trident.SpectrumGenerator.make_spectrum` 
-    to actually generate the spectra themselves.  Then one can post-process, 
-    plot, or save them using 
-    :class:`~trident.SpectrumGenerator.add_milky_way_foreground`,  
-    :class:`~trident.SpectrumGenerator.add_qso_spectrum`,  
-    :class:`~trident.SpectrumGenerator.apply_lsf`,  
-    :class:`~trident.SpectrumGenerator.save_spectrum`, and 
+    Once a :class:`~trident.SpectrumGenerator` has been initialized, pass it
+    ``LightRay`` objects using :class:`~trident.SpectrumGenerator.make_spectrum`
+    to actually generate the spectra themselves.  Then one can post-process,
+    plot, or save them using
+    :class:`~trident.SpectrumGenerator.add_milky_way_foreground`,
+    :class:`~trident.SpectrumGenerator.add_qso_spectrum`,
+    :class:`~trident.SpectrumGenerator.apply_lsf`,
+    :class:`~trident.SpectrumGenerator.save_spectrum`, and
     :class:`~trident.SpectrumGenerator.plot_spectrum`.
-    
+
     **Parameters**
 
     :instrument: string, optional
-    
-        The spectrograph to use.  Currently, the only named options are 
+
+        The spectrograph to use.  Currently, the only named options are
         different observing modes of the Cosmic Origins Spectrograph 'COS':
-        'COS-G130M', 'COS-G160M', and 'COS-G140L' as well as 'COS' which 
+        'COS-G130M', 'COS-G160M', and 'COS-G140L' as well as 'COS' which
         aliases to 'COS-G130M'. These automatically set the ``lambda_min``,
         ``lambda_max``, ``dlambda`` and ``lsf_kernel``s appropriately.
-        If you're going to set ``lambda_min``, ``lambda_max``, et al manually, 
+        If you're going to set ``lambda_min``, ``lambda_max``, et al manually,
         leave this set to None.
         Default: None
 
@@ -119,9 +119,9 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
     :lsf_kernel: string, optional
 
-        The filename for the LSF kernel. Files are found in 
+        The filename for the LSF kernel. Files are found in
         trident.__path__/data/lsf_kernels or current working directory.
-        Only necessary if you are applying an LSF to the spectrum in 
+        Only necessary if you are applying an LSF to the spectrum in
         postprocessing.
         Default: None
 
@@ -131,7 +131,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         The line database provides a list of all possible lines that could
         be added to the spectrum. The file should 4 tab-delimited columns of
         name (e.g. MgII), wavelength in angstroms, gamma of transition, and
-        f-value of transition.  See example datasets in 
+        f-value of transition.  See example datasets in
         trident.path/data/line_lists for examples.
         Default: lines.txt
 
@@ -153,15 +153,15 @@ class SpectrumGenerator(AbsorptionSpectrum):
     >>> sg.make_spectrum(ray)
     >>> sg.plot_spectrum('spec_raw.png')
 
-    Create a one-zone ray at redshift 0.5, and generate a spectrum with 1 
-    angstrom spectral bins from 2000-4000 angstroms, then post-process by 
-    adding a MW foreground a QSO background at z=0.5 and add a boxcar line 
-    spread function of 100 angstroms width.  Plot it and save the figure to 
+    Create a one-zone ray at redshift 0.5, and generate a spectrum with 1
+    angstrom spectral bins from 2000-4000 angstroms, then post-process by
+    adding a MW foreground a QSO background at z=0.5 and add a boxcar line
+    spread function of 100 angstroms width.  Plot it and save the figure to
     'spec_final.png'.
 
     >>> import trident
     >>> ray = trident.make_onezone_ray(redshift=0.5)
-    >>> sg = trident.SpectrumGenerator(lambda_min=2000, lambda_max=4000, 
+    >>> sg = trident.SpectrumGenerator(lambda_min=2000, lambda_max=4000,
     ... dlambda=1)
     >>> sg.make_spectrum(ray)
     >>> sg.add_qso_spectrum(emitting_redshift=.5)
@@ -206,17 +206,18 @@ class SpectrumGenerator(AbsorptionSpectrum):
                 self.ionization_table = ion_table_filepath
             else:
                 raise RuntimeError("ionization_table %s is not found in local "
-                                   "directory or in %s" % 
-                                   (filename.split('/')[-1], 
+                                   "directory or in %s" %
+                                   (filename.split('/')[-1],
                                     ion_table_dir))
         else:
             self.ionization_table = None
 
     def make_spectrum(self, ray, lines='all',
                       output_file=None,
-                      use_peculiar_velocity=True, 
+                      use_peculiar_velocity=True,
                       observing_redshift=0.0,
                       ly_continuum=True,
+                      store_observables=False,
                       min_tau=1e-3,
                       njobs="auto"):
         """
@@ -245,13 +246,13 @@ class SpectrumGenerator(AbsorptionSpectrum):
             Filename of output if you wish to save the spectrum immediately
             without any further processing. File formats are chosen based on the
             filename extension.  ".h5" for HDF5, ".fits" for FITS,
-            and everything else is ASCII.  Equivalent of calling 
+            and everything else is ASCII.  Equivalent of calling
             :class:`~trident.SpectrumGenerator.save_spectrum`.
             Default: None
 
         :use_peculiar_velocity: optional, bool
 
-            If True, include the effects of doppler redshift of the gas 
+            If True, include the effects of doppler redshift of the gas
             in shifting lines in the final spectrum.
             Default: True
 
@@ -262,14 +263,23 @@ class SpectrumGenerator(AbsorptionSpectrum):
             Default: 0.
 
         :ly_continuum: optional, boolean
-            
+
             If any H I lines are used in the line list, this assures a
             Lyman continuum will be included in the spectral generation.
-            Lyman continuum begins at final Lyman line deposited (Ly 39 = 
+            Lyman continuum begins at final Lyman line deposited (Ly 39 =
             912.32 A) not at formal Lyman Limit (911.76 A) so as to not have
             a gap between final Lyman lines and continuum.  Uses power law
             of index 3 and normalization to match opacity of final Lyman lines.
             Default: True
+
+        :store_observables: optional, boolean
+
+            If set to true, observable properties for each cell in the light
+            ray will be saved for each line in the line list. Properties
+            include the column density, tau, thermal b, and the wavelength
+            where tau was deposited. Best applied for a reasonable number
+            of lines.
+            Default: False
 
         :min_tau: optional, float
            This value determines size of the wavelength window used to
@@ -336,23 +346,23 @@ class SpectrumGenerator(AbsorptionSpectrum):
                     my_lev = int(on_ion[1][1:]) + 1
                     mylog.info("Creating %s from ray's density, "
                                "temperature, metallicity." % (line.field))
-                    add_ion_number_density_field(on_ion[0], my_lev, ray, 
+                    add_ion_number_density_field(on_ion[0], my_lev, ray,
                                      ionization_table=self.ionization_table)
                 # If level 1 ionization, check to see if other name for
                 # field is present in dataset
                 else:
                     my_lev = 1
                     alias_field = ('gas', "".join([my_ion, 'p0_number_density']))
-                    # Don't add the X_number_density if X_p0_number_density is 
+                    # Don't add the X_number_density if X_p0_number_density is
                     # in dataset already
                     if alias_field in ray.derived_field_list:
                         line.field = alias_field
-                    # But add the field if neither X_number_density nor 
+                    # But add the field if neither X_number_density nor
                     # X_p0_number_density is in the dataset
                     else:
                         mylog.info("Creating %s from ray's density, "
                                    "temperature, metallicity." % (line.field))
-                        add_ion_number_density_field(on_ion[0], my_lev, ray, 
+                        add_ion_number_density_field(on_ion[0], my_lev, ray,
                                      ionization_table=self.ionization_table)
 
             self.add_line(line.identifier, line.field,
@@ -365,10 +375,10 @@ class SpectrumGenerator(AbsorptionSpectrum):
         # If there are H I lines present, add a Lyman continuum source
         # Lyman continuum source starts at wavelength where last Lyman line
         # is deposited (Ly 40), as opposed to true Lyman Limit at 911.763 A
-        # so there won't be a gap between lines and continuum.  Using 
+        # so there won't be a gap between lines and continuum.  Using
         # power law of index 3.0 and normalization to match the opacity of
         # the final Lyman line into the FUV.
-        H_lines = self.line_database.select_lines(source_list=active_lines, 
+        H_lines = self.line_database.select_lines(source_list=active_lines,
                                                   element='H', ion_state='I')
         if (len(H_lines) > 0) and (ly_continuum == True):
             self.add_continuum('Ly C', H_lines[0].field, 912.32336, 1.6e17, 3.0)
@@ -378,9 +388,10 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                          line_list_file=None,
                                          use_peculiar_velocity=use_peculiar_velocity,
                                          observing_redshift=observing_redshift,
+                                         store_observables=store_observables,
                                          min_tau=min_tau, njobs=njobs)
 
-    def _get_qso_spectrum(self, emitting_redshift, observing_redshift, 
+    def _get_qso_spectrum(self, emitting_redshift, observing_redshift,
                           filename=None):
         """
         Read in QSO spectrum and return an interpolated version. Interpolated
@@ -390,7 +401,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
             observing_redshift = self.observing_redshift
         if emitting_redshift is None:
             emitting_redshift = 0.
-        # Following Hogg (2000) eq. 13 for the effective redshift z12 of 
+        # Following Hogg (2000) eq. 13 for the effective redshift z12 of
         # observing at z1 redshift light emitted at z2:
         # 1 + z12 = (1 + z2) / (1 + z1)
         redshift_eff = (1 + emitting_redshift) / (1 + observing_redshift) - 1
@@ -415,10 +426,10 @@ class SpectrumGenerator(AbsorptionSpectrum):
     def _get_milky_way_foreground(self, filename=None):
         """
         Read in MW spectrum and return an interpolated version.
-        Interpolated version for fitting the desired wavelength interval and 
+        Interpolated version for fitting the desired wavelength interval and
         binning.
 
-        Source data come from Charles Danforth and are a median-combination of 
+        Source data come from Charles Danforth and are a median-combination of
         92 normalized COS/G130M+G160M AGN spectra valid from 1130-1800A.
         """
 
@@ -444,8 +455,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                  filename=None):
         """
         Postprocess a spectrum to add a Milky Way foreground.  Data
-        from Charles Danforth. Median-filter of 92 normalized 
-        COS/G130M+G160M AGN spectra spanning the wavelength range of 
+        from Charles Danforth. Median-filter of 92 normalized
+        COS/G130M+G160M AGN spectra spanning the wavelength range of
         1130 to 1800 Angstroms in 0.07 Angstrom bin size.
 
         **Parameters**
@@ -490,10 +501,10 @@ class SpectrumGenerator(AbsorptionSpectrum):
                          observing_redshift=None,
                          filename=None):
         """
-        Postprocess a spectrum to add a QSO spectrum background. Uses data from 
-        Telfer et al., ApJ, 565, 773 "The Rest-Frame Extreme Ultraviolet 
-        Spectral Properties of QSO". HST Radio Quiet composite for < 1275 Ang, 
-        SDSS composite > 2000 Ang, mean in between 8251 0 
+        Postprocess a spectrum to add a QSO spectrum background. Uses data from
+        Telfer et al., ApJ, 565, 773 "The Rest-Frame Extreme Ultraviolet
+        Spectral Properties of QSO". HST Radio Quiet composite for < 1275 Ang,
+        SDSS composite > 2000 Ang, mean in between 8251 0
 
         **Parameters**
 
@@ -523,7 +534,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
         **Example**
 
-        Make a one zone ray at redshift of .5 and generate a COS spectrum for 
+        Make a one zone ray at redshift of .5 and generate a COS spectrum for
         it.  Add z=0.5 quasar background to it, and save it.
 
         >>> import trident
@@ -549,13 +560,13 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
     def add_gaussian_noise(self, snr, seed=None):
         """
-        Postprocess a spectrum to add gaussian random noise of a given SNR. 
+        Postprocess a spectrum to add gaussian random noise of a given SNR.
 
         **Parameters**
 
         :snr: float
 
-            The desired signal-to-noise ratio for determining the amount of 
+            The desired signal-to-noise ratio for determining the amount of
             gaussian noise
 
         :seed: optional, int
@@ -632,7 +643,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         specify a filename of a user-defined kernel or a function+width
         for a kernel.  Valid functions are: "boxcar" and "gaussian".
 
-        For more information, see :class:`~trident.LSF` and 
+        For more information, see :class:`~trident.LSF` and
         :class:`~trident.Instrument`.
 
         **Parameters**
@@ -655,7 +666,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
         **Example**
 
-        Make a one zone ray and generate a COS spectrum for it.  Apply the 
+        Make a one zone ray and generate a COS spectrum for it.  Apply the
         COS line spread function to it.
 
         >>> import trident
@@ -737,7 +748,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         if not len(self.flux_field) == len(self.lambda_field):
             raise RuntimeError("Loaded spectra must have the same dimensions"
                                "for lambda_field and flux_field.  Currently:"
-                               "len(lambda_field) = %d, len(flux_field) = %d" 
+                               "len(lambda_field) = %d, len(flux_field) = %d"
                                % (self.lambda_field, self.flux_field))
 
     def clear_spectrum(self):
@@ -850,7 +861,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
             "FITS", and "ASCII".  If None is set, selects based on suffix
             of filename.
             Default: None
-    
+
         **Example**
 
         Save a spectrum to disk, load it from disk, and plot it.
@@ -888,28 +899,28 @@ class SpectrumGenerator(AbsorptionSpectrum):
         """
         Plot the current spectrum and save to disk.
 
-        This is a convenience method that wraps the 
-        :class:`~trident.plot_spectrum` standalone function for use with the 
+        This is a convenience method that wraps the
+        :class:`~trident.plot_spectrum` standalone function for use with the
         data from the :class:`~trident.SpectrumGenerator` itself.
 
         **Parameters**
 
         :filename: string, optional
-        
+
             Output filename of the plotted spectrum.  Will be a png file.
             Default: 'spectrum.png'
 
         :lambda_limits: tuple or list of floats, optional
 
             The minimum and maximum of the lambda range (x-axis) for the plot
-            in angstroms.  If specified as None, will use whole lambda range 
+            in angstroms.  If specified as None, will use whole lambda range
             of spectrum.  Example: (1200, 1400) for 1200-1400 Angstroms.
             Default: None
 
         :flux_limits: tuple or list of floats, optional
 
             The minimum and maximum of the flux range (y-axis) for the plot.
-            If specified as None, limits are automatically from 
+            If specified as None, limits are automatically from
             [0, 1.1*max(flux)].  Example: (0, 1) for normal flux range before
             postprocessing.
             Default: None
@@ -917,7 +928,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         :step: boolean, optional
 
             Plot the spectrum as a series of step functions.  Appropriate for
-            plotting processed and noisy data.  
+            plotting processed and noisy data.
 
         :title: string, optional
 
@@ -926,7 +937,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
         :label: string, optional
 
-            Label for spectrum to be plotted.  Will automatically trigger a 
+            Label for spectrum to be plotted.  Will automatically trigger a
             legend to be generated.
             Default: None
 
@@ -960,7 +971,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         """
         plot_spectrum(self.lambda_field, self.flux_field, filename=filename,
                       lambda_limits=lambda_limits, flux_limits=flux_limits,
-                      title=title, label=label, figsize=figsize, step=step, 
+                      title=title, label=label, figsize=figsize, step=step,
                       features=features, axis_labels=axis_labels)
 
     def __repr__(self):
@@ -979,12 +990,12 @@ def load_spectrum(filename, format='auto', instrument=None, lsf_kernel=None,
     **Parameters**
 
     :filename: string
-    
+
         Filename of the saved spectrum.
 
     :format: string
-    
-        File format of the saved spectrum file.  Valid values are: "auto", 
+
+        File format of the saved spectrum file.  Valid values are: "auto",
         "hdf5", "fits", and "ascii".  If you select "auto", the code will
         attempt to auto-detect the file format from the extension of the data
         file: ".h5" or ".hdf5" -> hdf5, ".fits" or ".FITS" -> fits, all other
@@ -992,7 +1003,7 @@ def load_spectrum(filename, format='auto', instrument=None, lsf_kernel=None,
         Default: "auto"
 
     :instrument: string, optional
-    
+
         The telescope+instrument combination to use for the loaded spectrum.
         Default: None
 
@@ -1010,12 +1021,12 @@ def load_spectrum(filename, format='auto', instrument=None, lsf_kernel=None,
     :ionization_table: hdf5 file, optional
 
         An HDF5 file used for computing the ionization fraction of the gas
-        based on its density, temperature, metallicity, and redshift.  
+        based on its density, temperature, metallicity, and redshift.
         Default: None
 
     **Example**
 
-    Create a simple spectrum, save it to disk, and load it back as a new 
+    Create a simple spectrum, save it to disk, and load it back as a new
     SpectrumGenerator object.
 
     >>> import trident
@@ -1033,7 +1044,7 @@ def load_spectrum(filename, format='auto', instrument=None, lsf_kernel=None,
         else:
             format = 'ascii'
     if format == 'hdf5':
-        f = _h5py.File(filename, 'r')    
+        f = _h5py.File(filename, 'r')
         lambda_field = f['wavelength'].value
         flux_field = f['flux'].value
         tau_field = f['tau'].value
@@ -1058,11 +1069,11 @@ def load_spectrum(filename, format='auto', instrument=None, lsf_kernel=None,
     lambda_max = lambda_field[-1]
     n_lambda = lambda_field.size
     sg = SpectrumGenerator(instrument=instrument, lambda_min=lambda_min,
-                           lambda_max=lambda_max, n_lambda=n_lambda, 
+                           lambda_max=lambda_max, n_lambda=n_lambda,
                            lsf_kernel=lsf_kernel, line_database=line_database,
                            ionization_table=ionization_table)
     if tau_field is not None:
-        sg.load_spectrum(lambda_field=lambda_field, tau_field=tau_field, 
+        sg.load_spectrum(lambda_field=lambda_field, tau_field=tau_field,
                          flux_field=flux_field)
     else:
         sg.load_spectrum(lambda_field=lambda_field, flux_field=flux_field)
