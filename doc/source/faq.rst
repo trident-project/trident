@@ -19,7 +19,7 @@ and you should also figure out which particular changeset you're running.  You
 can do this by::
 
     $ cd <path/to/trident>
-    $ hg id
+    $ git log --pretty=format:'%h' -n 1
 
 To figure out what version of yt you're running, type::
 

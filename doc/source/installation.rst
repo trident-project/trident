@@ -39,7 +39,7 @@ We find that the easiest way to install yt is with the all-in-one install
 script, which installs yt and its dependencies via a new conda installation::
 
     $ wget https://raw.githubusercontent.com/yt-project/yt/master/doc/install_script.sh
-    $ ... edit the install_script.sh to mark INST_SCIPY=1, INST_ASTROPY=1, and INST_HG=1
+    $ ... edit the install_script.sh to mark INST_SCIPY=1 and INST_ASTROPY=1
     $ ... if you want to use the dev version of yt and trident, mark INST_YT_SOURCE=1
     $ bash install_script.sh
     $ ... update your path flag as described by the install_script.sh
@@ -75,12 +75,12 @@ Installing the Development Version
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To get the development version, you'll pull the source code from its 
-repository using mercurial, which should be installed as part of your yt 
-installation.  If it isn't try: ``conda install mercurial``.  After that, you'll 
+repository using git, which should be installed as part of your yt 
+installation.  If it isn't try: ``conda install git``.  After that, you'll 
 use pip to install the source directly.  Go to your desired source code 
 installation directory and run::
 
-    $ hg clone http://bitbucket.org/trident-project/trident
+    $ git clone https://github.com/trident-project/trident
     $ cd trident
     $ pip install -e .
 
@@ -203,9 +203,7 @@ If you installed the "development" version of the code, it's slightly more
 involved::
 
     $ cd <path/to/trident/repo>
-    $ hg pull
-    $ hg up
-    $ pip uninstall trident
+    $ git pull origin master
     $ pip install -e .
     $ yt update
 
