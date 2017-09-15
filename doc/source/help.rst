@@ -17,10 +17,9 @@ Remember to `update to the latest version of yt too
 Search Documentation and Mailing List Archives
 ----------------------------------------------
 
-We've tried to do a decent job of documenting Trident, but because Trident
-is still beta, there are definitely holes in the documentation.  That said,
-give it a shot and search the docs for your problem using that search window 
-in the upper left part of the screen. 
+Most use cases for Trident can be found in our documentation and method paper.
+Try searching through the documentation using the search window in the upper 
+left part of the screen. 
 
 If that doesn't work, try looking at specific problems we might have 
 addressed in our :ref:`faq`.

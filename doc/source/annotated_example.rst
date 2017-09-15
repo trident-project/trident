@@ -9,10 +9,11 @@ This section will walk you through the steps necessary to
 produce a synthetic spectrum based on simulation data and to view its path
 through the parent dataset.  The following example, `available in the source
 code itself 
-<https://bitbucket.org/trident-project/trident/src/tip/examples/working_script.py>`_,
+<https://github.com/trident-project/trident/blob/master/examples/working_script.py>`_,
 can be applied to datasets from any of the different simulation codes that 
 `Trident and yt support <http://yt-project.org/docs/dev/reference/code_support.html#code-support>`_, 
-but if you want to recreate the following analysis with the 
+although it may require some tweaking of parameters for optimal performance. 
+If you want to recreate the following analysis with the 
 exact dataset used, it can be downloaded `here <http://yt-project.org/data/>`_.
 
 The basic process for generating a spectrum and overplotting a sightline's 
