@@ -1,0 +1,79 @@
+language: python
+sudo: false
+cache:
+  directories:
+    - $HOME/.ccache  # https://github.com/travis-ci/travis-ci/issues/5853
+    - $YT_DIR
+    - $TRIDENT_ION_DATA
+  pip: true
+
+addons:
+  apt:
+    packages:
+      - libhdf5-serial-dev
+
+env:
+  global:
+    NUMPY=numpy
+    CYTHON=cython
+    MATPLOTLIB=matplotlib
+    SYMPY=sympy
+    H5PY=h5py
+    SCIPY=scipy
+    IPYTHON=ipython
+    FASTCACHE=fastcache
+    YT_DIR=$HOME/yt-git
+    TRIDENT_ION_DATA=$HOME/.trident
+    TRIDENT_ANSWER_DATA=$HOME/answer_test_data
+
+matrix:
+  include:
+    - python: 2.7
+    - python: 3.5
+    - python: 3.6
+
+before_install:
+  - |
+    export PATH=/usr/lib/ccache:$PATH
+
+install:
+  - |
+    # setup environment
+    ccache -s
+    # Upgrade pip and setuptools and wheel to get clean install
+    pip install --upgrade pip
+    pip install --upgrade wheel
+    pip install --upgrade setuptools
+    # Install dependencies
+    pip install mock $NUMPY $SCIPY $H5PY $CYTHON $MATPLOTLIB $SYMPY $FASTCACHE $IPYTHON flake8 pytest
+    # install yt
+    if [ ! -f $YT_DIR/README.md ]; then
+        git clone --branch=master https://github.com/yt-project/yt $YT_DIR
+    fi
+    pushd $YT_DIR
+    git pull
+    git checkout master
+    pip install -e .
+    popd
+    # install trident
+    pip install -e .
+
+before_script:
+  - |
+    # download config file and ion data
+    wget http://trident-project.org/data/ion_table/config.tri
+    wget http://trident-project.org/data/ion_table/hm2012_lr.h5.gz
+    gunzip hm2012_lr.h5.gz
+    mkdir -p $TRIDENT_ION_DATA
+    mv config.tri $TRIDENT_ION_DATA
+    mv hm2012_lr.h5 $TRIDENT_ION_DATA
+    cat $TRIDENT_ION_DATA/config.tri
+    # download answer test data
+    cd tests
+    export RUN_DOWNLOAD_TEST=1
+    py.test test_download.py
+
+script:
+  - |
+    export RUN_DOWNLOAD_TEST=0
+    py.test
