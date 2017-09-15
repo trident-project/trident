@@ -71,7 +71,7 @@ before_script:
     # download answer test data
     cd tests
     export RUN_DOWNLOAD_TEST=1
-    py.test test_download.py
+    travis_wait py.test test_download.py
 
 script:
   - |
