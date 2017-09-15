@@ -1,5 +1,6 @@
 # Trident
 
+[![Build Status](https://travis-ci.org/trident-project/trident.svg?branch=master)](https://travis-ci.org/trident-project/trident)
 [![Documentation Status](https://readthedocs.org/projects/trident/badge/?version=latest)](http://trident.readthedocs.io/en/latest/?badge=latest)
 
 Trident is a Python package for creating synthetic absorption-line spectra
