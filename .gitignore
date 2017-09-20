@@ -9,3 +9,4 @@ build/*
 dist/*
 *.swp
 tests/.cache/*
+.cache/*
