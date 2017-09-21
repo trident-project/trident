@@ -42,6 +42,7 @@ def test_verify():
 
 class PipelineTest(TempDirTest):
 
+    @unittest.skip("temporarily disabled")
     def test_enzo_small_simple(self):
         """
         This is an answer test, which compares the results of this test
@@ -53,7 +54,6 @@ class PipelineTest(TempDirTest):
 
         """
 
-        self.skip("temporarily disabled")
         # Set the dataset filename, load it into yt and define the trajectory
         # of the LightRay to cross the box from one corner to the other.
         ds = load(os.path.join(enzo_small, 'RD0009/RD0009'))

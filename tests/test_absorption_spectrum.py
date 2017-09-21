@@ -238,6 +238,7 @@ class AbsorptionSpectrumTest(TempDirTest):
                                             line_list_file='lines.txt',
                                             use_peculiar_velocity=True)
 
+    @unittest.skip("temporarily disabled")
     @h5_answer_test(assert_array_rel_equal, decimals=12)
     def test_absorption_spectrum_cosmo_sph(self):
         """
@@ -245,7 +246,6 @@ class AbsorptionSpectrumTest(TempDirTest):
         particle dataset
         """
 
-        self.skip("temporarily disabled")
         lr = LightRay(GIZMO_PLUS, 'Gadget', 0.0, 0.01)
 
         lr.make_light_ray(seed=1234567,
@@ -280,6 +280,7 @@ class AbsorptionSpectrumTest(TempDirTest):
                                             use_peculiar_velocity=True)
         return filename
 
+    @unittest.skip("temporarily disabled")
     @h5_answer_test(assert_array_rel_equal, decimals=16)
     def test_absorption_spectrum_non_cosmo_sph(self):
         """
@@ -287,7 +288,6 @@ class AbsorptionSpectrumTest(TempDirTest):
         particle dataset
         """
 
-        self.skip("temporarily disabled")
         ds = load(GIZMO_PLUS_SINGLE)
         lr = LightRay(ds)
         ray_start = ds.domain_left_edge
