@@ -238,82 +238,84 @@ class AbsorptionSpectrumTest(TempDirTest):
                                             line_list_file='lines.txt',
                                             use_peculiar_velocity=True)
 
-#    @h5_answer_test(assert_array_rel_equal, decimals=12)
-#    def test_absorption_spectrum_cosmo_sph(self):
-#        """
-#        This test generates an absorption spectrum from a compound light ray on a
-#        particle dataset
-#        """
-#
-#        lr = LightRay(GIZMO_PLUS, 'Gadget', 0.0, 0.01)
-#
-#        lr.make_light_ray(seed=1234567,
-#                          fields=[('gas', 'temperature'), 
-#                                  ('gas', 'H_number_density')],
-#                          data_filename='lightray.h5')
-#
-#        sp = AbsorptionSpectrum(900.0, 1800.0, 10000)
-#
-#        my_label = 'HI Lya'
-#        field = ('gas', 'H_number_density')
-#        wavelength = 1215.6700  # Angstromss
-#        f_value = 4.164E-01
-#        gamma = 6.265e+08
-#        mass = 1.00794
-#
-#        sp.add_line(my_label, field, wavelength, f_value,
-#                    gamma, mass, label_threshold=1.e10)
-#
-#        my_label = 'HI Lya'
-#        field = ('gas', 'H_number_density')
-#        wavelength = 912.323660  # Angstroms
-#        normalization = 1.6e17
-#        index = 3.0
-#
-#        sp.add_continuum(my_label, field, wavelength, normalization, index)
-#
-#        filename = "spectrum.h5"
-#        wavelength, flux = sp.make_spectrum('lightray.h5',
-#                                            output_file=filename,
-#                                            line_list_file='lines.txt',
-#                                            use_peculiar_velocity=True)
-#        return filename
-#
-#    @h5_answer_test(assert_array_rel_equal, decimals=16)
-#    def test_absorption_spectrum_non_cosmo_sph(self):
-#        """
-#        This test generates an absorption spectrum from a simple light ray on a
-#        particle dataset
-#        """
-#
-#        ds = load(GIZMO_PLUS_SINGLE)
-#        lr = LightRay(ds)
-#        ray_start = ds.domain_left_edge
-#        ray_end = ds.domain_right_edge
-#        lr.make_light_ray(start_position=ray_start, end_position=ray_end,
-#                          fields=[('gas', 'temperature'), 
-#                                  ('gas', 'H_number_density')],
-#                          data_filename='lightray.h5')
-#
-#        sp = AbsorptionSpectrum(1200.0, 1300.0, 10001)
-#
-#        my_label = 'HI Lya'
-#        field = ('gas', 'H_number_density')
-#        wavelength = 1215.6700  # Angstromss
-#        f_value = 4.164E-01
-#        gamma = 6.265e+08
-#        mass = 1.00794
-#
-#        sp.add_line(my_label, field, wavelength, f_value,
-#                    gamma, mass, label_threshold=1.e10)
-#
-#        filename = "spectrum.h5"
-#        wavelength, flux = sp.make_spectrum('lightray.h5',
-#                                            output_file=filename,
-#                                            line_list_file='lines.txt',
-#                                            use_peculiar_velocity=True)
-#        return filename
-#
+   @h5_answer_test(assert_array_rel_equal, decimals=12)
+   def test_absorption_spectrum_cosmo_sph(self):
+       """
+       This test generates an absorption spectrum from a compound light ray on a
+       particle dataset
+       """
+
+       self.skip("temporarily disabled")
+       lr = LightRay(GIZMO_PLUS, 'Gadget', 0.0, 0.01)
+
+       lr.make_light_ray(seed=1234567,
+                         fields=[('gas', 'temperature'),
+                                 ('gas', 'H_number_density')],
+                         data_filename='lightray.h5')
+
+       sp = AbsorptionSpectrum(900.0, 1800.0, 10000)
+
+       my_label = 'HI Lya'
+       field = ('gas', 'H_number_density')
+       wavelength = 1215.6700  # Angstromss
+       f_value = 4.164E-01
+       gamma = 6.265e+08
+       mass = 1.00794
+
+       sp.add_line(my_label, field, wavelength, f_value,
+                   gamma, mass, label_threshold=1.e10)
+
+       my_label = 'HI Lya'
+       field = ('gas', 'H_number_density')
+       wavelength = 912.323660  # Angstroms
+       normalization = 1.6e17
+       index = 3.0
+
+       sp.add_continuum(my_label, field, wavelength, normalization, index)
+
+       filename = "spectrum.h5"
+       wavelength, flux = sp.make_spectrum('lightray.h5',
+                                           output_file=filename,
+                                           line_list_file='lines.txt',
+                                           use_peculiar_velocity=True)
+       return filename
+
+   @h5_answer_test(assert_array_rel_equal, decimals=16)
+   def test_absorption_spectrum_non_cosmo_sph(self):
+       """
+       This test generates an absorption spectrum from a simple light ray on a
+       particle dataset
+       """
+
+       self.skip("temporarily disabled")
+       ds = load(GIZMO_PLUS_SINGLE)
+       lr = LightRay(ds)
+       ray_start = ds.domain_left_edge
+       ray_end = ds.domain_right_edge
+       lr.make_light_ray(start_position=ray_start, end_position=ray_end,
+                         fields=[('gas', 'temperature'),
+                                 ('gas', 'H_number_density')],
+                         data_filename='lightray.h5')
+
+       sp = AbsorptionSpectrum(1200.0, 1300.0, 10001)
+
+       my_label = 'HI Lya'
+       field = ('gas', 'H_number_density')
+       wavelength = 1215.6700  # Angstromss
+       f_value = 4.164E-01
+       gamma = 6.265e+08
+       mass = 1.00794
+
+       sp.add_line(my_label, field, wavelength, f_value,
+                   gamma, mass, label_threshold=1.e10)
+
+       filename = "spectrum.h5"
+       wavelength, flux = sp.make_spectrum('lightray.h5',
+                                           output_file=filename,
+                                           line_list_file='lines.txt',
+                                           use_peculiar_velocity=True)
+       return filename
+
     @h5_answer_test(assert_array_rel_equal, decimals=15)
     def test_absorption_spectrum_with_continuum(self):
         """
