@@ -1,5 +1,4 @@
 http://trident-project.org/data/tests/enzo_small.tar.gz
 http://yt-project.org/data/enzo_cosmology_plus.tar.gz
-http://yt-project.org/data/gizmo_cosmology_plus.tar.gz
 http://yt-project.org/data/IsolatedGalaxy.tar.gz
 http://yt-project.org/data/FIRE_M12i_ref11.tar.gz

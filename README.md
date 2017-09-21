@@ -9,7 +9,7 @@ to read in simulation datasets and extends it to provide realistic
 synthetic observations appropriate for studies of the interstellar,
 circumgalactic, and intergalactic media.
 
-## Installation
+## Installation (after yt installed)
 
 Trident can be installed with pip:
 
