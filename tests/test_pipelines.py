@@ -13,6 +13,7 @@ Tests to assure the code runs on example pipelines
 
 import h5py
 import os
+import unittest
 from yt.convenience import load
 from yt.testing import \
     assert_almost_equal
