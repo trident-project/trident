@@ -15,7 +15,7 @@ import numpy as np
 from numpy.testing import \
     assert_array_equal
 import os
-
+import unittest
 from yt.convenience import load
 from yt.funcs import ensure_dir
 from yt.testing import \
