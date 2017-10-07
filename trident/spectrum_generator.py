@@ -877,9 +877,9 @@ class SpectrumGenerator(AbsorptionSpectrum):
         >>> sg.plot_spectrum('temp.png')
         """
         if format is None:
-            if filename.endswith('.h5'):
+            if filename.endswith('.h5') or filename.endswith('hdf5'):
                 self._write_spectrum_hdf5(filename)
-            elif filename.endswith('.fits'):
+            elif filename.endswith('.fits') or filename.endswith('FITS'):
                 self._write_spectrum_fits(filename)
             else:
                 self._write_spectrum_ascii(filename)
