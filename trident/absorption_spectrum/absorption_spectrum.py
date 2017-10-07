@@ -662,7 +662,7 @@ class AbsorptionSpectrum(object):
         """
         mylog.info("Writing spectrum to ascii file: %s.", filename)
         f = open(filename, 'w')
-        f.write("# wavelength[A] tau flux error\n")
+        f.write("# wavelength[A] tau flux flux_error\n")
         for i in range(self.lambda_field.size):
             f.write("%e %e %e %e\n" % (self.lambda_field[i],
                                     self.tau_field[i], 
@@ -679,7 +679,7 @@ class AbsorptionSpectrum(object):
         col1 = pyfits.Column(name='wavelength', format='E', array=self.lambda_field)
         col2 = pyfits.Column(name='tau', format='E', array=self.tau_field)
         col3 = pyfits.Column(name='flux', format='E', array=self.flux_field)
-        col4 = pyfits.Column(name='error', format='E', array=self._error_func(self.flux_field))
+        col4 = pyfits.Column(name='flux_error', format='E', array=self._error_func(self.flux_field))
         cols = pyfits.ColDefs([col1, col2, col3, col4])
         tbhdu = pyfits.BinTableHDU.from_columns(cols)
         tbhdu.writeto(filename, clobber=True)
@@ -695,7 +695,7 @@ class AbsorptionSpectrum(object):
         output.create_dataset('wavelength', data=self.lambda_field)
         output.create_dataset('tau', data=self.tau_field)
         output.create_dataset('flux', data=self.flux_field)
-        output.create_dataset('error', data=self._error_func(self.flux_field))
+        output.create_dataset('flux_error', data=self._error_func(self.flux_field))
         output.close()
 
     def _error_func(self, flux):
