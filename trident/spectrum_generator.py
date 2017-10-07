@@ -598,6 +598,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         >>> sg.add_gaussian_noise(10)
         >>> sg.plot_spectrum('spec_noise.png')
         """
+        self.snr = snr
         np.random.seed(seed)
         noise = np.random.normal(loc=0.0, scale=1/float(snr),
                                  size=self.flux_field.size)

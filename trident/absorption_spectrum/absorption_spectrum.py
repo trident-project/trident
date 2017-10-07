@@ -67,6 +67,7 @@ class AbsorptionSpectrum(object):
                                     float(n_lambda - 1), "angstrom")
         self.line_list = []
         self.continuum_list = []
+        self.snr = 100  # default signal to noise ratio for error estimation
 
     def add_line(self, label, field_name, wavelength,
                  f_value, gamma, atomic_mass,
@@ -195,6 +196,7 @@ class AbsorptionSpectrum(object):
            spectrum generation.
            Default: "auto"
         """
+        self.snr = 100
         if line_list_file is not None:
             mylog.info("'line_list_file' keyword is deprecated. Please use " \
                        "'output_absorbers_file'.")
@@ -696,7 +698,7 @@ class AbsorptionSpectrum(object):
         output.create_dataset('error', data=self._error_func(self.flux_field))
         output.close()
 
-    def _error_func(self, flux, sn=100):
+    def _error_func(self, flux):
         """
         Many observational analysis programs require a flux error channel
         in addition to a flux channel.  So we create a zeroth order 
@@ -704,7 +706,10 @@ class AbsorptionSpectrum(object):
         of the flux.  Unfortunately, with flux normalized to be < 1, this
         would result in errors larger than the flux values themselves,
         so we normalize by an arbitrary signal-to-noise ratio, which by default
-        is set to 100.  This assures our flux errors are smaller than our 
-        fluxes for most flux reasonable flux values.
+        is set to 100.  This yields a typical error for a normalized spectrum of
+        sqrt(1.0*100)/100 = 0.1.  This assures our flux errors are smaller 
+        than our fluxes for most flux reasonable flux values.  Note that 
+        when a signal to noise ratio is specified for adding gaussian noise,
+        it uses this updated value for estimating the errors.
         """
-        return np.sqrt(flux*sn)/sn
+        return np.sqrt(flux*self.snr)/self.snr
