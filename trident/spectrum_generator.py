@@ -496,6 +496,9 @@ class SpectrumGenerator(AbsorptionSpectrum):
         MW_spectrum = self._get_milky_way_foreground(filename=filename)
         flux_field *= MW_spectrum
 
+        # Negative fluxes don't make sense, so clip
+        np.clip(flux_field, 0, np.inf, out=flux_field)
+
     def add_qso_spectrum(self, flux_field=None,
                          emitting_redshift=None,
                          observing_redshift=None,
@@ -558,6 +561,9 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                               filename=filename)
         flux_field *= qso_spectrum
 
+        # Negative fluxes don't make sense, so clip
+        np.clip(flux_field, 0, np.inf, out=flux_field)
+
     def add_gaussian_noise(self, snr, seed=None):
         """
         Postprocess a spectrum to add gaussian random noise of a given SNR.
@@ -603,6 +609,9 @@ class SpectrumGenerator(AbsorptionSpectrum):
         noise = np.random.normal(loc=0.0, scale=1/float(snr),
                                  size=self.flux_field.size)
         self.add_noise_vector(noise)
+
+        # Negative fluxes don't make sense, so clip
+        np.clip(self.flux_field, 0, np.inf, out=self.flux_field)
 
     def add_noise_vector(self, noise):
         """
@@ -702,6 +711,9 @@ class SpectrumGenerator(AbsorptionSpectrum):
             lsf = LSF(function=function, width=width, filename=filename)
         from astropy.convolution import convolve
         self.flux_field = convolve(self.flux_field, lsf.kernel)
+
+        # Negative fluxes don't make sense, so clip
+        np.clip(self.flux_field, 0, np.inf, out=self.flux_field)
 
     def load_spectrum(self, lambda_field=None, tau_field=None, flux_field=None):
         """
