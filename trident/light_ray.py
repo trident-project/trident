@@ -461,8 +461,8 @@ class LightRay(CosmologySplice):
         data_fields = fields[:]
         all_fields = fields[:]
         all_fields.extend(['dl', 'dredshift', 'redshift'])
-        all_fields.extend(['x', 'y', 'z', 'dx', 'dy', 'dz'])
-        data_fields.extend(['x', 'y', 'z', 'dx', 'dy', 'dz'])
+        all_fields.extend(['x', 'y', 'z'])
+        data_fields.extend(['x', 'y', 'z'])
         if use_peculiar_velocity:
             all_fields.extend(['velocity_x', 'velocity_y', 'velocity_z', 
                                'velocity_los', 'redshift_eff', 
