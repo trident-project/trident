@@ -15,7 +15,6 @@ import numpy as np
 from numpy.testing import \
     assert_array_equal
 import os
-import unittest
 from yt.convenience import load
 from yt.funcs import ensure_dir
 from yt.testing import \
@@ -239,7 +238,6 @@ class AbsorptionSpectrumTest(TempDirTest):
                                             line_list_file='lines.txt',
                                             use_peculiar_velocity=True)
 
-    @unittest.skip("temporarily disabled")
     @h5_answer_test(assert_array_rel_equal, decimals=12)
     def test_absorption_spectrum_cosmo_sph(self):
         """
@@ -281,7 +279,6 @@ class AbsorptionSpectrumTest(TempDirTest):
                                             use_peculiar_velocity=True)
         return filename
 
-    @unittest.skip("temporarily disabled")
     @h5_answer_test(assert_array_rel_equal, decimals=16)
     def test_absorption_spectrum_non_cosmo_sph(self):
         """
