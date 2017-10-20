@@ -133,6 +133,27 @@ def _log_T(field, data):
         ftype = "gas"
     return np.log10(data[ftype, "temperature"])
 
+def _determine_sampling_type(ds, sampling_type, particle_type):
+    """
+    Helper function for figuring out the field type used for ion balance
+    fields.
+    """
+    if particle_type is not None:
+        warnings.Warn('The "particle_type" keyword is deprecated. '
+                      'Please use "sampling_type" instead.', stacklevel=2)
+        sampling_type = None
+
+    if sampling_type == 'auto' or particle_type == 'auto':
+        particle_type = _determine_particle_type(ds)
+
+    if particle_type is not None:
+        if particle_type:
+            sampling_type = "particle"
+        else:
+            sampling_type = "cell"
+
+    return sampling_type
+
 def add_ion_fields(ds, ions, ftype='gas', 
                    ionization_table=None, 
                    field_suffix=False, 
@@ -264,19 +285,8 @@ def add_ion_fields(ds, ions, ftype='gas',
     >>> trident.add_ion_fields(ds, ions=['H II', 'C III', 'Mg'])
     """
     ion_list = []
-    if particle_type is not None:
-        warnings.Warn('The "particle_type" keyword is deprecated. '
-                      'Please use "sampling_type" instead.', stacklevel=2)
-        sampling_type = None
-
-    if sampling_type == 'auto' or particle_type == 'auto':
-        particle_type = _determine_particle_type(ds)
-
-    if particle_type is not None:
-        if particle_type:
-            sampling_type = "particle"
-        else:
-            sampling_type = "cell"
+    sampling_type = \
+      _determine_sampling_type(ds, sampling_type, particle_type)
 
     if ionization_table is None:
         ionization_table = ion_table_filepath
@@ -412,19 +422,8 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
     >>> yt.ProjectionPlot(ds, 'x', 'C_p3_ion_fraction').save()
     """
 
-    if particle_type is not None:
-        warnings.Warn('The "particle_type" keyword is deprecated. '
-                      'Please use "sampling_type" instead.', stacklevel=2)
-        sampling_type = None
-
-    if sampling_type == 'auto' or particle_type == 'auto':
-        particle_type = _determine_particle_type(ds)
-
-    if particle_type is not None:
-        if particle_type:
-            sampling_type = "particle"
-        else:
-            sampling_type = "cell"
+    sampling_type = \
+      _determine_sampling_type(ds, sampling_type, particle_type)
 
     if ionization_table is None:
         ionization_table = ion_table_filepath
@@ -578,19 +577,8 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
     >>> yt.ProjectionPlot(ds, 'x', 'C_p3_number_density').save()
     """
 
-    if particle_type is not None:
-        warnings.Warn('The "particle_type" keyword is deprecated. '
-                      'Please use "sampling_type" instead.', stacklevel=2)
-        sampling_type = None
-
-    if sampling_type == 'auto' or particle_type == 'auto':
-        particle_type = _determine_particle_type(ds)
-
-    if particle_type is not None:
-        if particle_type:
-            sampling_type = "particle"
-        else:
-            sampling_type = "cell"
+    sampling_type = \
+      _determine_sampling_type(ds, sampling_type, particle_type)
 
     if ionization_table is None:
         ionization_table = ion_table_filepath
@@ -726,19 +714,8 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
     >>> yt.ProjectionPlot(ds, 'x', 'C_p3_density').save()
     """
 
-    if particle_type is not None:
-        warnings.Warn('The "particle_type" keyword is deprecated. '
-                      'Please use "sampling_type" instead.', stacklevel=2)
-        sampling_type = None
-
-    if sampling_type == 'auto' or particle_type == 'auto':
-        particle_type = _determine_particle_type(ds)
-
-    if particle_type is not None:
-        if particle_type:
-            sampling_type = "particle"
-        else:
-            sampling_type = "cell"
+    sampling_type = \
+      _determine_sampling_type(ds, sampling_type, particle_type)
 
     if ionization_table is None:
         ionization_table = ion_table_filepath
@@ -876,19 +853,8 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
     >>> yt.ProjectionPlot(ds, 'x', 'C_p3_mass').save()
     """
 
-    if particle_type is not None:
-        warnings.Warn('The "particle_type" keyword is deprecated. '
-                      'Please use "sampling_type" instead.', stacklevel=2)
-        sampling_type = None
-
-    if sampling_type == 'auto' or particle_type == 'auto':
-        particle_type = _determine_particle_type(ds)
-
-    if particle_type is not None:
-        if particle_type:
-            sampling_type = "particle"
-        else:
-            sampling_type = "cell"
+    sampling_type = \
+      _determine_sampling_type(ds, sampling_type, particle_type)
 
     if ionization_table is None:
         ionization_table = ion_table_filepath
