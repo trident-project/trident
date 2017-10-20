@@ -257,6 +257,11 @@ def add_ion_fields(ds, ions, ftype='gas',
     if particle_type == 'auto':
         particle_type = _determine_particle_type(ds)
 
+    if particle_type:
+        sampling_type = "particle"
+    else:
+        sampling_type = "cell"
+
     if ionization_table is None:
         ionization_table = ion_table_filepath
 
@@ -385,22 +390,27 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
     if particle_type == 'auto':
         particle_type = _determine_particle_type(ds)
 
+    if particle_type:
+        sampling_type = "particle"
+    else:
+        sampling_type = "cell"
+
     if ionization_table is None:
         ionization_table = ion_table_filepath
 
     if (ftype, "log_nH") not in ds.derived_field_list:
         ds.add_field((ftype, "log_nH"), function=_log_nH, units="",
-                     particle_type=particle_type, 
+                     sampling_type=sampling_type,
                      force_override=force_override)
 
     if (ftype, "redshift") not in ds.derived_field_list:
         ds.add_field((ftype, "redshift"), function=_redshift, units="",
-                     particle_type=particle_type,
+                     sampling_type=sampling_type,
                      force_override=force_override)
 
     if (ftype, "log_T") not in ds.derived_field_list:
         ds.add_field((ftype, "log_T"), function=_log_T, units="",
-                     particle_type=particle_type,
+                     sampling_type=sampling_type,
                      force_override=force_override)
 
     atom = atom.capitalize()
@@ -423,7 +433,7 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
         del ionTable
 
     ds.add_field((ftype, field), function=_ion_fraction_field, units="",
-                 particle_type=particle_type, force_override=force_override)
+                 sampling_type=sampling_type, force_override=force_override)
     if ion == 1: # add aliased field too
         ds.field_info.alias((ftype, alias_field), (ftype, field))
         ds.derived_field_list.append((ftype, alias_field))
@@ -530,6 +540,11 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
     if particle_type == 'auto':
         particle_type = _determine_particle_type(ds)
 
+    if particle_type:
+        sampling_type = "particle"
+    else:
+        sampling_type = "cell"
+
     if ionization_table is None:
         ionization_table = ion_table_filepath
     atom = atom.capitalize()
@@ -549,7 +564,7 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
                            force_override=force_override,
                            particle_type=particle_type)
     ds.add_field((ftype, field),function=_ion_number_density,
-                 units="cm**-3", particle_type=particle_type, 
+                 units="cm**-3", sampling_type=sampling_type,
                  force_override=force_override)
     if ion == 1: # add aliased field too
         ds.field_info.alias((ftype, alias_field), (ftype, field))
@@ -657,6 +672,11 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
     if particle_type == 'auto':
         particle_type = _determine_particle_type(ds)
 
+    if particle_type:
+        sampling_type = "particle"
+    else:
+        sampling_type = "cell"
+
     if ionization_table is None:
         ionization_table = ion_table_filepath
     atom = atom.capitalize()
@@ -677,7 +697,7 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
                                  force_override=force_override,
                                  particle_type=particle_type)
     ds.add_field((ftype, field), function=_ion_density,
-                 units="g/cm**3", particle_type=particle_type,
+                 units="g/cm**3", sampling_type=sampling_type,
                  force_override=force_override)
     if ion == 1: # add aliased field too
         ds.field_info.alias((ftype, alias_field), (ftype, field))
@@ -786,6 +806,11 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
     if particle_type == 'auto':
         particle_type = _determine_particle_type(ds)
 
+    if particle_type:
+        sampling_type = "particle"
+    else:
+        sampling_type = "cell"
+
     if ionization_table is None:
         ionization_table = ion_table_filepath
     atom = atom.capitalize()
@@ -806,7 +831,7 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
                           force_override=force_override,
                           particle_type=particle_type)
     ds.add_field((ftype, field), function=_ion_mass, units=r"g",
-                 particle_type=particle_type,
+                 sampling_type=sampling_type,
                  force_override=force_override)
     if ion == 1: # add aliased field too
         ds.field_info.alias((ftype, alias_field), (ftype, field))
@@ -838,7 +863,8 @@ def _ion_mass(field, data):
     prefix = field_name.split("_mass")[0]
     suffix = field_name.split("_mass")[-1]
     density_field_name = "%s_density%s" % (prefix, suffix)
-    if data.ds.field_info[(ftype, density_field_name)].particle_type:
+    if data.ds.field_info[
+            (ftype, density_field_name)].sampling_type == "particle":
         fraction_field_name = "%s_ion_fraction%s" % (prefix, suffix)
         return data[ftype, fraction_field_name] * \
           data[ftype, "particle_mass"]
