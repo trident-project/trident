@@ -24,6 +24,7 @@ import numpy as np
 import h5py
 import copy
 import os
+import warnings
 from trident.config import \
     ion_table_filepath
 from trident.line_database import \
@@ -132,12 +133,34 @@ def _log_T(field, data):
         ftype = "gas"
     return np.log10(data[ftype, "temperature"])
 
+def _determine_sampling_type(ds, sampling_type, particle_type):
+    """
+    Helper function for figuring out the field type used for ion balance
+    fields.
+    """
+    if particle_type is not None:
+        warnings.Warn('The "particle_type" keyword is deprecated. '
+                      'Please use "sampling_type" instead.', stacklevel=2)
+        sampling_type = None
+
+    if sampling_type == 'auto' or particle_type == 'auto':
+        particle_type = _determine_particle_type(ds)
+
+    if particle_type is not None:
+        if particle_type:
+            sampling_type = "particle"
+        else:
+            sampling_type = "cell"
+
+    return sampling_type
+
 def add_ion_fields(ds, ions, ftype='gas', 
                    ionization_table=None, 
                    field_suffix=False, 
                    line_database=None,
                    force_override=False,
-                   particle_type='auto'):
+                   sampling_type='auto',
+                   particle_type=None):
     """
     Preferred method for adding ion fields to a yt dataset.
 
@@ -235,8 +258,16 @@ def add_ion_fields(ds, ions, ftype='gas',
         remain untouched.
         Default: False
 
+    :sampling_type: string, optional
+
+        Set to 'particle' if the field should be for particles.
+        Set to 'cell' if the field should be for grids/cells.
+        Set to 'auto' for this to be determined automatically.
+        Default: 'auto'
+
     :particle_type: boolean, optional
 
+        This is deprecated in favor of 'sampling_type'.
         Set to True if you are adding ion fields to particles, as specified
         by the 'ftype'.  Set to False if you are not.  Set to 'auto', if
         you want the code to autodetermine if the field specified by the
@@ -254,8 +285,8 @@ def add_ion_fields(ds, ions, ftype='gas',
     >>> trident.add_ion_fields(ds, ions=['H II', 'C III', 'Mg'])
     """
     ion_list = []
-    if particle_type == 'auto':
-        particle_type = _determine_particle_type(ds)
+    sampling_type = \
+      _determine_sampling_type(ds, sampling_type, particle_type)
 
     if ionization_table is None:
         ionization_table = ion_table_filepath
@@ -296,13 +327,14 @@ def add_ion_fields(ds, ions, ftype='gas',
     for (atom, ion) in ion_list:
         add_ion_mass_field(atom, ion, ds, ftype, ionization_table,
             field_suffix=field_suffix, force_override=force_override, 
-            particle_type=particle_type)
+            sampling_type=sampling_type)
 
 def add_ion_fraction_field(atom, ion, ds, ftype="gas",
                            ionization_table=None,
                            field_suffix=False,
                            force_override=False,
-                           particle_type='auto'):
+                           sampling_type='auto',
+                           particle_type=None):
     """
     Add ion fraction field to a yt dataset for the desired ion.
 
@@ -363,8 +395,16 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
         remain untouched.
         Default: False
 
+    :sampling_type: string, optional
+
+        Set to 'particle' if the field should be for particles.
+        Set to 'cell' if the field should be for grids/cells.
+        Set to 'auto' for this to be determined automatically.
+        Default: 'auto'
+
     :particle_type: boolean, optional
 
+        This is deprecated in favor of 'sampling_type'.
         Set to True if you are adding ion fields to particles, as specified
         by the 'ftype'.  Set to False if you are not.  Set to 'auto', if
         you want the code to autodetermine if the field specified by the
@@ -382,25 +422,25 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
     >>> yt.ProjectionPlot(ds, 'x', 'C_p3_ion_fraction').save()
     """
 
-    if particle_type == 'auto':
-        particle_type = _determine_particle_type(ds)
+    sampling_type = \
+      _determine_sampling_type(ds, sampling_type, particle_type)
 
     if ionization_table is None:
         ionization_table = ion_table_filepath
 
     if (ftype, "log_nH") not in ds.derived_field_list:
         ds.add_field((ftype, "log_nH"), function=_log_nH, units="",
-                     particle_type=particle_type, 
+                     sampling_type=sampling_type,
                      force_override=force_override)
 
     if (ftype, "redshift") not in ds.derived_field_list:
         ds.add_field((ftype, "redshift"), function=_redshift, units="",
-                     particle_type=particle_type,
+                     sampling_type=sampling_type,
                      force_override=force_override)
 
     if (ftype, "log_T") not in ds.derived_field_list:
         ds.add_field((ftype, "log_T"), function=_log_T, units="",
-                     particle_type=particle_type,
+                     sampling_type=sampling_type,
                      force_override=force_override)
 
     atom = atom.capitalize()
@@ -423,13 +463,13 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
         del ionTable
 
     ds.add_field((ftype, field), function=_ion_fraction_field, units="",
-                 particle_type=particle_type, force_override=force_override)
+                 sampling_type=sampling_type, force_override=force_override)
     if ion == 1: # add aliased field too
         ds.field_info.alias((ftype, alias_field), (ftype, field))
         ds.derived_field_list.append((ftype, alias_field))
 
     # if ion particle field, add a smoothed deposited version to gas fields
-    if particle_type:
+    if sampling_type == 'particle':
         new_field = ds.add_smoothed_particle_field((ftype, field))
         if ftype != "gas":
             ds.field_info.alias(("gas", field), new_field)
@@ -442,7 +482,8 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
                                  ionization_table=None,
                                  field_suffix=False,
                                  force_override=False,
-                                 particle_type='auto'):
+                                 sampling_type='auto',
+                                 particle_type=None):
     """
     Add ion number density field to a yt dataset for the desired ion.
 
@@ -509,8 +550,16 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
         remain untouched.
         Default: False
 
+    :sampling_type: string, optional
+
+        Set to 'particle' if the field should be for particles.
+        Set to 'cell' if the field should be for grids/cells.
+        Set to 'auto' for this to be determined automatically.
+        Default: 'auto'
+
     :particle_type: boolean, optional
 
+        This is deprecated in favor of 'sampling_type'.
         Set to True if you are adding ion fields to particles, as specified
         by the 'ftype'.  Set to False if you are not.  Set to 'auto', if
         you want the code to autodetermine if the field specified by the
@@ -527,8 +576,9 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
     >>> trident.add_ion_number_density('C', 4, ds)
     >>> yt.ProjectionPlot(ds, 'x', 'C_p3_number_density').save()
     """
-    if particle_type == 'auto':
-        particle_type = _determine_particle_type(ds)
+
+    sampling_type = \
+      _determine_sampling_type(ds, sampling_type, particle_type)
 
     if ionization_table is None:
         ionization_table = ion_table_filepath
@@ -547,16 +597,16 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
     add_ion_fraction_field(atom, ion, ds, ftype, ionization_table,
                            field_suffix=field_suffix, 
                            force_override=force_override,
-                           particle_type=particle_type)
+                           sampling_type=sampling_type)
     ds.add_field((ftype, field),function=_ion_number_density,
-                 units="cm**-3", particle_type=particle_type, 
+                 units="cm**-3", sampling_type=sampling_type,
                  force_override=force_override)
     if ion == 1: # add aliased field too
         ds.field_info.alias((ftype, alias_field), (ftype, field))
         ds.derived_field_list.append((ftype, alias_field))
 
     # if ion particle field, add a smoothed deposited version to gas fields
-    if particle_type:
+    if sampling_type == 'particle':
         new_field = ds.add_smoothed_particle_field((ftype, field))
         if ftype != "gas":
             ds.field_info.alias(("gas", field), new_field)
@@ -569,7 +619,8 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
                           ionization_table=None,
                           field_suffix=False,
                           force_override=False,
-                          particle_type='auto'):
+                          sampling_type='auto',
+                          particle_type=None):
     """
     Add ion mass density field to a yt dataset for the desired ion.
 
@@ -636,8 +687,16 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
         remain untouched.
         Default: False
 
+    :sampling_type: string, optional
+
+        Set to 'particle' if the field should be for particles.
+        Set to 'cell' if the field should be for grids/cells.
+        Set to 'auto' for this to be determined automatically.
+        Default: 'auto'
+
     :particle_type: boolean, optional
 
+        This is deprecated in favor of 'sampling_type'.
         Set to True if you are adding ion fields to particles, as specified
         by the 'ftype'.  Set to False if you are not.  Set to 'auto', if
         you want the code to autodetermine if the field specified by the
@@ -654,8 +713,9 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
     >>> trident.add_ion_density_field('C', 4, ds)
     >>> yt.ProjectionPlot(ds, 'x', 'C_p3_density').save()
     """
-    if particle_type == 'auto':
-        particle_type = _determine_particle_type(ds)
+
+    sampling_type = \
+      _determine_sampling_type(ds, sampling_type, particle_type)
 
     if ionization_table is None:
         ionization_table = ion_table_filepath
@@ -675,16 +735,16 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
     add_ion_number_density_field(atom, ion, ds, ftype, ionization_table,
                                  field_suffix=field_suffix,
                                  force_override=force_override,
-                                 particle_type=particle_type)
+                                 sampling_type=sampling_type)
     ds.add_field((ftype, field), function=_ion_density,
-                 units="g/cm**3", particle_type=particle_type,
+                 units="g/cm**3", sampling_type=sampling_type,
                  force_override=force_override)
     if ion == 1: # add aliased field too
         ds.field_info.alias((ftype, alias_field), (ftype, field))
         ds.derived_field_list.append((ftype, alias_field))
 
     # if ion particle field, add a smoothed deposited version to gas fields
-    if particle_type:
+    if sampling_type == 'particle':
         new_field = ds.add_smoothed_particle_field((ftype, field))
         if ftype != "gas":
             ds.field_info.alias(("gas", field), new_field)
@@ -697,7 +757,8 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
                        ionization_table=None,
                        field_suffix=False,
                        force_override=False,
-                       particle_type='auto'):
+                       sampling_type='auto',
+                       particle_type=None):
     """
     Add ion mass field to a yt dataset for the desired ion.
 
@@ -765,8 +826,16 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
         remain untouched.
         Default: False
 
+    :sampling_type: string, optional
+
+        Set to 'particle' if the field should be for particles.
+        Set to 'cell' if the field should be for grids/cells.
+        Set to 'auto' for this to be determined automatically.
+        Default: 'auto'
+
     :particle_type: boolean, optional
 
+        This is deprecated in favor of 'sampling_type'.
         Set to True if you are adding ion fields to particles, as specified
         by the 'ftype'.  Set to False if you are not.  Set to 'auto', if
         you want the code to autodetermine if the field specified by the
@@ -783,8 +852,9 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
     >>> trident.add_ion_mass_field('C', 4, ds)
     >>> yt.ProjectionPlot(ds, 'x', 'C_p3_mass').save()
     """
-    if particle_type == 'auto':
-        particle_type = _determine_particle_type(ds)
+
+    sampling_type = \
+      _determine_sampling_type(ds, sampling_type, particle_type)
 
     if ionization_table is None:
         ionization_table = ion_table_filepath
@@ -804,16 +874,16 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
     add_ion_density_field(atom, ion, ds, ftype, ionization_table,
                           field_suffix=field_suffix,
                           force_override=force_override,
-                          particle_type=particle_type)
+                          sampling_type=sampling_type)
     ds.add_field((ftype, field), function=_ion_mass, units=r"g",
-                 particle_type=particle_type,
+                 sampling_type=sampling_type,
                  force_override=force_override)
     if ion == 1: # add aliased field too
         ds.field_info.alias((ftype, alias_field), (ftype, field))
         ds.derived_field_list.append((ftype, alias_field))
 
     # if ion particle field, add a smoothed deposited version to gas fields
-    if particle_type:
+    if sampling_type == 'particle':
         new_field = ds.add_smoothed_particle_field((ftype, field))
         if ftype != "gas":
             ds.field_info.alias(("gas", field), new_field)
@@ -838,7 +908,8 @@ def _ion_mass(field, data):
     prefix = field_name.split("_mass")[0]
     suffix = field_name.split("_mass")[-1]
     density_field_name = "%s_density%s" % (prefix, suffix)
-    if data.ds.field_info[(ftype, density_field_name)].particle_type:
+    if data.ds.field_info[
+            (ftype, density_field_name)].sampling_type == "particle":
         fraction_field_name = "%s_ion_fraction%s" % (prefix, suffix)
         return data[ftype, fraction_field_name] * \
           data[ftype, "particle_mass"]
