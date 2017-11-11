@@ -56,7 +56,7 @@ How do I learn more about the algorithms used in Trident?
 
 We have a full description of all the methods used in Trident including
 citations to previous related works in our `Trident method paper 
-<http://adsabs.harvard.edu/abs/2016arXiv161203935H>`_.
+<http://adsabs.harvard.edu/abs/2017ApJ...847...59H>`_.
 
 How do I cite Trident in my research?
 -------------------------------------

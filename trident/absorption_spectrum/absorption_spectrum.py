@@ -682,7 +682,7 @@ class AbsorptionSpectrum(object):
         col4 = pyfits.Column(name='flux_error', format='E', array=self._error_func(self.flux_field))
         cols = pyfits.ColDefs([col1, col2, col3, col4])
         tbhdu = pyfits.BinTableHDU.from_columns(cols)
-        tbhdu.writeto(filename, clobber=True)
+        tbhdu.writeto(filename, overwrite=True)
 
     @parallel_root_only
     def _write_spectrum_hdf5(self, filename):
