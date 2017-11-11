@@ -644,6 +644,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                 "Flux (%s) and noise (%s) vectors must have same shape." %
                 (self.flux_field.shape, noise.shape))
         self.flux_field += noise
+        self.snr = 1 / np.std(noise)
 
     def apply_lsf(self, function=None, width=None, filename=None):
         """
