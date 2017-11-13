@@ -67,6 +67,7 @@ class AbsorptionSpectrum(object):
                                     float(n_lambda - 1), "angstrom")
         self.line_list = []
         self.continuum_list = []
+        self.snr = 100  # default signal to noise ratio for error estimation
 
     def add_line(self, label, field_name, wavelength,
                  f_value, gamma, atomic_mass,
@@ -195,6 +196,7 @@ class AbsorptionSpectrum(object):
            spectrum generation.
            Default: "auto"
         """
+        self.snr = 100
         if line_list_file is not None:
             mylog.info("'line_list_file' keyword is deprecated. Please use " \
                        "'output_absorbers_file'.")
@@ -250,7 +252,7 @@ class AbsorptionSpectrum(object):
 
         if output_file is None:
             pass
-        elif output_file.endswith('.h5'):
+        elif output_file.endswith('.h5') or output_file.endswith('.hdf5'):
             self._write_spectrum_hdf5(output_file)
         elif output_file.endswith('.fits'):
             self._write_spectrum_fits(output_file)
@@ -660,10 +662,12 @@ class AbsorptionSpectrum(object):
         """
         mylog.info("Writing spectrum to ascii file: %s.", filename)
         f = open(filename, 'w')
-        f.write("# wavelength[A] tau flux\n")
+        f.write("# wavelength[A] tau flux flux_error\n")
         for i in range(self.lambda_field.size):
-            f.write("%e %e %e\n" % (self.lambda_field[i],
-                                    self.tau_field[i], self.flux_field[i]))
+            f.write("%e %e %e %e\n" % (self.lambda_field[i],
+                                    self.tau_field[i], 
+                                    self.flux_field[i],
+                                    self._error_func(self.flux_field[i])))
         f.close()
 
     @parallel_root_only
@@ -675,7 +679,8 @@ class AbsorptionSpectrum(object):
         col1 = pyfits.Column(name='wavelength', format='E', array=self.lambda_field)
         col2 = pyfits.Column(name='tau', format='E', array=self.tau_field)
         col3 = pyfits.Column(name='flux', format='E', array=self.flux_field)
-        cols = pyfits.ColDefs([col1, col2, col3])
+        col4 = pyfits.Column(name='flux_error', format='E', array=self._error_func(self.flux_field))
+        cols = pyfits.ColDefs([col1, col2, col3, col4])
         tbhdu = pyfits.BinTableHDU.from_columns(cols)
         tbhdu.writeto(filename, overwrite=True)
 
@@ -690,4 +695,21 @@ class AbsorptionSpectrum(object):
         output.create_dataset('wavelength', data=self.lambda_field)
         output.create_dataset('tau', data=self.tau_field)
         output.create_dataset('flux', data=self.flux_field)
+        output.create_dataset('flux_error', data=self._error_func(self.flux_field))
         output.close()
+
+    def _error_func(self, flux):
+        """
+        Many observational analysis programs require a flux error channel
+        in addition to a flux channel.  So we create a zeroth order 
+        approximation of the flux error, simply by taking the square root
+        of the flux.  Unfortunately, with flux normalized to be < 1, this
+        would result in errors larger than the flux values themselves,
+        so we normalize by an arbitrary signal-to-noise ratio, which by default
+        is set to 100.  This yields a typical error for a normalized spectrum of
+        sqrt(1.0*100)/100 = 0.1.  This assures our flux errors are smaller 
+        than our fluxes for most flux reasonable flux values.  Note that 
+        when a signal to noise ratio is specified for adding gaussian noise,
+        it uses this updated value for estimating the errors.
+        """
+        return np.sqrt(flux*self.snr)/self.snr
