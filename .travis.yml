@@ -69,12 +69,24 @@ before_script:
     mv hm2012_lr.h5 $TRIDENT_ION_DATA
     cat $TRIDENT_ION_DATA/config.tri
     # download answer test data
-    cd tests
+    pushd tests
     export RUN_DOWNLOAD_TEST=1
     travis_wait py.test test_download.py
+    popd
 
 script:
   - |
-    yt version
     export RUN_DOWNLOAD_TEST=0
+    # install gold standard and generate answers
+    git checkout gold-standard-v1
+    export TRIDENT_GENERATE_TEST_RESULTS=1
+    pip install -e .
+    pushd tests
+    py.test
+    popd
+    # re-install the tip and run tests
+    git checkout master
+    export TRIDENT_GENERATE_TEST_RESULTS=0
+    pip install -e .
+    pushd tests
     py.test

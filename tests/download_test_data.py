@@ -18,16 +18,10 @@ from trident.testing import \
 from trident.utilities import \
     download_file
 
-from trident.testing import \
-    test_results_version
-
 def download_datasets(local_dir=None, progress_bar=True):
     if local_dir is None:
         local_dir = answer_test_data_dir
     urls = open("test_datasets.txt", "r").readlines()
-    test_results = "http://trident-project.org/data/tests/test_results_%d.tar.gz" % \
-      test_results_version
-    urls += [test_results]
 
     for url in urls:
         if url.strip().startswith("#"):
