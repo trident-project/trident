@@ -75,5 +75,6 @@ before_script:
 
 script:
   - |
+    yt version
     export RUN_DOWNLOAD_TEST=0
     py.test
