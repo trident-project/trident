@@ -43,7 +43,6 @@ def test_verify():
 
 class PipelineTest(TempDirTest):
 
-    @unittest.skip("temporarily disabled")
     def test_enzo_small_simple(self):
         """
         This is an answer test, which compares the results of this test

@@ -27,24 +27,11 @@ from yt.testing import \
 from trident.config import \
     parse_config
 
-def get_test_results_version():
-    filename = "../tests/test_results_version.txt"
-    lines = open(filename).readlines()
-    for line in lines:
-        if line.startswith("version="):
-            version = int(line.split("=")[1])
-            return version
-    # if we're here, we didnt' get a version
-    raise RuntimeError(
-        "Couldn't get test result version from %s." % filename)
-test_results_version = get_test_results_version()
-
 # If TRIDENT_GENERATE_TEST_RESULTS=1, just generate test results.
 generate_results = int(os.environ.get("TRIDENT_GENERATE_TEST_RESULTS", 0)) == 1
 answer_test_data_dir = ensure_dir(
   os.path.abspath(os.path.expanduser(parse_config('answer_test_data_dir'))))
-test_results_dir = \
-  os.path.join(answer_test_data_dir, "test_results_%s" % test_results_version)
+test_results_dir = os.path.join(answer_test_data_dir, "test_results")
 if generate_results:
     ensure_dir(test_results_dir)
 

@@ -25,6 +25,8 @@ env:
     YT_DIR=$HOME/yt-git
     TRIDENT_ION_DATA=$HOME/.trident
     TRIDENT_ANSWER_DATA=$HOME/answer_test_data
+    YT_GOLD=38b79c094ca9
+    TRIDENT_GOLD=gold-standard-v1
 
 matrix:
   include:
@@ -45,14 +47,14 @@ install:
     pip install --upgrade wheel
     pip install --upgrade setuptools
     # Install dependencies
-    pip install mock $NUMPY $SCIPY $H5PY $CYTHON $MATPLOTLIB $SYMPY $FASTCACHE $IPYTHON flake8 pytest
+    pip install mock $NUMPY $SCIPY $H5PY $CYTHON $MATPLOTLIB $SYMPY $FASTCACHE $IPYTHON flake8 pytest gitpython
     # install yt
     if [ ! -f $YT_DIR/README.md ]; then
         git clone --branch=master https://github.com/yt-project/yt $YT_DIR
     fi
     pushd $YT_DIR
     git pull
-    git checkout master
+    git checkout $YT_GOLD
     pip install -e .
     popd
     # install trident
@@ -69,11 +71,39 @@ before_script:
     mv hm2012_lr.h5 $TRIDENT_ION_DATA
     cat $TRIDENT_ION_DATA/config.tri
     # download answer test data
-    cd tests
+    pushd tests
     export RUN_DOWNLOAD_TEST=1
     travis_wait py.test test_download.py
+    popd
 
 script:
   - |
+    # install gold standard and generate answers
+    # this uses the yt gold standard version
     export RUN_DOWNLOAD_TEST=0
+    export TRIDENT_GENERATE_TEST_RESULTS=1
+    git checkout $TRIDENT_GOLD
+    pip install -e .
+    pushd tests
+    py.test
+    popd
+    # gold-standard yt + trident tip
+    export TRIDENT_GENERATE_TEST_RESULTS=0
+    git checkout HEAD
+    pip install -e .
+    pushd tests
+    py.test
+    popd
+    # yt tip + trident tip
+    pushd $YT_DIR
+    git checkout HEAD
+    pip install -e .
+    popd
+    pushd tests
+    py.test
+    popd
+    # yt tip + trident gold standard
+    git checkout $TRIDENT_GOLD
+    pip install -e .
+    pushd tests
     py.test

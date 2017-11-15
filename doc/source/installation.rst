@@ -13,7 +13,7 @@ Versions of Trident
 Currently, there are two versions of Trident: the `stable version 
 <http://trident.readthedocs.io/en/stable>`_, and the `developent version
 <http://trident.readthedocs.io/en/latest>`_.  The stable version is tried,
-and tested, and it operates on a stable version of yt.  The development 
+and tested, and it normally operates on a stable version of yt.  The development 
 version is actively being updated with new features, and it is also tied to
 the development version of yt, so occasionally unforseen bugs can crop
 up as these new features are added.  
@@ -22,6 +22,16 @@ so pay attention in the steps below.
 Don't worry if you want to change later, you can always 
 switch between the two versions easily enough by following the directions
 in :ref:`uninstallation`.
+
+.. warning::
+
+    The current stable version of yt, yt 3.4.0, has a 
+    `bug <https://github.com/yt-project/yt/issues/1610>`_ affecting the 
+    temperature field in cosmological SPH datasets at z>0. We currently 
+    recommend using the development version of yt, where this bug is fixed, 
+    for use with trident (both stable and dev) until this bugfix makes it 
+    into yt stable. The directions below will result in the yt development 
+    branch being installed.
 
 .. _step-1:
 
@@ -39,20 +49,14 @@ We find that the easiest way to install yt is with the all-in-one install
 script, which installs yt and its dependencies via a new conda installation::
 
     $ wget https://raw.githubusercontent.com/yt-project/yt/master/doc/install_script.sh
-    $ ... edit the install_script.sh to mark INST_SCIPY=1 and INST_ASTROPY=1
-    $ ... if you want to use the dev version of yt and trident, mark INST_YT_SOURCE=1
+    $ ... edit the install_script.sh to mark INST_SCIPY=1, INST_ASTROPY=1,
+    $ ... and INST_YT_SOURCE=1
     $ bash install_script.sh
     $ ... update your path flag as described by the install_script.sh
 
 Alternatively, if you already have conda installed, you can skip the commands
 above and just run the following command to get yt and its dependencies.  
-
-To get the stable version of yt (for the stable version of trident), type::
-
-    $ conda install -c conda-forge yt
-
-To get the nightly build of the development version of yt (for the development 
-version of trident), type::
+To get the nightly build of the development version of yt, type::
 
     $ conda install -c http://use.yt/with_conda/ -c conda-forge yt
 
