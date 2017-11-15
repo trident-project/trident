@@ -25,6 +25,8 @@ env:
     YT_DIR=$HOME/yt-git
     TRIDENT_ION_DATA=$HOME/.trident
     TRIDENT_ANSWER_DATA=$HOME/answer_test_data
+    YT_GOLD=38b79c094ca9
+    TRIDENT_GOLD=gold-standard-v1
 
 matrix:
   include:
@@ -52,7 +54,7 @@ install:
     fi
     pushd $YT_DIR
     git pull
-    git checkout master
+    git checkout $YT_GOLD
     pip install -e .
     popd
     # install trident
@@ -76,17 +78,32 @@ before_script:
 
 script:
   - |
-    export RUN_DOWNLOAD_TEST=0
     # install gold standard and generate answers
-    git checkout gold-standard-v1
+    # this uses the yt gold standard version
+    export RUN_DOWNLOAD_TEST=0
     export TRIDENT_GENERATE_TEST_RESULTS=1
+    git checkout $TRIDENT_GOLD
     pip install -e .
     pushd tests
     py.test
     popd
-    # re-install the tip and run tests
-    git checkout master
+    # gold-standard yt + trident tip
     export TRIDENT_GENERATE_TEST_RESULTS=0
+    git checkout master
+    pip install -e .
+    pushd tests
+    py.test
+    popd
+    # yt tip + trident tip
+    pushd $YT_DIR
+    git checkout master
+    pip install -e .
+    popd
+    pushd tests
+    py.test
+    popd
+    # yt tip + trident gold standard
+    git checkout $TRIDENT_GOLD
     pip install -e .
     pushd tests
     py.test
