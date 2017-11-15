@@ -27,9 +27,6 @@ import tempfile
 import shutil
 
 import numpy as np
-# TODO
-# Make particle fields added work; cannot see 'gas' counterparts
-# and grid*particle error problems when looking at particle fields
 
 def test_add_ion_fraction_field_to_grid_ds():
     """
@@ -259,54 +256,36 @@ def test_add_all_ion_fields_to_amr_ds():
         yt.SlicePlot(ds, 'x', field).save(dirpath)
     shutil.rmtree(dirpath)
 
-#def test_add_all_ion_fields_to_particle_ds():
-#    """
-#    Test to add various ion fields
-#    """
-#    ds = fake_particle_ds(fields=('particle_mass',
-#                                  'particle_position_x',
-#                                  'particle_position_y',
-#                                  'particle_position_z',
-#                                  "particle_velocity_x",
-#                                  "particle_velocity_y",
-#                                  "particle_velocity_z",
-#                                  "density",
-#                                  "temperature",
-#                                  "metallicity",
-#                                  "smoothing_length"),
-#                           units=('g',
-#                                  'cm',
-#                                  'cm',
-#                                  'cm',
-#                                  'cm/s',
-#                                  'cm/s',
-#                                  'cm/s',
-#                                  'g/cm**3',
-#                                  'K',
-#                                  '',
-#                                  'cm'),
-#                           negative=(False,
-#                                     False,
-#                                     False,
-#                                     False,
-#                                     True,
-#                                     True,
-#                                     True,
-#                                     False,
-#                                     False,
-#                                     False,
-#                                     False))
-#    ftype = 'io',
-#    ad = ds.all_data()
-#    tri.add_ion_fields(ds, ['H', 'N IV'], ftype='io')
-#    #len(ad[('gas', 'S_p3_ion_fraction')])
-#    #len(ad[('gas', 'H_mass')])
-#    #import pdb; pdb.set_trace()
-#    fields = ['H_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
-#    #dirpath = tempfile.mkdtemp()
-#    #for field in fields:
-#    #    field = (ftype, field)
-#    #    assert field in ds.derived_field_list
-#    #    assert isinstance(ad[field], np.ndarray)
-#    #    yt.SlicePlot(ds, 'x', field).save(dirpath)
-#    #shutil.rmtree(dirpath)
+def test_add_ion_fields_to_enzo():
+    """
+    Test to add various ion fields to Enzo dataset and slice on them
+    """
+    ds = yt.load('IsolatedGalaxy/galaxy0030/galaxy0030')
+    tri.add_ion_fields(ds, ['H', 'O VI'], ftype='gas')
+    ad = ds.all_data()
+    fields = ['H_p0_number_density', 'O_p5_density']
+    # Assure that a sampling of fields are added and can be sliced
+    dirpath = tempfile.mkdtemp()
+    for field in fields:
+        field = ('gas', field)
+        assert field in ds.derived_field_list
+        assert isinstance(ad[field], np.ndarray)
+        yt.SlicePlot(ds, 'x', field).save(dirpath)
+    shutil.rmtree(dirpath)
+
+def test_add_ion_fields_to_gizmo():
+    """
+    Test to add various ion fields to gizmo dataset and slice on them
+    """
+    ds = yt.load('FIRE_M12i_ref11/snapshot_600.hdf5')
+    tri.add_ion_fields(ds, ['H', 'O VI'], ftype='PartType0')
+    ad = ds.all_data()
+    fields = ['H_ion_fraction', 'O_p5_mass']
+    # Assure that a sampling of fields are added and can be sliced
+    dirpath = tempfile.mkdtemp()
+    for field in fields:
+        field = ('gas', field)
+        assert field in ds.derived_field_list
+        assert isinstance(ad[field], np.ndarray)
+        yt.SlicePlot(ds, 'x', field).save(dirpath)
+    shutil.rmtree(dirpath)
