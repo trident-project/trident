@@ -139,7 +139,7 @@ def _determine_sampling_type(ds, sampling_type, particle_type):
     fields.
     """
     if particle_type is not None:
-        warnings.Warn('The "particle_type" keyword is deprecated. '
+        warnings.warn('The "particle_type" keyword is deprecated. '
                       'Please use "sampling_type" instead.', stacklevel=2)
         sampling_type = None
 
