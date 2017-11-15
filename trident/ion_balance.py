@@ -31,7 +31,7 @@ from trident.line_database import \
     LineDatabase, \
     uniquify
 from trident.utilities import \
-    _determine_particle_type
+    _determine_dataset_sampling_type
 from trident.roman import \
     from_roman
 
@@ -144,7 +144,7 @@ def _determine_sampling_type(ds, sampling_type, particle_type):
         sampling_type = None
 
     if sampling_type == 'auto' or particle_type == 'auto':
-        particle_type = _determine_particle_type(ds)
+        sampling_type = _determine_dataset_sampling_type(ds)
 
     if particle_type is not None:
         if particle_type:
