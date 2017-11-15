@@ -89,14 +89,14 @@ script:
     popd
     # gold-standard yt + trident tip
     export TRIDENT_GENERATE_TEST_RESULTS=0
-    git checkout master
+    git checkout HEAD
     pip install -e .
     pushd tests
     py.test
     popd
     # yt tip + trident tip
     pushd $YT_DIR
-    git checkout master
+    git checkout HEAD
     pip install -e .
     popd
     pushd tests
