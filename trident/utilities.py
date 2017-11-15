@@ -34,6 +34,8 @@ from yt import \
     load
 from yt.geometry.particle_geometry_handler import \
     ParticleIndex
+from yt.funcs import \
+    mylog
 
 def ensure_directory(directory):
     """
@@ -471,7 +473,7 @@ def import_check():
 The Trident package does not work correctly when imported from its
 installation directory.  Please try moving to another directory.""")
 
-def _determine_particle_type(ds):
+def _determine_dataset_sampling_type(ds):
     """
     Determine whether the dataset is particle-based or grid-based.
 
@@ -488,4 +490,36 @@ def _determine_particle_type(ds):
     # Sometimes data_type is not defined.
     if getattr(ds, "data_type", None) == "yt_light_ray":
         part_type = False
-    return part_type
+    if part_type:
+        return "particle"
+    else:
+        return "cell"
+
+def _check_sampling_types_match(ds, ftype):
+    """
+    Checks if sampling_type of field and dataset matches.
+
+    Users may not always put the correct ftype for their datasets, and this
+    can lead to errors if a user specifies a grid-based field for a 
+    particle-dataset, which will lead to adding ion fields to deposited (and
+    already interpolated) fields with unexpected behavior.  This alerts the 
+    user when it thinks this has happened.
+    """
+    # Determine the sampling type (e.g., "particle" or "cell") for the
+    # dataset as a whole.
+    sampling_type = _determine_dataset_sampling_type(ds)
+
+    # Determine the sampling type (e.g., "particle" or "cell") for the
+    # fields of "ftype" specified by the user.
+    ds.index
+    field_sampling_type = ds.field_info[ftype, 'density'].sampling_type
+
+    if sampling_type != field_sampling_type:
+        mylog.warning("===================================================")
+        mylog.warning("MISMATCH BETWEEN SAMPLING_TYPE OF FTYPE AND DATASET")
+        mylog.warning("sampling_type of (%s, 'density') = %s" % (ftype, field_sampling_type))
+        mylog.warning("sampling_type of dataset = %s" % sampling_type)
+        mylog.warning("THIS IS PROBABLY UNDESIRED BEHAVIOR.  PLEASE CHOOSE A DIFFERENT FTYPE.")
+        mylog.warning("===================================================")
+
+    return sampling_type

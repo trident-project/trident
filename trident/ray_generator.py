@@ -36,9 +36,8 @@ from trident.ion_balance import \
     add_ion_number_density_field, \
     atomic_number
 from trident.utilities import \
-    _determine_particle_type
-from yt.geometry.particle_geometry_handler import \
-    ParticleIndex
+    _determine_dataset_sampling_type, \
+    _check_sampling_types_match
 
 def make_simple_ray(dataset_file, start_position, end_position,
                     lines=None, ftype="gas", fields=None, 
@@ -238,22 +237,17 @@ def make_simple_ray(dataset_file, start_position, end_position,
 
         ion_list = _determine_ions_from_lines(line_database, lines)
 
-        particle_type = _determine_particle_type(ds)
-
-        if (not particle_type) and \
-           (isinstance(ds.index, ParticleIndex)):
-            mylog.warning("Adding grid-based ion fields to SPH dataset. This is probably wrong.")
-            mylog.warning("To correct, change `ftype` in make_simple_ray() to SPH field type.")
+        sampling_type = _check_sampling_types_match(ds, ftype)
 
         fields, fields_to_add_to_ds = _determine_fields_from_ions(ds, ion_list, 
-                                        fields, ftype, particle_type)
+                                        fields, ftype, sampling_type)
 
         # actually add the fields we need to add to the dataset
         for atom, ion_state in fields_to_add_to_ds:
             add_ion_number_density_field(atom, ion_state, ds, 
                                          ftype=ftype,
                                          ionization_table=ionization_table,
-                                         particle_type=particle_type)
+                                         sampling_type=sampling_type)
 
     # To assure there are no fields that are double specified or that collide
     # based on being specified as "density" as well as ("gas", "density"), 
@@ -516,7 +510,7 @@ def make_compound_ray(parameter_filename, simulation_type,
     # to the field list for the ray.  If not, we have to create them.
 
     # We use the final dataset from the simulation in order to test it for 
-    # the particle_type of the field, what fields are present, etc.  This 
+    # the sampling_type of the field, what fields are present, etc.  This 
     # all assumes that the fields present in this output will be present in 
     # ALL outputs.  Hopefully this is true, because testing each dataset
     # is going to be slow and a pain.
@@ -529,15 +523,10 @@ def make_compound_ray(parameter_filename, simulation_type,
 
         ion_list = _determine_ions_from_lines(line_database, lines)
 
-        particle_type = _determine_particle_type(ds)
-
-        if (not particle_type) and \
-           (isinstance(ds.index, ParticleIndex)):
-            mylog.warning("Adding grid-based ion fields to SPH dataset. This is probably wrong.")
-            mylog.warning("To correct, change `ftype` in make_compound_ray() to SPH field type.")
+        sampling_type = _check_sampling_types_match(ds, ftype)
 
         fields, fields_to_add_to_ds = _determine_fields_from_ions(ds, ion_list, 
-                                        fields, ftype, particle_type)
+                                        fields, ftype, sampling_type)
 
         # actually add the fields we need to add to the dataset
         # by adding the fields to the setup_function passed to each dataset
@@ -549,7 +538,7 @@ def make_compound_ray(parameter_filename, simulation_type,
                 add_ion_number_density_field(atom, ion_state, ds, 
                                             ftype=ftype,
                                             ionization_table=ionization_table,
-                                            particle_type=particle_type)
+                                            sampling_type=sampling_type)
             if setup_function is not None:
                 setup_function(ds)
 
@@ -601,12 +590,12 @@ def _determine_ions_from_lines(line_database, lines):
 
     return uniquify(ion_list)        
 
-def _determine_fields_from_ions(ds, ion_list, fields, ftype, particle_type):
+def _determine_fields_from_ions(ds, ion_list, fields, ftype, sampling_type):
     """
     Figure out what fields need to be added based on the ions present
     and the particle type
 
-    For sph (determined by particle_type):
+    For sph (determined by sampling_type):
     Identify if the number_density fields for the desired ions already 
     exist on the dataset, and if so, just add them to the list
     of fields to be added to the ray.
@@ -641,7 +630,7 @@ def _determine_fields_from_ions(ds, ion_list, fields, ftype, particle_type):
         # type or not.
         if (ftype, field) not in ds.derived_field_list:
             if (ftype, alias_field) not in ds.derived_field_list:
-                if particle_type is True:
+                if sampling_type == 'particle':
                     fields_to_add_to_ds.append((atom, ion_state))
                     fields.append(("gas", alias_field))
                 else:
