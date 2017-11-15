@@ -230,7 +230,7 @@ class PipelineTest(TempDirTest):
         sg.add_qso_spectrum()
         sg.add_milky_way_foreground()
         sg.apply_lsf()
-        sg.add_gaussian_noise(30)
+        sg.add_gaussian_noise(30, seed=1)
         final_file = 'gizmo_small_simple_spec_final.h5'
         sg.save_spectrum(final_file)
         final_file_compare = os.path.join(test_results_dir, final_file)
