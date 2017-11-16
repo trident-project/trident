@@ -24,51 +24,71 @@ def generate_total_fit(x, fluxData, orderFits, speciesDicts,
     Fits the spectrum into absorption complexes and iteratively adds and
     optimizes voigt profiles for each complex.
 
-    Parameters
-    ----------
-    x : (N) ndarray
+    **Parameters**
+
+    :x: (N) ndarray
+
         1d array of wavelengths
-    fluxData : (N) ndarray
+
+    :fluxData: (N) ndarray
+
         array of flux corresponding to the wavelengths given
         in x. (needs to be the same size as x)
-    orderFits : list
+
+    :orderFits: list
+
         list of the names of the species in the order that they
         should be fit. Names should correspond to the names of the species
         given in speciesDicts. (ex: ['lya','OVI'])
-    speciesDicts : dictionary
+
+    :speciesDicts: dictionary
+
         Dictionary of dictionaries (I'm addicted to dictionaries, I
         confess). Top level keys should be the names of all the species given
         in orderFits. The entries should be dictionaries containing all
         relevant parameters needed to create an absorption line of a given
         species (f,Gamma,lambda0) as well as max and min values for parameters
         to be fit
-    complexLim : float, optional
+
+    :complexLim: float, optional
+
         Maximum flux to start the edge of an absorption complex. Different
         from fitLim because it decides extent of a complex rather than
         whether or not a complex is accepted.
-    fitLim : float,optional
+
+    :fitLim: float,optional
+
         Maximum flux where the level of absorption will trigger
         identification of the region as an absorption complex. Default = .98.
         (ex: for a minSize=.98, a region where all the flux is between 1.0 and
         .99 will not be separated out to be fit as an absorbing complex, but
         a region that contains a point where the flux is .97 will be fit
         as an absorbing complex.)
-    minLength : int, optional
+
+    :minLength: int, optional
+
         number of cells required for a complex to be included.
         default is 3 cells.
-    maxLength : int, optional
+
+    :maxLength: int, optional
+
         number of cells required for a complex to be split up. Default
         is 1000 cells.
-    splitLim : float, optional
+
+    :splitLim: float, optional
+
         if attempting to split a region for being larger than maxlength
         the point of the split must have a flux greater than splitLim
         (ie: absorption greater than splitLim). Default= .99.
-    output_file : string, optional
+
+    :output_file: string, optional
+
         location to save the results of the fit.
 
-    Returns
-    -------
-    allSpeciesLines : dictionary
+    **Returns**
+
+    :allSpeciesLines: dictionary
+
         Dictionary of dictionaries representing the fit lines.
         Top level keys are the species given in orderFits and the corresponding
         entries are dictionaries with the keys 'N','b','z', and 'group#'.
@@ -80,7 +100,9 @@ def generate_total_fit(x, fluxData, orderFits, speciesDicts,
         correlate between species (ie: an lya line with group number 1 and
         an OVI line with group number 1 were not fit together and do
         not necessarily correspond to the same region)
-    yFit : (N) ndarray
+
+    :yFit: (N) ndarray
+
         array of flux corresponding to the combination of all fitted
         absorption profiles. Same size as x.
     """
@@ -180,7 +202,8 @@ def generate_total_fit(x, fluxData, orderFits, speciesDicts,
 
 def _complex_fit(x, yDat, yFit, initz, minSize, errBound, speciesDict,
         initP=None):
-    """ Fit an absorption complex by iteratively adding and optimizing
+    """ 
+    Fit an absorption complex by iteratively adding and optimizing
     voigt profiles.
 
     A complex is defined as a region where some number of lines may be present,
@@ -189,40 +212,58 @@ def _complex_fit(x, yDat, yFit, initz, minSize, errBound, speciesDict,
     the optimized parameters has a least squares difference between the
     desired flux profile less than the error bound.
 
-    Parameters
-    ----------
-    x : (N) ndarray
+    **Parameters**
+
+    :x : (N) ndarray
+
         array of wavelength
-    ydat : (N) ndarray
+
+    :ydat: (N) ndarray
+
         array of desired flux profile to be fitted for the wavelength
         space given by x. Same size as x.
-    yFit : (N) ndarray
+
+    :yFit: (N) ndarray
+
         array of flux profile fitted for the wavelength
         space given by x already. Same size as x.
-    initz : float
+
+    :initz: float
+
         redshift to try putting first line at
         (maximum absorption for region)
-    minsize : float
+
+    :minsize: float
+
         minimum absorption allowed for a line to still count as a line
         given in normalized flux (ie: for minSize=.9, only lines with minimum
         flux less than .9 will be fitted)
-    errbound : float
+
+    :errbound: float
+
         maximum total error allowed for an acceptable fit
-    speciesDict : dictionary
+
+    :speciesDict: dictionary
+
         dictionary containing all relevant parameters needed
         to create an absorption line of a given species (f,Gamma,lambda0)
         as well as max and min values for parameters to be fit
-    initP : (,3,) ndarray
+
+    :initP: (,3,) ndarray
+
         initial guess to try for line parameters to fit the region. Used
         by large_flag_fit. Default = None, and initial guess generated
         automatically.
 
-    Returns
-    -------
-    linesP : (3,) ndarray
+    **Returns**
+
+    :linesP: (3,) ndarray
+
         Array of best parameters if a good enough fit is found in
         the form [[N1,b1,z1], [N2,b2,z2],...]
-    flag : bool
+
+    :flag: bool
+
         boolean value indicating the success of the fit (True if unsuccessful)
     """
 
@@ -348,33 +389,47 @@ def _large_flag_fit(x, yDat, yFit, initz, speciesDict, minSize, errBound):
     Uses a preselected sample of a wide range of initial parameter guesses
     designed to fit saturated lines (see get_test_lines).
 
-    Parameters
-    ----------
-    x : (N) ndarray
+    **Parameters**
+
+    :x: (N) ndarray
+
         array of wavelength
-    ydat : (N) ndarray
+
+    :ydat: (N) ndarray
+
         array of desired flux profile to be fitted for the wavelength
         space given by x. Same size as x.
-    yFit : (N) ndarray
+
+    :yFit: (N) ndarray
+
         array of flux profile fitted for the wavelength
         space given by x already. Same size as x.
-    initz : float
+
+    :initz: float
+
         redshift to try putting first line at
         (maximum absorption for region)
-    speciesDict : dictionary
+
+    :speciesDict: dictionary
+
         dictionary containing all relevant parameters needed
         to create an absorption line of a given species (f,Gamma,lambda0)
         as well as max and min values for parameters to be fit
-    minsize : float
+
+    :minsize: float
+
         minimum absorption allowed for a line to still count as a line
         given in normalized flux (ie: for minSize=.9, only lines with minimum
         flux less than .9 will be fitted)
-    errbound : float
+
+    :errbound: float
+
         maximum total error allowed for an acceptable fit
 
-    Returns
-    -------
-    bestP : (3,) ndarray
+    **Returns**
+
+    :bestP: (3,) ndarray
+
         array of best parameters if a good enough fit is found in
         the form [[N1,b1,z1], [N2,b2,z2],...]
     """
@@ -419,14 +474,16 @@ def _get_test_lines(initz):
     has multiple lines for the same guess (trying a broad line plus a
     saturated line) and the 3d dimension contains the 3 fit parameters (N,b,z)
 
-    Parameters
-    ----------
-    initz : float
+    **Parameters**
+
+    :initz: float
+
         redshift to give all the test lines
 
-    Returns
-    -------
-    testP : (,3,) ndarray
+    **Returns**
+
+    :testP: (,3,) ndarray
+
         numpy array of the form
         [[[N1a,b1a,z1a], [N1b,b1b,z1b]], [[N2a,b2,z2a],...] ...]
     """
@@ -462,25 +519,35 @@ def _get_bounds(z, b, wl, x0, xRes):
     Used for checking if species with multiple lines (as in the OVI doublet)
     fit all lines appropriately.
 
-    Parameters
-    ----------
-    z : float
+    **Parameters**
+
+    :z: float
+
         redshift
-    b : (3) ndarray/list
+
+    :b: (3) ndarray/list
+
         initial bounds in form [i0,i1,i2] where i0 is the index of the
         minimum flux for the complex, i1 is index of the lower wavelength
         edge of the complex, and i2 is the index of the higher wavelength
         edge of the complex.
-    wl : float
+
+    :wl: float
+
         unredshifted wavelength of the peak of the new region
-    x0 : float
+
+    :x0: float
+
         wavelength of the index 0
-    xRes : float
+
+    :xRes: float
+
         difference in wavelength for two consecutive indices
 
-    Returns
-    -------
-    indices : (2) tuple
+    **Returns**
+
+    :indices: (2) tuple
+
         Tuple (i1,i2) where i1 is the index of the lower wavelength bound of
         the new region and i2 is the index of the higher wavelength bound of
         the new region
@@ -505,26 +572,36 @@ def _remove_unaccepted_partners(linesP, x, y, b, errBound,
     the second line then that set of parameters is removed from the array
     of line parameters.)
 
-    Parameters
-    ----------
-    linesP : (3,) ndarray
+    **Parameters**
+
+    :linesP: (3,) ndarray
+
         array giving sets of line parameters in
         form [[N1, b1, z1], ...]
-    x : (N) ndarray
+
+    :x: (N) ndarray
+
         wavelength array [nm]
-    y : (N) ndarray
+
+    :y: (N) ndarray
+
         normalized flux array of original data
-    b : (3) tuple/list/ndarray
+
+    :b: (3) tuple/list/ndarray
+
         indices that give the bounds of the original region so that another
         region of similar size can be used to determine the goodness
         of fit of the other wavelengths
-    errBound : float
+
+    :errBound: float
+
         size of the error that is appropriate for a given region,
         adjusted to account for the size of the region.
 
-    Returns
-    -------
-    linesP : (3,) ndarray
+    **Returns**
+
+    :linesP: (3,) ndarray
+
         array similar to linesP that only contains lines with
         appropriate fits of all transition wavelengths.
     """
@@ -578,23 +655,32 @@ def _line_exists(wavelengths, y, z, x0, xRes,fluxMin):
     """For a group of lines finds if the there is some change in flux greater
     than some minimum at the same redshift with different initial wavelengths
 
-    Parameters
-    ----------
-    wavelengths : (N) ndarray
+    **Parameters**
+
+    :wavelengths: (N) ndarray
+
         array of initial wavelengths to check
-    y : (N) ndarray
+
+    :y: (N) ndarray
+
         flux array to check
-    x0 : float
+
+    :x0: float
+
         wavelength of the first value in y
-    xRes : float
+
+    :xRes: float
+
         difference in wavelength between consecutive cells in flux array
-    fluxMin : float
+
+    :fluxMin: float
+
         maximum flux to count as a line existing.
 
-    Returns
-    -------
+    **Returns**
 
-    flag : boolean
+    :flag: boolean
+
         value indicating whether all lines exist. True if all lines exist
     """
 
@@ -615,44 +701,57 @@ def _line_exists(wavelengths, y, z, x0, xRes,fluxMin):
             return False
 
     return True
-
 def _find_complexes(x, yDat, complexLim=.999, fitLim=.99,
         minLength =3, maxLength=1000, splitLim=.99):
     """Breaks up the wavelength space into groups
     where there is some absorption.
 
-    Parameters
-    ----------
-    x : (N) ndarray
+    **Parameters**
+
+    :x: (N) ndarray
+
         array of wavelengths
-    yDat : (N) ndarray
+
+    :yDat: (N) ndarray
+
         array of flux corresponding to the wavelengths given
         in x. (needs to be the same size as x)
-    complexLim : float, optional
+
+    :complexLim: float, optional
+    
         Maximum flux to start the edge of an absorption complex. Different
         from fitLim because it decides extent of a complex rather than
         whether or not a complex is accepted.
-    fitLim : float,optional
+
+    :fitLim: float,optional
+
         Maximum flux where the level of absorption will trigger
         identification of the region as an absorption complex. Default = .98.
         (ex: for a minSize=.98, a region where all the flux is between 1.0 and
         .99 will not be separated out to be fit as an absorbing complex, but
         a region that contains a point where the flux is .97 will be fit
         as an absorbing complex.)
-    minLength : int, optional
+
+    :minLength: int, optional
+
         number of cells required for a complex to be included.
         default is 3 cells.
-    maxLength : int, optional
+
+    :maxLength: int, optional
+
         number of cells required for a complex to be split up. Default
         is 1000 cells.
-    splitLim : float, optional
+
+    :splitLim: float, optional
+
         if attempting to split a region for being larger than maxlength
         the point of the split must have a flux greater than splitLim
         (ie: absorption greater than splitLim). Default= .99.
 
-    Returns
-    -------
-    cBounds : (3,)
+    **Returns**
+
+    :cBounds: (3,)
+
         list of bounds in the form [[i0,i1,i2],...] where i0 is the
         index of the maximum flux for a complex, i1 is the index of the
         beginning of the complex, and i2 is the index of the end of the
@@ -739,20 +838,26 @@ def _gen_flux_lines(x, linesP, speciesDict,firstLine=False):
     Calculates the normalized flux for a region of wavelength space
     generated by a set of absorption lines.
 
-    Parameters
-    ----------
-    x : (N) ndarray
+    **Parameters**
+
+    :x: (N) ndarray
+
         Array of wavelength
-    linesP: (3,) ndarray
+
+    :linesP: (3,) ndarray
+
         Array giving sets of line parameters in
         form [[N1, b1, z1], ...]
-    speciesDict : dictionary
+
+    :speciesDict: dictionary
+
         Dictionary containing all relevant parameters needed
         to create an absorption line of a given species (f,Gamma,lambda0)
 
-    Returns
-    -------
-    flux : (N) ndarray
+    **Returns**
+
+    :flux: (N) ndarray
+
         Array of normalized flux generated by the line parameters
         given in linesP over the wavelength space given in x. Same size as x.
     """
@@ -796,25 +901,35 @@ def _voigt_error(pTotal, x, yDat, yFit, speciesDict):
         contain a large value (999), to prevent the optimizer from running
         into negative number problems.
 
-    Parameters
-    ----------
-    pTotal : (3,) ndarray
+    **Parameters**
+
+    :pTotal: (3,) ndarray
+
         Array with form [[N1, b1, z1], ...]
-    x : (N) ndarray
+
+    :x: (N) ndarray
+
         array of wavelengths [nm]
-    yDat : (N) ndarray
+
+    :yDat: (N) ndarray
+
         desired normalized flux from fits of lines in wavelength
         space given by x
-    yFit : (N) ndarray
+
+    :yFit: (N) ndarray
+
         previous fit over the wavelength space given by x.
-    speciesDict : dictionary
+
+    :speciesDict: dictionary
+
         dictionary containing all relevant parameters needed
         to create an absorption line of a given species (f,Gamma,lambda0)
         as well as max and min values for parameters to be fit
 
-    Returns
-    -------
-    error : (N) ndarray
+    **Returns**
+
+    :error: (N) ndarray
+
         the difference between the fit generated by the parameters
         given in pTotal multiplied by the previous fit and the desired
         flux profile, w/ first index modified appropriately for bad
@@ -838,19 +953,25 @@ def _check_params(p, speciesDict,xb):
     Check to see if any of the parameters in p fall outside the range
         given in speciesDict or on the boundaries
 
-    Parameters
-    ----------
-    p : (3,) ndarray
+    **Parameters**
+
+    :p: (3,) ndarray
+
         array with form [[N1, b1, z1], ...]
-    speciesDict : dictionary
+
+    :speciesDict: dictionary
+
         dictionary with properties giving the max and min
         values appropriate for each parameter N,b, and z.
-    xb : (N) ndarray
+
+    :xb: (N) ndarray
+
         wavelength array [nm]
 
-    Returns
+    **Returns**
     -------
-    check : int
+    :check: int
+
         0 if all values are fine
         999 if any values fall outside acceptable range
     """
@@ -876,14 +997,19 @@ def _check_optimization_init(p,speciesDict,initz,xb,yDat,yFit,minSize,errorBound
     same as initial paramters and if so, attempt to
     split the region and refit it.
 
-    Parameters
-    ----------
-    p : (3,) ndarray
+    **Parameters**
+
+    :p: (3,) ndarray
+
         array with form [[N1, b1, z1], ...]
-    speciesDict : dictionary
+
+    :speciesDict: dictionary
+
         dictionary with properties giving the max and min
         values appropriate for each parameter N,b, and z.
-    x : (N) ndarray
+
+    :x: (N) ndarray
+
         wavelength array [nm]
     """
 
@@ -937,16 +1063,23 @@ def _check_numerical_instability(x, p, speciesDict,b):
     Check to see if any of the parameters in p are causing
     unstable numerical effects outside the region of fit
 
-    Parameters
-    ----------
-    p : (3,) ndarray
+    **Parameters**
+
+    :p: (3,) ndarray
+
         array with form [[N1, b1, z1], ...]
-    speciesDict : dictionary
+
+    :speciesDict: dictionary
+
         dictionary with properties giving the max and min
         values appropriate for each parameter N,b, and z.
-    x : (N) ndarray
+
+    :x: (N) ndarray
+
         wavelength array [nm]
-    b : (3) list
+
+    :b: (3) list
+
         list of integers indicating bounds of region fit in x
     """
 
@@ -997,17 +1130,19 @@ def _output_fit(lineDic, file_name = 'spectrum_fit.h5'):
     the given species. The species names come from the fitted line
     dictionary.
 
-    Parameters
-    ----------
-    lineDic : dictionary
+    **Parameters**
+
+    :lineDic: dictionary
+
         Dictionary of dictionaries representing the fit lines.
         Top level keys are the species given in orderFits and the corresponding
         entries are dictionaries with the keys 'N','b','z', and 'group#'.
         Each of these corresponds to a list of the parameters for every
         accepted fitted line.
-    fileName : string, optional
-        Name of the file to output fit to. Default = 'spectrum_fit.h5'
 
+    :fileName: string, optional
+
+        Name of the file to output fit to. Default = 'spectrum_fit.h5'
     """
     f = h5py.File(file_name, 'w')
     for ion, params in lineDic.items():
