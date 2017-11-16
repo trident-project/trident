@@ -25,4 +25,5 @@ information, see :ref:`versions`.
    faq.rst
    reference.rst
    citation.rst
+   changelog.rst
    help.rst
