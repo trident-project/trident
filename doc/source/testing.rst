@@ -110,7 +110,7 @@ with these versions of the code.  Lastly, set the
    
    Latest Gold Standard Commit Tags
    yt = 38b79c094ca9
-   Trident = gold-standard-v1
+   Trident = test-standard-v1
 
    To update to them, `git checkout <tag>` in appropriate repository
 
@@ -118,7 +118,7 @@ with these versions of the code.  Lastly, set the
    $ git checkout 38b79c094ca9
    $ pip install -e .
    $ cd /path/to/trident
-   $ git checkout gold-standard-v1
+   $ git checkout test-standard-v1
    $ pip install -e .
    $ export TRIDENT_GENERATE_TEST_RESULTS=1
    $ cd tests
@@ -143,15 +143,15 @@ the next gold standard iteration.  You can see the current iteration by looking
 in the ``.travis.yml`` file at the ``TRIDENT_GOLD`` entry--enumerate this and
 tag the changeset.  Update the ``.travis.yml`` file so that the ``YT_GOLD`` and
 ``TRIDENT_GOLD`` entries point to your desired changeset and tag.  Finally,
-you have to explicitly push the new tag (hereafter ``gold-standard-v2``) to 
+you have to explicitly push the new tag (hereafter ``test-standard-v2``) to 
 the repository.
 
 .. code-block:: bash
 
-   $ git tag gold-standard-v2 <trident-changeset>
+   $ git tag test-standard-v2 <trident-changeset>
    $ ... edit .travis.yml files to update YT_GOLD=<yt changeset>
-   $ ... and TRIDENT_GOLD=<gold-standard-v2
+   $ ... and TRIDENT_GOLD=<test-standard-v2
    $ git add .travis.yml
    $ git commit
    $ git push origin
-   $ git push origin gold-standard-v2
+   $ git push origin test-standard-v2
