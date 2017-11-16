@@ -38,16 +38,29 @@ from yt.utilities.parallel_tools.parallel_analysis_interface import \
 pyfits = _astropy.pyfits
 
 class AbsorptionSpectrum(object):
-    r"""Create an absorption spectrum object.
+    r"""Base class for generating absorption spectra.  This code was originally
+    based in yt and more restrictive in terms of what development was allowed,
+    so the :class:`~trident.SpectrumGenerator` subclass has more advanced
+    functionality built on top of this.  The base algorithm and functionality
+    for spectral generation occurs here though.
+    
+    .. note::
 
-    Parameters
-    ----------
+        The preferred method for generating spectra is using
+        :class:`~trident.SpectrumGenerator`.
 
-    lambda_min : float
+    **Parameters**
+
+    :lambda_min: float
+
        lower wavelength bound in angstroms.
-    lambda_max : float
+
+    :lambda_max: float
+
        upper wavelength bound in angstroms.
-    n_lambda : int
+
+    :n_lambda: int
+
        number of wavelength bins.
     """
 
@@ -74,20 +87,30 @@ class AbsorptionSpectrum(object):
                  label_threshold=None):
         r"""Add an absorption line to the list of lines included in the spectrum.
 
-        Parameters
-        ----------
+        **Parameters**
 
-        label : string
+        :label: string
+
            label for the line.
-        field_name : string
+
+        :field_name: string
+
            field name from ray data for column densities.
-        wavelength : float
+
+        :wavelength: float
+
            line rest wavelength in angstroms.
-        f_value  : float
+
+        :f_value: float
+
            line f-value.
-        gamma : float
+
+        :gamma: float
+
            line gamme value.
-        atomic_mass : float
+
+        :atomic_mass: float
+
            mass of atom in amu.
         """
         self.line_list.append({'label': label, 'field_name': field_name,
@@ -102,18 +125,26 @@ class AbsorptionSpectrum(object):
         """
         Add a continuum feature that follows a power-law.
 
-        Parameters
-        ----------
+        **Parameters**
 
-        label : string
+        :label: string
+
            label for the feature.
-        field_name : string
+
+        :field_name: string
+
            field name from ray data for column densities.
-        wavelength : float
+
+        :wavelength: float
+
            line rest wavelength in angstroms.
-        normalization : float
+
+        :normalization: float
+        
            the column density normalization.
-        index : float
+
+        :index: float
+
            the power-law index for the wavelength dependence.
         """
 
@@ -131,33 +162,43 @@ class AbsorptionSpectrum(object):
         """
         Make spectrum from ray data using the line list.
 
-        Parameters
-        ----------
+        **Parameters**
 
-        input_file : string or dataset
+        :input_file: string or dataset
+
            path to input ray data or a loaded ray dataset
-        output_file : optional, string
+
+        :output_file: optional, string
+
            Option to save a file containing the wavelength, flux, and optical
            depth fields.  File formats are chosen based on the filename
            extension. ``.h5`` for hdf5, ``.fits`` for fits, and everything
            else is ASCII.
            Default: None
-        output_absorbers_file : optional, string
+
+        :output_absorbers_file: optional, string
+
            Option to save a text file containing all of the absorbers and
            corresponding wavelength and redshift information.
            For parallel jobs, combining the lines lists can be slow so it
            is recommended to set to None in such circumstances.
            Default: None
-        use_peculiar_velocity : optional, bool
+
+        :use_peculiar_velocity: optional, bool
+        
            if True, include peculiar velocity for calculating doppler redshift
            to shift lines.  Requires similar flag to be set in LightRay
            generation.
            Default: True
-        store_observables : optional, bool
+
+        :store_observables: optional, bool
+
            if True, stores observable properties of each cell along the line of
            sight for each line, such as tau, column density, and thermal b.
            Default: False 
-        subgrid_resolution : optional, int
+
+        :subgrid_resolution: optional, int
+
            When a line is being added that is unresolved (ie its thermal
            width is less than the spectral bin width), the voigt profile of
            the line is deposited into an array of virtual wavelength bins at
@@ -169,11 +210,15 @@ class AbsorptionSpectrum(object):
            but is more expensive.  A value of 10 yields accuracy to the 4th
            significant digit in tau.
            Default: 10
-        observing_redshift : optional, float
+
+        :observing_redshift: optional, float
+
            This is the redshift at which the observer is observing
            the absorption spectrum.
            Default: 0
-        min_tau : optional, float
+
+        :min_tau: optional, float
+
            This value determines size of the wavelength window used to
            deposit lines or continua.  The wavelength window is expanded
            until the optical depth at the edge is below this value.  If too
@@ -182,7 +227,9 @@ class AbsorptionSpectrum(object):
            run time.  An increase by a factor of ten will result in roughly a
            2x slow down.
            Default: 1e-3.
-        njobs : optional, int or "auto"
+
+        :njobs: optional, int or "auto"
+
            the number of process groups into which the loop over
            absorption lines will be divided.  If set to -1, each
            absorption line will be deposited by exactly one processor.
@@ -263,6 +310,30 @@ class AbsorptionSpectrum(object):
 
         del field_data
         return (self.lambda_field, self.flux_field)
+
+    def error_func(self, flux):
+        """
+        Approximate the flux error for a spectrum.  
+        Many observational analysis programs require a flux error channel
+        in addition to a flux channel.  So we create a zeroth order 
+        approximation of the flux error, simply by taking the square root
+        of the flux.  Unfortunately, with flux normalized to be < 1, this
+        would result in errors larger than the flux values themselves,
+        so we normalize by an arbitrary signal-to-noise ratio, which by default
+        is set to 100.  This yields a typical error for a normalized spectrum of
+        sqrt(1.0*100)/100 = 0.1.  This assures our flux errors are smaller 
+        than our fluxes for most flux reasonable flux values.  Note that 
+        when a signal to noise ratio is specified for adding gaussian noise,
+        it uses this updated value for estimating the errors.  SNR is set
+        as an attribute of AbsorptionSpectrum directly (e.g., as.snr = N).
+
+        **Parameters**
+
+        :flux: array of floats
+
+            The array of flux values 
+        """
+        return np.sqrt(flux*self.snr)/self.snr
 
     def _apply_observing_redshift(self, field_data, use_peculiar_velocity,
                                  observing_redshift):
@@ -667,7 +738,7 @@ class AbsorptionSpectrum(object):
             f.write("%e %e %e %e\n" % (self.lambda_field[i],
                                     self.tau_field[i], 
                                     self.flux_field[i],
-                                    self._error_func(self.flux_field[i])))
+                                    self.error_func(self.flux_field[i])))
         f.close()
 
     @parallel_root_only
@@ -679,7 +750,7 @@ class AbsorptionSpectrum(object):
         col1 = pyfits.Column(name='wavelength', format='E', array=self.lambda_field)
         col2 = pyfits.Column(name='tau', format='E', array=self.tau_field)
         col3 = pyfits.Column(name='flux', format='E', array=self.flux_field)
-        col4 = pyfits.Column(name='flux_error', format='E', array=self._error_func(self.flux_field))
+        col4 = pyfits.Column(name='flux_error', format='E', array=self.error_func(self.flux_field))
         cols = pyfits.ColDefs([col1, col2, col3, col4])
         tbhdu = pyfits.BinTableHDU.from_columns(cols)
         tbhdu.writeto(filename, overwrite=True)
@@ -695,21 +766,6 @@ class AbsorptionSpectrum(object):
         output.create_dataset('wavelength', data=self.lambda_field)
         output.create_dataset('tau', data=self.tau_field)
         output.create_dataset('flux', data=self.flux_field)
-        output.create_dataset('flux_error', data=self._error_func(self.flux_field))
+        output.create_dataset('flux_error', data=self.error_func(self.flux_field))
         output.close()
 
-    def _error_func(self, flux):
-        """
-        Many observational analysis programs require a flux error channel
-        in addition to a flux channel.  So we create a zeroth order 
-        approximation of the flux error, simply by taking the square root
-        of the flux.  Unfortunately, with flux normalized to be < 1, this
-        would result in errors larger than the flux values themselves,
-        so we normalize by an arbitrary signal-to-noise ratio, which by default
-        is set to 100.  This yields a typical error for a normalized spectrum of
-        sqrt(1.0*100)/100 = 0.1.  This assures our flux errors are smaller 
-        than our fluxes for most flux reasonable flux values.  Note that 
-        when a signal to noise ratio is specified for adding gaussian noise,
-        it uses this updated value for estimating the errors.
-        """
-        return np.sqrt(flux*self.snr)/self.snr
