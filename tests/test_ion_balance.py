@@ -29,6 +29,7 @@ import tempfile
 import shutil
 from trident.testing import \
     answer_test_data_dir
+import os
 
 import numpy as np
 
