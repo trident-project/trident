@@ -21,27 +21,27 @@ Version 1.1
   repository history (e.g., commits, versions, tags, etc.) is retained under
   this transition. For users operating on the development branch of
   Trident, you must re-install Trident in order to continue to get updates.
-  The installation instructions were updated accordingly.
+  The :ref:`installation instructions <installation>` were updated accordingly.
 - We totally rebuilt the testing interface to Trident, which includes
   more coverage in unit tests and answer tests over both grid-based and
-  particle-based datasets.  We now have continuous integration through Travis
-  that tests the code daily and with each new pull request to assure
-  consistent code results and to minimize bugs.  For more information, see
-  :ref:`testing`.
-- Much of the original Trident codebase was developed in yt as base the classes
-  :class:`~trident.AbsorptionSpectrum` and :class:`~trident.LightRay`.
-  We have now stripped these classes out of yt and moved them entirely into
-  Trident for more flexibility, stability, and autonomy moving forward.  This
-  should not affect the user as these changes were behind the scenes.
+  particle-based datasets.  We now have continuous integration through
+  `Travis <https://travis-ci.org/trident-project/trident>`_ that tests the code
+  daily and with each new pull request to assure consistent code results and to
+  minimize bugs.  For more information, see :ref:`testing`.
+- Much of the original Trident codebase was developed in yt as the base classes
+  :class:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum`
+  and :class:`~trident.LightRay`.  We have now stripped these classes out of
+  yt and moved them entirely into Trident for more flexibility, stability, and
+  autonomy moving forward.  This should not affect the user as these changes
+  were behind the scenes.
 - Added ``store_observables`` keyword to
-  :func:`~trident.SpectrumGenerator.make_spectrum`` to store a
+  :func:`~trident.SpectrumGenerator.make_spectrum` to store a
   dictionary of observable properties (e.g., tau, column density, and thermal_b)
   for each cell along a line of sight for use in post-processing.  See source
-  of :func:`~trident.SpectrumGenerator._add_lines_to_spectrum` for more
-  information.
+  of :class:`~trident.SpectrumGenerator` for more information.
 - Added an approximate ``flux_error`` field to output spectra, since many
   observational tools require its presence.  See
-  :func:`~trident.AbsorptionSpectrum._error_func` for more details.
+  :func:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum.error_func` for more details.
 - Made ``min_tau`` a keyword to
   :func:`~trident.SpectrumGenerator.make_spectrum` to enable higher precision
   (although more time intensive) absorption line deposition.
