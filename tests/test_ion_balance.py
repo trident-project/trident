@@ -12,21 +12,31 @@ Tests for ion balance code
 #-----------------------------------------------------------------------------
 
 from __future__ import absolute_import
-import trident as tri
 from trident.ion_balance import \
     add_ion_fraction_field, \
     add_ion_number_density_field, \
     add_ion_density_field, \
-    add_ion_mass_field
-import yt
+    add_ion_mass_field, \
+    add_ion_fields
+from yt import \
+    load, \
+    SlicePlot
 from yt.testing import \
     fake_random_ds, \
     fake_amr_ds, \
     fake_particle_ds
 import tempfile
 import shutil
+from trident.testing import \
+    answer_test_data_dir
+import os
 
 import numpy as np
+
+ISO_GALAXY = os.path.join(answer_test_data_dir, 
+                'IsolatedGalaxy/galaxy0030/galaxy0030')
+FIRE_SIM = os.path.join(answer_test_data_dir,
+                'FIRE_M12i_ref11/snapshot_600.hdf5')
 
 def test_add_ion_fraction_field_to_grid_ds():
     """
@@ -44,7 +54,7 @@ def test_add_ion_fraction_field_to_grid_ds():
     assert isinstance(ad[field], np.ndarray)
 
     dirpath = tempfile.mkdtemp()
-    yt.SlicePlot(ds, 'x', field).save(dirpath)
+    SlicePlot(ds, 'x', field).save(dirpath)
     shutil.rmtree(dirpath)
 
 def test_add_ion_number_density_field_to_grid_ds():
@@ -63,7 +73,7 @@ def test_add_ion_number_density_field_to_grid_ds():
     assert isinstance(ad[field], np.ndarray)
 
     dirpath = tempfile.mkdtemp()
-    yt.SlicePlot(ds, 'x', field).save(dirpath)
+    SlicePlot(ds, 'x', field).save(dirpath)
     shutil.rmtree(dirpath)
 
 def test_add_ion_density_field_to_grid_ds():
@@ -82,7 +92,7 @@ def test_add_ion_density_field_to_grid_ds():
     assert isinstance(ad[field], np.ndarray)
 
     dirpath = tempfile.mkdtemp()
-    yt.SlicePlot(ds, 'x', field).save(dirpath)
+    SlicePlot(ds, 'x', field).save(dirpath)
     shutil.rmtree(dirpath)
 
 def test_add_ion_mass_field_to_grid_ds():
@@ -101,7 +111,7 @@ def test_add_ion_mass_field_to_grid_ds():
     assert isinstance(ad[field], np.ndarray)
 
     dirpath = tempfile.mkdtemp()
-    yt.SlicePlot(ds, 'x', field).save(dirpath)
+    SlicePlot(ds, 'x', field).save(dirpath)
     shutil.rmtree(dirpath)
 
 def test_add_ion_fraction_fields_to_amr_ds():
@@ -118,7 +128,7 @@ def test_add_ion_fraction_fields_to_amr_ds():
     assert isinstance(ad[field], np.ndarray)
 
     dirpath = tempfile.mkdtemp()
-    yt.SlicePlot(ds, 'x', field).save(dirpath)
+    SlicePlot(ds, 'x', field).save(dirpath)
     shutil.rmtree(dirpath)
 
 def test_add_ion_number_density_fields_to_amr_ds():
@@ -135,7 +145,7 @@ def test_add_ion_number_density_fields_to_amr_ds():
     assert isinstance(ad[field], np.ndarray)
 
     dirpath = tempfile.mkdtemp()
-    yt.SlicePlot(ds, 'x', field).save(dirpath)
+    SlicePlot(ds, 'x', field).save(dirpath)
     shutil.rmtree(dirpath)
 
 def test_add_ion_density_fields_to_amr_ds():
@@ -152,7 +162,7 @@ def test_add_ion_density_fields_to_amr_ds():
     assert isinstance(ad[field], np.ndarray)
 
     dirpath = tempfile.mkdtemp()
-    yt.SlicePlot(ds, 'x', field).save(dirpath)
+    SlicePlot(ds, 'x', field).save(dirpath)
     shutil.rmtree(dirpath)
 
 def test_add_ion_mass_fields_to_amr_ds():
@@ -169,7 +179,7 @@ def test_add_ion_mass_fields_to_amr_ds():
     assert isinstance(ad[field], np.ndarray)
 
     dirpath = tempfile.mkdtemp()
-    yt.SlicePlot(ds, 'x', field).save(dirpath)
+    SlicePlot(ds, 'x', field).save(dirpath)
     shutil.rmtree(dirpath)
 
 def test_add_ion_fields_to_grid_ds():
@@ -183,7 +193,7 @@ def test_add_ion_fields_to_grid_ds():
     ftype = 'stream'
     ad = ds.all_data()
     ions = ['H', 'O', 'N V']
-    tri.add_ion_fields(ds, ions, ftype='stream')
+    add_ion_fields(ds, ions, ftype='stream')
     fields = ['H_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
     # Assure that a sampling of fields are added and can be sliced
     dirpath = tempfile.mkdtemp()
@@ -191,7 +201,7 @@ def test_add_ion_fields_to_grid_ds():
         field = (ftype, field)
         assert field in ds.derived_field_list
         assert isinstance(ad[field], np.ndarray)
-        yt.SlicePlot(ds, 'x', field).save(dirpath)
+        SlicePlot(ds, 'x', field).save(dirpath)
     shutil.rmtree(dirpath)
 
 def test_add_all_ion_fields_to_grid_ds():
@@ -204,7 +214,7 @@ def test_add_all_ion_fields_to_grid_ds():
                                    'cm/s', 'K', ''))
     ftype = 'stream'
     ad = ds.all_data()
-    tri.add_ion_fields(ds, 'all', ftype='stream')
+    add_ion_fields(ds, 'all', ftype='stream')
     fields = ['H_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
     # Assure that a sampling of fields are added and can be sliced
     dirpath = tempfile.mkdtemp()
@@ -212,7 +222,7 @@ def test_add_all_ion_fields_to_grid_ds():
         field = (ftype, field)
         assert field in ds.derived_field_list
         assert isinstance(ad[field], np.ndarray)
-        yt.SlicePlot(ds, 'x', field).save(dirpath)
+        SlicePlot(ds, 'x', field).save(dirpath)
     shutil.rmtree(dirpath)
 
 def test_add_all_ion_fields_to_grid_ds_from_file():
@@ -225,7 +235,7 @@ def test_add_all_ion_fields_to_grid_ds_from_file():
                                    'cm/s', 'K', ''))
     ftype = 'stream'
     ad = ds.all_data()
-    tri.add_ion_fields(ds, 'all', ftype='stream', line_database='lines.txt')
+    add_ion_fields(ds, 'all', ftype='stream', line_database='lines.txt')
     fields = ['H_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
     # Assure that a sampling of fields are added and can be sliced
     dirpath = tempfile.mkdtemp()
@@ -233,7 +243,7 @@ def test_add_all_ion_fields_to_grid_ds_from_file():
         field = (ftype, field)
         assert field in ds.derived_field_list
         assert isinstance(ad[field], np.ndarray)
-        yt.SlicePlot(ds, 'x', field).save(dirpath)
+        SlicePlot(ds, 'x', field).save(dirpath)
     shutil.rmtree(dirpath)
 
 def test_add_all_ion_fields_to_amr_ds():
@@ -245,7 +255,7 @@ def test_add_all_ion_fields_to_amr_ds():
     ftype = 'stream'
     ad = ds.all_data()
     ions = ['H', 'O', 'N V']
-    tri.add_ion_fields(ds, ions, ftype='stream')
+    add_ion_fields(ds, ions, ftype='stream')
     fields = ['H_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
     # Assure that a sampling of fields are added and can be sliced
     dirpath = tempfile.mkdtemp()
@@ -253,15 +263,15 @@ def test_add_all_ion_fields_to_amr_ds():
         field = (ftype, field)
         assert field in ds.derived_field_list
         assert isinstance(ad[field], np.ndarray)
-        yt.SlicePlot(ds, 'x', field).save(dirpath)
+        SlicePlot(ds, 'x', field).save(dirpath)
     shutil.rmtree(dirpath)
 
 def test_add_ion_fields_to_enzo():
     """
     Test to add various ion fields to Enzo dataset and slice on them
     """
-    ds = yt.load('IsolatedGalaxy/galaxy0030/galaxy0030')
-    tri.add_ion_fields(ds, ['H', 'O VI'], ftype='gas')
+    ds = load(ISO_GALAXY)
+    add_ion_fields(ds, ['H', 'O VI'], ftype='gas')
     ad = ds.all_data()
     fields = ['H_p0_number_density', 'O_p5_density']
     # Assure that a sampling of fields are added and can be sliced
@@ -270,15 +280,15 @@ def test_add_ion_fields_to_enzo():
         field = ('gas', field)
         assert field in ds.derived_field_list
         assert isinstance(ad[field], np.ndarray)
-        yt.SlicePlot(ds, 'x', field).save(dirpath)
+        SlicePlot(ds, 'x', field).save(dirpath)
     shutil.rmtree(dirpath)
 
 def test_add_ion_fields_to_gizmo():
     """
     Test to add various ion fields to gizmo dataset and slice on them
     """
-    ds = yt.load('FIRE_M12i_ref11/snapshot_600.hdf5')
-    tri.add_ion_fields(ds, ['H', 'O VI'], ftype='PartType0')
+    ds = load(FIRE_SIM)
+    add_ion_fields(ds, ['H', 'O VI'], ftype='PartType0')
     ad = ds.all_data()
     fields = ['H_ion_fraction', 'O_p5_mass']
     # Assure that a sampling of fields are added and can be sliced
@@ -287,5 +297,5 @@ def test_add_ion_fields_to_gizmo():
         field = ('gas', field)
         assert field in ds.derived_field_list
         assert isinstance(ad[field], np.ndarray)
-        yt.SlicePlot(ds, 'x', field).save(dirpath)
+        SlicePlot(ds, 'x', field).save(dirpath)
     shutil.rmtree(dirpath)

@@ -31,7 +31,7 @@ from trident.testing import \
 
 # Datasets required for running some answer tests
 enzo_small = os.path.join(answer_test_data_dir, 'enzo_small')
-FIRE = os.path.join(answer_test_data_dir, 'FIRE_M12I_ref11/snapshot_600.hdf5')
+FIRE = os.path.join(answer_test_data_dir, 'FIRE_M12i_ref11/snapshot_600.hdf5')
 err_precision = 8
 
 def test_verify():

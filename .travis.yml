@@ -26,7 +26,7 @@ env:
     TRIDENT_ION_DATA=$HOME/.trident
     TRIDENT_ANSWER_DATA=$HOME/answer_test_data
     YT_GOLD=38b79c094ca9
-    TRIDENT_GOLD=gold-standard-v1
+    TRIDENT_GOLD=test-standard-v2
 
 matrix:
   include:
