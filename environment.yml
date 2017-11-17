@@ -44,6 +44,6 @@ dependencies:
   - simplegeneric==0.8.1
   - sympy==1.0
   - traitlets==4.3.2
-  - trident==1.0.1
+  - trident==1.1
   - wcwidth==0.1.7
-  - yt==3.3.5
+  - yt==3.4.0
