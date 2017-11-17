@@ -58,7 +58,7 @@ valid_instruments = \
 
 class SpectrumGenerator(AbsorptionSpectrum):
     """
-    Class for generating, storing, and plotting absorption-line spectra.
+    Preferred class for generating, storing, and plotting absorption-line spectra.
     SpectrumGenerator is a subclass of yt's AbsorptionSpectrum class
     with additional functionality like line lists, post-processing to
     include Milky Way foreground, quasar backgrounds, applying line-spread

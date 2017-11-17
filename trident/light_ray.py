@@ -52,32 +52,43 @@ class LightRay(CosmologySplice):
     begin making rays.  Different randomizations can be created with a
     single object by providing different random seeds to make_light_ray.
 
-    Parameters
-    ----------
-    parameter_filename : string or :class:`~yt.data_objects.static_output.Dataset`
+    **Parameters**
+
+    :parameter_filename: string or :class:`~yt.data_objects.static_output.Dataset`
+
         For simple rays, one may pass either a loaded dataset object or
         the filename of a dataset.
         For compound rays, one must pass the filename of the simulation
         parameter file.
-    simulation_type : optional, string
+
+    :simulation_type: optional, string
+
         This refers to the simulation frontend type.  Do not use for simple 
         rays.
         Default: None
-    near_redshift : optional, float
+
+    :near_redshift: optional, float
+
         The near (lowest) redshift for a light ray containing multiple
         datasets.  Do not use for simple rays.
         Default: None
-    far_redshift : optional, float
+
+    :far_redshift: optional, float
+
         The far (highest) redshift for a light ray containing multiple
         datasets.  Do not use for simple rays.
         Default: None
-    use_minimum_datasets : optional, bool
+
+    :use_minimum_datasets: optional, bool
+
         If True, the minimum number of datasets is used to connect the
         initial and final redshift.  If false, the light ray solution
         will contain as many entries as possible within the redshift
         interval.  Do not use for simple rays.
         Default: True.
-    max_box_fraction : optional, float
+
+    :max_box_fraction: optional, float
+
         In terms of the size of the domain, the maximum length a light
         ray segment can be in order to span the redshift interval from
         one dataset to another.  If using a zoom-in simulation, this
@@ -86,30 +97,42 @@ class LightRay(CosmologySplice):
         high resolution region is not cubical, the smallest side
         should be used.
         Default: 1.0 (the size of the box)
-    deltaz_min : optional, float
+
+    :deltaz_min: optional, float
+
         Specifies the minimum :math:`\Delta z` between consecutive
         datasets in the returned list.  Do not use for simple rays.
         Default: 0.0.
-    minimum_coherent_box_fraction : optional, float
+
+    :minimum_coherent_box_fraction: optional, float
+
         Use to specify the minimum length of a ray, in terms of the
         size of the domain, before the trajectory is re-randomized.
         Set to 0 to have ray trajectory randomized for every dataset.
         Set to np.inf (infinity) to use a single trajectory for the
         entire ray.
         Default: 0.
-    time_data : optional, bool
+
+    :time_data: optional, bool
+
         Whether or not to include time outputs when gathering
         datasets for time series.  Do not use for simple rays.
         Default: True.
-    redshift_data : optional, bool
+
+    :redshift_data: optional, bool
+
         Whether or not to include redshift outputs when gathering
         datasets for time series.  Do not use for simple rays.
         Default: True.
-    find_outputs : optional, bool
+
+    :find_outputs: optional, bool
+
         Whether or not to search for datasets in the current
         directory.  Do not use for simple rays.
         Default: False.
-    load_kwargs : optional, dict
+
+    :load_kwargs: optional, dict
+
         If you are passing a filename of a dataset to LightRay rather than an 
         already loaded dataset, then you can optionally provide this dictionary 
         as keywords when the dataset is loaded by yt with the "load" function.
@@ -117,7 +140,6 @@ class LightRay(CosmologySplice):
         Tipsy using "bounding_box"
         Gadget using "unit_base", etc.
         Default : None
-
     """
     def __init__(self, parameter_filename, simulation_type=None,
                  near_redshift=None, far_redshift=None,
@@ -297,82 +319,110 @@ class LightRay(CosmologySplice):
         intersected by the ray and the path length of the ray through
         those cells. Light ray data must be written out to an hdf5 file.
 
-        Parameters
-        ----------
-        seed : optional, int
+        **Parameters**
+        
+        :seed: optional, int
+
             Seed for the random number generator.
             Default: None.
-        periodic : optional, bool
+
+        :periodic: optional, bool
+        
             If True, ray trajectories will make use of periodic
             boundaries.  If False, ray trajectories will not be
             periodic.
             Default : True.
-        left_edge : optional, iterable of floats or YTArray
+
+        :left_edge: optional, iterable of floats or YTArray
+
             The left corner of the region in which rays are to be
             generated.  If None, the left edge will be that of the
             domain.  If specified without units, it is assumed to
             be in code units.
             Default: None.
-        right_edge : optional, iterable of floats or YTArray
+
+        :right_edge: optional, iterable of floats or YTArray
+
             The right corner of the region in which rays are to be
             generated.  If None, the right edge will be that of the
             domain.  If specified without units, it is assumed to
             be in code units.
             Default: None.
-        min_level : optional, int
+
+        :min_level: optional, int
+
             The minimum refinement level of the spatial region in which
             the ray passes.  This can be used with zoom-in simulations
             where the high resolution region does not keep a constant
             geometry.
             Default: None.
-        start_position : optional, iterable of floats or YTArray.
+
+        :start_position: optional, iterable of floats or YTArray.
+
             Used only if creating a light ray from a single dataset.
             The coordinates of the starting position of the ray.
             If specified without units, it is assumed to be in code units.
             Default: None.
-        end_position : optional, iterable of floats or YTArray.
+
+        :end_position: optional, iterable of floats or YTArray.
+
             Used only if creating a light ray from a single dataset.
             The coordinates of the ending position of the ray.
             If specified without units, it is assumed to be in code units.
             Default: None.
-        trajectory : optional, list of floats
+
+        :trajectory: optional, list of floats
+
             Used only if creating a light ray from a single dataset.
             The (r, theta, phi) direction of the light ray.  Use either
             end_position or trajectory, not both.
             Default: None.
-        fields : optional, list
+
+        :fields: optional, list
+
             A list of fields for which to get data.
             Default: None.
-        setup_function : optional, callable, accepts a ds
+
+        :setup_function: optional, callable, accepts a ds
+
             This function will be called on each dataset that is loaded
             to create the light ray.  For, example, this can be used to
             add new derived fields.
             Default: None.
-        solution_filename : optional, string
+
+        :solution_filename: optional, string
+
             Path to a text file where the trajectories of each
             subray is written out.
             Default: None.
-        data_filename : optional, string
+
+        :data_filename: optional, string
+
             Path to output file for ray data.
             Default: None.
-        use_peculiar_velocity : optional, bool
+
+        :use_peculiar_velocity: optional, bool
+
             If True, the peculiar velocity along the ray will be sampled for
             calculating the effective redshift combining the cosmological
             redshift and the doppler redshift.
             Default: True.
-        redshift : optional, float
+
+        :redshift: optional, float
+
             Used with light rays made from single datasets to specify a
             starting redshift for the ray.  If not used, the starting
             redshift will be 0 for a non-cosmological dataset and
             the dataset redshift for a cosmological dataset.
             Default: None.
-        njobs : optional, int
+
+        :njobs: optional, int
+
             The number of parallel jobs over which the segments will
             be split.  Choose -1 for one processor per segment.
             Default: -1.
 
-        Examples
-        --------
+        **Examples**
 
         Make a light ray from multiple datasets:
 
