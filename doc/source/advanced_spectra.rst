@@ -13,7 +13,7 @@ setting these properties and shows what impact it has on resulting spectra.
 For this demonstation, we'll be using a light ray passing through a very dense
 disk of gas, taken from the initial output from the AGORA isolated box 
 simulation using ART-II in `Kim et al. (2016)
-<http://adsabs.harvard.edu/abs/2016arXiv161003066K>`_.
+<http://adsabs.harvard.edu/abs/2016ApJ...833..202K>`_.
 If you'd like to try to reproduce the spectra included below you can get 
 the :class:`~trident.LightRay` file from the Trident sample data using the 
 command:

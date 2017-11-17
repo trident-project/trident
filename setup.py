@@ -11,7 +11,7 @@ def read(fname):
 
 setup(
     name = "trident",
-    version = "1.1.0.dev1",
+    version = "1.1.0",
     author = "Cameron Hummels, Devin Silvia, Britton Smith",
     author_email = "trident-project-users@googlegroups.com",
     description = ("Spectrum generator for astrophysical simulation data"),
@@ -33,10 +33,11 @@ spectra from astrophysical hydrodynamical data"""),
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
         "Topic :: Scientific/Engineering :: Astronomy",
         "Topic :: Scientific/Engineering :: Physics",
         "Topic :: Scientific/Engineering :: Visualization",
     ],
-    install_requires=['yt>=3.3.5', 'h5py', 'numpy', 'matplotlib', 'astropy', 'requests', 'setuptools', 'future'],
+    install_requires=['yt>=3.4.0', 'h5py', 'numpy', 'matplotlib', 'astropy', 'requests', 'setuptools', 'future'],
 )
