@@ -18,6 +18,7 @@ from six.moves import \
     input
 import shutil
 import tempfile
+import sys
 
 from trident.utilities import \
     ensure_directory, \
