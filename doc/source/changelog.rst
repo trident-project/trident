@@ -41,13 +41,20 @@ Version 1.1
   of :class:`~trident.SpectrumGenerator` for more information.
 - Added an approximate ``flux_error`` field to output spectra, since many
   observational tools require its presence.  See
-  :func:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum.error_func` for more details.
+  :func:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum.error_func`
+  for more details.
 - Made ``min_tau`` a keyword to
   :func:`~trident.SpectrumGenerator.make_spectrum` to enable higher precision
   (although more time intensive) absorption line deposition.
 - Added ability to specify an arbitrary noise vector with
   :func:`~trident.SpectrumGenerator.add_noise_vector`.
-- A `related bugfix <https://github.com/astropy/astropy/pull/5782>`_ was made
+- A `bugfix <https://github.com/yt-project/yt/pull/1611>`_ was made
+  in yt to the temperature field for Gadget-based code outputs.  The internal
+  energy field was mistakenly being read in co-moving instead of physical units,
+  which led to gas temperatures being low by a factor of (1+z).
+  This is now resolved in yt dev and thus we recommend Trident users use
+  yt dev until yt 3.5 stable is released.
+- `Another bugfix <https://github.com/astropy/astropy/pull/5782>`_ was made
   in Trident dependency `astropy <https://github.com/astropy/astropy/>`_ to
   the convolve function, which is used in
   :func:`~trident.SpectrumGenerator.apply_lsf`.  This may cause slight
