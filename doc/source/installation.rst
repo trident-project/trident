@@ -10,18 +10,22 @@ Follow these steps to successfully install Trident and its dependencies.
 Versions of Trident
 -------------------
 
-Currently, there are two versions of Trident: the `stable version 
-<http://trident.readthedocs.io/en/stable>`_, and the `developent version
-<http://trident.readthedocs.io/en/latest>`_.  The stable version is tried,
-and tested, and it normally operates on a stable version of yt.  The development 
-version is actively being updated with new features, and it is also tied to
-the development version of yt, so occasionally unforseen bugs can crop
-up as these new features are added.  
-The installation steps are slightly different between the two versions,
-so pay attention in the steps below.
-Don't worry if you want to change later, you can always 
-switch between the two versions easily enough by following the directions
-in :ref:`uninstallation`.
+Currently, there are three versions of Trident: the `stable version
+<http://trident.readthedocs.io/en/stable>`_, the `developent version
+<http://trident.readthedocs.io/en/latest>`_, and the `demeshening version
+<https://nbviewer.jupyter.org/url/trident-project.org/notebooks/trident_demesh_install.ipynb>`_.
+The stable version is tried and tested, and it normally operates on a stable
+version of yt.  The development version is actively being updated with new
+features, and it is also tied to the development version of yt, so occasionally
+unforseen bugs can crop up as these new features are added.
+The demeshening version is a variant of Trident for treating particle-based
+datasets more natively.  For more information about the demeshening and full
+installation instructions, please see our `demeshening notebook
+<https://nbviewer.jupyter.org/url/trident-project.org/notebooks/trident_demesh_install.ipynb>`_.
+The installation steps are slightly different between the three versions,
+so pay attention in the steps below.  Don't worry if you want to change later,
+you can always switch between the two versions easily enough by following the
+directions in :ref:`uninstallation`.
 
 .. warning::
 
