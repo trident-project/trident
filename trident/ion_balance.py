@@ -30,8 +30,6 @@ from trident.config import \
 from trident.line_database import \
     LineDatabase, \
     uniquify
-from trident.utilities import \
-    _determine_dataset_sampling_type
 from trident.roman import \
     from_roman
 
@@ -132,27 +130,6 @@ def _log_T(field, data):
     else:
         ftype = "gas"
     return np.log10(data[ftype, "temperature"])
-
-def _determine_sampling_type(ds, sampling_type, particle_type):
-    """
-    Helper function for figuring out the field type used for ion balance
-    fields.
-    """
-    if particle_type is not None:
-        warnings.warn('The "particle_type" keyword is deprecated. '
-                      'Please use "sampling_type" instead.', stacklevel=2)
-        sampling_type = None
-
-    if sampling_type == 'auto' or particle_type == 'auto':
-        sampling_type = _determine_dataset_sampling_type(ds)
-
-    if particle_type is not None:
-        if particle_type:
-            sampling_type = "particle"
-        else:
-            sampling_type = "cell"
-
-    return sampling_type
 
 def add_ion_fields(ds, ions, ftype='gas', 
                    ionization_table=None, 
@@ -285,8 +262,7 @@ def add_ion_fields(ds, ions, ftype='gas',
     >>> trident.add_ion_fields(ds, ions=['H II', 'C III', 'Mg'])
     """
     ion_list = []
-    sampling_type = \
-      _determine_sampling_type(ds, sampling_type, particle_type)
+    sampling_type = "local"
 
     if ionization_table is None:
         ionization_table = ion_table_filepath
@@ -422,8 +398,7 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
     >>> yt.ProjectionPlot(ds, 'x', 'C_p3_ion_fraction').save()
     """
 
-    sampling_type = \
-      _determine_sampling_type(ds, sampling_type, particle_type)
+    sampling_type = "local"
 
     if ionization_table is None:
         ionization_table = ion_table_filepath
@@ -469,7 +444,7 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
         ds.derived_field_list.append((ftype, alias_field))
 
     # if ion particle field, add a smoothed deposited version to gas fields
-    if sampling_type == 'particle':
+    if sampling_type == 'local':
         new_field = (ftype, field)
         if ftype != "gas":
             ds.field_info.alias(("gas", field), new_field)
@@ -577,8 +552,7 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
     >>> yt.ProjectionPlot(ds, 'x', 'C_p3_number_density').save()
     """
 
-    sampling_type = \
-      _determine_sampling_type(ds, sampling_type, particle_type)
+    sampling_type = "local"
 
     if ionization_table is None:
         ionization_table = ion_table_filepath
@@ -606,7 +580,7 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
         ds.derived_field_list.append((ftype, alias_field))
 
     # if ion particle field, add a smoothed deposited version to gas fields
-    if sampling_type == 'particle':
+    if sampling_type == 'local':
         new_field = (ftype, field)
         if ftype != "gas":
             ds.field_info.alias(("gas", field), new_field)
@@ -714,8 +688,7 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
     >>> yt.ProjectionPlot(ds, 'x', 'C_p3_density').save()
     """
 
-    sampling_type = \
-      _determine_sampling_type(ds, sampling_type, particle_type)
+    sampling_type = "local"
 
     if ionization_table is None:
         ionization_table = ion_table_filepath
@@ -744,7 +717,7 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
         ds.derived_field_list.append((ftype, alias_field))
 
     # if ion particle field, add a smoothed deposited version to gas fields
-    if sampling_type == 'particle':
+    if sampling_type == 'local':
         new_field = (ftype, field)
         if ftype != "gas":
             ds.field_info.alias(("gas", field), new_field)
@@ -853,8 +826,7 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
     >>> yt.ProjectionPlot(ds, 'x', 'C_p3_mass').save()
     """
 
-    sampling_type = \
-      _determine_sampling_type(ds, sampling_type, particle_type)
+    sampling_type = "local"
 
     if ionization_table is None:
         ionization_table = ion_table_filepath
@@ -883,7 +855,7 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
         ds.derived_field_list.append((ftype, alias_field))
 
     # if ion particle field, add a smoothed deposited version to gas fields
-    if sampling_type == 'particle':
+    if sampling_type == 'local':
         new_field = (ftype, field)
         if ftype != "gas":
             ds.field_info.alias(("gas", field), new_field)
@@ -904,18 +876,10 @@ def _ion_mass(field, data):
     else:
         ftype = "gas"
         field_name = field.name
-    atom = field_name.split("_")[0]
     prefix = field_name.split("_mass")[0]
     suffix = field_name.split("_mass")[-1]
-    density_field_name = "%s_density%s" % (prefix, suffix)
-    if data.ds.field_info[
-            (ftype, density_field_name)].sampling_type == "particle":
-        fraction_field_name = "%s_ion_fraction%s" % (prefix, suffix)
-        return data[ftype, fraction_field_name] * \
-          data[ftype, "particle_mass"]
-    else:
-        return data[ftype, density_field_name] * \
-          data[ftype, "cell_volume"]
+    fraction_field_name = "%s_ion_fraction%s" % (prefix, suffix)
+    return data[ftype, fraction_field_name] * data["gas", "mass"]
 
 def _ion_density(field, data):
     """
