@@ -207,7 +207,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
             else:
                 raise RuntimeError("ionization_table %s is not found in local "
                                    "directory or in %s" %
-                                   (filename.split('/')[-1],
+                                   (ion_table_file.split(os.sep)[-1],
                                     ion_table_dir))
         else:
             self.ionization_table = None
