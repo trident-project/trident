@@ -227,11 +227,11 @@ class LineDatabase:
         # if not, look in cwd
         filename = os.path.join(trident_path(), "data", "line_lists", filename)
         if not os.path.isfile(filename):
-            filename = filename.split('/')[-1]
+            filename = filename.split(os.sep)[-1]
         if not os.path.isfile(filename):
             raise RuntimeError("line_list %s is not found in local "
                                "directory or in trident/data/line_lists "
-                               % (filename.split('/')[-1]))
+                               % (filename.split(os.sep)[-1]))
 
         # Step through each line of text in file and add to database
         for line in open(filename).readlines():

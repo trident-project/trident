@@ -95,7 +95,7 @@ def download_file(url, progress_bar=True, local_directory=None,
 
     # Set defaults
     if local_filename is None:
-        local_filename = url.split('/')[-1]
+        local_filename = url.split(os.sep)[-1]
     if local_directory is None:
         local_directory = '.'
     ensure_directory(local_directory)
@@ -464,8 +464,8 @@ def import_check():
     """
     """
     # Avoid astropy error when importing from trident package directory.
-    plist = os.path.dirname(os.path.abspath(__file__)).split('/')
-    package_path = '/'.join(plist[:-1])
+    plist = os.path.dirname(os.path.abspath(__file__)).split(os.sep)
+    package_path = os.sep.join(plist[:-1])
     if os.getcwd() == package_path:
         raise RuntimeError(
             """
