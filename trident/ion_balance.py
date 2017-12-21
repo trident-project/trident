@@ -173,14 +173,6 @@ def add_ion_fields(ds, ions, ftype='gas',
     photoionization in the optically thin limit from a redshift-dependent
     metagalactic ionizing background using the ionization_table specified.
 
-    **WARNING**: The "ftype" must match the field type that you're using for
-    the field interpolation.  So for particle-based codes, this must be the
-    ftype of the gas particles (e.g., `PartType0`, `Gas`).  Using the
-    default of `gas` in this instance will interpolate on the grid-based
-    fields, which will give the wrong answers for particle-based codes,
-    since the ion field interpolation will take place on the already
-    deposited grid-based fields.
-
     **Parameters**
 
     :ds: yt dataset object
@@ -199,14 +191,6 @@ def add_ion_fields(ds, ions, ftype='gas',
             (ie hydrogen to zinc).  If set to 'all' with ``line_database``
             keyword set, then creates **all** ions associated with the lines
             specified in the equivalent :class:`~trident.LineDatabase`.
-
-    :ftype: string, optional
-
-        The field type of the field to add.  it is the first string in the 
-        field tuple e.g. "gas" in ("gas", "O_p5_ion_fraction")
-        ftype must correspond to the ftype of the 'density', and 'temperature'
-        fields in your dataset you wish to use to generate the ion field.
-        Default: "gas"
 
     :ionization_table: string, optional
 
@@ -235,20 +219,20 @@ def add_ion_fields(ds, ions, ftype='gas',
         remain untouched.
         Default: False
 
+    :ftype: string, optional
+
+        This is deprecated and no longer necessary since all relevant 
+        fields are aliased to the 'gas' ftype.
+        Default: 'gas'
+
     :sampling_type: string, optional
 
-        Set to 'particle' if the field should be for particles.
-        Set to 'cell' if the field should be for grids/cells.
-        Set to 'auto' for this to be determined automatically.
-        Default: 'auto'
+        This is deprecated and no longer necessary.
+        Default: 'local'
 
     :particle_type: boolean, optional
 
-        This is deprecated in favor of 'sampling_type'.
-        Set to True if you are adding ion fields to particles, as specified
-        by the 'ftype'.  Set to False if you are not.  Set to 'auto', if
-        you want the code to autodetermine if the field specified by the
-        'ftype' is particle or not.
+        This is deprecated and no longer necessary.
         Default: 'auto'
 
     **Example**
@@ -301,9 +285,8 @@ def add_ion_fields(ds, ions, ftype='gas',
     # - X_P#_number_density
     # - X_P#_density
     for (atom, ion) in ion_list:
-        add_ion_mass_field(atom, ion, ds, ftype, ionization_table,
-            field_suffix=field_suffix, force_override=force_override, 
-            sampling_type=sampling_type)
+        add_ion_mass_field(atom, ion, ds, ionization_table,
+            field_suffix=field_suffix, force_override=force_override)
 
 def add_ion_fraction_field(atom, ion, ds, ftype="gas",
                            ionization_table=None,
@@ -327,14 +310,6 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
     photoionization in the optically thin limit from a redshift-dependent
     metagalactic ionizing background using the ionization_table specified.
 
-    **WARNING**: The "ftype" must match the field type that you're using for
-    the field interpolation.  So for particle-based codes, this must be the
-    ftype of the gas particles (e.g., `PartType0`, `Gas`).  Using the
-    default of `gas` in this instance will interpolate on the grid-based
-    fields, which will give the wrong answers for particle-based codes,
-    since the ion field interpolation will take place on the already
-    deposited grid-based fields.
-
     **Parameters**
 
     :atom: string
@@ -348,11 +323,10 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
         This is the dataset to which the ion fraction field will be added.
 
     :ftype: string, optional
-        The field type of the field to add.  it is the first string in the 
-        field tuple e.g. "gas" in ("gas", "O_p5_ion_fraction")
-        ftype must correspond to the ftype of the 'density', and 'temperature'
-        fields in your dataset you wish to use to generate the ion field.
-        Default: "gas"
+
+        This is deprecated and no longer necessary since all relevant 
+        fields are aliased to the 'gas' ftype.
+        Default: 'gas'
 
     :ionization_table: string, optional
         Path to an appropriately formatted HDF5 table that can be used to 
@@ -373,18 +347,12 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
 
     :sampling_type: string, optional
 
-        Set to 'particle' if the field should be for particles.
-        Set to 'cell' if the field should be for grids/cells.
-        Set to 'auto' for this to be determined automatically.
-        Default: 'auto'
+        This is deprecated and no longer necessary.
+        Default: 'local'
 
     :particle_type: boolean, optional
 
-        This is deprecated in favor of 'sampling_type'.
-        Set to True if you are adding ion fields to particles, as specified
-        by the 'ftype'.  Set to False if you are not.  Set to 'auto', if
-        you want the code to autodetermine if the field specified by the
-        'ftype' is particle or not.
+        This is deprecated and no longer necessary.
         Default: 'auto'
 
     **Example**
@@ -475,14 +443,6 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
     photoionization in the optically thin limit from a redshift-dependent
     metagalactic ionizing background using the ionization_table specified.
 
-    **WARNING**: The "ftype" must match the field type that you're using for
-    the field interpolation.  So for particle-based codes, this must be the
-    ftype of the gas particles (e.g., `PartType0`, `Gas`).  Using the
-    default of `gas` in this instance will interpolate on the grid-based
-    fields, which will give the wrong answers for particle-based codes,
-    since the ion field interpolation will take place on the already
-    deposited grid-based fields.
-
     **Parameters**
 
     :atom: string
@@ -500,11 +460,9 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
 
     :ftype: string, optional
 
-        The field type of the field to add.  it is the first string in the 
-        field tuple e.g. "gas" in ("gas", "O_p5_ion_fraction")
-        ftype must correspond to the ftype of the 'density', and 'temperature'
-        fields in your dataset you wish to use to generate the ion field.
-        Default: "gas"
+        This is deprecated and no longer necessary since all relevant 
+        fields are aliased to the 'gas' ftype.
+        Default: 'gas'
 
     :ionization_table: string, optional
 
@@ -527,18 +485,12 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
 
     :sampling_type: string, optional
 
-        Set to 'particle' if the field should be for particles.
-        Set to 'cell' if the field should be for grids/cells.
-        Set to 'auto' for this to be determined automatically.
-        Default: 'auto'
+        This is deprecated and no longer necessary.
+        Default: 'local'
 
     :particle_type: boolean, optional
 
-        This is deprecated in favor of 'sampling_type'.
-        Set to True if you are adding ion fields to particles, as specified
-        by the 'ftype'.  Set to False if you are not.  Set to 'auto', if
-        you want the code to autodetermine if the field specified by the
-        'ftype' is particle or not.
+        This is deprecated and no longer necessary.
         Default: 'auto'
 
     **Example**
@@ -611,14 +563,6 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
     photoionization in the optically thin limit from a redshift-dependent
     metagalactic ionizing background using the ionization_table specified.
 
-    **WARNING**: The "ftype" must match the field type that you're using for
-    the field interpolation.  So for particle-based codes, this must be the
-    ftype of the gas particles (e.g., `PartType0`, `Gas`).  Using the
-    default of `gas` in this instance will interpolate on the grid-based
-    fields, which will give the wrong answers for particle-based codes,
-    since the ion field interpolation will take place on the already
-    deposited grid-based fields.
-
     **Parameters**
 
     :atom: string
@@ -636,11 +580,9 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
 
     :ftype: string, optional
 
-        The field type of the field to add.  it is the first string in the 
-        field tuple e.g. "gas" in ("gas", "O_p5_ion_fraction")
-        ftype must correspond to the ftype of the 'density', and 'temperature'
-        fields in your dataset you wish to use to generate the ion field.
-        Default: "gas"
+        This is deprecated and no longer necessary since all relevant 
+        fields are aliased to the 'gas' ftype.
+        Default: 'gas'
 
     :ionization_table: string, optional
 
@@ -663,18 +605,12 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
 
     :sampling_type: string, optional
 
-        Set to 'particle' if the field should be for particles.
-        Set to 'cell' if the field should be for grids/cells.
-        Set to 'auto' for this to be determined automatically.
-        Default: 'auto'
+        This is deprecated and no longer necessary.
+        Default: 'local'
 
     :particle_type: boolean, optional
 
-        This is deprecated in favor of 'sampling_type'.
-        Set to True if you are adding ion fields to particles, as specified
-        by the 'ftype'.  Set to False if you are not.  Set to 'auto', if
-        you want the code to autodetermine if the field specified by the
-        'ftype' is particle or not.
+        This is deprecated and no longer necessary.
         Default: 'auto'
 
     **Example**
@@ -774,11 +710,9 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
 
     :ftype: string, optional
 
-        The field type of the field to add.  it is the first string in the 
-        field tuple e.g. "gas" in ("gas", "O_p5_ion_fraction")
-        ftype must correspond to the ftype of the 'density', and 'temperature'
-        fields in your dataset you wish to use to generate the ion field.
-        Default: "gas"
+        This is deprecated and no longer necessary since all relevant 
+        fields are aliased to the 'gas' ftype.
+        Default: 'gas'
 
     :ionization_table: string, optional
 
@@ -801,18 +735,12 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
 
     :sampling_type: string, optional
 
-        Set to 'particle' if the field should be for particles.
-        Set to 'cell' if the field should be for grids/cells.
-        Set to 'auto' for this to be determined automatically.
-        Default: 'auto'
+        This is deprecated and no longer necessary.
+        Default: 'local'
 
     :particle_type: boolean, optional
 
-        This is deprecated in favor of 'sampling_type'.
-        Set to True if you are adding ion fields to particles, as specified
-        by the 'ftype'.  Set to False if you are not.  Set to 'auto', if
-        you want the code to autodetermine if the field specified by the
-        'ftype' is particle or not.
+        This is deprecated and no longer necessary.
         Default: 'auto'
 
     **Example**
