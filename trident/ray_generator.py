@@ -35,9 +35,6 @@ from yt.data_objects.static_output import \
 from trident.ion_balance import \
     add_ion_number_density_field, \
     atomic_number
-from trident.utilities import \
-    _determine_dataset_sampling_type, \
-    _check_sampling_types_match
 
 def make_simple_ray(dataset_file, start_position, end_position,
                     lines=None, ftype="gas", fields=None, 
@@ -237,7 +234,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
 
         ion_list = _determine_ions_from_lines(line_database, lines)
 
-        sampling_type = _check_sampling_types_match(ds, ftype)
+        sampling_type = "local"
 
         fields, fields_to_add_to_ds = _determine_fields_from_ions(ds, ion_list, 
                                         fields, ftype, sampling_type)
@@ -523,7 +520,7 @@ def make_compound_ray(parameter_filename, simulation_type,
 
         ion_list = _determine_ions_from_lines(line_database, lines)
 
-        sampling_type = _check_sampling_types_match(ds, ftype)
+        sampling_type = "local"
 
         fields, fields_to_add_to_ds = _determine_fields_from_ions(ds, ion_list, 
                                         fields, ftype, sampling_type)
