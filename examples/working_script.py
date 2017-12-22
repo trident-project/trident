@@ -18,7 +18,7 @@ line_list = ['H', 'C', 'N', 'O', 'Mg']
 # Save LightRay to ray.h5 and use it locally as ray object.
 ray = trident.make_simple_ray(ds, start_position=ray_start,
                               end_position=ray_end, data_filename='ray.h5',
-                              lines=line_list, ftype='gas')
+                              lines=line_list)
 
 # Create a projection of the dataset in density along the x axis,
 # overplot the trajectory of the ray, and save it.
