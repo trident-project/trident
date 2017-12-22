@@ -32,8 +32,6 @@ from yt import \
     load_uniform_grid, \
     YTArray, \
     load
-from yt.geometry.particle_geometry_handler import \
-    ParticleIndex
 from yt.funcs import \
     mylog
 

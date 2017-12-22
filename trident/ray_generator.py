@@ -560,15 +560,12 @@ def _determine_fields_from_ions(ds, ion_list, fields):
             field = "%s_p%d_number_density" % (atom, ion_state-1)
             alias_field = "%s_p%d_number_density" % (atom, ion_state-1)
 
-        # This is ugly, but I couldn't find a way around it to hit
-        # all 6 cases of when fields were present or not and particle
-        # type or not.
+        # Check to see if the ion field (or its alias) exists.  If so, add 
+        # it to the ray.  If not, then append the density and the appropriate
+        # metal field so one can create the ion field on the fly on the 
+        # ray itself.
         if ("gas", field) not in ds.derived_field_list:
             if ("gas", alias_field) not in ds.derived_field_list:
-                # If the ion field 
-                # doesn't yet exist, just append the density and 
-                # appropriate metal field for ion field calculation 
-                # on the ray itself instead of adding it to the full ds
                 fields.append(('gas', 'density'))
                 if ('gas', metallicity_field) in ds.derived_field_list:
                     fields.append(('gas', metallicity_field))
