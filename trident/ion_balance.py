@@ -93,14 +93,10 @@ def _log_nH(field, data):
     One index of ion balance table is in log of density, so this translates
     dataset's density values into the same format for indexing the table
     """
-    if isinstance(field.name, tuple):
-        ftype = field.name[0]
+    if ("gas", "H_nuclei_density") in data.ds.derived_field_list:
+        log_nH_field = np.log10(data["gas", "H_nuclei_density"])
     else:
-        ftype = "gas"
-    if (ftype, "H_nuclei_density") in data.ds.derived_field_list:
-        log_nH_field = np.log10(data[ftype, "H_nuclei_density"])
-    else:
-        log_nH_field = np.log10(data[ftype, "density"] * to_nH)
+        log_nH_field = np.log10(data["gas", "density"] * to_nH)
     return log_nH_field
 
 def _redshift(field, data):
@@ -108,28 +104,20 @@ def _redshift(field, data):
     One index of ion balance table is in redshift, so this translates
     dataset's redshift values into the same format for indexing the table
     """
-    if isinstance(field.name, tuple):
-        ftype = field.name[0]
-    else:
-        ftype = "gas"
     # Assure that redshift is defined for dataset--if not, assume z=0
     try:
         current_redshift = data.ds.current_redshift
     except AttributeError:
         current_redshift = 0.
     return current_redshift * \
-        np.ones(data[ftype, "density"].shape, dtype=data[ftype, "density"].dtype)
+        np.ones(data["gas", "density"].shape, dtype=data["gas", "density"].dtype)
 
 def _log_T(field, data):
     """
     One index of ion balance table is in log of temperature, so this translates
     dataset's temperature values into the same format for indexing the table
     """
-    if isinstance(field.name, tuple):
-        ftype = field.name[0]
-    else:
-        ftype = "gas"
-    return np.log10(data[ftype, "temperature"])
+    return np.log10(data["gas", "temperature"])
 
 def add_ion_fields(ds, ions, ftype='gas', 
                    ionization_table=None, 
@@ -157,10 +145,10 @@ def add_ion_fields(ds, ions, ftype='gas',
     For each ion species selected, four fields will be added (example for 
     Mg II):
 
-        * Ion fraction field. e.g. (ftype, 'Mg_p1_ion_fraction')
-        * Number density field. e.g. (ftype, 'Mg_p1_number_density') 
-        * Density field. e.g. (ftype, 'Mg_p1_density')
-        * Mass field. e.g. (ftype, 'Mg_p1_mass')
+        * Ion fraction field. e.g. ("gas", 'Mg_p1_ion_fraction')
+        * Number density field. e.g. ("gas", 'Mg_p1_number_density') 
+        * Density field. e.g. ("gas", 'Mg_p1_density')
+        * Mass field. e.g. ("gas", 'Mg_p1_mass')
 
     This function is the preferred method for adding ion fields to one's
     dataset, but for more fine-grained control, one can also employ the 
@@ -246,7 +234,6 @@ def add_ion_fields(ds, ions, ftype='gas',
     >>> trident.add_ion_fields(ds, ions=['H II', 'C III', 'Mg'])
     """
     ion_list = []
-    sampling_type = "local"
 
     if ionization_table is None:
         ionization_table = ion_table_filepath
@@ -366,24 +353,22 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
     >>> yt.ProjectionPlot(ds, 'x', 'C_p3_ion_fraction').save()
     """
 
-    sampling_type = "local"
-
     if ionization_table is None:
         ionization_table = ion_table_filepath
 
-    if (ftype, "log_nH") not in ds.derived_field_list:
-        ds.add_field((ftype, "log_nH"), function=_log_nH, units="",
-                     sampling_type=sampling_type,
+    if ("gas", "log_nH") not in ds.derived_field_list:
+        ds.add_field(("gas", "log_nH"), function=_log_nH, units="",
+                     sampling_type="local",
                      force_override=force_override)
 
-    if (ftype, "redshift") not in ds.derived_field_list:
-        ds.add_field((ftype, "redshift"), function=_redshift, units="",
-                     sampling_type=sampling_type,
+    if ("gas", "redshift") not in ds.derived_field_list:
+        ds.add_field(("gas", "redshift"), function=_redshift, units="",
+                     sampling_type="local",
                      force_override=force_override)
 
-    if (ftype, "log_T") not in ds.derived_field_list:
-        ds.add_field((ftype, "log_T"), function=_log_T, units="",
-                     sampling_type=sampling_type,
+    if ("gas", "log_T") not in ds.derived_field_list:
+        ds.add_field(("gas", "log_T"), function=_log_T, units="",
+                     sampling_type="local",
                      force_override=force_override)
 
     atom = atom.capitalize()
@@ -405,21 +390,11 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
                               'parameters': copy.deepcopy(ionTable.parameters)}
         del ionTable
 
-    ds.add_field((ftype, field), function=_ion_fraction_field, units="",
-                 sampling_type=sampling_type, force_override=force_override)
+    ds.add_field(("gas", field), function=_ion_fraction_field, units="",
+                 sampling_type="local", force_override=force_override)
     if ion == 1: # add aliased field too
-        ds.field_info.alias((ftype, alias_field), (ftype, field))
-        ds.derived_field_list.append((ftype, alias_field))
-
-    # if ion particle field, add a smoothed deposited version to gas fields
-    if sampling_type == 'local':
-        new_field = (ftype, field)
-        if ftype != "gas":
-            ds.field_info.alias(("gas", field), new_field)
-            ds.derived_field_list.append(("gas", field))
-            if ion == 1: # add aliased field too
-                ds.field_info.alias(("gas", alias_field), new_field)
-                ds.derived_field_list.append(("gas", alias_field))
+        ds.field_info.alias(("gas", alias_field), ("gas", field))
+        ds.derived_field_list.append(("gas", alias_field))
 
 def add_ion_number_density_field(atom, ion, ds, ftype="gas",
                                  ionization_table=None,
@@ -504,8 +479,6 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
     >>> yt.ProjectionPlot(ds, 'x', 'C_p3_number_density').save()
     """
 
-    sampling_type = "local"
-
     if ionization_table is None:
         ionization_table = ion_table_filepath
     atom = atom.capitalize()
@@ -520,26 +493,14 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
         if ion == 1:
             alias_field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
 
-    add_ion_fraction_field(atom, ion, ds, ftype, ionization_table,
-                           field_suffix=field_suffix, 
-                           force_override=force_override,
-                           sampling_type=sampling_type)
-    ds.add_field((ftype, field),function=_ion_number_density,
-                 units="cm**-3", sampling_type=sampling_type,
+    add_ion_fraction_field(atom, ion, ds, ionization_table,
+                           field_suffix=field_suffix)
+    ds.add_field(("gas", field),function=_ion_number_density,
+                 units="cm**-3", sampling_type='local',
                  force_override=force_override)
     if ion == 1: # add aliased field too
-        ds.field_info.alias((ftype, alias_field), (ftype, field))
-        ds.derived_field_list.append((ftype, alias_field))
-
-    # if ion particle field, add a smoothed deposited version to gas fields
-    if sampling_type == 'local':
-        new_field = (ftype, field)
-        if ftype != "gas":
-            ds.field_info.alias(("gas", field), new_field)
-            ds.derived_field_list.append(("gas", field))
-            if ion == 1: # add aliased field too
-                ds.field_info.alias(("gas", alias_field), new_field)
-                ds.derived_field_list.append(("gas", alias_field))
+        ds.field_info.alias(("gas", alias_field), ("gas", field))
+        ds.derived_field_list.append(("gas", alias_field))
 
 def add_ion_density_field(atom, ion, ds, ftype="gas",
                           ionization_table=None,
@@ -624,8 +585,6 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
     >>> yt.ProjectionPlot(ds, 'x', 'C_p3_density').save()
     """
 
-    sampling_type = "local"
-
     if ionization_table is None:
         ionization_table = ion_table_filepath
     atom = atom.capitalize()
@@ -641,26 +600,15 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
         if ion == 1:
             alias_field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
 
-    add_ion_number_density_field(atom, ion, ds, ftype, ionization_table,
+    add_ion_number_density_field(atom, ion, ds, ionization_table,
                                  field_suffix=field_suffix,
-                                 force_override=force_override,
-                                 sampling_type=sampling_type)
-    ds.add_field((ftype, field), function=_ion_density,
-                 units="g/cm**3", sampling_type=sampling_type,
+                                 force_override=force_override)
+    ds.add_field(("gas", field), function=_ion_density,
+                 units="g/cm**3", sampling_type='local',
                  force_override=force_override)
     if ion == 1: # add aliased field too
-        ds.field_info.alias((ftype, alias_field), (ftype, field))
-        ds.derived_field_list.append((ftype, alias_field))
-
-    # if ion particle field, add a smoothed deposited version to gas fields
-    if sampling_type == 'local':
-        new_field = (ftype, field)
-        if ftype != "gas":
-            ds.field_info.alias(("gas", field), new_field)
-            ds.derived_field_list.append(("gas", field))
-            if ion == 1: # add aliased field too
-                ds.field_info.alias(("gas", alias_field), new_field)
-                ds.derived_field_list.append(("gas", alias_field))
+        ds.field_info.alias(("gas", alias_field), ("gas", field))
+        ds.derived_field_list.append(("gas", alias_field))
 
 def add_ion_mass_field(atom, ion, ds, ftype="gas",
                        ionization_table=None,
@@ -683,14 +631,6 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
     Fields are added assuming collisional ionization equilibrium and
     photoionization in the optically thin limit from a redshift-dependent
     metagalactic ionizing background using the ionization_table specified.
-
-    **WARNING**: The "ftype" must match the field type that you're using for
-    the field interpolation.  So for particle-based codes, this must be the
-    ftype of the gas particles (e.g., `PartType0`, `Gas`).  Using the
-    default of `gas` in this instance will interpolate on the grid-based
-    fields, which will give the wrong answers for particle-based codes,
-    since the ion field interpolation will take place on the already
-    deposited grid-based fields.
 
     **Parameters**
 
@@ -754,8 +694,6 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
     >>> yt.ProjectionPlot(ds, 'x', 'C_p3_mass').save()
     """
 
-    sampling_type = "local"
-
     if ionization_table is None:
         ionization_table = ion_table_filepath
     atom = atom.capitalize()
@@ -771,26 +709,15 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
         if ion == 1:
             alias_field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
 
-    add_ion_density_field(atom, ion, ds, ftype, ionization_table,
+    add_ion_density_field(atom, ion, ds, ionization_table,
                           field_suffix=field_suffix,
                           force_override=force_override,
                           sampling_type=sampling_type)
-    ds.add_field((ftype, field), function=_ion_mass, units=r"g",
-                 sampling_type=sampling_type,
-                 force_override=force_override)
+    ds.add_field(("gas", field), function=_ion_mass, units=r"g",
+                 sampling_type='local', force_override=force_override)
     if ion == 1: # add aliased field too
-        ds.field_info.alias((ftype, alias_field), (ftype, field))
-        ds.derived_field_list.append((ftype, alias_field))
-
-    # if ion particle field, add a smoothed deposited version to gas fields
-    if sampling_type == 'local':
-        new_field = (ftype, field)
-        if ftype != "gas":
-            ds.field_info.alias(("gas", field), new_field)
-            ds.derived_field_list.append(("gas", field))
-            if ion == 1: # add aliased field too
-                ds.field_info.alias(("gas", alias_field), new_field)
-                ds.derived_field_list.append(("gas", alias_field))
+        ds.field_info.alias(("gas", alias_field), ("gas", field))
+        ds.derived_field_list.append(("gas", alias_field))
 
 def _ion_mass(field, data):
     """
