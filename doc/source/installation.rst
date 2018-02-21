@@ -17,25 +17,21 @@ Currently, there are three versions of Trident: the `stable version
 The stable version is tried and tested, and it normally operates on a stable
 version of yt.  The development version is actively being updated with new
 features, and it is also tied to the development version of yt, so occasionally
-unforseen bugs can crop up as these new features are added.
-The demeshening version is a variant of Trident for treating particle-based
-datasets more natively.  For more information about the demeshening and full
-installation instructions, please see our `demeshening notebook
-<https://nbviewer.jupyter.org/url/trident-project.org/notebooks/trident_demesh_install.ipynb>`_.
+unforseen bugs can crop up as these new features are added.  The demeshening
+version is currently in beta and active development and is used for better
+results on particle-based datasets.
 The installation steps are slightly different between the three versions,
 so pay attention in the steps below.  Don't worry if you want to change later,
 you can always switch between the two versions easily enough by following the
 directions in :ref:`uninstallation`.
 
-.. warning::
-
-    The current stable version of yt, yt 3.4.0, has a 
-    `bug <https://github.com/yt-project/yt/issues/1610>`_ affecting the 
-    temperature field in cosmological SPH datasets at z>0. We currently 
-    recommend using the development version of yt, where this bug is fixed, 
-    for use with trident (both stable and dev) until this bugfix makes it 
-    into yt stable. The directions below will result in the yt development 
-    branch being installed.
+.. note::
+    The demeshening version is a variant of Trident for treating particle-based
+    datasets more natively.  The demeshening version will give faster and more 
+    accurate results with less memory overhead for particle-based datasets.  
+    For more information about the demeshening and full installation 
+    instructions, please see our `demeshening notebook
+    <https://nbviewer.jupyter.org/url/trident-project.org/notebooks/trident_demesh_install.ipynb>`_.
 
 .. _step-1:
 
