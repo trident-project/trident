@@ -5,6 +5,34 @@ Frequently Asked Questions
 
 .. _what-version-am-i-running:
 
+Why don't I have any absorption features in my spectrum?
+--------------------------------------------------------
+
+There are many reasons you might not have any absorption features in your
+spectrum, but we'll cover a few of the basic explanations here.  
+
+ #. Your absorbers are in a different part of the spectrum than you're plotting.
+    Make sure you are plotting the wavelength range where you expect to see the 
+    absorption by taking into account the wavelength of your absorption features
+    coupled with the redshift of your dataset: :math:`\lambda_{obs} = (1 + z) \lambda_{rest}`
+    To see the wavelength of specific ionic transitions, see the line list in:
+    ``/trident/trident/data/line_lists/lines.txt``.
+
+ #. Your sightlines do not have sufficient column densities of the desired
+    ions to actually make an absorption feature.  Look at the total column
+    density of your desired ions in your sightline by multiplying the
+    density times the path length and summing it all up.  Here is an 
+    example for showing the total O VI column density in a ray::
+
+        import trident
+        <generate/load your ray object>
+        trident.add_ion_fields(ray, ['O VI'])
+        print((ray[('gas', 'O_p5_number_density')] * ray[('gas', 'dl')]).sum())
+
+    Depending on the ion, you usually need to see at least :math:`10^{12} cm^{-2}`
+    to have any appreciable absorption.  Try sending a sightline through a
+    denser region in your simulation that might have more of that ion.
+
 What version of Trident am I running?
 -------------------------------------
 
