@@ -27,7 +27,8 @@ spectrum, but we'll cover a few of the basic explanations here.
         import trident
         <generate/load your ray object>
         trident.add_ion_fields(ray, ['O VI'])
-        print((ray[('gas', 'O_p5_number_density')] * ray[('gas', 'dl')]).sum())
+        ad = ray.all_data()
+        print((ad[('gas', 'O_p5_number_density')] * ad[('gas', 'dl')]).sum())
 
     Depending on the ion, you usually need to see at least :math:`10^{12} cm^{-2}`
     to have any appreciable absorption.  Try sending a sightline through a
