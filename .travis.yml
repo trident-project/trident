@@ -106,8 +106,3 @@ script:
     pushd tests
     py.test
     popd
-    # yt tip + trident gold standard
-    git checkout $TRIDENT_GOLD
-    pip install -e .
-    pushd tests
-    py.test
