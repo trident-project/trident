@@ -200,6 +200,9 @@ def make_simple_ray(dataset_file, start_position, end_position,
     if ionization_table is None:
         ionization_table = ion_table_filepath
 
+    # Include some default fields in the ray to assure it's processed correctly.
+    fields = _add_default_fields(ds, fields)
+
     # If 'lines' kwarg is set, we need to get all the fields required to
     # create the desired absorption lines in the grid format, since grid-based
     # fields are what are directly probed by the LightRay object.  
@@ -584,3 +587,17 @@ def _determine_fields_from_ions(ds, ion_list, fields):
     fields.append(("gas", 'temperature'))
 
     return fields, fields_to_add_to_ds
+
+def _add_default_fields(ds, fields): 
+    """ 
+    Add some default fields to rays to assure they can be processed correctly.
+    """
+    if ("gas", "temperature") in ds.derived_field_list:
+        fields.append(("gas", 'temperature'))
+
+    # H_nuclei_density should be added if possible to assure that the _log_nH
+    # field, which is used as "density" in the ion_balance interpolation to 
+    # produce ion fields, is calculated as accurately as possible.
+    if ('gas', 'H_nuclei_density') in ds.derived_field_list:
+        fields.append(('gas', 'H_nuclei_density'))
+    return fields
