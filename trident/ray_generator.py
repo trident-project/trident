@@ -669,7 +669,6 @@ def _determine_fields_from_ions(ds, ion_list, fields, ftype, sampling_type):
                 fields.append(("gas", alias_field))
         else:
             fields.append(("gas", field))
-    fields.append(("gas", 'temperature'))
 
     return fields, fields_to_add_to_ds
 
@@ -685,4 +684,5 @@ def _add_default_fields(ds, fields):
     # produce ion fields, is calculated as accurately as possible.
     if ('gas', 'H_nuclei_density') in ds.derived_field_list:
         fields.append(('gas', 'H_nuclei_density'))
+
     return fields
