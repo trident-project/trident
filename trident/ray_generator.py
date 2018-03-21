@@ -201,6 +201,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
         ionization_table = ion_table_filepath
 
     # Include some default fields in the ray to assure it's processed correctly.
+
     fields = _add_default_fields(ds, fields)
 
     # If 'lines' kwarg is set, we need to get all the fields required to
@@ -214,7 +215,6 @@ def make_simple_ray(dataset_file, start_position, end_position,
     if lines is not None:
 
         ion_list = _determine_ions_from_lines(line_database, lines)
-
         fields = _determine_fields_from_ions(ds, ion_list, fields)
 
     # To assure there are no fields that are double specified or that collide
@@ -449,27 +449,30 @@ def make_compound_ray(parameter_filename, simulation_type,
     if ionization_table is None:
         ionization_table = ion_table_filepath
 
+    # We use the final dataset from the simulation in order to test it for
+    # what fields are present, etc.  This all assumes that the fields present
+    # in this output will be present in ALL outputs.  Hopefully this is true,
+    # because testing each dataset is going to be slow and a pain.
+
+    sim = simulation(parameter_filename, simulation_type)
+    ds = load(sim.all_outputs[-1]['filename'])
+
+    # Include some default fields in the ray to assure it's processed correctly.
+
+    fields = _add_default_fields(ds, fields)
+
     # If 'lines' kwarg is set, we need to get all the fields required to
     # create the desired absorption lines in the grid format, since grid-based
     # fields are what are directly probed by the LightRay object.  
 
     # We first determine what fields are necessary for the desired lines, and
     # inspect the dataset to see if they already exist.  If so, we add them
-    # to the field list for the ray.  If not, we have to create them.
-
-    # We use the final dataset from the simulation in order to test it for
-    # what fields are present, etc.  This all assumes that the fields present
-    # in this output will be present in ALL outputs.  Hopefully this is true,
-    # because testing each dataset is going to be slow and a pain.
+    # to the field list for the ray or add the necessary fields that can
+    # generate them on the ray.  
 
     if lines is not None:
 
-        # load the final dataset from the simulation to use for testing
-        sim = simulation(parameter_filename, simulation_type)
-        ds = load(sim.all_outputs[-1]['filename'])
-
         ion_list = _determine_ions_from_lines(line_database, lines)
-
         fields = _determine_fields_from_ions(ds, ion_list, fields)
 
     # To assure there are no fields that are double specified or that collide
