@@ -31,7 +31,6 @@ def test_create_simple_grid_ray_with_lines():
     dirpath = tempfile.mkdtemp()
     filename = os.path.join(dirpath, 'ray.h5')
     ds = tri.make_onezone_dataset()
-    ftype = 'stream'
     ray_start = ds.arr([0., 0., 0.], 'unitary')
     ray_end = ds.arr([1., 1., 1.], 'unitary')
     ray = tri.make_simple_ray(ds, start_position=ray_start, end_position=ray_end,
