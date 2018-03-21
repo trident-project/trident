@@ -226,6 +226,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
         ionization_table = ion_table_filepath
 
     # Include some default fields in the ray to assure it's processed correctly.
+
     fields = _add_default_fields(ds, fields)
 
     # If 'lines' kwarg is set, we need to get all the fields required to
@@ -517,6 +518,18 @@ def make_compound_ray(parameter_filename, simulation_type,
     if ionization_table is None:
         ionization_table = ion_table_filepath
 
+    # We use the final dataset from the simulation in order to test it for
+    # what fields are present, etc.  This all assumes that the fields present
+    # in this output will be present in ALL outputs.  Hopefully this is true,
+    # because testing each dataset is going to be slow and a pain.
+
+    sim = simulation(parameter_filename, simulation_type)
+    ds = load(sim.all_outputs[-1]['filename'])
+
+    # Include some default fields in the ray to assure it's processed correctly.
+
+    fields = _add_default_fields(ds, fields)
+
     # If 'lines' kwarg is set, we need to get all the fields required to
     # create the desired absorption lines in the grid format, since grid-based
     # fields are what are directly probed by the LightRay object.  
@@ -532,10 +545,6 @@ def make_compound_ray(parameter_filename, simulation_type,
     # is going to be slow and a pain.
 
     if lines is not None:
-
-        # load the final dataset from the simulation to use for testing
-        sim = simulation(parameter_filename, simulation_type)
-        ds = load(sim.all_outputs[-1]['filename'])
 
         ion_list = _determine_ions_from_lines(line_database, lines)
 
