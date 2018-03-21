@@ -215,12 +215,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
 
         ion_list = _determine_ions_from_lines(line_database, lines)
 
-        fields, fields_to_add_to_ds = _determine_fields_from_ions(ds, ion_list, 
-                                        fields)
-        # actually add the fields we need to add to the dataset
-        for atom, ion_state in fields_to_add_to_ds:
-            add_ion_number_density_field(atom, ion_state, ds, 
-                                         ionization_table=ionization_table)
+        fields = _determine_fields_from_ions(ds, ion_list, fields)
 
     # To assure there are no fields that are double specified or that collide
     # based on being specified as "density" as well as ("gas", "density"), 
@@ -301,8 +296,6 @@ def make_compound_ray(parameter_filename, simulation_type,
 
     The :lines: keyword can be set to automatically add all fields to the 
     resulting ray necessary for later use with the SpectrumGenerator class.
-    If the necessary fields do not exist for your line of choice, they will
-    be added to your datasets before adding them to the ray.  
 
     **Parameters**
 
@@ -477,26 +470,7 @@ def make_compound_ray(parameter_filename, simulation_type,
 
         ion_list = _determine_ions_from_lines(line_database, lines)
 
-        fields, fields_to_add_to_ds = _determine_fields_from_ions(ds, ion_list, 
-                                        fields)
-
-        # actually add the fields we need to add to the dataset
-        # by adding the fields to the setup_function passed to each dataset
-        # as it is loaded by make_light_ray()
-
-        def setup_ds(ds):
-
-            for atom, ion_state in fields_to_add_to_ds:
-                add_ion_number_density_field(atom, ion_state, ds, 
-                                            ionization_table=ionization_table)
-            if setup_function is not None:
-                setup_function(ds)
-
-    else:
-        # Define setup_ds in cases when no lines are specified.
-
-        def setup_ds(ds):
-            pass
+        fields = _determine_fields_from_ions(ds, ion_list, fields)
 
     # To assure there are no fields that are double specified or that collide
     # based on being specified as "density" as well as ("gas", "density"), 
@@ -508,7 +482,7 @@ def make_compound_ray(parameter_filename, simulation_type,
 
     return lr.make_light_ray(seed=seed, 
                              fields=fields, 
-                             setup_function=setup_ds,
+                             setup_function=setup_function,
                              solution_filename=solution_filename,
                              data_filename=data_filename,
                              redshift=None, njobs=-1)
@@ -549,8 +523,6 @@ def _determine_fields_from_ions(ds, ion_list, fields):
     on the fly by SpectrumGenerator as long as we include the 'density',
     'temperature', and appropriate 'metallicity' fields.
     """
-    fields_to_add_to_ds = []
-
     for ion in ion_list:
         atom = ion[0].capitalize()
         ion_state = ion[1]
@@ -585,7 +557,7 @@ def _determine_fields_from_ions(ds, ion_list, fields):
         else:
             fields.append(("gas", field))
 
-    return fields, fields_to_add_to_ds
+    return fields
 
 def _add_default_fields(ds, fields): 
     """ 
