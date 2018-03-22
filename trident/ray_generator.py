@@ -74,11 +74,6 @@ def make_simple_ray(dataset_file, start_position, end_position,
     If the necessary fields do not exist for your line of choice, they will
     be added to your dataset before adding them to the ray.  
 
-    If using the :lines: keyword with an SPH dataset, it is very important
-    to set the :ftype: keyword appropriately, or you may end up calculating 
-    ion fields by interpolating on data already smoothed to the grid.  This is
-    generally not desired.
-    
     **Parameters**
 
     :dataset_file: string or yt Dataset object
@@ -93,11 +88,6 @@ def make_simple_ray(dataset_file, start_position, end_position,
         ray.  If providing a raw list, coordinates are assumed to be in 
         code length units, but if providing a YTArray, any units can be
         specified.
-                    lines=None, fields=None, solution_filename=None, 
-                    data_filename=None, trajectory=None, redshift=None, 
-                    line_database=None, ftype="gas", 
-                    setup_function=None, load_kwargs=None,
-                    ionization_table=None):
 
     :lines: list of strings, optional
 
@@ -107,22 +97,11 @@ def make_simple_ray(dataset_file, start_position, end_position,
         the integer wavelength value of the desired line.  If set to 'all',
         includes all possible ions from H to Zn. :lines: can be used
         in conjunction with :fields: as they will not override each other.
-        If using the :lines: keyword with an SPH dataset, it is very important
-        to set the :ftype: keyword appropriately, or you may end up calculating 
-        ion fields by interpolating on data already smoothed to the grid.  
-        This is generally not desired.
         Default: None
 
     :ftype: string, optional
 
-        For use with the :lines: keyword.  It is the field type of the fields to 
-        be added.  It is the first string in the field tuple e.g. "gas" in
-        ("gas", "O_p5_number_density"). For SPH datasets, it is important to
-        set this to the field type of the gas particles in your dataset
-        (e.g. 'PartType0'), as it determines the source data for the ion 
-        fields to be added. If you leave it set to "gas", it will calculate 
-        the ion fields based on the hydro fields already smoothed on the grid, 
-        which is usually not desired.
+        This is now deprecated and unnecessary.
         Default: "gas"
 
     :fields: list of strings, optional
@@ -195,15 +174,14 @@ def make_simple_ray(dataset_file, start_position, end_position,
     **Example**
 
     Generate a simple ray passing from the lower left corner to the upper 
-    right corner through some Gizmo dataset where gas particles are 
-    ftype='PartType0':
+    right corner through some Gizmo dataset:
 
     >>> import trident
     >>> import yt
     >>> ds = yt.load('path/to/dataset')
     >>> ray = trident.make_simple_ray(ds, 
     ... start_position=ds.domain_left_edge, end_position=ds.domain_right_edge,
-    ... lines=['H', 'O', 'Mg II'], ftype='PartType0')
+    ... lines=['H', 'O', 'Mg II'])
     """
     if load_kwargs is None:
         load_kwargs = {}
@@ -222,6 +200,10 @@ def make_simple_ray(dataset_file, start_position, end_position,
     if ionization_table is None:
         ionization_table = ion_table_filepath
 
+    # Include some default fields in the ray to assure it's processed correctly.
+
+    fields = _add_default_fields(ds, fields)
+
     # If 'lines' kwarg is set, we need to get all the fields required to
     # create the desired absorption lines in the grid format, since grid-based
     # fields are what are directly probed by the LightRay object.  
@@ -233,18 +215,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
     if lines is not None:
 
         ion_list = _determine_ions_from_lines(line_database, lines)
-
-        sampling_type = "local"
-
-        fields, fields_to_add_to_ds = _determine_fields_from_ions(ds, ion_list, 
-                                        fields, ftype, sampling_type)
-
-        # actually add the fields we need to add to the dataset
-        for atom, ion_state in fields_to_add_to_ds:
-            add_ion_number_density_field(atom, ion_state, ds, 
-                                         ftype=ftype,
-                                         ionization_table=ionization_table,
-                                         sampling_type=sampling_type)
+        fields = _determine_fields_from_ions(ds, ion_list, fields)
 
     # To assure there are no fields that are double specified or that collide
     # based on being specified as "density" as well as ("gas", "density"), 
@@ -279,7 +250,7 @@ def make_compound_ray(parameter_filename, simulation_type,
     .. note::
         
         The compound ray functionality has only been implemented for the
-        Enzo and Gadget code.  If you would like to help us implement
+        Enzo and Gadget/Gizmo codes.  If you would like to help us implement
         this functionality for your simulation code, please contact us
         about this on the mailing list.
 
@@ -325,14 +296,7 @@ def make_compound_ray(parameter_filename, simulation_type,
 
     The :lines: keyword can be set to automatically add all fields to the 
     resulting ray necessary for later use with the SpectrumGenerator class.
-    If the necessary fields do not exist for your line of choice, they will
-    be added to your datasets before adding them to the ray.  
 
-    If using the :lines: keyword with SPH datasets, it is very important
-    to set the :ftype: keyword appropriately, or you may end up calculating 
-    ion fields by interpolating on data already smoothed to the grid.  This is
-    generally not desired.
- 
     **Parameters**
 
     :parameter_filename: string
@@ -357,22 +321,11 @@ def make_compound_ray(parameter_filename, simulation_type,
         the integer wavelength value of the desired line.  If set to 'all',
         includes all possible ions from H to Zn. :lines: can be used
         in conjunction with :fields: as they will not override each other.
-        If using the :lines: keyword with an SPH dataset, it is very important
-        to set the :ftype: keyword appropriately, or you may end up calculating 
-        ion fields by interpolating on data already smoothed to the grid.  
-        This is generally not desired.
         Default: None
 
     :ftype: string, optional
 
-        For use with the :lines: keyword.  It is the field type of the fields to 
-        be added.  It is the first string in the field tuple e.g. "gas" in
-        ("gas", "O_p5_number_density"). For SPH datasets, it is important to
-        set this to the field type of the gas particles in your dataset
-        (e.g. 'PartType0'), as it determines the source data for the ion 
-        fields to be added. If you leave it set to "gas", it will calculate 
-        the ion fields based on the hydro fields already smoothed on the grid, 
-        which is usually not desired.
+        This is now deprecated and unnecessary.
         Default: "gas"
 
     :fields: list of strings, optional
@@ -467,8 +420,7 @@ def make_compound_ray(parameter_filename, simulation_type,
     >>> import trident
     >>> fn = 'path/to/simulation/parameter/file'
     >>> ray = trident.make_compound_ray(fn, simulation_type='Enzo',
-    ... near_redshift=0.0, far_redshift=0.05, ftype='gas',
-    ... lines=['H', 'O', 'Mg II'])
+    ... near_redshift=0.0, far_redshift=0.05, lines=['H', 'O', 'Mg II'])
 
     Generate a compound ray passing from the redshift 0 to redshift 0.05
     through a multi-output gadget simulation.
@@ -476,8 +428,7 @@ def make_compound_ray(parameter_filename, simulation_type,
     >>> import trident
     >>> fn = 'path/to/simulation/parameter/file'
     >>> ray = trident.make_compound_ray(fn, simulation_type='Gadget',
-    ... near_redshift=0.0, far_redshift=0.05,
-    ... lines=['H', 'O', 'Mg II'], ftype='PartType0')
+    ... near_redshift=0.0, far_redshift=0.05, lines=['H', 'O', 'Mg II'])
     """
     if load_kwargs is None:
         load_kwargs = {}
@@ -498,52 +449,31 @@ def make_compound_ray(parameter_filename, simulation_type,
     if ionization_table is None:
         ionization_table = ion_table_filepath
 
+    # We use the final dataset from the simulation in order to test it for
+    # what fields are present, etc.  This all assumes that the fields present
+    # in this output will be present in ALL outputs.  Hopefully this is true,
+    # because testing each dataset is going to be slow and a pain.
+
+    sim = simulation(parameter_filename, simulation_type)
+    ds = load(sim.all_outputs[-1]['filename'])
+
+    # Include some default fields in the ray to assure it's processed correctly.
+
+    fields = _add_default_fields(ds, fields)
+
     # If 'lines' kwarg is set, we need to get all the fields required to
     # create the desired absorption lines in the grid format, since grid-based
     # fields are what are directly probed by the LightRay object.  
 
     # We first determine what fields are necessary for the desired lines, and
     # inspect the dataset to see if they already exist.  If so, we add them
-    # to the field list for the ray.  If not, we have to create them.
-
-    # We use the final dataset from the simulation in order to test it for 
-    # the sampling_type of the field, what fields are present, etc.  This 
-    # all assumes that the fields present in this output will be present in 
-    # ALL outputs.  Hopefully this is true, because testing each dataset
-    # is going to be slow and a pain.
+    # to the field list for the ray or add the necessary fields that can
+    # generate them on the ray.  
 
     if lines is not None:
 
-        # load the final dataset from the simulation to use for testing
-        sim = simulation(parameter_filename, simulation_type)
-        ds = load(sim.all_outputs[-1]['filename'])
-
         ion_list = _determine_ions_from_lines(line_database, lines)
-
-        sampling_type = "local"
-
-        fields, fields_to_add_to_ds = _determine_fields_from_ions(ds, ion_list, 
-                                        fields, ftype, sampling_type)
-
-        # actually add the fields we need to add to the dataset
-        # by adding the fields to the setup_function passed to each dataset
-        # as it is loaded by make_light_ray()
-
-        def setup_ds(ds):
-
-            for atom, ion_state in fields_to_add_to_ds:
-                add_ion_number_density_field(atom, ion_state, ds, 
-                                            ftype=ftype,
-                                            ionization_table=ionization_table,
-                                            sampling_type=sampling_type)
-            if setup_function is not None:
-                setup_function(ds)
-
-    else:
-        # Define setup_ds in cases when no lines are specified.
-
-        def setup_ds(ds):
-            pass
+        fields = _determine_fields_from_ions(ds, ion_list, fields)
 
     # To assure there are no fields that are double specified or that collide
     # based on being specified as "density" as well as ("gas", "density"), 
@@ -555,7 +485,7 @@ def make_compound_ray(parameter_filename, simulation_type,
 
     return lr.make_light_ray(seed=seed, 
                              fields=fields, 
-                             setup_function=setup_ds,
+                             setup_function=setup_function,
                              solution_filename=solution_filename,
                              data_filename=data_filename,
                              redshift=None, njobs=-1)
@@ -587,29 +517,15 @@ def _determine_ions_from_lines(line_database, lines):
 
     return uniquify(ion_list)        
 
-def _determine_fields_from_ions(ds, ion_list, fields, ftype, sampling_type):
+def _determine_fields_from_ions(ds, ion_list, fields):
     """
-    Figure out what fields need to be added based on the ions present
-    and the particle type
+    Figure out what fields need to be added based on the ions present.
 
-    For sph (determined by sampling_type):
-    Identify if the number_density fields for the desired ions already 
-    exist on the dataset, and if so, just add them to the list
-    of fields to be added to the ray.
-    If not, add these ion fields to the dataset as particle fields, 
-    which prompts them being smoothed to the grid, and add the resulting 
-    smoothed fields (e.g. ("gas", "x_number_density")) to the list of fields 
-    to be added to the ray.  Include the 'temperature' field for 
-    calculating the width of voigt profiles in the absorption spectrum.
-
-    For grid:
     Check if the number_density fields for these ions exist, and if so, add 
     them to field list. If not, leave them off, as they'll be generated 
     on the fly by SpectrumGenerator as long as we include the 'density',
     'temperature', and appropriate 'metallicity' fields.
     """
-    fields_to_add_to_ds = []
-
     for ion in ion_list:
         atom = ion[0].capitalize()
         ion_state = ion[1]
@@ -622,34 +538,41 @@ def _determine_fields_from_ions(ds, ion_list, fields, ftype, sampling_type):
             field = "%s_p%d_number_density" % (atom, ion_state-1)
             alias_field = "%s_p%d_number_density" % (atom, ion_state-1)
 
-        # This is ugly, but I couldn't find a way around it to hit
-        # all 6 cases of when fields were present or not and particle
-        # type or not.
-        if (ftype, field) not in ds.derived_field_list:
-            if (ftype, alias_field) not in ds.derived_field_list:
-                if sampling_type == 'particle':
-                    fields_to_add_to_ds.append((atom, ion_state))
-                    fields.append(("gas", alias_field))
+        # Check to see if the ion field (or its alias) exists.  If so, add 
+        # it to the ray.  If not, then append the density and the appropriate
+        # metal field so one can create the ion field on the fly on the 
+        # ray itself.
+        if ("gas", field) not in ds.derived_field_list:
+            if ("gas", alias_field) not in ds.derived_field_list:
+                fields.append(('gas', 'density'))
+                if ('gas', metallicity_field) in ds.derived_field_list:
+                    fields.append(('gas', metallicity_field))
+                elif ('gas', nuclei_field) in ds.derived_field_list:
+                    fields.append(('gas', nuclei_field))
+                elif atom != 'H':
+                    fields.append(('gas', 'metallicity'))
                 else:
-                    # If this is a  grid-based field where the ion field 
-                    # doesn't yet exist, just append the density and 
-                    # appropriate metal field for ion field calculation 
-                    # on the ray itself instead of adding it to the full ds
-                    fields.append(('gas', 'density'))
-                    if ('gas', metallicity_field) in ds.derived_field_list:
-                        fields.append(('gas', metallicity_field))
-                    elif ('gas', nuclei_field) in ds.derived_field_list:
-                        fields.append(('gas', nuclei_field))
-                    elif atom != 'H':
-                        fields.append(('gas', 'metallicity'))
-                    else:
-                        # Don't need metallicity field if we're just looking
-                        # at hydrogen
-                        pass
+                    # Don't need metallicity field if we're just looking
+                    # at hydrogen
+                    pass
             else:
                 fields.append(("gas", alias_field))
         else:
             fields.append(("gas", field))
-    fields.append(("gas", 'temperature'))
 
-    return fields, fields_to_add_to_ds
+    return fields
+
+def _add_default_fields(ds, fields): 
+    """ 
+    Add some default fields to rays to assure they can be processed correctly.
+    """
+    if ("gas", "temperature") in ds.derived_field_list:
+        fields.append(("gas", 'temperature'))
+
+    # H_nuclei_density should be added if possible to assure that the _log_nH
+    # field, which is used as "density" in the ion_balance interpolation to 
+    # produce ion fields, is calculated as accurately as possible.
+    if ('gas', 'H_nuclei_density') in ds.derived_field_list:
+        fields.append(('gas', 'H_nuclei_density'))
+
+    return fields

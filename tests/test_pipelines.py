@@ -213,7 +213,7 @@ class PipelineTest(TempDirTest):
         # Note: We use PartType0, the gas particle field type as our ftype!
         ray = make_simple_ray(ds, start_position=ray_start,
                               end_position=ray_end, data_filename='ray.h5',
-                              lines=line_list, ftype='PartType0')
+                              lines=line_list)
 
         # Now use the ray object to actually generate an absorption spectrum
         # Use the settings (spectral range, LSF, and spectral resolution) for COS

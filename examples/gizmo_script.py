@@ -10,7 +10,7 @@ import trident
 
 # Set the dataset filename, load it into yt and define the trajectory
 # of the LightRay.  This uses the maximum density location as the one end of
-# the ray.  Define desired spectral features to include # all H, C, N, O, and 
+# the ray.  Define desired spectral features to include all H, C, N, O, and 
 # Mg lines.
 fn = 'FIRE_M12i_ref11/snapshot_600.hdf5'
 ds = yt.load(fn)
@@ -22,10 +22,9 @@ line_list = ['H', 'C', 'N', 'O', 'Mg']
 # Make a LightRay object including all necessary fields so you can add
 # all H, C, N, O, and Mg fields to the resulting spectrum from your dataset.
 # Save LightRay to ray.h5 and use it locally as ray object.
-# Note: We use PartType0, the gas particle field type as our ftype!
 ray = trident.make_simple_ray(ds, start_position=ray_start,
                               end_position=ray_end, data_filename='ray.h5',
-                              lines=line_list, ftype='PartType0')
+                              lines=line_list)
 
 # Create a projection of the dataset in density along the x axis,
 # overplot the trajectory of the ray, and save it.
