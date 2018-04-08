@@ -52,9 +52,10 @@ def trident_path():
 
     >>> print(trident_path())
     """
-    path_list = os.path.dirname(__file__).split('/')[:-1]
-    path_list.append('trident')
-    return '/'.join(path_list)
+    # os.path.split(__file__)returns a tuple with [0] the path to the file 
+    # and [1] the filename.
+    # Here, __file__ refers to this file (config.py)
+    return os.path.split(__file__)[0]
 
 def create_config():
     """
