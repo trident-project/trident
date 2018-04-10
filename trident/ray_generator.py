@@ -270,9 +270,9 @@ def make_compound_ray(parameter_filename, simulation_type,
                       near_redshift, far_redshift,
                       lines=None, ftype='gas', fields=None, 
                       solution_filename=None, data_filename=None, 
-                      use_minimum_datasets=True, deltaz_min=0.0,
-                      minimum_coherent_box_fraction=0.0, seed=None, 
-                      setup_function=None, load_kwargs=None,
+                      use_minimum_datasets=True, max_box_fraction=1.0,
+                      deltaz_min=0.0, minimum_coherent_box_fraction=0.0, 
+                      seed=None, setup_function=None, load_kwargs=None,
                       line_database=None, ionization_table=None):
     """
     Create a yt LightRay object for multiple consecutive datasets (eg IGM).  
@@ -408,6 +408,18 @@ def make_compound_ray(parameter_filename, simulation_type,
         desired redshift interval.
         Default: True
 
+    :max_box_fraction: float, optional
+
+        The maximum length a light ray segment can be in order to span the
+        redshift interval from one dataset to another in units of the domain 
+        size.  Values larger than 1.0 will result in LightRays crossing the 
+        domain of a given dataset more than once, which is generally undesired.
+        Zoom-in simulations can use a value equal to the length of the 
+        high-resolution region so as to limit ray segments to that size.  If
+        the high-resolution region is not cubical, the smallest size should b
+        used.
+        Default: 1.0 (the size of the box)
+
     :deltaz_min: float, optional
 
         The minimum delta-redshift value between consecutive datasets used
@@ -494,6 +506,7 @@ def make_compound_ray(parameter_filename, simulation_type,
                   near_redshift=near_redshift, 
                   far_redshift=far_redshift,
                   use_minimum_datasets=use_minimum_datasets,
+                  max_box_fraction=max_box_fraction,
                   deltaz_min=deltaz_min,
                   minimum_coherent_box_fraction=minimum_coherent_box_fraction,
                   load_kwargs=load_kwargs)
