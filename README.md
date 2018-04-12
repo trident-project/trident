@@ -32,3 +32,4 @@ pip install -e .
  * Trident documentation: http://trident.readthedocs.org
 
  * For questions, comments, and announcements, please join our low-volume mailing list: https://groups.google.com/forum/#!forum/trident-project-users
+

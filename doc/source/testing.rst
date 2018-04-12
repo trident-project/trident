@@ -142,8 +142,8 @@ yt and trident that give the desired behavior).  Tag the Trident changeset with
 the next gold standard iteration.  You can see the current iteration by looking
 in the ``.travis.yml`` file at the ``TRIDENT_GOLD`` entry--enumerate this and
 tag the changeset.  Update the ``.travis.yml`` file so that the ``YT_GOLD`` and
-``TRIDENT_GOLD`` entries point to your desired changeset and tag.  Finally,
-you have to explicitly push the new tag (hereafter ``test-standard-v2``) to 
+``TRIDENT_GOLD`` entries point to your desired changeset and tag.  You have to 
+explicitly push the new tag (hereafter ``test-standard-v2``) to 
 the repository.
 
 .. code-block:: bash
@@ -155,3 +155,7 @@ the repository.
    $ git commit
    $ git push origin
    $ git push origin test-standard-v2
+
+Lastly, someone with admin access to the main trident repository will have to 
+clear Travis' cache, so that it regenerates new answer test results.  This can 
+be done manually here: https://travis-ci.org/trident-project/trident/caches .
