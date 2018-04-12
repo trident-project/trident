@@ -56,7 +56,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Trident'
-copyright = u'2015-2017, Trident Project'
+copyright = u'Trident Project. All rights reserved.'
 author = u'Trident Project'
 
 # The version info for the project you're documenting, acts as replacement for

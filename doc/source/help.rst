@@ -37,6 +37,13 @@ include details like the operating system you're using, the type of dataset
 you're trying to reduce, the version of Trident and yt you're using (find it
 out :ref:`here <what-version-am-i-running>`), and of course, a description of 
 the problem you're having with any relevant traceback errors.  
-Our mailing list is located here:
+Our mailing list is located here::
 
 https://groups.google.com/forum/#!forum/trident-project-users 
+
+Join our Slack Channel
+----------------------
+
+We have a slack channel for help and discussions amongst the users and
+developers of Trident.  You can generate an invite for yourself by clicking
+on this `link <https://join.slack.com/t/trident-project/shared_invite/enQtMzE4ODM5NTg1Nzk0LTA2OTBmMGZmZTVmY2JhMmYwNjMwMjdhZWEyZGQ1YzNiY2EzOGY2MzVhNDY3YzMwZWI5YTY3NmU5YWQ4NjU5YTQ>`_ and following the instructions.
