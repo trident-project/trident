@@ -94,6 +94,12 @@ def _log_nH(field, data):
     """
     One index of ion balance table is in log of density, so this translates
     dataset's density values into the same format for indexing the table
+
+    N.B. All datasets *should* have an H_nuclei_density field defined if
+    created in the standard way in yt.  Ray objects will also include
+    H_nuclei_density from the parent dataset to assure identical behavior
+    when ions are added to a ray as when they are added to an original dataset
+    before then being included in a ray.
     """
     if isinstance(field.name, tuple):
         ftype = field.name[0]
@@ -109,6 +115,13 @@ def _redshift(field, data):
     """
     One index of ion balance table is in redshift, so this translates
     dataset's redshift values into the same format for indexing the table
+
+    Note that if there already exists a "redshift" field on the dataset (e.g.,
+    on a LightRay dataset), that redshift field will be used instead.  This can 
+    lead to slight differences (1 part in 1e8) in the calculation of ion fields 
+    when added to a LightRay than when added to a dataset because redshift
+    is continually varying (slightly) along the ray, whereas it is fixed for
+    a standard dataset.
     """
     if isinstance(field.name, tuple):
         ftype = field.name[0]
@@ -452,9 +465,9 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
     else:
         field = "%s_p%d_ion_fraction" % (atom, ion-1)
     if field_suffix:
-        field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
+        field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
         if ion == 1:
-            alias_field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
+            alias_field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
 
     if not field in table_store:
         ionTable = IonBalanceTable(ionization_table, atom)
@@ -590,9 +603,9 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
     else:
         field = "%s_p%d_number_density" % (atom, ion-1)
     if field_suffix:
-        field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
+        field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
         if ion == 1:
-            alias_field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
+            alias_field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
 
     add_ion_fraction_field(atom, ion, ds, ftype, ionization_table,
                            field_suffix=field_suffix, 
@@ -728,9 +741,9 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
     else:
         field = "%s_p%d_density" % (atom, ion-1)
     if field_suffix:
-        field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
+        field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
         if ion == 1:
-            alias_field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
+            alias_field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
 
     add_ion_number_density_field(atom, ion, ds, ftype, ionization_table,
                                  field_suffix=field_suffix,
@@ -867,9 +880,9 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
     else:
         field = "%s_p%s_mass" % (atom, ion-1)
     if field_suffix:
-        field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
+        field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
         if ion == 1:
-            alias_field += "_%s" % ionization_table.split("/")[-1].split(".h5")[0]
+            alias_field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
 
     add_ion_density_field(atom, ion, ds, ftype, ionization_table,
                           field_suffix=field_suffix,

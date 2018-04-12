@@ -225,6 +225,10 @@ def make_simple_ray(dataset_file, start_position, end_position,
     if ionization_table is None:
         ionization_table = ion_table_filepath
 
+    # Include some default fields in the ray to assure it's processed correctly.
+
+    fields = _add_default_fields(ds, fields)
+
     # If 'lines' kwarg is set, we need to get all the fields required to
     # create the desired absorption lines in the grid format, since grid-based
     # fields are what are directly probed by the LightRay object.  
@@ -514,6 +518,18 @@ def make_compound_ray(parameter_filename, simulation_type,
     if ionization_table is None:
         ionization_table = ion_table_filepath
 
+    # We use the final dataset from the simulation in order to test it for
+    # what fields are present, etc.  This all assumes that the fields present
+    # in this output will be present in ALL outputs.  Hopefully this is true,
+    # because testing each dataset is going to be slow and a pain.
+
+    sim = simulation(parameter_filename, simulation_type)
+    ds = load(sim.all_outputs[-1]['filename'])
+
+    # Include some default fields in the ray to assure it's processed correctly.
+
+    fields = _add_default_fields(ds, fields)
+
     # If 'lines' kwarg is set, we need to get all the fields required to
     # create the desired absorption lines in the grid format, since grid-based
     # fields are what are directly probed by the LightRay object.  
@@ -529,10 +545,6 @@ def make_compound_ray(parameter_filename, simulation_type,
     # is going to be slow and a pain.
 
     if lines is not None:
-
-        # load the final dataset from the simulation to use for testing
-        sim = simulation(parameter_filename, simulation_type)
-        ds = load(sim.all_outputs[-1]['filename'])
 
         ion_list = _determine_ions_from_lines(line_database, lines)
 
@@ -666,6 +678,20 @@ def _determine_fields_from_ions(ds, ion_list, fields, ftype, sampling_type):
                 fields.append(("gas", alias_field))
         else:
             fields.append(("gas", field))
-    fields.append(("gas", 'temperature'))
 
     return fields, fields_to_add_to_ds
+
+def _add_default_fields(ds, fields): 
+    """ 
+    Add some default fields to rays to assure they can be processed correctly.
+    """
+    if ("gas", "temperature") in ds.derived_field_list:
+        fields.append(("gas", 'temperature'))
+
+    # H_nuclei_density should be added if possible to assure that the _log_nH
+    # field, which is used as "density" in the ion_balance interpolation to 
+    # produce ion fields, is calculated as accurately as possible.
+    if ('gas', 'H_nuclei_density') in ds.derived_field_list:
+        fields.append(('gas', 'H_nuclei_density'))
+
+    return fields
