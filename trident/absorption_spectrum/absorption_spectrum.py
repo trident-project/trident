@@ -401,11 +401,6 @@ class AbsorptionSpectrum(object):
         # low column density absorbers can add up to a significant
         # continuum effect, we normalize min_tau by the n_absorbers.
         n_absorbers = field_data['dl'].size
-
-        if n_absorbers == 0:
-            mylog.info("No absorbers in path of LightRay.")
-            return
-
         min_tau /= n_absorbers
 
         for continuum in self.continuum_list:
@@ -538,6 +533,7 @@ class AbsorptionSpectrum(object):
             # light ray that is deposited to the final spectrum 
             if store_observables:
                 tau_ray = np.zeros(cdens.size)
+                current_tau_field = 0*self.tau_field
             if use_peculiar_velocity:
                 vlos = field_data['velocity_los'].in_units("km/s").d # km/s
             else:
@@ -654,8 +650,9 @@ class AbsorptionSpectrum(object):
                     self.tau_field[intersect_left_index:intersect_right_index] \
                         += EW_deposit
                     if store_observables:
-                        tau_ray[i] = np.sum(EW_deposit)
-
+                      tau_ray[i] = np.sum(EW_deposit)
+                      current_tau_field[intersect_left_index:intersect_right_index] \
+                        += EW_deposit
                 # write out absorbers to file if the column density of
                 # an absorber is greater than the specified "label_threshold"
                 # of that absorption line
@@ -683,18 +680,20 @@ class AbsorptionSpectrum(object):
             # quantities for the dictionary are combined correctly. 
                 comm = _get_comm(())
                 if comm.size > 1:
-                    obs_dict_fields = [column_density,tau_ray,delta_lambda,
+                    obs_dict_fields = [column_density,tau_ray,EW, delta_lambda,
                                        lambda_obs, thermal_b, thermal_width]
                     obs_dict_fields = [comm.mpi_allreduce(field,op="sum") for field in obs_dict_fields]
 
-                 # Update the line_observables_dict with values for this line
-                obs_dict = {"column_density":column_density,
+                # Update the line_observables_dict with values for this line
+                EW = np.sum(1-np.exp(-current_tau_field))*self.bin_width
+                obs_dict = {"column_density_ray":column_density,
+                            "column_density":np.sum(column_density),
                             "tau_ray":tau_ray,
+                            "EW":EW,
                             "delta_lambda":delta_lambda,
                             "lambda_obs":lambda_obs,
                             "thermal_b":thermal_b,
                             "thermal_width":thermal_width}
-
                 store.result_id = line['label']
                 store.result = obs_dict
                 ## Can only delete these if in this statement:
