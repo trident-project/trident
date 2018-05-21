@@ -401,6 +401,11 @@ class AbsorptionSpectrum(object):
         # low column density absorbers can add up to a significant
         # continuum effect, we normalize min_tau by the n_absorbers.
         n_absorbers = field_data['dl'].size
+
+        if n_absorbers == 0: 
+            mylog.info("No absorbers in path of LightRay.")  
+            return
+
         min_tau /= n_absorbers
 
         for continuum in self.continuum_list:
