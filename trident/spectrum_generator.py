@@ -125,13 +125,14 @@ class SpectrumGenerator(AbsorptionSpectrum):
         postprocessing.
         Default: None
 
-    :line_database: string, optional
+    :line_database: string or :class:`~trident.LineDatabase`, optional
 
-        A text file listing the various lines to insert into the line database.
-        The line database provides a list of all possible lines that could
-        be added to the spectrum. The file should 4 tab-delimited columns of
+        A text file listing the various lines to insert into the line database,
+        or a :class:`~trident.LineDatabase` object in memory. The line database
+        provides a list of all possible lines that could be added to the
+        spectrum. For a text file, it should have 4 tab-delimited columns of
         name (e.g. MgII), wavelength in angstroms, gamma of transition, and
-        f-value of transition.  See example datasets in
+        f-value of transition. See example datasets in
         trident.path/data/line_lists for examples.
         Default: lines.txt
 
@@ -191,8 +192,11 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                     self.instrument.lambda_max,
                                     self.instrument.n_lambda)
 
-        # instantiate the LineDatabase
-        self.line_database = LineDatabase(line_database)
+        if isinstance(line_database, LineDatabase):
+            self.line_database = line_database
+        else:
+            # instantiate the LineDatabase
+            self.line_database = LineDatabase(line_database)
 
         # Instantiate the spectrum to be zeros and ones for tau_field and
         # flux_field respectively.
