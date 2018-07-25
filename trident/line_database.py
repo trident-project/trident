@@ -17,7 +17,8 @@ from yt.funcs import \
 from trident.config import \
     trident_path
 from trident.roman import \
-    from_roman
+    from_roman, \
+    to_roman
 
 import six
 
@@ -79,6 +80,37 @@ class Line:
     >>> HI = Line('H', 'I', 1215.67, 469860000, 0.41641, 'Ly a')
 
     """
+    @classmethod
+    def from_lt(cls, line):
+        """Initialize from a linetools AbsLine object.
+
+        **Parameters**
+
+        :line_lt: linetools.spectralline.AbsLine
+
+        **Example**
+
+        Create a Line object for the neutral hydrogen 1215 Angstroms transition
+        from a linetools AbsLine.
+
+        >>> from linetools.spectralline import AbsLine
+        >>> HI = Line.from_lt(AbsLine('HI 1215'))
+
+        """
+        # Make sure it's an absorption line
+        assert line.ltype == 'Abs'
+        # Parse line parameters
+        ion_state = to_roman(line.data['ion'])
+        ion_name = line.ion_name
+        element = ion_name[:ion_name.rfind(ion_state)]
+        wavelength = line.data['wrest'].to('Angstrom').value
+        gamma = line.data['gamma'].to('1/s').value
+        f_value = line.data['f']
+        field = None
+        identifier = line.name
+        return cls(element, ion_state, wavelength, gamma, f_value,
+                   field, identifier)
+
     def __init__(self, element, ion_state, wavelength, gamma, f_value,
                  field=None, identifier=None):
         self.element = element
