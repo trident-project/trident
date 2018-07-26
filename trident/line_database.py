@@ -108,7 +108,7 @@ class Line:
 
         **Parameters**
 
-        :line_lt: linetools.spectralline.AbsLine
+        :line: linetools.spectralline.AbsLine
 
         **Example**
 
@@ -200,7 +200,7 @@ class LineDatabase:
 
         >>> # Create a LineDatabase from a linetools LineList
         >>> from linetools.lists.linelist import LineList
-        >>> ldb = LineDatabase.from_lt(LineList('ISM'))
+        >>> ldb = LineDatabase.from_lt(LineList('Strong'))
 
         """
         # Start with an empty database
