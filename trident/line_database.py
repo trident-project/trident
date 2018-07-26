@@ -12,6 +12,8 @@ Line, LineDatabase class and member functions.
 #-----------------------------------------------------------------------------
 
 import os
+from numpy.ma.core import \
+    MaskedConstant
 from yt.funcs import \
     mylog
 from trident.config import \
@@ -82,8 +84,15 @@ class Line:
     """
     @classmethod
     def _from_lt_line_data(cls, line_data):
+        line_name = line_data['name']
+        # Validate line data
+        for key in ['ion', 'wrest', 'gamma', 'f']:
+            if isinstance(line_data[key], MaskedConstant):
+                raise ValueError("%s doesn't have line data '%s'"
+                                 % (line_name, key))
+        # Parse line parameters
         ion_state = to_roman(line_data['ion'])
-        ion_name = line_data['name'].split()[0]
+        ion_name = line_name.split()[0]
         element = ion_name[:ion_name.rfind(ion_state)]
         wavelength = line_data['wrest'].to('Angstrom').value
         gamma = line_data['gamma'].to('1/s').value
@@ -198,9 +207,15 @@ class LineDatabase:
         ldb = cls()
         # Add lines manually
         for wrest in line_list.wrest:
-            line = Line._from_lt_line_data(line_list[wrest])
-            ldb.add_line(line.element, line.ion_state, line.wavelength,
-                         line.gamma, line.f_value, line.field, line.identifier)
+            line_data = line_list[wrest]
+            try:
+                line = Line._from_lt_line_data(line_data)
+                ldb.add_line(line.element, line.ion_state, line.wavelength,
+                             line.gamma, line.f_value, line.field,
+                             line.identifier)
+            except ValueError as err:
+                mylog.info(err)
+                mylog.info('Skipping invalid line: %s' % line_data['name'])
         return ldb
 
     def __init__(self, input_file=None):
