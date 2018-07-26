@@ -81,6 +81,19 @@ class Line:
 
     """
     @classmethod
+    def _from_lt_line_data(cls, line_data):
+        ion_state = to_roman(line_data['ion'])
+        ion_name = line_data['name'].split()[0]
+        element = ion_name[:ion_name.rfind(ion_state)]
+        wavelength = line_data['wrest'].to('Angstrom').value
+        gamma = line_data['gamma'].to('1/s').value
+        f_value = line_data['f']
+        field = None
+        identifier = line_data['name']
+        return cls(element, ion_state, wavelength, gamma, f_value,
+                   field, identifier)
+
+    @classmethod
     def from_lt(cls, line):
         """Initialize from a linetools AbsLine object.
 
@@ -100,16 +113,7 @@ class Line:
         # Make sure it's an absorption line
         assert line.ltype == 'Abs'
         # Parse line parameters
-        ion_state = to_roman(line.data['ion'])
-        ion_name = line.ion_name
-        element = ion_name[:ion_name.rfind(ion_state)]
-        wavelength = line.data['wrest'].to('Angstrom').value
-        gamma = line.data['gamma'].to('1/s').value
-        f_value = line.data['f']
-        field = None
-        identifier = line.name
-        return cls(element, ion_state, wavelength, gamma, f_value,
-                   field, identifier)
+        return cls._from_lt_line_data(line.data)
 
     def __init__(self, element, ion_state, wavelength, gamma, f_value,
                  field=None, identifier=None):
@@ -175,6 +179,30 @@ class LineDatabase:
     >>> print(lines)
 
     """
+    @classmethod
+    def from_lt(cls, line_list):
+        """Initialize from a linetools LineList object.
+
+        **Parameters**
+
+        :line_list: linetools.lists.linelist.LineList
+
+        **Example**
+
+        >>> # Create a LineDatabase from a linetools LineList
+        >>> from linetools.lists.linelist import LineList
+        >>> ldb = LineDatabase.from_lt(LineList('ISM'))
+
+        """
+        # Start with an empty database
+        ldb = cls()
+        # Add lines manually
+        for wrest in line_list.wrest:
+            line = Line._from_lt_line_data(line_list[wrest])
+            ldb.add_line(line.element, line.ion_state, line.wavelength,
+                         line.gamma, line.f_value, line.field, line.identifier)
+        return ldb
+
     def __init__(self, input_file=None):
         self.lines_all = []
         self.lines_subset = []
