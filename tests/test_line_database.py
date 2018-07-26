@@ -48,6 +48,12 @@ def test_line():
     assert HI.field == "H_number_density"
     print(HI)
 
+def test_line_from_linetools():
+    from linetools.spectralline import AbsLine
+    HI = Line.from_lt(AbsLine('HI 1215'))
+    assert HI.field == "H_number_density"
+    print(HI)
+
 def test_line_database_from_stored_file():
     ld = LineDatabase('lines.txt')
     print(ld)
@@ -64,6 +70,11 @@ def test_line_database_from_input():
     HI = Line('H', 'I', 1216, 1.5, 2.3, identifier='Ly a')
     ld.add_line('H', 'I', 1216, 1.5, 2.3, identifier='Ly a')
     assert ld.lines_all[0].identifier == HI.identifier
+    print(ld)
+
+def test_line_database_from_linetools():
+    from linetools.lists.linelist import LineList
+    ld = LineDatabase.from_lt(LineList('ISM'))
     print(ld)
 
 def test_select_lines_from_line_database():

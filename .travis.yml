@@ -23,6 +23,7 @@ env:
     SCIPY=scipy
     IPYTHON=ipython
     FASTCACHE=fastcache
+    LT_DIR=$HOME/linetools-git
     YT_DIR=$HOME/yt-git
     TRIDENT_ION_DATA=$HOME/.trident
     TRIDENT_ANSWER_DATA=$HOME/answer_test_data
@@ -49,6 +50,15 @@ install:
     pip install --upgrade setuptools
     # Install dependencies
     pip install mock $NUMPY $SCIPY $H5PY $CYTHON $MATPLOTLIB $SYMPY $FASTCACHE $IPYTHON flake8 pytest gitpython
+    # install linetools
+    # the pip version is too old so we pull from source directly
+    if [ ! -f $LT_DIR/README.md ]; then
+        git clone --branch=master https://github.com/linetools/linetools $LT_DIR
+    fi
+    pushd $LT_DIR
+    git pull
+    pip install -e .
+    popd   
     # install yt
     if [ ! -f $YT_DIR/README.md ]; then
         git clone --branch=master https://github.com/yt-project/yt $YT_DIR
