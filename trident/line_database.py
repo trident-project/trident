@@ -206,8 +206,13 @@ class LineDatabase:
         # Start with an empty database
         ldb = cls()
         # Add lines manually
-        for wrest in line_list.wrest:
-            line_data = line_list[wrest]
+        line_table = line_list._data
+        for row in line_table:
+            line_data = {}
+            for k in line_table.colnames:
+                line_data[k] = row[k]
+                if line_table[k].unit is not None:
+                    line_data[k] *= line_table[k].unit
             try:
                 line = Line._from_lt_line_data(line_data)
                 ldb.add_line(line.element, line.ion_state, line.wavelength,
