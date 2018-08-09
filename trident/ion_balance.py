@@ -800,12 +800,11 @@ def _ion_number_density(field, data):
                   atomic_mass[atom] / mh
 
     # try the SN type metallicity (ART code)
-    if ("art","MetalDensitySNIa") in data.ds.field_info:
-        nucleus_densityIa = data[("art","MetalDensitySNIa")].in_units("g / cm**3")*yt.YTArray(SNIa_abundance[atom],"1 / g")
-        nucleus_densityII = data[("art","MetalDensitySNII")].in_units("g / cm**3")*yt.YTArray(SNII_abundance[atom],"1 / g")
+    if ("art","MetalDensitySNIa") in data.ds.field_info and False:
+        nucleus_densityIa = data[("art","MetalDensitySNIa")].in_units("g / cm**3")*data.ds.quan(SNIa_abundance[atom],"1 / g")
+        nucleus_densityII = data[("art","MetalDensitySNII")].in_units("g / cm**3")*data.ds.quan(SNII_abundance[atom],"1 / g")
         nucleus_densitycombined = nucleus_densityIa + nucleus_densityII
-        return data[fraction_field_name] * nucleus_densitycombined
-                  
+        return data[fraction_field_name] * nucleus_densitycombined                  
 
     if atom == 'H' or atom == 'He':
         number_density = solar_abundance[atom] * data[fraction_field_name]
