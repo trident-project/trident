@@ -980,6 +980,14 @@ def _ion_number_density(field, data):
                   data[ftype, metallicity_field] / \
                   atomic_mass[atom] / mh
 
+    # try the SN type metallicity (ART code)
+    if ("art","MetalDensitySNIa") in data.ds.field_info:
+        nucleus_densityIa = data[("art","MetalDensitySNIa")].in_units("g / cm**3")*yt.YTArray(SNIa_abundance[atom],"1 / g")
+        nucleus_densityII = data[("art","MetalDensitySNII")].in_units("g / cm**3")*yt.YTArray(SNII_abundance[atom],"1 / g")
+        nucleus_densitycombined = nucleus_densityIa + nucleus_densityII
+        return data[fraction_field_name] * nucleus_densitycombined
+                  
+
     if atom == 'H' or atom == 'He':
         number_density = solar_abundance[atom] * data[fraction_field_name]
     else:
@@ -1052,6 +1060,30 @@ solar_abundance = {
     'Ti': 1.05e-07, 'V' : 1.00e-08, 'Cr': 4.68e-07,
     'Mn': 2.88e-07, 'Fe': 2.82e-05, 'Co': 8.32e-08,
     'Ni': 1.78e-06, 'Cu': 1.62e-08, 'Zn': 3.98e-08}
+# (# specific metal atoms / # H atoms) 
+
+SNIa_abundance = {
+    'H'  : 1.00E+00, 'He' : 1.00E-01, 'C'  : 2.93E-03, 
+    'N'  : 6.05E-08, 'O'  : 6.52E-03, 'F'  : 2.18E-11, 
+    'Ne' : 1.63E-04, 'Na' : 2.01E-06, 'Mg' : 2.57E-04, 
+    'Al' : 2.67E-05, 'Si' : 4.07E-03, 'P'  : 8.41E-06, 
+    'S'  : 1.98E-03, 'Cl' : 3.57E-06, 'Ar' : 2.86E-04, 
+    'K'  : 1.46E-06, 'Ca' : 2.17E-04, 'Sc' : 3.59E-09, 
+    'Ti' : 5.23E-06, 'V'  : 1.07E-06, 'Cr' : 1.19E-04, 
+    'Mn' : 1.18E-04, 'Fe' : 9.78E-03, 'Co' : 1.29E-05, 
+    'Ni' : 1.56E-03, 'Cu' : 3.45E-08, 'Zn' : 3.15E-07}
+
+# (# specific metal atoms / # H atoms) 
+SNII_abundance = {
+    'H'  : 1.00E+00, 'He' : 1.00E-01, 'C'  : 2.60E-03, 
+    'N'  : 4.39E-05, 'O'  : 4.44E-02, 'F'  : 2.41E-11, 
+    'Ne' : 4.52E-03, 'Na' : 1.12E-04, 'Mg' : 1.99E-03, 
+    'Al' : 2.16E-04, 'Si' : 1.71E-03, 'P'  : 1.54E-05, 
+    'S'  : 5.06E-04, 'Cl' : 1.33E-06, 'Ar' : 7.88E-05, 
+    'K'  : 6.79E-07, 'Ca' : 5.77E-05, 'Sc' : 2.01E-09, 
+    'Ti' : 1.08E-06, 'V'  : 7.73E-08, 'Cr' : 9.97E-06, 
+    'Mn' : 2.77E-06, 'Fe' : 6.40E-04, 'Co' : 4.86E-07, 
+    'Ni' : 4.01E-05, 'Cu' : 7.71E-09, 'Zn' : 1.14E-07}
 
 atomic_mass = {
     'H' : 1.00794,   'He': 4.002602,  'Li': 6.941,
