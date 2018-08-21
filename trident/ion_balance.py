@@ -980,13 +980,6 @@ def _ion_number_density(field, data):
                   data[ftype, metallicity_field] / \
                   atomic_mass[atom] / mh
 
-    # try the SN type metallicity (ART code)
-    if ("art","MetalDensitySNIa") in data.ds.field_info and False:
-        nucleus_densityIa = data[("art","MetalDensitySNIa")].in_units("g / cm**3")*data.ds.quan(SNIa_abundance[atom],"1 / g")
-        nucleus_densityII = data[("art","MetalDensitySNII")].in_units("g / cm**3")*data.ds.quan(SNII_abundance[atom],"1 / g")
-        nucleus_densitycombined = nucleus_densityIa + nucleus_densityII
-        return data[fraction_field_name] * nucleus_densitycombined                  
-
     if atom == 'H' or atom == 'He':
         number_density = solar_abundance[atom] * data[fraction_field_name]
     else:
@@ -1059,31 +1052,6 @@ solar_abundance = {
     'Ti': 1.05e-07, 'V' : 1.00e-08, 'Cr': 4.68e-07,
     'Mn': 2.88e-07, 'Fe': 2.82e-05, 'Co': 8.32e-08,
     'Ni': 1.78e-06, 'Cu': 1.62e-08, 'Zn': 3.98e-08}
-
-# based on Iwamoto et al 1999
-# number of atoms per gram of SNIa metal
-SNIa_abundance = {
-    'H'  : 0.00E+00, 'He' : 0.00E+00, 'C'  : 1.75E+21, 
-    'N'  : 3.61E+16, 'O'  : 3.90E+21, 'F'  : 1.30E+13, 
-    'Ne' : 9.76E+19, 'Na' : 1.20E+18, 'Mg' : 1.54E+20, 
-    'Al' : 1.59E+19, 'Si' : 2.43E+21, 'P'  : 5.02E+18, 
-    'S'  : 1.18E+21, 'Cl' : 2.14E+18, 'Ar' : 1.71E+20, 
-    'K'  : 8.74E+17, 'Ca' : 1.30E+20, 'Sc' : 2.14E+15, 
-    'Ti' : 3.12E+18, 'V'  : 6.41E+17, 'Cr' : 7.11E+19, 
-    'Mn' : 7.04E+19, 'Fe' : 5.85E+21, 'Co' : 7.69E+18, 
-    'Ni' : 9.34E+20, 'Cu' : 2.06E+16, 'Zn' : 1.88E+17}
-
-# number of atoms per gram of SNIa metal
-SNII_abundance = {
-    'H'  : 0.00E+00, 'He' : 0.00E+00, 'C'  : 1.55E+21, 
-    'N'  : 2.62E+19, 'O'  : 2.66E+22, 'F'  : 1.44E+13, 
-    'Ne' : 2.70E+21, 'Na' : 6.67E+19, 'Mg' : 1.19E+21, 
-    'Al' : 1.29E+20, 'Si' : 1.02E+21, 'P'  : 9.20E+18, 
-    'S'  : 3.02E+20, 'Cl' : 7.95E+17, 'Ar' : 4.71E+19, 
-    'K'  : 4.06E+17, 'Ca' : 3.45E+19, 'Sc' : 1.20E+15, 
-    'Ti' : 6.47E+17, 'V'  : 4.62E+16, 'Cr' : 5.96E+18, 
-    'Mn' : 1.65E+18, 'Fe' : 3.82E+20, 'Co' : 2.90E+17, 
-    'Ni' : 2.40E+19, 'Cu' : 4.61E+15, 'Zn' : 6.81E+16}
 
 atomic_mass = {
     'H' : 1.00794,   'He': 4.002602,  'Li': 6.941,
