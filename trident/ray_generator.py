@@ -45,8 +45,8 @@ def make_simple_ray(dataset_file, start_position, end_position,
     """
     Create a yt LightRay object for a single dataset (eg CGM).  This is a 
     wrapper function around yt's LightRay interface to reduce some of the 
-    complexity there.  
-    
+    complexity there.
+
     A simple ray is a straight line passing through a single dataset
     where each gas cell intersected by the line is sampled for the desired
     fields and stored.  Several additional fields are created and stored
