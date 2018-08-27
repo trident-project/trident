@@ -39,7 +39,7 @@ out :ref:`here <what-version-am-i-running>`), and of course, a description of
 the problem you're having with any relevant traceback errors.  
 Our mailing list is located here::
 
-https://groups.google.com/forum/#!forum/trident-project-users 
+  https://groups.google.com/forum/#!forum/trident-project-users
 
 Join our Slack Channel
 ----------------------
