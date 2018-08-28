@@ -97,7 +97,6 @@ script:
     popd
     pushd tests
     py.test --cov=trident
-    popd
 
 jobs:
   include:
