@@ -151,3 +151,19 @@ jobs:
           touch $TRIDENT_ION_DATA/hm2012_lr.h5
           cd doc/source
           python -m sphinx -M html "." "_build" -W
+
+    - stage: deploy
+      name: "deploy to pypi"
+      python: 3.6
+      before_script: skip
+      before_install: skip
+      script: skip
+      deploy:
+        provider: pypi
+        distributions: sdist bdist_wheel --universal
+        user: chummels
+        password:
+          secure: g6imz36+qTbzcq3GLvnZPKnnrrYoUbBInR8P2Cwf4zevwWRrQ+Wqlv/Na8JT4ACWArsrMbYY2WUnnmiZaJXLaULPBBJzmYAJQq++RjikEGSRGOISuA8esSx4Fy5SuySWO0FKqJorQh6VJcyIs6I33ZiFrOM9clq8MoHZTVvlbgIqWUnWZZfvOIOJs9K7REKr/UIYdSnRULFkBzFcs8iZEPcnARKeTzA1X7O07asnHC3o4zApZkDq+a3lH8+uuPuCdyZlPN2bVaEbhyqyB82NmAXNY4Exboh7c4xqyk2Rwz4ZtWLOe+SpGSynz0ULA7UfdJrtJ20/7htBKNd9yh20vfh3sQsBNx1J4WNp30ibX8WeH1FGP5LAGMF5JuDBL3uNZwI6PQeoW63tce0bAiENXhkI9lTdj+tyJquA2d0OdNB4tpPBFAkAqk1CK6JeDYjTPjfQKtx8N49RFzoqrtgtHiywkf+MLp+yYV/HwUbCH5RsRhh3PUYLRFuupslXs46FC92FGegx87IkOiQDElI/vwAZDe2RHLQ8fG6E1ycYj9XCoMqQo6ugkq6a6+3/kyubYYuQdxBJ/0Po/hxRJPrvnfe2UanMgABDzWpkQPHv8v6PBQkoMsGZPaETqBQWBeetJteTmBbI71kaVX7c7YVqPK6kf0GorDrvV5OSNjCGXNM=
+        on:
+          tags: true
+          repo: trident-project/trident
