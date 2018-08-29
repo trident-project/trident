@@ -692,8 +692,7 @@ class AbsorptionSpectrum(object):
 
                 # Update the line_observables_dict with values for this line
                 EW = np.sum(1-np.exp(-current_tau_field))*self.bin_width
-                obs_dict = {"column_density_ray":column_density,
-                            "column_density":np.sum(column_density),
+                obs_dict = {"column_density":column_density,
                             "tau_ray":tau_ray,
                             "EW":EW,
                             "delta_lambda":delta_lambda,
