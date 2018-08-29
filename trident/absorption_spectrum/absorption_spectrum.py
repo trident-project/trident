@@ -690,7 +690,8 @@ class AbsorptionSpectrum(object):
                                        lambda_obs, thermal_b, thermal_width]
                     obs_dict_fields = [comm.mpi_allreduce(field,op="sum") for field in obs_dict_fields]
 
-                 # Update the line_observables_dict with values for this line
+                # Update the line_observables_dict with values for this line
+                EW = np.sum(1-np.exp(-current_tau_field))*self.bin_width
                 obs_dict = {"column_density":column_density,
                             "tau_ray":tau_ray,
                             "delta_lambda":delta_lambda,
