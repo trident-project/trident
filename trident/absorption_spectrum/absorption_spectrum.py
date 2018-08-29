@@ -538,6 +538,8 @@ class AbsorptionSpectrum(object):
             # light ray that is deposited to the final spectrum 
             if store_observables:
                 tau_ray = np.zeros(cdens.size)
+                # current_tau_field is a clean copy of tau_field, but for use on only one ion at a time
+                current_tau_field = 0*self.tau_field
             if use_peculiar_velocity:
                 vlos = field_data['velocity_los'].in_units("km/s").d # km/s
             else:
@@ -655,7 +657,8 @@ class AbsorptionSpectrum(object):
                         += EW_deposit
                     if store_observables:
                         tau_ray[i] = np.sum(EW_deposit)
-
+                        current_tau_field[intersect_left_index:intersect_right_index] \
+                          += EW_deposit
                 # write out absorbers to file if the column density of
                 # an absorber is greater than the specified "label_threshold"
                 # of that absorption line
