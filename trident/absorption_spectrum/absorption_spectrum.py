@@ -402,8 +402,8 @@ class AbsorptionSpectrum(object):
         # continuum effect, we normalize min_tau by the n_absorbers.
         n_absorbers = field_data['dl'].size
 
-        if n_absorbers == 0: 
-            mylog.info("No absorbers in path of LightRay.")  
+        if n_absorbers == 0:
+            mylog.info("No absorbers in path of LightRay.")
             return
 
         min_tau /= n_absorbers
@@ -538,6 +538,7 @@ class AbsorptionSpectrum(object):
             # light ray that is deposited to the final spectrum 
             if store_observables:
                 tau_ray = np.zeros(cdens.size)
+                # current_tau_field is a clean copy of tau_field, but for use on only one ion at a time
                 current_tau_field = 0*self.tau_field
             if use_peculiar_velocity:
                 vlos = field_data['velocity_los'].in_units("km/s").d # km/s
@@ -655,9 +656,9 @@ class AbsorptionSpectrum(object):
                     self.tau_field[intersect_left_index:intersect_right_index] \
                         += EW_deposit
                     if store_observables:
-                      tau_ray[i] = np.sum(EW_deposit)
-                      current_tau_field[intersect_left_index:intersect_right_index] \
-                        += EW_deposit
+                        tau_ray[i] = np.sum(EW_deposit)
+                        current_tau_field[intersect_left_index:intersect_right_index] \
+                          += EW_deposit
                 # write out absorbers to file if the column density of
                 # an absorber is greater than the specified "label_threshold"
                 # of that absorption line
