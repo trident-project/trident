@@ -10,3 +10,4 @@ dist/*
 *.swp
 tests/.cache/*
 .cache/*
+.pytest_cache
