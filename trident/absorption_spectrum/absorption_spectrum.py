@@ -623,22 +623,27 @@ class AbsorptionSpectrum(object):
                         break
                     window_width_in_bins *= 2
 
-                # numerically integrate the virtual bins to calculate a
-                # virtual equivalent width; then sum the virtual equivalent
-                # widths and deposit into each spectral bin
-                vEW = vtau * vbin_width[i]
-                EW = np.zeros(right_index - left_index)
-                EW_indices = np.arange(left_index, right_index)
-                for k, val in enumerate(EW_indices):
-                    EW[k] = vEW[n_vbins_per_bin[i] * k: \
+                # Numerically integrate the virtual bins to calculate a
+                # virtual "equivalent width" of optical depth; then sum these 
+                # virtual equivalent widths in tau and deposit back into each 
+                # original spectral tau bin
+                # Please note: this is not a true equivalent width in the 
+                # normal use of the word by observers.  It is an equivalent
+                # with in tau, not in flux, and is only used internally in
+                # this subgrid deposition as EW_tau.
+                vEW_tau = vtau * vbin_width[i]
+                EW_tau = np.zeros(right_index - left_index)
+                EW_tau_indices = np.arange(left_index, right_index)
+                for k, val in enumerate(EW_tau_indices):
+                    EW_tau[k] = vEW_tau[n_vbins_per_bin[i] * k: \
                                 n_vbins_per_bin[i] * (k + 1)].sum()
-                EW = EW/self.bin_width.d
+                EW_tau = EW_tau/self.bin_width.d
 
-                # only deposit EW bins that actually intersect the original
+                # only deposit EW_tau bins that actually intersect the original
                 # spectral wavelength range (i.e. lambda_field)
 
-                # if EW bins don't intersect the original spectral range at all
-                # then skip the deposition
+                # if EW_tau bins don't intersect the original spectral range at 
+                # all then skip the deposition
                 if ((left_index >= self.n_lambda) or \
                     (right_index < 0)):
                     pbar.update(i)
@@ -646,19 +651,19 @@ class AbsorptionSpectrum(object):
 
                 # otherwise, determine how much of the original spectrum
                 # is intersected by the expanded line window to be deposited,
-                # and deposit the Equivalent Width data into that intersecting
-                # window in the original spectrum's tau
+                # and deposit the Equivalent Width in tau into that intersecting
+                # window in the original spectrum's tau array
                 else:
                     intersect_left_index = max(left_index, 0)
                     intersect_right_index = min(right_index, self.n_lambda-1)
-                    EW_deposit = EW[(intersect_left_index - left_index): \
-                                    (intersect_right_index - left_index)]
+                    EW_tau_deposit = EW_tau[(intersect_left_index - left_index): \
+                                            (intersect_right_index - left_index)]
                     self.tau_field[intersect_left_index:intersect_right_index] \
-                        += EW_deposit
+                        += EW_tau_deposit
                     if store_observables:
-                        tau_ray[i] = np.sum(EW_deposit)
+                        tau_ray[i] = np.sum(EW_tau_deposit)
                         current_tau_field[intersect_left_index:intersect_right_index] \
-                          += EW_deposit
+                          += EW_tau_deposit
                 # write out absorbers to file if the column density of
                 # an absorber is greater than the specified "label_threshold"
                 # of that absorption line
@@ -690,8 +695,10 @@ class AbsorptionSpectrum(object):
                                        lambda_obs, thermal_b, thermal_width]
                     obs_dict_fields = [comm.mpi_allreduce(field,op="sum") for field in obs_dict_fields]
 
-                # Update the line_observables_dict with values for this line
+                # Calculate the flux decrement equivalent width (the true
+                # equivalent width!) for use in post-processing
                 EW = np.sum(1-np.exp(-current_tau_field))*self.bin_width
+                # Update the line_observables_dict with values for this line
                 obs_dict = {"column_density":column_density,
                             "tau_ray":tau_ray,
                             "delta_lambda":delta_lambda,
