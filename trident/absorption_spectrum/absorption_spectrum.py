@@ -691,7 +691,7 @@ class AbsorptionSpectrum(object):
                 # quantities for the dictionary are combined correctly.
                 comm = _get_comm(())
                 if comm.size > 1:
-                    obs_dict_fields = [column_density, tau_ray, EW_tau, delta_lambda,
+                    obs_dict_fields = [column_density, tau_ray, current_tau_field, delta_lambda,
                                        lambda_obs, thermal_b, thermal_width]
                     obs_dict_fields = [comm.mpi_allreduce(field,op="sum") for field in obs_dict_fields]
 
