@@ -11,3 +11,5 @@ dist/*
 tests/.cache/*
 .cache/*
 .pytest_cache
+.coverage
+flake8.out
