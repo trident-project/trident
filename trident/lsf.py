@@ -13,7 +13,6 @@ LSF class and member functions for Line Spread Functions.
 
 import numpy as np
 import os
-import sys
 from yt.funcs import \
     mylog
 from trident.config import \
@@ -35,14 +34,14 @@ class LSF(object):
 
     :width: int, optional
 
-        The width of the LSF kernel in bins.  
+        The width of the LSF kernel in bins.
 
     :filename: string, optional
 
         The filename of a textfile for a user-specified kernel. Each line
         in the textfile contains a normalized flux value of the kernel.
         For examples, see contents of ``trident.__path__/data/lsf_kernels``
-        Trident searches for these files either in the aforementioned 
+        Trident searches for these files either in the aforementioned
         directory or in the execution directory.
 
     **Examples**
@@ -77,7 +76,7 @@ class LSF(object):
                     lsf_file = open(filename2, 'r')
                 else:
                     raise RuntimeError("LSF filename not found in current " +
-                        "directory or in %s/data/lsf_kernels directory" % 
+                        "directory or in %s/data/lsf_kernels directory" %
                         trident_path())
             for line in lsf_file:
                 self.kernel.append(float(line.split()[1]))

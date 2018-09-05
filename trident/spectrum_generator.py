@@ -11,7 +11,6 @@ SpectrumGenerator class and member functions.
 # The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
-import h5py
 import numpy as np
 import os
 
@@ -337,9 +336,9 @@ class SpectrumGenerator(AbsorptionSpectrum):
         for line in active_lines:
             # if successful, means line.field is in ds.derived_field_list
             try:
-                disk_field = ad._determine_fields(line.field)[0]
+                ad._determine_fields(line.field)[0]
             # otherwise we probably need to add the field to the dataset
-            except:
+            except BaseException:
                 my_ion = \
                   line.field[:line.field.find("number_density")]
                 on_ion = my_ion.split("_")
@@ -384,7 +383,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         # the final Lyman line into the FUV.
         H_lines = self.line_database.select_lines(source_list=active_lines,
                                                   element='H', ion_state='I')
-        if (len(H_lines) > 0) and (ly_continuum == True):
+        if len(H_lines) > 0 and ly_continuum:
             self.add_continuum('Ly C', H_lines[0].field, 912.32336, 1.6e17, 3.0)
 
         AbsorptionSpectrum.make_spectrum(self, ray,

@@ -18,14 +18,11 @@ from yt.convenience import \
 from yt.testing import \
     assert_array_equal
 from trident import \
-    LightRay, \
-    parse_config
+    LightRay
 from trident.testing import \
     answer_test_data_dir, \
     TempDirTest
 import os
-import shutil
-import tempfile
 
 COSMO_PLUS = os.path.join(answer_test_data_dir,
                           "enzo_cosmology_plus/AMRCosmology.enzo")
