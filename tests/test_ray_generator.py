@@ -13,15 +13,9 @@ Tests for ion balance code
 
 from __future__ import absolute_import
 import trident as tri
-import yt
-from yt.testing import \
-    fake_random_ds, \
-    fake_amr_ds, \
-    fake_particle_ds
 import tempfile
 import shutil
 import os
-import numpy as np
 
 def test_create_simple_grid_ray_with_lines():
     """
@@ -34,7 +28,7 @@ def test_create_simple_grid_ray_with_lines():
     ray_start = ds.arr([0., 0., 0.], 'unitary')
     ray_end = ds.arr([1., 1., 1.], 'unitary')
     ray = tri.make_simple_ray(ds, start_position=ray_start, end_position=ray_end,
-                              data_filename=filename, 
+                              data_filename=filename,
                               lines=['H', 'C IV'], ftype='gas')
     sg = tri.SpectrumGenerator(lambda_min=1000, lambda_max=1400., dlambda=0.1)
     sg.make_spectrum(ray, lines=['H', 'C IV'])

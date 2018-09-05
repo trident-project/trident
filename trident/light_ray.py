@@ -36,13 +36,13 @@ from yt.data_objects.static_output import Dataset
 
 class LightRay(CosmologySplice):
     """
-    A 1D object representing the path of a light ray passing through a 
-    simulation.  LightRays can be either simple, where they pass through a 
-    single dataset, or compound, where they pass through consecutive 
-    datasets from the same cosmological simulation.  One can sample any of 
-    the fields intersected by the LightRay object as it passed through 
+    A 1D object representing the path of a light ray passing through a
+    simulation.  LightRays can be either simple, where they pass through a
+    single dataset, or compound, where they pass through consecutive
+    datasets from the same cosmological simulation.  One can sample any of
+    the fields intersected by the LightRay object as it passed through
     the dataset(s).
-    
+
     For compound rays, the LightRay stacks together multiple datasets in a time
     series in order to approximate a LightRay's path through a volume
     and redshift interval larger than a single simulation data output.
@@ -63,7 +63,7 @@ class LightRay(CosmologySplice):
 
     :simulation_type: optional, string
 
-        This refers to the simulation frontend type.  Do not use for simple 
+        This refers to the simulation frontend type.  Do not use for simple
         rays.
         Default: None
 
@@ -133,8 +133,8 @@ class LightRay(CosmologySplice):
 
     :load_kwargs: optional, dict
 
-        If you are passing a filename of a dataset to LightRay rather than an 
-        already loaded dataset, then you can optionally provide this dictionary 
+        If you are passing a filename of a dataset to LightRay rather than an
+        already loaded dataset, then you can optionally provide this dictionary
         as keywords when the dataset is loaded by yt with the "load" function.
         Necessary for use with certain frontends.  E.g.
         Tipsy using "bounding_box"
@@ -172,7 +172,7 @@ class LightRay(CosmologySplice):
         # 3) User passed us a simulation filename: use it to make a compound ray
 
         # Make a light ray from a single, given dataset: #1, #2
-        if simulation_type is None:     
+        if simulation_type is None:
             self.simulation_type = simulation_type
             if isinstance(self.parameter_filename, Dataset):
                 self.ds = self.parameter_filename
@@ -320,14 +320,14 @@ class LightRay(CosmologySplice):
         those cells. Light ray data must be written out to an hdf5 file.
 
         **Parameters**
-        
+
         :seed: optional, int
 
             Seed for the random number generator.
             Default: None.
 
         :periodic: optional, bool
-        
+
             If True, ray trajectories will make use of periodic
             boundaries.  If False, ray trajectories will not be
             periodic.
@@ -514,8 +514,8 @@ class LightRay(CosmologySplice):
         all_fields.extend(['x', 'y', 'z'])
         data_fields.extend(['x', 'y', 'z'])
         if use_peculiar_velocity:
-            all_fields.extend(['velocity_x', 'velocity_y', 'velocity_z', 
-                               'velocity_los', 'redshift_eff', 
+            all_fields.extend(['velocity_x', 'velocity_y', 'velocity_z',
+                               'velocity_los', 'redshift_eff',
                                'redshift_dopp'])
             data_fields.extend(['velocity_x', 'velocity_y', 'velocity_z'])
 
@@ -524,7 +524,7 @@ class LightRay(CosmologySplice):
                                                        storage=all_ray_storage,
                                                        njobs=njobs):
 
-            # In case of simple rays, use the already loaded dataset: self.ds, 
+            # In case of simple rays, use the already loaded dataset: self.ds,
             # otherwise, load dataset for segment.
             if self.ds is None:
                 ds = load(my_segment['filename'], **self.load_kwargs)
@@ -610,21 +610,21 @@ class LightRay(CosmologySplice):
                     sub_data['velocity_los'].extend(sub_vel_los[asort])
 
                     # doppler redshift:
-                    # See https://en.wikipedia.org/wiki/Redshift and 
+                    # See https://en.wikipedia.org/wiki/Redshift and
                     # Peebles eqns: 5.48, 5.49
 
-                    # 1 + redshift_dopp = (1 + v*cos(theta)/c) / 
+                    # 1 + redshift_dopp = (1 + v*cos(theta)/c) /
                     # sqrt(1 - v**2/c**2)
 
                     # where v is the peculiar velocity (ie physical velocity
                     # without the hubble flow, but no hubble flow in sim, so
                     # just the physical velocity).
 
-                    # the bulk of the doppler redshift is from line of sight 
-                    # motion, but there is a small amount from time dilation 
-                    # of transverse motion, hence the inclusion of theta (the 
-                    # angle between line of sight and the velocity). 
-                    # theta is the angle between the ray vector (i.e. line of 
+                    # the bulk of the doppler redshift is from line of sight
+                    # motion, but there is a small amount from time dilation
+                    # of transverse motion, hence the inclusion of theta (the
+                    # angle between line of sight and the velocity).
+                    # theta is the angle between the ray vector (i.e. line of
                     # sight) and the velocity vectors: a dot b = ab cos(theta)
 
                     sub_vel_mag = sub_ray['velocity_magnitude']
@@ -647,17 +647,17 @@ class LightRay(CosmologySplice):
                     continue
                 sub_data[key] = ds.arr(sub_data[key]).in_cgs()
 
-            # Get redshift for each lixel.  Assume linear relation between l 
+            # Get redshift for each lixel.  Assume linear relation between l
             # and z.
             sub_data['dredshift'] = (my_segment['redshift'] - next_redshift) * \
                 (sub_data['dl'] / vector_length(my_start, my_end).in_cgs())
             sub_data['redshift'] = my_segment['redshift'] - \
               sub_data['dredshift'].cumsum() + sub_data['dredshift']
 
-            # When using the peculiar velocity, create effective redshift 
-            # (redshift_eff) field combining cosmological redshift and 
+            # When using the peculiar velocity, create effective redshift
+            # (redshift_eff) field combining cosmological redshift and
             # doppler redshift.
-            
+
             # then to add cosmological redshift and doppler redshifts, follow
             # eqn 3.75 in Peacock's Cosmological Physics:
             # 1 + z_eff = (1 + z_cosmo) * (1 + z_doppler)
@@ -847,6 +847,7 @@ def periodic_distance(coord1, coord2):
     dif = coord1 - coord2
 
     dim = np.ones(coord1.shape,dtype=int)
+
     def periodic_bind(num):
         pos = np.abs(num % dim)
         neg = np.abs(num % -dim)

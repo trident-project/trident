@@ -202,7 +202,7 @@ def generate_total_fit(x, fluxData, orderFits, speciesDicts,
 
 def _complex_fit(x, yDat, yFit, initz, minSize, errBound, speciesDict,
         initP=None):
-    """ 
+    """
     Fit an absorption complex by iteratively adding and optimizing
     voigt profiles.
 
@@ -307,9 +307,10 @@ def _complex_fit(x, yDat, yFit, initz, minSize, errBound, speciesDict,
         initP = linesP.flatten()
 
         #Optimize line
-        fitP,success=optimize.leastsq(_voigt_error,initP,
-                args=(x,yDat,yFit,speciesDict),
-                epsfcn=1E-10,maxfev=1000)
+        fitP,success=optimize.leastsq(
+            _voigt_error,initP,
+            args=(x,yDat,yFit,speciesDict),
+            epsfcn=1E-10,maxfev=1000)
 
 
         #Set results of optimization

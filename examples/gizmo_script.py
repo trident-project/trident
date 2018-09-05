@@ -42,7 +42,7 @@ sg.make_spectrum(ray, lines=line_list)
 sg.save_spectrum('spec_raw.txt')
 sg.plot_spectrum('spec_raw.png')
 
-# "Final" spectrum with added quasar, MW background, applied line-spread 
+# "Final" spectrum with added quasar, MW background, applied line-spread
 # function, and added gaussian noise (SNR=30)
 sg.add_qso_spectrum()
 sg.add_milky_way_foreground()

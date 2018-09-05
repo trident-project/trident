@@ -13,7 +13,6 @@ Tests to assure the code runs on example pipelines
 
 import h5py
 import os
-import unittest
 from yt.convenience import load
 from yt.testing import \
     assert_almost_equal
@@ -49,7 +48,7 @@ class PipelineTest(TempDirTest):
         This is an answer test, which compares the results of this test
         against answers generated from a previous version of the code.
 
-        This test generates a COS spectrum from a single Enzo dataset 
+        This test generates a COS spectrum from a single Enzo dataset
         using a simple ray and compare the ray and spectral output data
         against a known answer.
 
@@ -121,7 +120,7 @@ class PipelineTest(TempDirTest):
         This is an answer test, which compares the results of this test
         against answers generated from a previous version of the code.
 
-        This test generates a COS spectrum from a single Enzo dataset 
+        This test generates a COS spectrum from a single Enzo dataset
         using a compound ray and compare the ray and spectral output data
         against a known answer.
         """
@@ -193,7 +192,7 @@ class PipelineTest(TempDirTest):
         This is an answer test, which compares the results of this test
         against answers generated from a previous version of the code.
 
-        This test generates a COS spectrum from a single Gizmo dataset 
+        This test generates a COS spectrum from a single Gizmo dataset
         using a simple ray and compare the ray and spectral output data
         against a known answer.
 

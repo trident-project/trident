@@ -32,5 +32,6 @@ def get_gold_standard_version():
     print('Trident = %s' % trident_gold)
     print('To update to them, `git checkout <tag>` in appropriate repository')
 
+
 if __name__ == "__main__":
     get_gold_standard_version()
