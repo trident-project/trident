@@ -52,7 +52,7 @@ def trident_path():
 
     >>> print(trident_path())
     """
-    # os.path.split(__file__)returns a tuple with [0] the path to the file 
+    # os.path.split(__file__)returns a tuple with [0] the path to the file
     # and [1] the filename.
     # Here, __file__ refers to this file (config.py)
     return os.path.split(__file__)[0]
@@ -100,7 +100,7 @@ def create_config():
         ensure_directory(datadir)
         print("Using %s" % datadir)
         print("")
-    except:
+    except BaseException:
         print("Cannot create directory %s" % datadir)
         raise
 
@@ -156,7 +156,7 @@ def parse_config(variable=None):
         parser.read(config_filename)
         ion_table_dir = parser.get('Trident', 'ion_table_dir')
         ion_table_file = parser.get('Trident', 'ion_table_file')
-    except:
+    except BaseException:
         config_filename = create_config()
         parser = SafeConfigParser()
         parser.read(config_filename)
@@ -215,7 +215,7 @@ def verify(save=False):
     print("")
     try:
         ds = make_onezone_dataset()
-    except:
+    except BaseException:
         print("Failed to create single-cell dataset")
         raise
 
@@ -224,7 +224,7 @@ def verify(save=False):
     print("-----------------------------------------------")
     print("")
 
-    if save == True:
+    if save:
         tempdir = '.'
     else:
         tempdir = tempfile.mkdtemp()
@@ -235,7 +235,7 @@ def verify(save=False):
                 end_position=ds.domain_right_edge,
                 data_filename=os.path.join(tempdir, 'ray.h5'),
                 fields=['density', 'temperature', 'metallicity'])
-    except:
+    except BaseException:
         print("Failed to create ray object")
         raise
 
@@ -255,7 +255,7 @@ def verify(save=False):
     sg.save_spectrum(os.path.join(tempdir, 'spec_final.h5'))
     sg.plot_spectrum(os.path.join(tempdir, 'spec_final.png'))
 
-    if save == False:
+    if not save:
         print("Removing all temporary data files...")
         shutil.rmtree(tempdir)
 
@@ -268,6 +268,7 @@ def verify(save=False):
 # file or try to create a config file.  But don't do this on readthedocs, or
 # it will fail in the build. In readthedocs environment, just set a dummy
 # filepath so readthedocs can parse the docstrings OK.
+
 
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 if on_rtd:

@@ -26,7 +26,7 @@ def test_save_load_spectrum_ascii():
     """
     dirpath = tempfile.mkdtemp()
     filename = os.path.join(dirpath, 'ray.h5')
-    ray = make_onezone_ray(column_densities={'H_p0_number_density':1e21}, 
+    ray = make_onezone_ray(column_densities={'H_p0_number_density':1e21},
                                    filename=filename)
     sg = SpectrumGenerator(lambda_min=1200, lambda_max=1300, dlambda=0.5)
     sg.make_spectrum(ray, lines=['Ly a'])
@@ -43,7 +43,7 @@ def test_save_load_spectrum_hdf5():
     """
     dirpath = tempfile.mkdtemp()
     filename = os.path.join(dirpath, 'ray.h5')
-    ray = make_onezone_ray(column_densities={'H_p0_number_density':1e21}, 
+    ray = make_onezone_ray(column_densities={'H_p0_number_density':1e21},
                                    filename=filename)
     sg = SpectrumGenerator(lambda_min=1200, lambda_max=1300, dlambda=0.5)
     sg.make_spectrum(ray, lines=['Ly a'])
@@ -60,7 +60,7 @@ def test_save_load_spectrum_fits():
     """
     dirpath = tempfile.mkdtemp()
     filename = os.path.join(dirpath, 'ray.h5')
-    ray = make_onezone_ray(column_densities={'H_p0_number_density':1e21}, 
+    ray = make_onezone_ray(column_densities={'H_p0_number_density':1e21},
                                    filename=filename)
     sg = SpectrumGenerator(lambda_min=1200, lambda_max=1300, dlambda=0.5)
     sg.make_spectrum(ray, lines=['Ly a'])
@@ -99,7 +99,7 @@ def test_create_spectrum_H_O_lines():
 
 def test_create_spectrum_H_lines_no_continuum():
     """
-    Test that we can create a basic spectrum with H I lines but no Lyman 
+    Test that we can create a basic spectrum with H I lines but no Lyman
     continuum
     """
     dirpath = tempfile.mkdtemp()

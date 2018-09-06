@@ -10,19 +10,17 @@ Unit test for the AbsorptionSpectrum analysis module
 # The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
-import numpy as np
 import os
 from yt.convenience import load
 
 from trident import \
     make_simple_ray, \
     SpectrumGenerator
-    
+
 from trident.absorption_spectrum.absorption_spectrum_fit import \
     generate_total_fit
 from trident.testing import \
     answer_test_data_dir, \
-    h5_answer_test, \
     TempDirTest
 
 ISO_GALAXY = os.path.join(answer_test_data_dir,
@@ -63,6 +61,6 @@ class AbsorptionSpectrumFitTest(TempDirTest):
 
         orderFits = ['OVI']
         fitted_lines, fitted_flux = generate_total_fit(wavelength,
-                                                       flux, 
-                                                       orderFits, 
+                                                       flux,
+                                                       orderFits,
                                                        speciesDicts)

@@ -11,8 +11,6 @@ SpectrumGenerator class and member functions.
 # The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
-import numpy as np
-import os
 import six
 
 from trident.light_ray import \
@@ -20,9 +18,6 @@ from trident.light_ray import \
 from yt.convenience import \
     load, \
     simulation
-from yt.funcs import \
-    mylog, \
-    YTArray
 from trident.config import \
     ion_table_filepath
 from trident.line_database import \
@@ -36,52 +31,51 @@ from trident.ion_balance import \
     add_ion_number_density_field, \
     atomic_number
 from trident.utilities import \
-    _determine_dataset_sampling_type, \
     _check_sampling_types_match
 
 def make_simple_ray(dataset_file, start_position, end_position,
-                    lines=None, ftype="gas", fields=None, 
-                    solution_filename=None, data_filename=None, 
-                    trajectory=None, redshift=None, 
+                    lines=None, ftype="gas", fields=None,
+                    solution_filename=None, data_filename=None,
+                    trajectory=None, redshift=None,
                     setup_function=None, load_kwargs=None,
                     line_database=None, ionization_table=None):
     """
-    Create a yt LightRay object for a single dataset (eg CGM).  This is a 
-    wrapper function around yt's LightRay interface to reduce some of the 
+    Create a yt LightRay object for a single dataset (eg CGM).  This is a
+    wrapper function around yt's LightRay interface to reduce some of the
     complexity there.
 
     A simple ray is a straight line passing through a single dataset
     where each gas cell intersected by the line is sampled for the desired
     fields and stored.  Several additional fields are created and stored
-    including ``dl`` and ``dredshift`` to represent the path length in space and 
+    including ``dl`` and ``dredshift`` to represent the path length in space and
     redshift for each element in the ray, ``v_los`` to represent the line of
-    sight velocity along the ray, and ``redshift``, ``redshift_dopp``, and 
+    sight velocity along the ray, and ``redshift``, ``redshift_dopp``, and
     ``redshift_eff`` to represent the cosmological redshift, doppler redshift
     and effective redshift (combined doppler and cosmological) for each
     element of the ray.
 
-    A simple ray is typically specified by its start and end positions in the 
+    A simple ray is typically specified by its start and end positions in the
     dataset volume.  Because a simple ray only probes a single output, it
     lacks foreground absorbers between the observer at z=0 and the redshift
     of the dataset that one would naturally encounter.  Thus it is usually
     only appropriate for studying the circumgalactic medium rather than
     the intergalactic medium.
-    
-    This function can accept a yt dataset already loaded in memory, 
-    or it can load a dataset if you pass it the dataset's filename and 
+
+    This function can accept a yt dataset already loaded in memory,
+    or it can load a dataset if you pass it the dataset's filename and
     optionally any load_kwargs or setup_function necessary to load/process it
     properly before generating the LightRay object.
 
-    The :lines: keyword can be set to automatically add all fields to the 
+    The :lines: keyword can be set to automatically add all fields to the
     resulting ray necessary for later use with the SpectrumGenerator class.
     If the necessary fields do not exist for your line of choice, they will
-    be added to your dataset before adding them to the ray.  
+    be added to your dataset before adding them to the ray.
 
     If using the :lines: keyword with an SPH dataset, it is very important
-    to set the :ftype: keyword appropriately, or you may end up calculating 
+    to set the :ftype: keyword appropriately, or you may end up calculating
     ion fields by interpolating on data already smoothed to the grid.  This is
     generally not desired.
-    
+
     **Parameters**
 
     :dataset_file: string or yt Dataset object
@@ -92,14 +86,14 @@ def make_simple_ray(dataset_file, start_position, end_position,
 
     :start_position, end_position: list of floats or YTArray object
 
-        The coordinates of the starting and ending position of the desired 
-        ray.  If providing a raw list, coordinates are assumed to be in 
+        The coordinates of the starting and ending position of the desired
+        ray.  If providing a raw list, coordinates are assumed to be in
         code length units, but if providing a YTArray, any units can be
         specified.
 
-                    lines=None, fields=None, solution_filename=None, 
-                    data_filename=None, trajectory=None, redshift=None, 
-                    line_database=None, ftype="gas", 
+                    lines=None, fields=None, solution_filename=None,
+                    data_filename=None, trajectory=None, redshift=None,
+                    line_database=None, ftype="gas",
                     setup_function=None, load_kwargs=None,
                     ionization_table=None):
 
@@ -112,28 +106,28 @@ def make_simple_ray(dataset_file, start_position, end_position,
         includes all possible ions from H to Zn. :lines: can be used
         in conjunction with :fields: as they will not override each other.
         If using the :lines: keyword with an SPH dataset, it is very important
-        to set the :ftype: keyword appropriately, or you may end up calculating 
-        ion fields by interpolating on data already smoothed to the grid.  
+        to set the :ftype: keyword appropriately, or you may end up calculating
+        ion fields by interpolating on data already smoothed to the grid.
         This is generally not desired.
         Default: None
 
     :ftype: string, optional
 
-        For use with the :lines: keyword.  It is the field type of the fields to 
+        For use with the :lines: keyword.  It is the field type of the fields to
         be added.  It is the first string in the field tuple e.g. "gas" in
         ("gas", "O_p5_number_density"). For SPH datasets, it is important to
         set this to the field type of the gas particles in your dataset
-        (e.g. 'PartType0'), as it determines the source data for the ion 
-        fields to be added. If you leave it set to "gas", it will calculate 
-        the ion fields based on the hydro fields already smoothed on the grid, 
+        (e.g. 'PartType0'), as it determines the source data for the ion
+        fields to be added. If you leave it set to "gas", it will calculate
+        the ion fields based on the hydro fields already smoothed on the grid,
         which is usually not desired.
         Default: "gas"
 
     :fields: list of strings, optional
 
-        The list of which fields to store in the output LightRay.  
+        The list of which fields to store in the output LightRay.
         See :lines: keyword for additional functionality that will add fields
-        necessary for creating absorption line spectra for certain line 
+        necessary for creating absorption line spectra for certain line
         features.
         Default: None
 
@@ -145,7 +139,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
 
     :data_filename: string, optional
     
-        Output filename for ray data stored as an HDF5 file.  Note that 
+        Output filename for ray data stored as an HDF5 file.  Note that
         at present, you *must* save a ray to disk in order for it to be
         returned by this function.  If set to None, defaults to 'ray.h5'.
         Default: None
@@ -165,9 +159,9 @@ def make_simple_ray(dataset_file, start_position, end_position,
 
     :setup_function: function, optional
 
-        A function that will be called on the dataset as it is loaded but 
-        before the LightRay is generated.  Very useful for adding derived 
-        fields and other manipulations of the dataset prior to LightRay 
+        A function that will be called on the dataset as it is loaded but
+        before the LightRay is generated.  Very useful for adding derived
+        fields and other manipulations of the dataset prior to LightRay
         creation.
         Default: None
 
@@ -183,7 +177,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
         For use with the :lines: keyword. If you want to limit the available
         ion fields to be added to those available in a particular subset,
         you can use a :class:`~trident.LineDatabase`.  This means when you
-        set :lines:='all', it will only use those ions present in the 
+        set :lines:='all', it will only use those ions present in the
         corresponding LineDatabase.  If :LineDatabase: is set to None,
         and :lines:='all', it will add every ion of every element up to Zinc.
         Default: None
@@ -191,21 +185,21 @@ def make_simple_ray(dataset_file, start_position, end_position,
     :ionization_table: string, optional
 
         For use with the :lines: keyword.  Path to an appropriately formatted
-        HDF5 table that can be used to compute the ion fraction as a function 
+        HDF5 table that can be used to compute the ion fraction as a function
         of density, temperature, metallicity, and redshift.  When set to None,
         it uses the table specified in ~/.trident/config
         Default: None
 
     **Example**
 
-    Generate a simple ray passing from the lower left corner to the upper 
-    right corner through some Gizmo dataset where gas particles are 
+    Generate a simple ray passing from the lower left corner to the upper
+    right corner through some Gizmo dataset where gas particles are
     ftype='PartType0':
 
     >>> import trident
     >>> import yt
     >>> ds = yt.load('path/to/dataset')
-    >>> ray = trident.make_simple_ray(ds, 
+    >>> ray = trident.make_simple_ray(ds,
     ... start_position=ds.domain_left_edge, end_position=ds.domain_right_edge,
     ... lines=['H', 'O', 'Mg II'], ftype='PartType0')
     """
@@ -232,7 +226,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
 
     # If 'lines' kwarg is set, we need to get all the fields required to
     # create the desired absorption lines in the grid format, since grid-based
-    # fields are what are directly probed by the LightRay object.  
+    # fields are what are directly probed by the LightRay object.
 
     # We first determine what fields are necessary for the desired lines, and
     # inspect the dataset to see if they already exist.  If so, we add them
@@ -244,28 +238,28 @@ def make_simple_ray(dataset_file, start_position, end_position,
 
         sampling_type = _check_sampling_types_match(ds, ftype)
 
-        fields, fields_to_add_to_ds = _determine_fields_from_ions(ds, ion_list, 
+        fields, fields_to_add_to_ds = _determine_fields_from_ions(ds, ion_list,
                                         fields, ftype, sampling_type)
 
         # actually add the fields we need to add to the dataset
         for atom, ion_state in fields_to_add_to_ds:
-            add_ion_number_density_field(atom, ion_state, ds, 
+            add_ion_number_density_field(atom, ion_state, ds,
                                          ftype=ftype,
                                          ionization_table=ionization_table,
                                          sampling_type=sampling_type)
 
     # To assure there are no fields that are double specified or that collide
-    # based on being specified as "density" as well as ("gas", "density"), 
+    # based on being specified as "density" as well as ("gas", "density"),
     # we will just assume that all non-tuple fields requested are ftype "gas".
     for i in range(len(fields)):
         if isinstance(fields[i], str):
             fields[i] = ('gas', fields[i])
-    fields = uniquify(fields)        
+    fields = uniquify(fields)
 
     return lr.make_light_ray(start_position=start_position,
                              end_position=end_position,
                              trajectory=trajectory,
-                             fields=fields, 
+                             fields=fields,
                              setup_function=setup_function,
                              solution_filename=solution_filename,
                              data_filename=data_filename,
@@ -273,19 +267,19 @@ def make_simple_ray(dataset_file, start_position, end_position,
 
 def make_compound_ray(parameter_filename, simulation_type,
                       near_redshift, far_redshift,
-                      lines=None, ftype='gas', fields=None, 
-                      solution_filename=None, data_filename=None, 
+                      lines=None, ftype='gas', fields=None,
+                      solution_filename=None, data_filename=None,
                       use_minimum_datasets=True, max_box_fraction=1.0,
-                      deltaz_min=0.0, minimum_coherent_box_fraction=0.0, 
+                      deltaz_min=0.0, minimum_coherent_box_fraction=0.0,
                       seed=None, setup_function=None, load_kwargs=None,
                       line_database=None, ionization_table=None):
     """
-    Create a yt LightRay object for multiple consecutive datasets (eg IGM).  
-    This is a wrapper function around yt's LightRay interface to reduce some 
-    of the complexity there.  
-    
+    Create a yt LightRay object for multiple consecutive datasets (eg IGM).
+    This is a wrapper function around yt's LightRay interface to reduce some
+    of the complexity there.
+
     .. note::
-        
+
         The compound ray functionality has only been implemented for the
         Enzo and Gadget code.  If you would like to help us implement
         this functionality for your simulation code, please contact us
@@ -295,49 +289,49 @@ def make_compound_ray(parameter_filename, simulation_type,
     consecutive outputs from a single cosmological simulation to approximate
     a continuous line of sight to high redshift.
 
-    Because a single continuous ray traversing a simulated volume can only 
-    cover a small range in redshift space (e.g. 100 Mpc only covers the 
-    redshift range from z=0 to z=0.023), the compound ray passes rays through  
+    Because a single continuous ray traversing a simulated volume can only
+    cover a small range in redshift space (e.g. 100 Mpc only covers the
+    redshift range from z=0 to z=0.023), the compound ray passes rays through
     multiple consecutive outputs from the same simulation to approximate the
     path of a single line of sight to high redshift.  By probing all of the
     foreground material out to any given redshift, the compound ray is
-    appropriate for studies of the intergalactic medium and circumgalactic 
+    appropriate for studies of the intergalactic medium and circumgalactic
     medium.
 
-    By default, it selects a random starting location and trajectory in 
+    By default, it selects a random starting location and trajectory in
     each dataset it traverses, to assure that the same cosmological structures
-    are not being probed multiple times from the same direction.  In doing 
+    are not being probed multiple times from the same direction.  In doing
     this, the ray becomes discontinuous across each dataset.
 
     The compound ray requires the parameter_filename of the simulation run.
     This is *not* the dataset filename from a single output, but the parameter
     file that was used to run the simulation itself.  It is in this parameter
-    file that the output frequency, simulation volume, and cosmological 
+    file that the output frequency, simulation volume, and cosmological
     parameters are described to assure full redshift coverage can be achieved
     for a compound ray.  It also requires the simulation_type of the simulation.
 
-    Unlike the simple ray, which is specified by its start and end positions 
+    Unlike the simple ray, which is specified by its start and end positions
     in the dataset volume, the compound ray requires the near_redshift and
     far_redshift to determine which datasets to use to get full coverage
     in redshift space as the ray propagates from near_redshift to far_redshift.
     
-    Like the simple ray produced by :class:`~trident.make_simple_ray`, 
+    Like the simple ray produced by :class:`~trident.make_simple_ray`,
     each gas cell intersected by the LightRay is sampled for the desired
     fields and stored.  Several additional fields are created and stored
-    including ``dl`` and ``dredshift`` to represent the path length in space and 
+    including ``dl`` and ``dredshift`` to represent the path length in space and
     redshift for each element in the ray, ``v_los`` to represent the line of
-    sight velocity along the ray, and ``redshift``, ``redshift_dopp``, and 
+    sight velocity along the ray, and ``redshift``, ``redshift_dopp``, and
     ``redshift_eff`` to represent the cosmological redshift, doppler redshift
     and effective redshift (combined doppler and cosmological) for each
     element of the ray.
 
-    The :lines: keyword can be set to automatically add all fields to the 
+    The :lines: keyword can be set to automatically add all fields to the
     resulting ray necessary for later use with the SpectrumGenerator class.
     If the necessary fields do not exist for your line of choice, they will
-    be added to your datasets before adding them to the ray.  
+    be added to your datasets before adding them to the ray.
 
     If using the :lines: keyword with SPH datasets, it is very important
-    to set the :ftype: keyword appropriately, or you may end up calculating 
+    to set the :ftype: keyword appropriately, or you may end up calculating
     ion fields by interpolating on data already smoothed to the grid.  This is
     generally not desired.
  
@@ -354,7 +348,7 @@ def make_compound_ray(parameter_filename, simulation_type,
 
     :near_redshift, far_redshift: floats
 
-        The near and far redshift bounds of the LightRay through the 
+        The near and far redshift bounds of the LightRay through the
         simulation datasets.
 
     :lines: list of strings, optional
@@ -366,28 +360,28 @@ def make_compound_ray(parameter_filename, simulation_type,
         includes all possible ions from H to Zn. :lines: can be used
         in conjunction with :fields: as they will not override each other.
         If using the :lines: keyword with an SPH dataset, it is very important
-        to set the :ftype: keyword appropriately, or you may end up calculating 
-        ion fields by interpolating on data already smoothed to the grid.  
+        to set the :ftype: keyword appropriately, or you may end up calculating
+        ion fields by interpolating on data already smoothed to the grid.
         This is generally not desired.
         Default: None
 
     :ftype: string, optional
 
-        For use with the :lines: keyword.  It is the field type of the fields to 
+        For use with the :lines: keyword.  It is the field type of the fields to
         be added.  It is the first string in the field tuple e.g. "gas" in
         ("gas", "O_p5_number_density"). For SPH datasets, it is important to
         set this to the field type of the gas particles in your dataset
-        (e.g. 'PartType0'), as it determines the source data for the ion 
-        fields to be added. If you leave it set to "gas", it will calculate 
-        the ion fields based on the hydro fields already smoothed on the grid, 
+        (e.g. 'PartType0'), as it determines the source data for the ion
+        fields to be added. If you leave it set to "gas", it will calculate
+        the ion fields based on the hydro fields already smoothed on the grid,
         which is usually not desired.
         Default: "gas"
 
     :fields: list of strings, optional
 
-        The list of which fields to store in the output LightRay.  
+        The list of which fields to store in the output LightRay.
         See :lines: keyword for additional functionality that will add fields
-        necessary for creating absorption line spectra for certain line 
+        necessary for creating absorption line spectra for certain line
         features.
         Default: None
 
@@ -399,27 +393,27 @@ def make_compound_ray(parameter_filename, simulation_type,
 
     :data_filename: string, optional
 
-        Output filename for ray data stored as an HDF5 file.  Note that 
+        Output filename for ray data stored as an HDF5 file.  Note that
         at present, you *must* save a ray to disk in order for it to be
         returned by this function.  If set to None, defaults to 'ray.h5'.
         Default: None
 
     :use_minimum_datasets: bool, optional
 
-        Use the minimum number of datasets to make the ray continuous 
-        through the supplied datasets from the near_redshift to the 
+        Use the minimum number of datasets to make the ray continuous
+        through the supplied datasets from the near_redshift to the
         far_redshift.  If false, the LightRay solution will contain as many
-        datasets as possible to enable the light ray to traverse the 
+        datasets as possible to enable the light ray to traverse the
         desired redshift interval.
         Default: True
 
     :max_box_fraction: float, optional
 
         The maximum length a light ray segment can be in order to span the
-        redshift interval from one dataset to another in units of the domain 
-        size.  Values larger than 1.0 will result in LightRays crossing the 
+        redshift interval from one dataset to another in units of the domain
+        size.  Values larger than 1.0 will result in LightRays crossing the
         domain of a given dataset more than once, which is generally undesired.
-        Zoom-in simulations can use a value equal to the length of the 
+        Zoom-in simulations can use a value equal to the length of the
         high-resolution region so as to limit ray segments to that size.  If
         the high-resolution region is not cubical, the smallest size should b
         used.
@@ -434,23 +428,23 @@ def make_compound_ray(parameter_filename, simulation_type,
     :minimum_coherent_box_fraction: float, optional
 
         When use_minimum_datasets is set to False, this parameter specifies
-        the fraction of the total box width to be traversed before 
+        the fraction of the total box width to be traversed before
         rerandomizing the ray location and trajectory.
         Default: 0.0
 
     :seed: int, optional
 
         Sets the seed for the random number generator used to determine the
-        location and trajectory of the LightRay as it traverses the 
-        simulation datasets.  For consistent results between LightRays, 
+        location and trajectory of the LightRay as it traverses the
+        simulation datasets.  For consistent results between LightRays,
         use the same seed value.
         Default: None
 
     :setup_function: function, optional
 
-        A function that will be called on the dataset as it is loaded but 
-        before the LightRay is generated.  Very useful for adding derived 
-        fields and other manipulations of the dataset prior to LightRay 
+        A function that will be called on the dataset as it is loaded but
+        before the LightRay is generated.  Very useful for adding derived
+        fields and other manipulations of the dataset prior to LightRay
         creation.
         Default: None
 
@@ -466,7 +460,7 @@ def make_compound_ray(parameter_filename, simulation_type,
         For use with the :lines: keyword. If you want to limit the available
         ion fields to be added to those available in a particular subset,
         you can use a :class:`~trident.LineDatabase`.  This means when you
-        set :lines:='all', it will only use those ions present in the 
+        set :lines:='all', it will only use those ions present in the
         corresponding LineDatabase.  If :LineDatabase: is set to None,
         and :lines:='all', it will add every ion of every element up to Zinc.
         Default: None
@@ -474,7 +468,7 @@ def make_compound_ray(parameter_filename, simulation_type,
     :ionization_table: string, optional
 
         For use with the :lines: keyword.  Path to an appropriately formatted
-        HDF5 table that can be used to compute the ion fraction as a function 
+        HDF5 table that can be used to compute the ion fraction as a function
         of density, temperature, metallicity, and redshift.  When set to None,
         it uses the table specified in ~/.trident/config
         Default: None
@@ -506,9 +500,9 @@ def make_compound_ray(parameter_filename, simulation_type,
     if data_filename is None:
         data_filename = 'ray.h5'
 
-    lr = LightRay(parameter_filename, 
-                  simulation_type=simulation_type, 
-                  near_redshift=near_redshift, 
+    lr = LightRay(parameter_filename,
+                  simulation_type=simulation_type,
+                  near_redshift=near_redshift,
                   far_redshift=far_redshift,
                   use_minimum_datasets=use_minimum_datasets,
                   max_box_fraction=max_box_fraction,
@@ -533,15 +527,15 @@ def make_compound_ray(parameter_filename, simulation_type,
 
     # If 'lines' kwarg is set, we need to get all the fields required to
     # create the desired absorption lines in the grid format, since grid-based
-    # fields are what are directly probed by the LightRay object.  
+    # fields are what are directly probed by the LightRay object.
 
     # We first determine what fields are necessary for the desired lines, and
     # inspect the dataset to see if they already exist.  If so, we add them
     # to the field list for the ray.  If not, we have to create them.
 
-    # We use the final dataset from the simulation in order to test it for 
-    # the sampling_type of the field, what fields are present, etc.  This 
-    # all assumes that the fields present in this output will be present in 
+    # We use the final dataset from the simulation in order to test it for
+    # the sampling_type of the field, what fields are present, etc.  This
+    # all assumes that the fields present in this output will be present in
     # ALL outputs.  Hopefully this is true, because testing each dataset
     # is going to be slow and a pain.
 
@@ -551,7 +545,7 @@ def make_compound_ray(parameter_filename, simulation_type,
 
         sampling_type = _check_sampling_types_match(ds, ftype)
 
-        fields, fields_to_add_to_ds = _determine_fields_from_ions(ds, ion_list, 
+        fields, fields_to_add_to_ds = _determine_fields_from_ions(ds, ion_list,
                                         fields, ftype, sampling_type)
 
         # actually add the fields we need to add to the dataset
@@ -561,7 +555,7 @@ def make_compound_ray(parameter_filename, simulation_type,
         def setup_ds(ds):
 
             for atom, ion_state in fields_to_add_to_ds:
-                add_ion_number_density_field(atom, ion_state, ds, 
+                add_ion_number_density_field(atom, ion_state, ds,
                                             ftype=ftype,
                                             ionization_table=ionization_table,
                                             sampling_type=sampling_type)
@@ -575,15 +569,15 @@ def make_compound_ray(parameter_filename, simulation_type,
             pass
 
     # To assure there are no fields that are double specified or that collide
-    # based on being specified as "density" as well as ("gas", "density"), 
+    # based on being specified as "density" as well as ("gas", "density"),
     # we will just assume that all non-tuple fields requested are ftype "gas".
     for i in range(len(fields)):
         if isinstance(fields[i], str):
             fields[i] = ('gas', fields[i])
-    fields = uniquify(fields)        
+    fields = uniquify(fields)
 
-    return lr.make_light_ray(seed=seed, 
-                             fields=fields, 
+    return lr.make_light_ray(seed=seed,
+                             fields=fields,
                              setup_function=setup_ds,
                              solution_filename=solution_filename,
                              data_filename=data_filename,
@@ -614,7 +608,7 @@ def _determine_ions_from_lines(line_database, lines):
                 else:
                     raise RuntimeError("Cannot add a blank ion.")
 
-    return uniquify(ion_list)        
+    return uniquify(ion_list)
 
 def _determine_fields_from_ions(ds, ion_list, fields, ftype, sampling_type):
     """
@@ -622,18 +616,18 @@ def _determine_fields_from_ions(ds, ion_list, fields, ftype, sampling_type):
     and the particle type
 
     For sph (determined by sampling_type):
-    Identify if the number_density fields for the desired ions already 
+    Identify if the number_density fields for the desired ions already
     exist on the dataset, and if so, just add them to the list
     of fields to be added to the ray.
-    If not, add these ion fields to the dataset as particle fields, 
-    which prompts them being smoothed to the grid, and add the resulting 
-    smoothed fields (e.g. ("gas", "x_number_density")) to the list of fields 
-    to be added to the ray.  Include the 'temperature' field for 
+    If not, add these ion fields to the dataset as particle fields,
+    which prompts them being smoothed to the grid, and add the resulting
+    smoothed fields (e.g. ("gas", "x_number_density")) to the list of fields
+    to be added to the ray.  Include the 'temperature' field for
     calculating the width of voigt profiles in the absorption spectrum.
 
     For grid:
-    Check if the number_density fields for these ions exist, and if so, add 
-    them to field list. If not, leave them off, as they'll be generated 
+    Check if the number_density fields for these ions exist, and if so, add
+    them to field list. If not, leave them off, as they'll be generated
     on the fly by SpectrumGenerator as long as we include the 'density',
     'temperature', and appropriate 'metallicity' fields.
     """
@@ -660,9 +654,9 @@ def _determine_fields_from_ions(ds, ion_list, fields, ftype, sampling_type):
                     fields_to_add_to_ds.append((atom, ion_state))
                     fields.append(("gas", alias_field))
                 else:
-                    # If this is a  grid-based field where the ion field 
-                    # doesn't yet exist, just append the density and 
-                    # appropriate metal field for ion field calculation 
+                    # If this is a  grid-based field where the ion field
+                    # doesn't yet exist, just append the density and
+                    # appropriate metal field for ion field calculation
                     # on the ray itself instead of adding it to the full ds
                     fields.append(('gas', 'density'))
                     if ('gas', metallicity_field) in ds.derived_field_list:
@@ -682,15 +676,15 @@ def _determine_fields_from_ions(ds, ion_list, fields, ftype, sampling_type):
 
     return fields, fields_to_add_to_ds
 
-def _add_default_fields(ds, fields): 
-    """ 
+def _add_default_fields(ds, fields):
+    """
     Add some default fields to rays to assure they can be processed correctly.
     """
     if ("gas", "temperature") in ds.derived_field_list:
         fields.append(("gas", 'temperature'))
 
     # H_nuclei_density should be added if possible to assure that the _log_nH
-    # field, which is used as "density" in the ion_balance interpolation to 
+    # field, which is used as "density" in the ion_balance interpolation to
     # produce ion fields, is calculated as accurately as possible.
     if ('gas', 'H_nuclei_density') in ds.derived_field_list:
         fields.append(('gas', 'H_nuclei_density'))

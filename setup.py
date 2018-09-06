@@ -33,7 +33,7 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     license = "BSD",
-    keywords = ["simulation", "spectra", "astronomy", "astrophysics"], 
+    keywords = ["simulation", "spectra", "astronomy", "astrophysics"],
     url = "https://trident-project.org",
     packages=find_packages(),
     include_package_data=True,

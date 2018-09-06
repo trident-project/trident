@@ -23,8 +23,7 @@ from yt import \
     SlicePlot
 from yt.testing import \
     fake_random_ds, \
-    fake_amr_ds, \
-    fake_particle_ds
+    fake_amr_ds
 import tempfile
 import shutil
 from trident.testing import \
@@ -33,7 +32,7 @@ import os
 
 import numpy as np
 
-ISO_GALAXY = os.path.join(answer_test_data_dir, 
+ISO_GALAXY = os.path.join(answer_test_data_dir,
                 'IsolatedGalaxy/galaxy0030/galaxy0030')
 FIRE_SIM = os.path.join(answer_test_data_dir,
                 'FIRE_M12i_ref11/snapshot_600.hdf5')
@@ -48,7 +47,7 @@ def test_add_ion_fraction_field_to_grid_ds():
                                    'cm/s', 'K', ''))
     ftype = 'stream'
     ad = ds.all_data()
-    add_ion_fraction_field('O', 6, ds, ftype='stream')
+    add_ion_fraction_field('O', 6, ds, ftype=ftype)
     field = ('stream', 'O_p5_ion_fraction')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
@@ -67,7 +66,7 @@ def test_add_ion_number_density_field_to_grid_ds():
                                    'cm/s', 'K', ''))
     ftype = 'stream'
     ad = ds.all_data()
-    add_ion_mass_field('O', 6, ds, ftype='stream')
+    add_ion_mass_field('O', 6, ds, ftype=ftype)
     field = ('stream', 'O_p5_number_density')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
@@ -86,7 +85,7 @@ def test_add_ion_density_field_to_grid_ds():
                                    'cm/s', 'K', ''))
     ftype = 'stream'
     ad = ds.all_data()
-    add_ion_mass_field('O', 6, ds, ftype='stream')
+    add_ion_mass_field('O', 6, ds, ftype=ftype)
     field = ('stream', 'O_p5_density')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
@@ -105,7 +104,7 @@ def test_add_ion_mass_field_to_grid_ds():
                                    'cm/s', 'K', ''))
     ftype = 'stream'
     ad = ds.all_data()
-    add_ion_mass_field('O', 6, ds, ftype='stream')
+    add_ion_mass_field('O', 6, ds, ftype=ftype)
     field = ('stream', 'O_p5_mass')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
@@ -122,7 +121,7 @@ def test_add_ion_fraction_fields_to_amr_ds():
                              "velocity_z", "temperature", "metallicity"))
     ftype = 'stream'
     ad = ds.all_data()
-    add_ion_fraction_field('O', 6, ds, ftype='stream')
+    add_ion_fraction_field('O', 6, ds, ftype=ftype)
     field = ('stream', 'O_p5_ion_fraction')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
@@ -139,7 +138,7 @@ def test_add_ion_number_density_fields_to_amr_ds():
                              "velocity_z", "temperature", "metallicity"))
     ftype = 'stream'
     ad = ds.all_data()
-    add_ion_number_density_field('O', 6, ds, ftype='stream')
+    add_ion_number_density_field('O', 6, ds, ftype=ftype)
     field = ('stream', 'O_p5_number_density')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
@@ -156,7 +155,7 @@ def test_add_ion_density_fields_to_amr_ds():
                              "velocity_z", "temperature", "metallicity"))
     ftype = 'stream'
     ad = ds.all_data()
-    add_ion_density_field('O', 6, ds, ftype='stream')
+    add_ion_density_field('O', 6, ds, ftype=ftype)
     field = ('stream', 'O_p5_density')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
@@ -173,7 +172,7 @@ def test_add_ion_mass_fields_to_amr_ds():
                              "velocity_z", "temperature", "metallicity"))
     ftype = 'stream'
     ad = ds.all_data()
-    add_ion_mass_field('O', 6, ds, ftype='stream')
+    add_ion_mass_field('O', 6, ds, ftype=ftype)
     field = ('stream', 'O_p5_mass')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
@@ -193,7 +192,7 @@ def test_add_ion_fields_to_grid_ds():
     ftype = 'stream'
     ad = ds.all_data()
     ions = ['H', 'O', 'N V']
-    add_ion_fields(ds, ions, ftype='stream')
+    add_ion_fields(ds, ions, ftype=ftype)
     fields = ['H_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
     # Assure that a sampling of fields are added and can be sliced
     dirpath = tempfile.mkdtemp()
@@ -214,7 +213,7 @@ def test_add_all_ion_fields_to_grid_ds():
                                    'cm/s', 'K', ''))
     ftype = 'stream'
     ad = ds.all_data()
-    add_ion_fields(ds, 'all', ftype='stream')
+    add_ion_fields(ds, 'all', ftype=ftype)
     fields = ['H_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
     # Assure that a sampling of fields are added and can be sliced
     dirpath = tempfile.mkdtemp()
@@ -235,7 +234,7 @@ def test_add_all_ion_fields_to_grid_ds_from_file():
                                    'cm/s', 'K', ''))
     ftype = 'stream'
     ad = ds.all_data()
-    add_ion_fields(ds, 'all', ftype='stream', line_database='lines.txt')
+    add_ion_fields(ds, 'all', ftype=ftype, line_database='lines.txt')
     fields = ['H_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
     # Assure that a sampling of fields are added and can be sliced
     dirpath = tempfile.mkdtemp()
@@ -255,7 +254,7 @@ def test_add_all_ion_fields_to_amr_ds():
     ftype = 'stream'
     ad = ds.all_data()
     ions = ['H', 'O', 'N V']
-    add_ion_fields(ds, ions, ftype='stream')
+    add_ion_fields(ds, ions, ftype=ftype)
     fields = ['H_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
     # Assure that a sampling of fields are added and can be sliced
     dirpath = tempfile.mkdtemp()
