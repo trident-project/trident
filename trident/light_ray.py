@@ -16,7 +16,7 @@ LightRay class and member functions.
 
 import numpy as np
 
-from yt.analysis_modules.cosmological_observation.cosmology_splice import \
+from yt_astro_analysis.cosmological_observation.cosmology_splice import \
     CosmologySplice
 from yt.convenience import \
     load
