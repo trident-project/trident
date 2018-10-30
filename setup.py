@@ -64,6 +64,7 @@ setup(
         'matplotlib',
         'numpy!=1.14.0',
         'requests',
-        'yt>=3.4.0'],
+        'yt>=3.4.0',
+        'yt_astro_analysis'],
       python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*'
 )

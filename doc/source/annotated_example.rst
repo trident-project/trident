@@ -183,7 +183,8 @@ Obviously, there need to be sufficient simulation outputs over the desired
 redshift range of the compound ray in order to have continuous sampling.
 To assure adequate simulation output frequency for this, one can use yt's
 ``plan_cosmology_splice()`` function.  See an example of its usage in
-the `yt documentation <http://yt-project.org/docs/dev/analyzing/analysis_modules/planning_cosmology_simulations.html>`_.
+the `yt_astro_analysis documentation
+<https://yt-astro-analysis.readthedocs.io/en/latest/planning_cosmology_simulations.html>`__.
 
 We encourage you to look at the detailed documentation for
 :class:`~trident.make_compound_ray` in the :ref:`api-reference`

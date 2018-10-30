@@ -105,7 +105,7 @@ on the simulation box size and cosmological parameters.  Before running an
 expensive simulation only to find out that you don't have enough outputs
 to span the redshift interval you want, have a look at the guide
 `Planning Simulations for LightCones or LightRays
-<http://yt-project.org/docs/dev/analyzing/analysis_modules/planning_cosmology_simulations.html>`__.
+<https://yt-astro-analysis.readthedocs.io/en/latest/planning_cosmology_simulations.html>`__.
 The functionality described there will allow you to calculate the precise
 number of snapshots and specific redshifts at which they should be written.
 
