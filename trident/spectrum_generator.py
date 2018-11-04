@@ -217,6 +217,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
     def make_spectrum(self, ray, lines='all',
                       output_file=None,
+                      output_absorbers_file=None,
                       use_peculiar_velocity=True,
                       observing_redshift=0.0,
                       ly_continuum=True,
@@ -252,6 +253,14 @@ class SpectrumGenerator(AbsorptionSpectrum):
             and everything else is ASCII.  Equivalent of calling
             :class:`~trident.SpectrumGenerator.save_spectrum`.
             Default: None
+
+        :output_absorbers_file: optional, string
+
+           Option to save a text file containing all of the absorbers and
+           corresponding wavelength and redshift information.
+           For parallel jobs, combining the lines lists can be slow so it
+           is recommended to set to None in such circumstances.
+           Default: None
 
         :use_peculiar_velocity: optional, bool
 
@@ -389,6 +398,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         AbsorptionSpectrum.make_spectrum(self, ray,
                                          output_file=None,
                                          line_list_file=None,
+                                         output_absorbers_file=output_absorbers_file,
                                          use_peculiar_velocity=use_peculiar_velocity,
                                          observing_redshift=observing_redshift,
                                          store_observables=store_observables,
