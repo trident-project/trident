@@ -195,6 +195,8 @@ class AbsorptionSpectrum(object):
 
            if True, stores observable properties of each cell along the line of
            sight for each line, such as tau, column density, and thermal b.
+           These quantities will be saved to the AbsorptionSpectrum
+           attribute: 'line_observables_dict'.
            Default: False
 
         :subgrid_resolution: optional, int
