@@ -290,7 +290,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
             ray will be saved for each line in the line list. Properties
             include the column density, tau, thermal b, and the wavelength
             where tau was deposited. Best applied for a reasonable number
-            of lines.  These quantities will be saved to the SpectrumGenerator 
+            of lines.  These quantities will be saved to the SpectrumGenerator
             attribute: 'line_observables_dict'.
             Default: False
 
