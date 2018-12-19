@@ -23,9 +23,9 @@ def test_lsf_errors():
     Test that LSF raises errors correctly
     """
     with pytest.raises(RuntimeError):
-        lsf = LSF()
+        LSF()
     with pytest.raises(RuntimeError):
-        lsf = LSF(filename='NOTAFILE.txt')
+        LSF(filename='NOTAFILE.txt')
 
 def test_lsf_from_filename():
     """

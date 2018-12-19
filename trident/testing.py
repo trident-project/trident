@@ -12,7 +12,6 @@ Testing utilities for Trident
 #-----------------------------------------------------------------------------
 
 import h5py
-from functools import wraps
 from numpy.testing import \
     assert_array_equal
 import os

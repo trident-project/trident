@@ -10,7 +10,7 @@ import trident
 
 # Set the dataset filename, load it into yt and define the trajectory
 # of the LightRay.  This uses the maximum density location as the one end of
-# the ray.  Define desired spectral features to include all H, C, N, O, and 
+# the ray.  Define desired spectral features to include all H, C, N, O, and
 # Mg lines.
 fn = 'FIRE_M12i_ref11/snapshot_600.hdf5'
 ds = yt.load(fn)
@@ -42,7 +42,7 @@ sg.make_spectrum(ray, lines=line_list)
 sg.save_spectrum('spec_raw.txt')
 sg.plot_spectrum('spec_raw.png')
 
-# "Final" spectrum with added quasar, MW background, applied line-spread 
+# "Final" spectrum with added quasar, MW background, applied line-spread
 # function, and added gaussian noise (SNR=30)
 sg.add_qso_spectrum()
 sg.add_milky_way_foreground()

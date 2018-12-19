@@ -195,7 +195,9 @@ class AbsorptionSpectrum(object):
 
            if True, stores observable properties of each cell along the line of
            sight for each line, such as tau, column density, and thermal b.
-           Default: False 
+           These quantities will be saved to the AbsorptionSpectrum
+           attribute: 'line_observables_dict'.
+           Default: False
 
         :subgrid_resolution: optional, int
 
@@ -313,16 +315,16 @@ class AbsorptionSpectrum(object):
 
     def error_func(self, flux):
         """
-        Approximate the flux error for a spectrum.  
+        Approximate the flux error for a spectrum.
         Many observational analysis programs require a flux error channel
-        in addition to a flux channel.  So we create a zeroth order 
+        in addition to a flux channel.  So we create a zeroth order
         approximation of the flux error, simply by taking the square root
         of the flux.  Unfortunately, with flux normalized to be < 1, this
         would result in errors larger than the flux values themselves,
         so we normalize by an arbitrary signal-to-noise ratio, which by default
         is set to 100.  This yields a typical error for a normalized spectrum of
-        sqrt(1.0*100)/100 = 0.1.  This assures our flux errors are smaller 
-        than our fluxes for most flux reasonable flux values.  Note that 
+        sqrt(1.0*100)/100 = 0.1.  This assures our flux errors are smaller
+        than our fluxes for most flux reasonable flux values.  Note that
         when a signal to noise ratio is specified for adding gaussian noise,
         it uses this updated value for estimating the errors.  SNR is set
         as an attribute of AbsorptionSpectrum directly (e.g., as.snr = N).
@@ -331,7 +333,7 @@ class AbsorptionSpectrum(object):
 
         :flux: array of floats
 
-            The array of flux values 
+            The array of flux values
         """
         return np.sqrt(flux*self.snr)/self.snr
 
@@ -535,9 +537,11 @@ class AbsorptionSpectrum(object):
             thermb = thermal_b.in_cgs().d  # thermal b coefficient; cm / s
             dlambda = delta_lambda.d  # lambda offset; angstroms
             # Array to store sum of the tau values for each index in the
-            # light ray that is deposited to the final spectrum 
+            # light ray that is deposited to the final spectrum
             if store_observables:
                 tau_ray = np.zeros(cdens.size)
+                # current_tau_field is a clean copy of tau_field, but for use on only one ion at a time
+                current_tau_field = 0*self.tau_field
             if use_peculiar_velocity:
                 vlos = field_data['velocity_los'].in_units("km/s").d # km/s
             else:
@@ -621,22 +625,27 @@ class AbsorptionSpectrum(object):
                         break
                     window_width_in_bins *= 2
 
-                # numerically integrate the virtual bins to calculate a
-                # virtual equivalent width; then sum the virtual equivalent
-                # widths and deposit into each spectral bin
-                vEW = vtau * vbin_width[i]
-                EW = np.zeros(right_index - left_index)
-                EW_indices = np.arange(left_index, right_index)
-                for k, val in enumerate(EW_indices):
-                    EW[k] = vEW[n_vbins_per_bin[i] * k: \
+                # Numerically integrate the virtual bins to calculate a
+                # virtual "equivalent width" of optical depth; then sum these
+                # virtual equivalent widths in tau and deposit back into each
+                # original spectral tau bin
+                # Please note: this is not a true equivalent width in the
+                # normal use of the word by observers.  It is an equivalent
+                # with in tau, not in flux, and is only used internally in
+                # this subgrid deposition as EW_tau.
+                vEW_tau = vtau * vbin_width[i]
+                EW_tau = np.zeros(right_index - left_index)
+                EW_tau_indices = np.arange(left_index, right_index)
+                for k, val in enumerate(EW_tau_indices):
+                    EW_tau[k] = vEW_tau[n_vbins_per_bin[i] * k: \
                                 n_vbins_per_bin[i] * (k + 1)].sum()
-                EW = EW/self.bin_width.d
+                EW_tau = EW_tau/self.bin_width.d
 
-                # only deposit EW bins that actually intersect the original
+                # only deposit EW_tau bins that actually intersect the original
                 # spectral wavelength range (i.e. lambda_field)
 
-                # if EW bins don't intersect the original spectral range at all
-                # then skip the deposition
+                # if EW_tau bins don't intersect the original spectral range at
+                # all then skip the deposition
                 if ((left_index >= self.n_lambda) or \
                     (right_index < 0)):
                     pbar.update(i)
@@ -644,18 +653,19 @@ class AbsorptionSpectrum(object):
 
                 # otherwise, determine how much of the original spectrum
                 # is intersected by the expanded line window to be deposited,
-                # and deposit the Equivalent Width data into that intersecting
-                # window in the original spectrum's tau
+                # and deposit the Equivalent Width in tau into that intersecting
+                # window in the original spectrum's tau array
                 else:
                     intersect_left_index = max(left_index, 0)
                     intersect_right_index = min(right_index, self.n_lambda-1)
-                    EW_deposit = EW[(intersect_left_index - left_index): \
-                                    (intersect_right_index - left_index)]
+                    EW_tau_deposit = EW_tau[(intersect_left_index - left_index): \
+                                            (intersect_right_index - left_index)]
                     self.tau_field[intersect_left_index:intersect_right_index] \
-                        += EW_deposit
+                        += EW_tau_deposit
                     if store_observables:
-                        tau_ray[i] = np.sum(EW_deposit)
-
+                        tau_ray[i] = np.sum(EW_tau_deposit)
+                        current_tau_field[intersect_left_index:intersect_right_index] \
+                          += EW_tau_deposit
                 # write out absorbers to file if the column density of
                 # an absorber is greater than the specified "label_threshold"
                 # of that absorption line
@@ -679,28 +689,31 @@ class AbsorptionSpectrum(object):
 
             ## Check keyword before storing any observables
             if store_observables:
-            # If running in parallel, make sure that the observable 
-            # quantities for the dictionary are combined correctly. 
+                # If running in parallel, make sure that the observable
+                # quantities for the dictionary are combined correctly.
                 comm = _get_comm(())
                 if comm.size > 1:
-                    obs_dict_fields = [column_density,tau_ray,delta_lambda,
+                    obs_dict_fields = [column_density, tau_ray, current_tau_field, delta_lambda,
                                        lambda_obs, thermal_b, thermal_width]
                     obs_dict_fields = [comm.mpi_allreduce(field,op="sum") for field in obs_dict_fields]
 
-                 # Update the line_observables_dict with values for this line
+                # Calculate the flux decrement equivalent width (the true
+                # equivalent width!) for use in post-processing
+                EW = np.sum(1-np.exp(-current_tau_field))*self.bin_width
+                # Update the line_observables_dict with values for this line
                 obs_dict = {"column_density":column_density,
                             "tau_ray":tau_ray,
+                            "EW":EW,
                             "delta_lambda":delta_lambda,
                             "lambda_obs":lambda_obs,
                             "thermal_b":thermal_b,
                             "thermal_width":thermal_width}
-
                 store.result_id = line['label']
                 store.result = obs_dict
                 ## Can only delete these if in this statement:
                 del obs_dict, tau_ray
 
-           #These always need to be deleted
+            # These always need to be deleted
             del column_density, delta_lambda, lambda_obs, center_index, \
                 thermal_b, thermal_width, cdens, thermb, dlambda, \
                 vlos, resolution, vbin_width, n_vbins, n_vbins_per_bin
@@ -741,7 +754,7 @@ class AbsorptionSpectrum(object):
         f.write("# wavelength[A] tau flux flux_error\n")
         for i in range(self.lambda_field.size):
             f.write("%e %e %e %e\n" % (self.lambda_field[i],
-                                    self.tau_field[i], 
+                                    self.tau_field[i],
                                     self.flux_field[i],
                                     self.error_func(self.flux_field[i])))
         f.close()

@@ -11,7 +11,6 @@ SpectrumGenerator class and member functions.
 # The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
-import h5py
 import numpy as np
 import os
 
@@ -125,13 +124,14 @@ class SpectrumGenerator(AbsorptionSpectrum):
         postprocessing.
         Default: None
 
-    :line_database: string, optional
+    :line_database: string or :class:`~trident.LineDatabase`, optional
 
-        A text file listing the various lines to insert into the line database.
-        The line database provides a list of all possible lines that could
-        be added to the spectrum. The file should 4 tab-delimited columns of
+        A text file listing the various lines to insert into the line database,
+        or a :class:`~trident.LineDatabase` object in memory. The line database
+        provides a list of all possible lines that could be added to the
+        spectrum. For a text file, it should have 4 tab-delimited columns of
         name (e.g. MgII), wavelength in angstroms, gamma of transition, and
-        f-value of transition.  See example datasets in
+        f-value of transition. See example datasets in
         trident.path/data/line_lists for examples.
         Default: lines.txt
 
@@ -191,8 +191,11 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                     self.instrument.lambda_max,
                                     self.instrument.n_lambda)
 
-        # instantiate the LineDatabase
-        self.line_database = LineDatabase(line_database)
+        if isinstance(line_database, LineDatabase):
+            self.line_database = line_database
+        else:
+            # instantiate the LineDatabase
+            self.line_database = LineDatabase(line_database)
 
         # Instantiate the spectrum to be zeros and ones for tau_field and
         # flux_field respectively.
@@ -214,6 +217,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
     def make_spectrum(self, ray, lines='all',
                       output_file=None,
+                      output_absorbers_file=None,
                       use_peculiar_velocity=True,
                       observing_redshift=0.0,
                       ly_continuum=True,
@@ -250,6 +254,14 @@ class SpectrumGenerator(AbsorptionSpectrum):
             :class:`~trident.SpectrumGenerator.save_spectrum`.
             Default: None
 
+        :output_absorbers_file: optional, string
+
+           Option to save a text file containing all of the absorbers and
+           corresponding wavelength and redshift information.
+           For parallel jobs, combining the lines lists can be slow so it
+           is recommended to set to None in such circumstances.
+           Default: None
+
         :use_peculiar_velocity: optional, bool
 
             If True, include the effects of doppler redshift of the gas
@@ -278,7 +290,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
             ray will be saved for each line in the line list. Properties
             include the column density, tau, thermal b, and the wavelength
             where tau was deposited. Best applied for a reasonable number
-            of lines.
+            of lines.  These quantities will be saved to the SpectrumGenerator
+            attribute: 'line_observables_dict'.
             Default: False
 
         :min_tau: optional, float
@@ -333,9 +346,9 @@ class SpectrumGenerator(AbsorptionSpectrum):
         for line in active_lines:
             # if successful, means line.field is in ds.derived_field_list
             try:
-                disk_field = ad._determine_fields(line.field)[0]
+                ad._determine_fields(line.field)[0]
             # otherwise we probably need to add the field to the dataset
-            except:
+            except BaseException:
                 my_ion = \
                   line.field[:line.field.find("number_density")]
                 on_ion = my_ion.split("_")
@@ -380,12 +393,13 @@ class SpectrumGenerator(AbsorptionSpectrum):
         # the final Lyman line into the FUV.
         H_lines = self.line_database.select_lines(source_list=active_lines,
                                                   element='H', ion_state='I')
-        if (len(H_lines) > 0) and (ly_continuum == True):
+        if len(H_lines) > 0 and ly_continuum:
             self.add_continuum('Ly C', H_lines[0].field, 912.32336, 1.6e17, 3.0)
 
         AbsorptionSpectrum.make_spectrum(self, ray,
                                          output_file=None,
                                          line_list_file=None,
+                                         output_absorbers_file=output_absorbers_file,
                                          use_peculiar_velocity=use_peculiar_velocity,
                                          observing_redshift=observing_redshift,
                                          store_observables=store_observables,

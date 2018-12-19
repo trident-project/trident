@@ -44,5 +44,6 @@ def download_datasets(local_dir=None, progress_bar=True):
         os.remove(filename)
     print ("Data downloaded and untarred successfully.")
 
+
 if __name__ == "__main__":
     download_datasets()

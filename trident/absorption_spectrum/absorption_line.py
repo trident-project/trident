@@ -222,6 +222,7 @@ def tau_profile(lambda_0, f_value, gamma, v_doppler, column_density,
 
     return (lambda_bins, tauphi)
 
+
 if isinstance(special, NotAModule):
     voigt = voigt_old
 else:
