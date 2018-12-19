@@ -13,7 +13,6 @@ Miscellaneous Utilities for Trident
 
 import gzip
 import os
-import sys
 from os.path import \
     expanduser
 import six
@@ -32,12 +31,10 @@ from yt import \
     load_uniform_grid, \
     YTArray, \
     load
-from yt.funcs import \
-    mylog
 
 def ensure_directory(directory):
     """
-    Ensures a directory exists by creating it if it does not.  Works for 
+    Ensures a directory exists by creating it if it does not.  Works for
     both absolute and relative paths.
 
     **Parameters**
@@ -53,10 +50,10 @@ def ensure_directory(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-def download_file(url, progress_bar=True, local_directory=None, 
+def download_file(url, progress_bar=True, local_directory=None,
                  local_filename=None):
     """
-    Downloads a file from the provided URL.  
+    Downloads a file from the provided URL.
     
     **Parameters**
 
@@ -66,20 +63,20 @@ def download_file(url, progress_bar=True, local_directory=None,
         
     :progress_bar: boolean, optional
 
-        Will generate a progress bar for the user as the file downloads. 
+        Will generate a progress bar for the user as the file downloads.
         iPython/Jupyter friendly.
         Default: True
 
     :local_directory: string, optional
 
-        Absolute or relative path of a local directory where the file 
+        Absolute or relative path of a local directory where the file
         will be downloaded.  If set to None, will default to current
         working directory.
         Default: None
 
     :local_filename: string, optional
 
-        Local filename where the file will be downloaded.  If set to None, 
+        Local filename where the file will be downloaded.  If set to None,
         will default to filename of downloaded file.
         Default: None
     
@@ -147,7 +144,7 @@ def gunzip_file(in_filename, out_filename=None, cleanup=True):
     """
     in_file = gzip.open(in_filename, 'rb')
     # if out_filename not set, defaults to stripping off the .gz of in_filename
-    if out_filename is None: 
+    if out_filename is None:
         out_filename = ".".join(in_filename.split('.')[:-1])
     out_file = open(out_filename, 'wb')
     out_file.write( in_file.read() )
@@ -183,7 +180,7 @@ def gzip_file(in_filename, out_filename=None, cleanup=True):
     """
     in_file = open(in_filename, 'rb')
     # if out_filename not set, defaults to appending .gz to the in_filename
-    if out_filename is None: 
+    if out_filename is None:
         out_filename = in_filename + ".gz"
     out_file = gzip.open(out_filename, 'wb')
     out_file.write( in_file.read() )
@@ -194,7 +191,7 @@ def gzip_file(in_filename, out_filename=None, cleanup=True):
 
 def get_datafiles(datadir=None, url=None):
     """
-    Downloads an ion table datafile through interactive prompts.  
+    Downloads an ion table datafile through interactive prompts.
 
     **Parameters**
 
@@ -207,7 +204,7 @@ def get_datafiles(datadir=None, url=None):
     :url: string, optional
 
         The url to contact to get the data files.  If None, uses
-        ``http://trident-project.org/data/ion_table/``     
+        ``http://trident-project.org/data/ion_table/``
         Default: None
 
     **Example**
@@ -225,7 +222,7 @@ def get_datafiles(datadir=None, url=None):
     # Try to figure out which datafiles are available on the remote server
     try:
         page = str(requests.get(url).text)
-    except:
+    except BaseException:
         print("Cannot seem to access %s; Do you have internet access?" % url)
         raise
 
@@ -249,7 +246,7 @@ def get_datafiles(datadir=None, url=None):
         value = '1'
     while 1:
         try:
-            filename = filenames[int(value)-1] 
+            filename = filenames[int(value)-1]
             break
         except IndexError:
             print("%d is not a valid option.  Please pick one of the listed numbers.")
@@ -260,19 +257,18 @@ def get_datafiles(datadir=None, url=None):
     print("")
     download_file(fileurl, local_directory=tempdir)
     print("  Unzipping file: %s" % filename)
-    gunzip_file(os.path.join(tempdir, filename), 
+    gunzip_file(os.path.join(tempdir, filename),
                 out_filename=os.path.join(datadir, filename[:-3]))
-    shutil.rmtree(tempdir) 
+    shutil.rmtree(tempdir)
     return filename[:-3]
 
-def make_onezone_dataset(density=1e-26, temperature=1000, metallicity=0.3, 
+def make_onezone_dataset(density=1e-26, temperature=1000, metallicity=0.3,
                          domain_width=10.):
-                           
     """
     Create a one-zone hydro dataset for use as test data.  The dataset
     consists of a single cubicle cell of gas with hydro quantities specified in
-    the function kwargs.  It makes an excellent test dataset through 
-    which to send a sightline and test Trident's capabilities for making 
+    the function kwargs.  It makes an excellent test dataset through
+    which to send a sightline and test Trident's capabilities for making
     absorption spectra.
 
     Using the defaults and passing a ray through the full domain should
@@ -330,21 +326,21 @@ def make_onezone_dataset(density=1e-26, temperature=1000, metallicity=0.3,
     return load_uniform_grid(data, one.shape, length_unit='cm',
                               mass_unit='g', bbox=bbox)
 
-def make_onezone_ray(density=1e-26, temperature=1000, metallicity=0.3, 
-                     length=10, redshift=0, filename='ray.h5', 
+def make_onezone_ray(density=1e-26, temperature=1000, metallicity=0.3,
+                     length=10, redshift=0, filename='ray.h5',
                      column_densities=None):
     """
     Create a one-zone ray object for use as test data.  The ray
-    consists of a single absorber of hydrodynamic characteristics 
-    specified in the function kwargs.  It makes an excellent test dataset 
+    consists of a single absorber of hydrodynamic characteristics
+    specified in the function kwargs.  It makes an excellent test dataset
     to test Trident's capabilities for making absorption spectra.
 
     You can specify the column densities of different ions explicitly using
-    the column_densities keyword, or you can let Trident calculate the 
-    different ion columns internally from the density, temperature, and 
+    the column_densities keyword, or you can let Trident calculate the
+    different ion columns internally from the density, temperature, and
     metallicity fields.
 
-    Using the defaults will produce a ray that should result in a spectrum 
+    Using the defaults will produce a ray that should result in a spectrum
     with a good number of absorption features.
 
     **Parameters**
@@ -376,18 +372,18 @@ def make_onezone_ray(density=1e-26, temperature=1000, metallicity=0.3,
 
     :filename: string, optional
 
-        The filename to which to save the ray to disk.  Due to the 
+        The filename to which to save the ray to disk.  Due to the
         mechanism for passing rays, the ray data must be saved to disk.
         Default: 'ray.h5'
 
     :column_densities: dict, optional
 
-        The user can create a dictionary which adds more number density ion 
-        fields to the ray.  Each key in the dictionary should be the desired 
+        The user can create a dictionary which adds more number density ion
+        fields to the ray.  Each key in the dictionary should be the desired
         ion field name according to the field name format:
-        i.e.  "<ELEMENT>_p<IONSTATE>_number_density" 
-        e.g. neutral hydrogen = "H_p0_number_density".  
-        The corresponding value for each key should be the desired column 
+        i.e.  "<ELEMENT>_p<IONSTATE>_number_density"
+        e.g. neutral hydrogen = "H_p0_number_density".
+        The corresponding value for each key should be the desired column
         density of that ion in cm**-2.  See example below.
         Default: None
 
@@ -438,7 +434,7 @@ def make_onezone_ray(density=1e-26, temperature=1000, metallicity=0.3,
             # instead of X_p0_number_density
             key_string_list = k.split('_')
             if key_string_list[1] == 'p0':
-                k = '_'.join([key_string_list[0], key_string_list[2], 
+                k = '_'.join([key_string_list[0], key_string_list[2],
                               key_string_list[3]])
             v = YTArray([v], 'cm**-2')
             data[k] = v/length

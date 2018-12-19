@@ -12,11 +12,8 @@ Unit test for the AbsorptionSpectrum analysis module
 #-----------------------------------------------------------------------------
 
 import numpy as np
-from numpy.testing import \
-    assert_array_equal
 import os
 from yt.convenience import load
-from yt.funcs import ensure_dir
 from yt.testing import \
     assert_allclose_units, \
     assert_almost_equal
@@ -163,7 +160,7 @@ class AbsorptionSpectrumTest(TempDirTest):
 
     def test_equivalent_width_conserved(self):
         """
-        This tests that the equivalent width of the optical depth is conserved 
+        This tests that the equivalent width of the optical depth is conserved
         regardless of the bin width employed in wavelength space.
         Unresolved lines should still deposit optical depth into the spectrum.
         """
@@ -190,7 +187,7 @@ class AbsorptionSpectrumTest(TempDirTest):
 
         for lambda_bin_width in lambda_bin_widths:
             n_lambda = ((lambda_max - lambda_min)/ lambda_bin_width) + 1
-            sp = AbsorptionSpectrum(lambda_min=lambda_min, lambda_max=lambda_max, 
+            sp = AbsorptionSpectrum(lambda_min=lambda_min, lambda_max=lambda_max,
                                     n_lambda=n_lambda)
             sp.add_line(my_label, field, wave, f_value, gamma, mass)
             wavelength, flux = sp.make_spectrum('lightray.h5')
@@ -359,7 +356,7 @@ class AbsorptionSpectrumTest(TempDirTest):
 
     def test_absorption_spectrum_with_zero_field(self):
         """
-        This test generates an absorption spectrum with some 
+        This test generates an absorption spectrum with some
         particle dataset
         """
 

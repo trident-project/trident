@@ -27,12 +27,12 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
 
     This function wraps some Matplotlib plotting functionality for
     plotting spectra generated with the :class:`~trident.SpectrumGenerator`.
-    In its simplest form, it accepts a wavelength array consisting of 
+    In its simplest form, it accepts a wavelength array consisting of
     wavelength values and a corresponding flux array consisting of relative
     flux values, and it plots them and saves to disk.
 
     In addition, it can plot several spectra on the same axes simultaneously
-    by passing a list of arrays to the ``wavelength``, ``flux`` arguments 
+    by passing a list of arrays to the ``wavelength``, ``flux`` arguments
     (and optionally to the ``label`` and ``step`` keywords).
 
     Returns the Matplotlib Figure object for further processing.
@@ -48,8 +48,8 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
     :flux: array of floats or list of arrays of floats
 
         Relative flux values (from 0 to 1) corresponding to wavelength array.
-        Either as an array of floats in the case of plotting a single 
-        spectrum, or as a list of arrays of floats in the case of plotting 
+        Either as an array of floats in the case of plotting a single
+        spectrum, or as a list of arrays of floats in the case of plotting
         several spectra on the same axes.
 
     :filename: string, optional
@@ -74,7 +74,7 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
 
     :step: boolean or list of booleans, optional
 
-        Plot the spectrum as a series of step functions.  Appropriate for 
+        Plot the spectrum as a series of step functions.  Appropriate for
         plotting processed and noisy data.  Use a list of booleans when
         plotting multiple spectra, where each boolean corresponds to the entry
         in the ``wavelength`` and ``flux`` lists.
@@ -94,14 +94,14 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
     :stagger: float, optional
 
         If plotting multiple spectra on the same axes, do we offset them in
-        the y direction?  If set to None, no.  If set to a float, stagger them 
+        the y direction?  If set to None, no.  If set to a float, stagger them
         by the flux value specified by this parameter.
 
     :features: dict, optional
 
         Include vertical lines with labels to represent certain spectral
         features.  Each entry in the dictionary consists of a key string to
-        be overplot and the value float as to where in wavelength space it 
+        be overplot and the value float as to where in wavelength space it
         will be plot as a vertical line with the corresponding label.
 
         Example: features={'Ly a' : 1216, 'Ly b' : 1026}
@@ -139,7 +139,7 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
     >>> sg_final.save_spectrum('spec_raw.h5')
     >>> sg_final.add_gaussian_noise(10)
     >>> sg_raw = trident.load_spectrum('spec_raw.h5')
-    >>> trident.plot_spectrum([sg_raw.lambda_field, sg_final.lambda_field], 
+    >>> trident.plot_spectrum([sg_raw.lambda_field, sg_final.lambda_field],
     ... [sg_raw.flux_field, sg_final.flux_field], stagger=0, step=[False, True],
     ... label=['Raw', 'Noisy'], filename='raw_and_noise.png')
     """
@@ -192,11 +192,11 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
     else:
         wavelengths = wavelength
         fluxs = flux
-        if label is not None: 
+        if label is not None:
             labels = label
-        else: 
+        else:
             labels = [None]*len(fluxs)
-        if step is not None: 
+        if step is not None:
             steps = step
         else:
             steps = [None]*len(fluxs)
@@ -215,7 +215,7 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
             my_axes.step(wavelength, flux, label=labels[i])
         else:
             my_axes.plot(wavelength, flux, label=labels[i])
-            
+
         new_max_flux = np.max(flux)
         if new_max_flux > max_flux:
             max_flux = new_max_flux
@@ -255,8 +255,8 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
             my_axes.plot([wavelength, wavelength], flux_limits, '--', color='k')
             # Write text
             text_location = flux_limits[1] - 0.05*(flux_limits[1] - flux_limits[0])
-            my_axes.text(wavelength, text_location, label, 
-                    horizontalalignment='right', 
+            my_axes.text(wavelength, text_location, label,
+                    horizontalalignment='right',
                     verticalalignment='top', rotation='vertical')
 
     mylog.info("Writing spectrum plot to png file: %s" % filename)

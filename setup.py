@@ -1,24 +1,39 @@
-import os
 from setuptools import setup
 from setuptools import find_packages
 
-# Utility function to read the README file.
-# Used for the long_description.  It's nice, because now 1) we have a top level
-# README file and 2) it's easier to type in the README file than to put a raw
-# string in below ...
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+def get_version(filename):
+    """
+    Get version from a file.
+
+    Inspired by https://github.mabuchilab/QNET/.
+    """
+    with open(filename) as f:
+        for line in f.readlines():
+            if line.startswith("__version__"):
+                return line.split("=")[1].strip()[1:-1]
+    raise RuntimeError(
+        "Could not get version from %s." % filename)
+
+
+VERSION = get_version("trident/__init__.py")
+
+with open('README.md') as f:
+    long_description = f.read()
+
+dev_requirements = [
+    'coveralls', 'flake8', 'pytest', 'pytest-cov', 'twine', 'wheel',
+    'sphinx', 'scipy', 'sphinx_rtd_theme', 'gitpython']
 
 setup(
     name = "trident",
-    version = "1.2-dev",
+    version = VERSION,
     author = "Cameron Hummels, Devin Silvia, Britton Smith",
     author_email = "trident-project-users@googlegroups.com",
     description = ("Spectrum generator for astrophysical simulation data"),
-    long_description = ("""Used for generating synthetic absorption-line 
-spectra from astrophysical hydrodynamical data"""),
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     license = "BSD",
-    keywords = ["simulation", "spectra", "astronomy", "astrophysics"], 
+    keywords = ["simulation", "spectra", "astronomy", "astrophysics"],
     url = "https://trident-project.org",
     packages=find_packages(),
     include_package_data=True,
@@ -39,5 +54,17 @@ spectra from astrophysical hydrodynamical data"""),
         "Topic :: Scientific/Engineering :: Physics",
         "Topic :: Scientific/Engineering :: Visualization",
     ],
-    install_requires=['yt>=3.4.0', 'h5py', 'numpy', 'matplotlib', 'astropy', 'requests', 'setuptools', 'future'],
+      extras_require={
+          'dev': dev_requirements,
+      },
+    install_requires=[
+        'astropy',
+        'future',
+        'h5py',
+        'matplotlib',
+        'numpy!=1.14.0',
+        'requests',
+        'yt>=3.4.0',
+        'yt_astro_analysis'],
+      python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*'
 )

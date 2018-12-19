@@ -13,7 +13,6 @@ Ion fraction fields using Cloudy data.
 
 from yt.fields.field_detector import \
     FieldDetector
-from yt.fields.local_fields import add_field
 from yt.utilities.linear_interpolators import \
     TrilinearFieldInterpolator, \
     UnilinearFieldInterpolator
@@ -24,7 +23,6 @@ import numpy as np
 import h5py
 import copy
 import os
-import warnings
 from trident.config import \
     ion_table_filepath
 from trident.line_database import \
@@ -48,22 +46,22 @@ class IonBalanceTable(object):
         """
         Base class for building additional ion fields
 
-        Used to load in an HDF5 file that contains the values for the 
-        elemental ionization state of the gas as a function of density, 
-        temperature, metallcity, and redshift (for metagalactic photoionizing 
-        radiation field).  
+        Used to load in an HDF5 file that contains the values for the
+        elemental ionization state of the gas as a function of density,
+        temperature, metallcity, and redshift (for metagalactic photoionizing
+        radiation field).
 
         **Parameters**
 
         :filename: string, optional
 
-            Name of the HDF5 file that contains the ionization table data.  
+            Name of the HDF5 file that contains the ionization table data.
 
             Default: it uses the table specified in ~/.trident/config
- 
+
         :atom: string, optional
 
-            The atomic species for which you want to create an IonBalanceTable 
+            The atomic species for which you want to create an IonBalanceTable
 
             Default: None
         """
@@ -111,8 +109,8 @@ def _redshift(field, data):
     dataset's redshift values into the same format for indexing the table
 
     Note that if there already exists a "redshift" field on the dataset (e.g.,
-    on a LightRay dataset), that redshift field will be used instead.  This can 
-    lead to slight differences (1 part in 1e8) in the calculation of ion fields 
+    on a LightRay dataset), that redshift field will be used instead.  This can
+    lead to slight differences (1 part in 1e8) in the calculation of ion fields
     when added to a LightRay than when added to a dataset because redshift
     is continually varying (slightly) along the ray, whereas it is fixed for
     a standard dataset.
@@ -132,18 +130,18 @@ def _log_T(field, data):
     """
     return np.log10(data["gas", "temperature"])
 
-def add_ion_fields(ds, ions, ftype='gas', 
-                   ionization_table=None, 
-                   field_suffix=False, 
+def add_ion_fields(ds, ions, ftype='gas',
+                   ionization_table=None,
+                   field_suffix=False,
                    line_database=None,
                    force_override=False,
-                   sampling_type='auto',
+                   sampling_type='local',
                    particle_type=None):
     """
     Preferred method for adding ion fields to a yt dataset.
 
-    Select ions based on the selection indexing set up in 
-    :class:`~trident.LineDatabase.parse_subset_to_ions` function, that is, 
+    Select ions based on the selection indexing set up in
+    :class:`~trident.LineDatabase.parse_subset_to_ions` function, that is,
     by specifying a list of strings where each string represents an ion or
     line.  Strings are of one of three forms:
 
@@ -155,19 +153,19 @@ def add_ion_fields(ds, ions, ftype='gas',
     of the ions present in the equivalent :class:`~trident.LineDatabase`,
     nominally located in ``trident.__path__/data/line_lists``.
 
-    For each ion species selected, four fields will be added (example for 
+    For each ion species selected, four fields will be added (example for
     Mg II):
 
         * Ion fraction field. e.g. ("gas", 'Mg_p1_ion_fraction')
-        * Number density field. e.g. ("gas", 'Mg_p1_number_density') 
+        * Number density field. e.g. ("gas", 'Mg_p1_number_density')
         * Density field. e.g. ("gas", 'Mg_p1_density')
         * Mass field. e.g. ("gas", 'Mg_p1_mass')
 
     This function is the preferred method for adding ion fields to one's
-    dataset, but for more fine-grained control, one can also employ the 
-    :class:`~trident.add_ion_fraction_field`, 
-    :class:`~trident.add_ion_number_density_field`, 
-    :class:`~trident.add_ion_density_field`, 
+    dataset, but for more fine-grained control, one can also employ the
+    :class:`~trident.add_ion_fraction_field`,
+    :class:`~trident.add_ion_number_density_field`,
+    :class:`~trident.add_ion_density_field`,
     :class:`~trident.add_ion_mass_field` functions individually.
 
     Fields are added assuming collisional ionization equilibrium and
@@ -195,15 +193,15 @@ def add_ion_fields(ds, ions, ftype='gas',
 
     :ionization_table: string, optional
 
-        Path to an appropriately formatted HDF5 table that can be used to 
-        compute the ion fraction as a function of density, temperature, 
-        metallicity, and redshift.  When set to None, it uses the table 
+        Path to an appropriately formatted HDF5 table that can be used to
+        compute the ion fraction as a function of density, temperature,
+        metallicity, and redshift.  When set to None, it uses the table
         specified in ~/.trident/config
         Default: None
- 
+
     :field_suffix: boolean, optional
 
-        Determines whether or not to append a suffix to the field name that 
+        Determines whether or not to append a suffix to the field name that
         indicates what ionization table was used.  Useful when using generating
         ion_fields that already exist in a dataset.
 
@@ -214,7 +212,7 @@ def add_ion_fields(ds, ions, ftype='gas',
         :class:`~trident.LineDatabase` for more information.
 
     :force_override: boolean, optional
-        
+
         Set to True if you wish to clobber existing ion fields with any
         created with this functionality.  Otherwise, existing fields will
         remain untouched.
@@ -222,7 +220,7 @@ def add_ion_fields(ds, ions, ftype='gas',
 
     :ftype: string, optional
 
-        This is deprecated and no longer necessary since all relevant 
+        This is deprecated and no longer necessary since all relevant
         fields are aliased to the 'gas' ftype.
         Default: 'gas'
 
@@ -285,22 +283,23 @@ def add_ion_fields(ds, ions, ftype='gas',
     # - X_P#_number_density
     # - X_P#_density
     for (atom, ion) in ion_list:
-        add_ion_mass_field(atom, ion, ds, ionization_table,
-            field_suffix=field_suffix, force_override=force_override)
+        add_ion_mass_field(atom, ion, ds, ftype, ionization_table,
+            field_suffix=field_suffix, force_override=force_override,
+            sampling_type=sampling_type)
 
 def add_ion_fraction_field(atom, ion, ds, ftype="gas",
                            ionization_table=None,
                            field_suffix=False,
                            force_override=False,
-                           sampling_type='auto',
+                           sampling_type='local',
                            particle_type=None):
     """
     Add ion fraction field to a yt dataset for the desired ion.
 
-    .. note:: 
+    .. note::
 
-        The preferred method for adding ion fields to a dataset is using 
-        :class:`~trident.add_ion_fields`, 
+        The preferred method for adding ion fields to a dataset is using
+        :class:`~trident.add_ion_fields`,
 
     For example, add_ion_fraction_field('O', 6, ds) creates a field
     called O_p5_ion_fraction for dataset ds, which represents 5-ionized
@@ -324,22 +323,22 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
 
     :ftype: string, optional
 
-        This is deprecated and no longer necessary since all relevant 
+        This is deprecated and no longer necessary since all relevant
         fields are aliased to the 'gas' ftype.
         Default: 'gas'
 
     :ionization_table: string, optional
-        Path to an appropriately formatted HDF5 table that can be used to 
-        compute the ion fraction as a function of density, temperature, 
+        Path to an appropriately formatted HDF5 table that can be used to
+        compute the ion fraction as a function of density, temperature,
         metallicity, and redshift.  By default, it uses the table specified in
         ~/.trident/config
- 
+
     :field_suffix: boolean, optional
-        Determines whether or not to append a suffix to the field name that 
+        Determines whether or not to append a suffix to the field name that
         indicates what ionization table was used
 
     :force_override: boolean, optional
-        
+
         Set to True if you wish to clobber existing ion fields with any
         created with this functionality.  Otherwise, existing fields will
         remain untouched.
@@ -371,17 +370,17 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
 
     if ("gas", "log_nH") not in ds.derived_field_list:
         ds.add_field(("gas", "log_nH"), function=_log_nH, units="",
-                     sampling_type="local",
+                     sampling_type=sampling_type,
                      force_override=force_override)
 
     if ("gas", "redshift") not in ds.derived_field_list:
         ds.add_field(("gas", "redshift"), function=_redshift, units="",
-                     sampling_type="local",
+                     sampling_type=sampling_type,
                      force_override=force_override)
 
     if ("gas", "log_T") not in ds.derived_field_list:
         ds.add_field(("gas", "log_T"), function=_log_T, units="",
-                     sampling_type="local",
+                     sampling_type=sampling_type,
                      force_override=force_override)
 
     atom = atom.capitalize()
@@ -397,14 +396,14 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
         if ion == 1:
             alias_field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
 
-    if not field in table_store:
+    if field not in table_store:
         ionTable = IonBalanceTable(ionization_table, atom)
         table_store[field] = {'fraction': copy.deepcopy(ionTable.ion_fraction[ion-1]),
                               'parameters': copy.deepcopy(ionTable.parameters)}
         del ionTable
 
     ds.add_field(("gas", field), function=_ion_fraction_field, units="",
-                 sampling_type="local", force_override=force_override)
+                 sampling_type=sampling_type, force_override=force_override)
     if ion == 1: # add aliased field too
         ds.field_info.alias(("gas", alias_field), ("gas", field))
         ds.derived_field_list.append(("gas", alias_field))
@@ -413,15 +412,15 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
                                  ionization_table=None,
                                  field_suffix=False,
                                  force_override=False,
-                                 sampling_type='auto',
+                                 sampling_type='local',
                                  particle_type=None):
     """
     Add ion number density field to a yt dataset for the desired ion.
 
-    .. note:: 
+    .. note::
 
-        The preferred method for adding ion fields to a dataset is using 
-        :class:`~trident.add_ion_fields`, 
+        The preferred method for adding ion fields to a dataset is using
+        :class:`~trident.add_ion_fields`,
 
     For example, add_ion_number_density_field('O', 6, ds) creates a field
     called O_p5_number_density for dataset ds, which represents 5-ionized
@@ -448,24 +447,24 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
 
     :ftype: string, optional
 
-        This is deprecated and no longer necessary since all relevant 
+        This is deprecated and no longer necessary since all relevant
         fields are aliased to the 'gas' ftype.
         Default: 'gas'
 
     :ionization_table: string, optional
 
-        Path to an appropriately formatted HDF5 table that can be used to 
-        compute the ion fraction as a function of density, temperature, 
+        Path to an appropriately formatted HDF5 table that can be used to
+        compute the ion fraction as a function of density, temperature,
         metallicity, and redshift.  By default, it uses the table specified in
         ~/.trident/config
- 
+
     :field_suffix: boolean, optional
 
         Determines whether or not to append a suffix to the field
         name that indicates what ionization table was used
 
     :force_override: boolean, optional
-        
+
         Set to True if you wish to clobber existing ion fields with any
         created with this functionality.  Otherwise, existing fields will
         remain untouched.
@@ -506,10 +505,12 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
         if ion == 1:
             alias_field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
 
-    add_ion_fraction_field(atom, ion, ds, ionization_table,
-                           field_suffix=field_suffix)
+    add_ion_fraction_field(atom, ion, ds, ftype, ionization_table,
+                           field_suffix=field_suffix,
+                           force_override=force_override,
+                           sampling_type=sampling_type)
     ds.add_field(("gas", field),function=_ion_number_density,
-                 units="cm**-3", sampling_type='local',
+                 units="cm**-3", sampling_type=sampling_type,
                  force_override=force_override)
     if ion == 1: # add aliased field too
         ds.field_info.alias(("gas", alias_field), ("gas", field))
@@ -519,15 +520,15 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
                           ionization_table=None,
                           field_suffix=False,
                           force_override=False,
-                          sampling_type='auto',
+                          sampling_type='local',
                           particle_type=None):
     """
     Add ion mass density field to a yt dataset for the desired ion.
 
-    .. note:: 
+    .. note::
 
-        The preferred method for adding ion fields to a dataset is using 
-        :class:`~trident.add_ion_fields`, 
+        The preferred method for adding ion fields to a dataset is using
+        :class:`~trident.add_ion_fields`,
 
     For example, add_ion_density_field('O', 6, ds) creates a field
     called O_p5_density for dataset ds, which represents 5-ionized
@@ -554,24 +555,24 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
 
     :ftype: string, optional
 
-        This is deprecated and no longer necessary since all relevant 
+        This is deprecated and no longer necessary since all relevant
         fields are aliased to the 'gas' ftype.
         Default: 'gas'
 
     :ionization_table: string, optional
 
-        Path to an appropriately formatted HDF5 table that can be used to 
-        compute the ion fraction as a function of density, temperature, 
+        Path to an appropriately formatted HDF5 table that can be used to
+        compute the ion fraction as a function of density, temperature,
         metallicity, and redshift.  By default, it uses the table specified in
         ~/.trident/config
- 
+
     :field_suffix: boolean, optional
 
         Determines whether or not to append a suffix to the field
         name that indicates what ionization table was used
 
     :force_override: boolean, optional
-        
+
         Set to True if you wish to clobber existing ion fields with any
         created with this functionality.  Otherwise, existing fields will
         remain untouched.
@@ -613,11 +614,11 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
         if ion == 1:
             alias_field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
 
-    add_ion_number_density_field(atom, ion, ds, ionization_table,
+    add_ion_number_density_field(atom, ion, ds, ftype, ionization_table,
                                  field_suffix=field_suffix,
                                  force_override=force_override)
     ds.add_field(("gas", field), function=_ion_density,
-                 units="g/cm**3", sampling_type='local',
+                 units="g/cm**3", sampling_type=sampling_type,
                  force_override=force_override)
     if ion == 1: # add aliased field too
         ds.field_info.alias(("gas", alias_field), ("gas", field))
@@ -627,15 +628,15 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
                        ionization_table=None,
                        field_suffix=False,
                        force_override=False,
-                       sampling_type='auto',
+                       sampling_type='local',
                        particle_type=None):
     """
     Add ion mass field to a yt dataset for the desired ion.
 
-    .. note:: 
+    .. note::
 
-        The preferred method for adding ion fields to a dataset is using 
-        :class:`~trident.add_ion_fields`, 
+        The preferred method for adding ion fields to a dataset is using
+        :class:`~trident.add_ion_fields`,
 
     For example, add_ion_mass_field('O', 6, ds) creates a field
     called O_p5_mass for dataset ds, which represents 5-ionized
@@ -652,7 +653,7 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
         Atomic species for desired ion fraction (e.g. 'H', 'C', 'Mg')
 
     :ion: integer
-        
+
         Ion number for desired species (e.g. 1 = neutral, 2 = singly ionized,
         3 = doubly ionized, etc.)
 
@@ -663,24 +664,24 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
 
     :ftype: string, optional
 
-        This is deprecated and no longer necessary since all relevant 
+        This is deprecated and no longer necessary since all relevant
         fields are aliased to the 'gas' ftype.
         Default: 'gas'
 
     :ionization_table: string, optional
 
-        Path to an appropriately formatted HDF5 table that can be used to 
-        compute the ion fraction as a function of density, temperature, 
+        Path to an appropriately formatted HDF5 table that can be used to
+        compute the ion fraction as a function of density, temperature,
         metallicity, and redshift.  By default, it uses the table specified in
         ~/.trident/config
- 
+
     :field_suffix: boolean, optional
 
         Determines whether or not to append a suffix to the field
         name that indicates what ionization table was used
 
     :force_override: boolean, optional
-        
+
         Set to True if you wish to clobber existing ion fields with any
         created with this functionality.  Otherwise, existing fields will
         remain untouched.
@@ -722,20 +723,20 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
         if ion == 1:
             alias_field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
 
-    add_ion_density_field(atom, ion, ds, ionization_table,
+    add_ion_density_field(atom, ion, ds, ftype, ionization_table,
                           field_suffix=field_suffix,
                           force_override=force_override,
                           sampling_type=sampling_type)
     ds.add_field(("gas", field), function=_ion_mass, units=r"g",
-                 sampling_type='local', force_override=force_override)
+                 sampling_type=sampling_type, force_override=force_override)
     if ion == 1: # add aliased field too
         ds.field_info.alias(("gas", alias_field), ("gas", field))
         ds.derived_field_list.append(("gas", alias_field))
 
 def _ion_mass(field, data):
     """
-    Creates the function for a derived field to follow the total mass of an 
-    ion over a dataset given that the specified ion's density field exists 
+    Creates the function for a derived field to follow the total mass of an
+    ion over a dataset given that the specified ion's density field exists
     in the dataset.
     """
     if isinstance(field.name, tuple):
@@ -751,8 +752,8 @@ def _ion_mass(field, data):
 
 def _ion_density(field, data):
     """
-    Creates the function for a derived field for following the density of an 
-    ion over a dataset given that the specified ion's number_density field 
+    Creates the function for a derived field for following the density of an
+    ion over a dataset given that the specified ion's number_density field
     exists in the dataset.
     """
     if isinstance(field.name, tuple):
@@ -770,8 +771,8 @@ def _ion_density(field, data):
 
 def _ion_number_density(field, data):
     """
-    Creates the function for a derived field for following the number_density 
-    of an ion over a dataset given that the specified ion's ion_fraction field 
+    Creates the function for a derived field for following the number_density
+    of an ion over a dataset given that the specified ion's ion_fraction field
     exists in the dataset.
     """
     if isinstance(field.name, tuple):
@@ -795,9 +796,9 @@ def _ion_number_density(field, data):
     metallicity_field = "%s_metallicity" % atom
     if (ftype, metallicity_field) in data.ds.field_info:
         return data[fraction_field_name] * \
-                  data[ftype, "density"] * \
-                  data[ftype, metallicity_field] / \
-                  atomic_mass[atom] / mh
+          data[ftype, "density"] * \
+          data[ftype, metallicity_field] / \
+          atomic_mass[atom] / mh
 
     if atom == 'H' or atom == 'He':
         number_density = solar_abundance[atom] * data[fraction_field_name]
@@ -816,7 +817,7 @@ def _ion_number_density(field, data):
 def _ion_fraction_field(field, data):
     """
     Creates the function for a derived field for following the ion_fraction
-    of an ion over a dataset by plugging in the density, temperature, 
+    of an ion over a dataset by plugging in the density, temperature,
     metallicity and redshift of the output into the ionization table.
     """
     if isinstance(field.name, tuple):
@@ -858,6 +859,7 @@ def _ion_fraction_field(field, data):
         mylog.warning("%d offenders: median = %f; maximum = %f" % (len(fraction[greater_than]), np.median(fraction[greater_than]), np.max(fraction[greater_than])))
         fraction = np.clip(fraction, 0.0, 1.0)
     return fraction
+
 
 # Taken from Cloudy documentation.
 solar_abundance = {
