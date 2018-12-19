@@ -23,7 +23,6 @@ import numpy as np
 import h5py
 import copy
 import os
-import warnings
 from trident.config import \
     ion_table_filepath
 from trident.line_database import \
@@ -221,7 +220,7 @@ def add_ion_fields(ds, ions, ftype='gas',
 
     :ftype: string, optional
 
-        This is deprecated and no longer necessary since all relevant 
+        This is deprecated and no longer necessary since all relevant
         fields are aliased to the 'gas' ftype.
         Default: 'gas'
 
@@ -324,7 +323,7 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
 
     :ftype: string, optional
 
-        This is deprecated and no longer necessary since all relevant 
+        This is deprecated and no longer necessary since all relevant
         fields are aliased to the 'gas' ftype.
         Default: 'gas'
 
@@ -448,7 +447,7 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
 
     :ftype: string, optional
 
-        This is deprecated and no longer necessary since all relevant 
+        This is deprecated and no longer necessary since all relevant
         fields are aliased to the 'gas' ftype.
         Default: 'gas'
 
@@ -556,7 +555,7 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
 
     :ftype: string, optional
 
-        This is deprecated and no longer necessary since all relevant 
+        This is deprecated and no longer necessary since all relevant
         fields are aliased to the 'gas' ftype.
         Default: 'gas'
 
@@ -665,7 +664,7 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
 
     :ftype: string, optional
 
-        This is deprecated and no longer necessary since all relevant 
+        This is deprecated and no longer necessary since all relevant
         fields are aliased to the 'gas' ftype.
         Default: 'gas'
 

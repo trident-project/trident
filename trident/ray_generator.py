@@ -28,7 +28,6 @@ from trident.roman import \
 from yt.data_objects.static_output import \
     Dataset
 from trident.ion_balance import \
-    add_ion_number_density_field, \
     atomic_number
 
 def make_simple_ray(dataset_file, start_position, end_position,
@@ -168,7 +167,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
 
     **Example**
 
-    Generate a simple ray passing from the lower left corner to the upper 
+    Generate a simple ray passing from the lower left corner to the upper
     right corner through some Gizmo dataset:
 
     >>> import trident
@@ -476,7 +475,7 @@ def make_compound_ray(parameter_filename, simulation_type,
     # We first determine what fields are necessary for the desired lines, and
     # inspect the dataset to see if they already exist.  If so, we add them
     # to the field list for the ray or add the necessary fields that can
-    # generate them on the ray.  
+    # generate them on the ray.
 
     if lines is not None:
 
@@ -491,8 +490,8 @@ def make_compound_ray(parameter_filename, simulation_type,
             fields[i] = ('gas', fields[i])
     fields = uniquify(fields)
 
-    return lr.make_light_ray(seed=seed, 
-                             fields=fields, 
+    return lr.make_light_ray(seed=seed,
+                             fields=fields,
                              setup_function=setup_function,
                              solution_filename=solution_filename,
                              data_filename=data_filename,
@@ -529,8 +528,8 @@ def _determine_fields_from_ions(ds, ion_list, fields):
     """
     Figure out what fields need to be added based on the ions present.
 
-    Check if the number_density fields for these ions exist, and if so, add 
-    them to field list. If not, leave them off, as they'll be generated 
+    Check if the number_density fields for these ions exist, and if so, add
+    them to field list. If not, leave them off, as they'll be generated
     on the fly by SpectrumGenerator as long as we include the 'density',
     'temperature', and appropriate 'metallicity' fields.
     """
@@ -546,9 +545,9 @@ def _determine_fields_from_ions(ds, ion_list, fields):
             field = "%s_p%d_number_density" % (atom, ion_state-1)
             alias_field = "%s_p%d_number_density" % (atom, ion_state-1)
 
-        # Check to see if the ion field (or its alias) exists.  If so, add 
+        # Check to see if the ion field (or its alias) exists.  If so, add
         # it to the ray.  If not, then append the density and the appropriate
-        # metal field so one can create the ion field on the fly on the 
+        # metal field so one can create the ion field on the fly on the
         # ray itself.
         if ("gas", field) not in ds.derived_field_list:
             if ("gas", alias_field) not in ds.derived_field_list:
@@ -570,8 +569,8 @@ def _determine_fields_from_ions(ds, ion_list, fields):
 
     return fields
 
-def _add_default_fields(ds, fields): 
-    """ 
+def _add_default_fields(ds, fields):
+    """
     Add some default fields to rays to assure they can be processed correctly.
     """
     if ("gas", "temperature") in ds.derived_field_list:

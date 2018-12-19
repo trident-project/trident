@@ -28,7 +28,7 @@ ray = trident.make_simple_ray(ds, start_position=ray_start,
 
 # Create a projection of the dataset in density along the x axis,
 # overplot the trajectory of the ray, and save it.
-# Note that this is using the 'gas' field type, the field aliased to the 
+# Note that this is using the 'gas' field type, the field aliased to the
 # particle field.
 p = yt.ProjectionPlot(ds, 'x', ('gas', 'density'))
 p.annotate_ray(ray, arrow=True)

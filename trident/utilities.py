@@ -31,8 +31,6 @@ from yt import \
     load_uniform_grid, \
     YTArray, \
     load
-from yt.funcs import \
-    mylog
 
 def ensure_directory(directory):
     """
