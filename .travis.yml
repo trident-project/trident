@@ -21,7 +21,7 @@ env:
     TRIDENT_ANSWER_DATA=$HOME/answer_test_data
     TRIDENT_CONFIG=$TRIDENT_ION_DATA/config.tri
     YT_GOLD=38b79c094ca9
-    YT_HEAD=refs/heads/master
+    YT_HEAD=master
     TRIDENT_GOLD=test-standard-v2
 
 before_install:
@@ -93,7 +93,6 @@ script:
     pip install -e .
     # relevant yt version
     pushd $YT_DIR
-    cat .git/HEAD
     git checkout $YT_VER
     pip install -e .
     popd
