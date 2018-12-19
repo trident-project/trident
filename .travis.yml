@@ -20,7 +20,6 @@ env:
     TRIDENT_ION_DATA=$HOME/.trident
     TRIDENT_ANSWER_DATA=$HOME/answer_test_data
     TRIDENT_CONFIG=$TRIDENT_ION_DATA/config.tri
-    # set to current gold standard and master head respectively
     YT_GOLD=38b79c094ca9
     YT_HEAD=refs/heads/master
     TRIDENT_GOLD=test-standard-v2
