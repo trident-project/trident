@@ -109,16 +109,16 @@ with these versions of the code.  Lastly, set the
    $ python gold_standard_versions.py
    
    Latest Gold Standard Commit Tags
-   yt = 38b79c094ca9
-   Trident = test-standard-v1
+   yt = 953248239966
+   Trident = test-standard-v2
 
    To update to them, `git checkout <tag>` in appropriate repository
 
    $ cd /path/to/yt
-   $ git checkout 38b79c094ca9
+   $ git checkout 953248239966
    $ pip install -e .
    $ cd /path/to/trident
-   $ git checkout test-standard-v1
+   $ git checkout test-standard-v2
    $ pip install -e .
    $ export TRIDENT_GENERATE_TEST_RESULTS=1
    $ cd tests
@@ -143,18 +143,18 @@ the next gold standard iteration.  You can see the current iteration by looking
 in the ``.travis.yml`` file at the ``TRIDENT_GOLD`` entry--enumerate this and
 tag the changeset.  Update the ``.travis.yml`` file so that the ``YT_GOLD`` and
 ``TRIDENT_GOLD`` entries point to your desired changeset and tag.  You have to 
-explicitly push the new tag (hereafter ``test-standard-v2``) to 
+explicitly push the new tag (hereafter ``test-standard-v3``) to 
 the repository.
 
 .. code-block:: bash
 
-   $ git tag test-standard-v2 <trident-changeset>
+   $ git tag test-standard-v3 <trident-changeset>
    $ ... edit .travis.yml files to update YT_GOLD=<yt changeset>
-   $ ... and TRIDENT_GOLD=<test-standard-v2
+   $ ... and TRIDENT_GOLD=test-standard-v3
    $ git add .travis.yml
    $ git commit
    $ git push origin
-   $ git push origin test-standard-v2
+   $ git push origin test-standard-v3
 
 Lastly, someone with admin access to the main trident repository will have to 
 clear Travis' cache, so that it regenerates new answer test results.  This can 
