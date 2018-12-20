@@ -86,7 +86,7 @@ directory.
 If a test fails for some reason, you will be given a detailed traceback and
 reason for it failing.  You can use this to identify what is wrong with your
 source or perhaps a change in the code of your dependencies.  The tests should
-take less than five minutes to run.
+take around ten minutes to run.
 
 .. _generating-answer-tests:
 
@@ -129,10 +129,33 @@ you specified in your Trident configuration file. You may now run the actual
 tests (see :ref:`running-the-tests`) with your current version of yt and 
 Trident comparing against these gold standard results.
 
+.. _tests-broken:
+
+The Tests Failed -- What Do I Do?
+---------------------------------
+
+If the tests have failed (either locally, or through the automatically generated
+test from Travis), you want to figure out what caused the breakage.  It was
+either a change in trident or a change in one of Trident's dependencies
+(e.g., yt).  So first examine the output from `py.test` to see if you can
+deduce what went wrong.
+
+Sometimes it isn't obvious what caused the break,
+in which case you may need to use `git bisect` to track down the change, either
+in Trident or in yt.  First, start with the tip of yt, and bisect the
+changes in Trident since its gold standard version (see below).  If that doesn't
+ID the bad changeset, then do the same with yt back to its gold standard
+version.  Once you have identified the specific commit that caused
+the tests to break, you have to identify if it was a good or bad change.
+If the unit tests failed and some functionality no longer works, then it was a
+bad, and you'll want to change the code that caused the break.  On the other
+hand, if the answer tests changed, and they did so because of an improvement to
+the code, then you'll simply want to go about :ref:`running-the-tests`.
+
 .. _updating-the-test-results:
 
-Updating the Test Results
---------------------------
+Updating the Testing Gold Standard
+----------------------------------
 
 Periodically, the gold standard for our answer tests must be updated as bugs 
 are caught or new more accurate behavior is enabled that causes the answer
