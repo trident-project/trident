@@ -474,8 +474,15 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
                               'parameters': copy.deepcopy(ionTable.parameters)}
         del ionTable
 
-    ds.add_field((ftype, field), function=_ion_fraction_field, units="",
-                 sampling_type=sampling_type, force_override=force_override)
+    # if on-disk fields exist for calculation ion_fraction, use them
+    if ((ftype, "%s_p%d_number_density" % (atom, ion-1)) in ds.derived_field_list) and \
+       ((ftype, "%s_nuclei_density" % atom) in ds.derived_field_list):
+        ds.add_field((ftype, field), function=_internal_ion_fraction_field, units="",
+                     sampling_type=sampling_type, force_override=force_override)
+    # otherwise, calculate ion_fraction from ion_balance table
+    else:
+        ds.add_field((ftype, field), function=_ion_fraction_field, units="",
+                    sampling_type=sampling_type, force_override=force_override)
     if ion == 1: # add aliased field too
         ds.field_info.alias((ftype, alias_field), (ftype, field))
         ds.derived_field_list.append((ftype, alias_field))
@@ -1038,6 +1045,29 @@ def _ion_fraction_field(field, data):
         fraction = np.clip(fraction, 0.0, 1.0)
     return fraction
 
+def _internal_ion_fraction_field(field, data):
+    """
+    Creates the function for a derived field for following the ion_fraction
+    of an ion over a dataset when the number density and nuclei_density for
+    that field are already defined on disk.  Example: H I ion fraction is
+    H I number density / H number density from on-disk fields.
+    """
+    if isinstance(field.name, tuple):
+        ftype = field.name[0]
+        field_name = field.name[1]
+    else:
+        ftype = "gas"
+        field_name = field.name
+
+    # is this a neutral ion?
+    field_array = field_name.split('_')
+    if len(field_array) == 3:
+        ion = field_array[0]
+    else:
+        ion = '_'.join(field_array[:2])
+    atom = field_array[0]
+
+    return data[(ftype, "%s_number_density" % ion)] / data[(ftype, "%s_nuclei_density" % atom)]
 
 # Taken from Cloudy documentation.
 solar_abundance = {
