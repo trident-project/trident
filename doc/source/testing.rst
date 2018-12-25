@@ -90,8 +90,8 @@ take around ten minutes to run.
 
 .. _generating-answer-tests:
 
-Generating Test Results
------------------------
+Generating Gold Standard Answer Test Results for Comparison
+-----------------------------------------------------------
 
 In order to assure the Trident codebase gives consistent results over time, 
 we compare the outputs of tests of new versions of Trident against an older, 
@@ -150,7 +150,7 @@ the tests to break, you have to identify if it was a good or bad change.
 If the unit tests failed and some functionality no longer works, then it was a
 bad, and you'll want to change the code that caused the break.  On the other
 hand, if the answer tests changed, and they did so because of an improvement to
-the code, then you'll simply want to go about :ref:`running-the-tests`.
+the code, then you'll simply want to go about :ref:`updating-the-test-results`.
 
 .. _updating-the-test-results:
 
@@ -163,11 +163,11 @@ tests to fail.  The first thing to do
 is to identify the most accurate version of the code (e.g., changesets for 
 yt and trident that give the desired behavior).  Tag the Trident changeset with
 the next gold standard iteration.  You can see the current iteration by looking
-in the ``.travis.yml`` file at the ``TRIDENT_GOLD`` entry--enumerate this and
+in the ``.travis.yml`` file at the ``TRIDENT_GOLD`` entry--increment this and
 tag the changeset.  Update the ``.travis.yml`` file so that the ``YT_GOLD`` and
-``TRIDENT_GOLD`` entries point to your desired changeset and tag.  You have to 
-explicitly push the new tag (hereafter ``test-standard-v3``) to 
-the repository.
+``TRIDENT_GOLD`` entries point to your desired changeset and tag.  You have to
+explicitly push the new tag (hereafter ``test-standard-v3``) to your repository
+(here: ``origin``.  Issue a pull request.
 
 .. code-block:: bash
 
@@ -176,9 +176,17 @@ the repository.
    $ ... and TRIDENT_GOLD=test-standard-v3
    $ git add .travis.yml
    $ git commit
-   $ git push origin
    $ git push origin test-standard-v3
+   $ <MAKE PULL REQUEST>
 
-Lastly, someone with admin access to the main trident repository will have to 
+Once the pull request has been accepted, someone with admin access to the
+main trident repository (here ``upstream``) will have to push the gold standard
+tag.
+
+.. code-block:: bash
+
+   $ git push upstream test-standard-v3
+
+Lastly, that person will have to also
 clear Travis' cache, so that it regenerates new answer test results.  This can 
 be done manually here: https://travis-ci.org/trident-project/trident/caches .
