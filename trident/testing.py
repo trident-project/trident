@@ -98,7 +98,7 @@ def h5_dataset_compare(fn1, fn2, compare=None, **kwargs):
     assert list(fh1.keys()) == list(fh2.keys()), \
       "Files have different datasets!"
     for key in fh1.keys():
-        compare(fh1[key].value, fh2[key].value,
+        compare(fh1[key][()], fh2[key][()],
                 err_msg="%s field not equal!" % key, **kwargs)
 
 def assert_array_rel_equal(a1, a2, decimals=16, **kwargs):
