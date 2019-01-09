@@ -33,9 +33,18 @@ from trident.utilities import \
     _determine_dataset_sampling_type
 from trident.roman import \
     from_roman
+from yt.utilities.physical_ratios import \
+    primordial_H_mass_fraction
+from yt.utilities.chemical_formulas import \
+    ChemicalFormula
+from yt.utilities.physical_constants import \
+    amu_cgs
 
-H_mass_fraction = 0.76
-to_nH = H_mass_fraction / mh
+_primordial_mass_fraction = \
+  {"H": primordial_H_mass_fraction,
+   "He" : (1 - primordial_H_mass_fraction)}
+
+to_nH = primordial_H_mass_fraction / mh
 
 # set fractions to 0 for values lower than 1e-9,
 # which is what is used in Sutherland & Dopita (1993).
@@ -606,6 +615,16 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
         if ion == 1:
             alias_field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
 
+    # if we override the number_density field, assure that we avoid a
+    # recursion loop since X_nuclei_density depends on X_number_density.
+    # this hardcodes the nuclei_density to its primordial value.
+    if force_override and (atom == 'H' or atom == 'He'):
+        ds.add_field((ftype, "%s_nuclei_density" % atom),
+                     function=_default_nuclei_density,
+                     units="cm**-3",
+                     sampling_type=sampling_type,
+                     force_override=force_override)
+
     add_ion_fraction_field(atom, ion, ds, ftype, ionization_table,
                            field_suffix=field_suffix,
                            force_override=force_override,
@@ -1038,6 +1057,11 @@ def _ion_fraction_field(field, data):
         fraction = np.clip(fraction, 0.0, 1.0)
     return fraction
 
+def _default_nuclei_density(field, data):
+    ftype = field.name[0]
+    element = field.name[1][:field.name[1].find("_")]
+    return data[ftype, "density"] * _primordial_mass_fraction[element] / \
+      ChemicalFormula(element).weight / amu_cgs
 
 # Taken from Cloudy documentation.
 solar_abundance = {
