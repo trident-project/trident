@@ -477,7 +477,7 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
     # if on-disk fields exist for calculation ion_fraction, use them
     if ((ftype, "%s_p%d_number_density" % (atom, ion-1)) in ds.derived_field_list) and \
        ((ftype, "%s_nuclei_density" % atom) in ds.derived_field_list) and \
-       (force_override == False):
+       (force_override is False):
         ds.add_field((ftype, field), function=_internal_ion_fraction_field, units="",
                      sampling_type=sampling_type, force_override=force_override)
     # otherwise, calculate ion_fraction from ion_balance table
@@ -1069,6 +1069,7 @@ def _internal_ion_fraction_field(field, data):
     atom = field_array[0]
 
     return data[(ftype, "%s_number_density" % ion)] / data[(ftype, "%s_nuclei_density" % atom)]
+
 
 # Taken from Cloudy documentation.
 solar_abundance = {
