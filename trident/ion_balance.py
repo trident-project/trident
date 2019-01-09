@@ -633,7 +633,7 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
                  units="cm**-3", sampling_type=sampling_type,
                  force_override=force_override)
     if ion == 1: # add aliased field too
-        ds.field_info.alias((ftype, alias_field), (ftype, field))
+        ds.field_info.alias((ftype, alias_field), (ftype, field), force_override=force_override)
         ds.derived_field_list.append((ftype, alias_field))
 
     # if ion particle field, add a smoothed deposited version to gas fields
