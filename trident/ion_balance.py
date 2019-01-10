@@ -170,7 +170,6 @@ def add_ion_fields(ds, ions, ftype='gas',
                    ionization_table=None,
                    field_suffix=False,
                    line_database=None,
-                   force_override=False,
                    sampling_type='auto',
                    particle_type=None):
     """
@@ -263,13 +262,6 @@ def add_ion_fields(ds, ions, ftype='gas',
         constructed from the line list filename specified here.  See
         :class:`~trident.LineDatabase` for more information.
 
-    :force_override: boolean, optional
-
-        Set to True if you wish to clobber existing ion fields with any
-        created with this functionality.  Otherwise, existing fields will
-        remain untouched.
-        Default: False
-
     :sampling_type: string, optional
 
         Set to 'particle' if the field should be for particles.
@@ -338,13 +330,11 @@ def add_ion_fields(ds, ions, ftype='gas',
     # - X_P#_density
     for (atom, ion) in ion_list:
         add_ion_mass_field(atom, ion, ds, ftype, ionization_table,
-            field_suffix=field_suffix, force_override=force_override,
-            sampling_type=sampling_type)
+            field_suffix=field_suffix, sampling_type=sampling_type)
 
 def add_ion_fraction_field(atom, ion, ds, ftype="gas",
                            ionization_table=None,
                            field_suffix=False,
-                           force_override=False,
                            sampling_type='auto',
                            particle_type=None):
     """
@@ -400,13 +390,6 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
         Determines whether or not to append a suffix to the field name that
         indicates what ionization table was used
 
-    :force_override: boolean, optional
-
-        Set to True if you wish to clobber existing ion fields with any
-        created with this functionality.  Otherwise, existing fields will
-        remain untouched.
-        Default: False
-
     :sampling_type: string, optional
 
         Set to 'particle' if the field should be for particles.
@@ -442,18 +425,15 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
 
     if (ftype, "log_nH") not in ds.derived_field_list:
         ds.add_field((ftype, "log_nH"), function=_log_nH, units="",
-                     sampling_type=sampling_type,
-                     force_override=force_override)
+                     sampling_type=sampling_type)
 
     if (ftype, "redshift") not in ds.derived_field_list:
         ds.add_field((ftype, "redshift"), function=_redshift, units="",
-                     sampling_type=sampling_type,
-                     force_override=force_override)
+                     sampling_type=sampling_type)
 
     if (ftype, "log_T") not in ds.derived_field_list:
         ds.add_field((ftype, "log_T"), function=_log_T, units="",
-                     sampling_type=sampling_type,
-                     force_override=force_override)
+                     sampling_type=sampling_type)
 
     atom = atom.capitalize()
 
@@ -476,14 +456,13 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
 
     # if on-disk fields exist for calculation ion_fraction, use them
     if ((ftype, "%s_p%d_number_density" % (atom, ion-1)) in ds.derived_field_list) and \
-       ((ftype, "%s_nuclei_density" % atom) in ds.derived_field_list) and \
-       (force_override is False):
+       ((ftype, "%s_nuclei_density" % atom) in ds.derived_field_list):
         ds.add_field((ftype, field), function=_internal_ion_fraction_field, units="",
-                     sampling_type=sampling_type, force_override=force_override)
+                     sampling_type=sampling_type)
     # otherwise, calculate ion_fraction from ion_balance table
     else:
         ds.add_field((ftype, field), function=_ion_fraction_field, units="",
-                    sampling_type=sampling_type, force_override=force_override)
+                    sampling_type=sampling_type)
     if ion == 1: # add aliased field too
         ds.field_info.alias((ftype, alias_field), (ftype, field))
         ds.derived_field_list.append((ftype, alias_field))
@@ -501,7 +480,6 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
 def add_ion_number_density_field(atom, ion, ds, ftype="gas",
                                  ionization_table=None,
                                  field_suffix=False,
-                                 force_override=False,
                                  sampling_type='auto',
                                  particle_type=None):
     """
@@ -563,13 +541,6 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
         Determines whether or not to append a suffix to the field
         name that indicates what ionization table was used
 
-    :force_override: boolean, optional
-
-        Set to True if you wish to clobber existing ion fields with any
-        created with this functionality.  Otherwise, existing fields will
-        remain untouched.
-        Default: False
-
     :sampling_type: string, optional
 
         Set to 'particle' if the field should be for particles.
@@ -616,11 +587,9 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
 
     add_ion_fraction_field(atom, ion, ds, ftype, ionization_table,
                            field_suffix=field_suffix,
-                           force_override=force_override,
                            sampling_type=sampling_type)
     ds.add_field((ftype, field),function=_ion_number_density,
-                 units="cm**-3", sampling_type=sampling_type,
-                 force_override=force_override)
+                 units="cm**-3", sampling_type=sampling_type)
     if ion == 1: # add aliased field too
         ds.field_info.alias((ftype, alias_field), (ftype, field))
         ds.derived_field_list.append((ftype, alias_field))
@@ -638,7 +607,6 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
 def add_ion_density_field(atom, ion, ds, ftype="gas",
                           ionization_table=None,
                           field_suffix=False,
-                          force_override=False,
                           sampling_type='auto',
                           particle_type=None):
     """
@@ -700,13 +668,6 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
         Determines whether or not to append a suffix to the field
         name that indicates what ionization table was used
 
-    :force_override: boolean, optional
-
-        Set to True if you wish to clobber existing ion fields with any
-        created with this functionality.  Otherwise, existing fields will
-        remain untouched.
-        Default: False
-
     :sampling_type: string, optional
 
         Set to 'particle' if the field should be for particles.
@@ -754,11 +715,9 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
 
     add_ion_number_density_field(atom, ion, ds, ftype, ionization_table,
                                  field_suffix=field_suffix,
-                                 force_override=force_override,
                                  sampling_type=sampling_type)
     ds.add_field((ftype, field), function=_ion_density,
-                 units="g/cm**3", sampling_type=sampling_type,
-                 force_override=force_override)
+                 units="g/cm**3", sampling_type=sampling_type)
     if ion == 1: # add aliased field too
         ds.field_info.alias((ftype, alias_field), (ftype, field))
         ds.derived_field_list.append((ftype, alias_field))
@@ -776,7 +735,6 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
 def add_ion_mass_field(atom, ion, ds, ftype="gas",
                        ionization_table=None,
                        field_suffix=False,
-                       force_override=False,
                        sampling_type='auto',
                        particle_type=None):
     """
@@ -839,13 +797,6 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
         Determines whether or not to append a suffix to the field
         name that indicates what ionization table was used
 
-    :force_override: boolean, optional
-
-        Set to True if you wish to clobber existing ion fields with any
-        created with this functionality.  Otherwise, existing fields will
-        remain untouched.
-        Default: False
-
     :sampling_type: string, optional
 
         Set to 'particle' if the field should be for particles.
@@ -893,11 +844,9 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
 
     add_ion_density_field(atom, ion, ds, ftype, ionization_table,
                           field_suffix=field_suffix,
-                          force_override=force_override,
                           sampling_type=sampling_type)
     ds.add_field((ftype, field), function=_ion_mass, units=r"g",
-                 sampling_type=sampling_type,
-                 force_override=force_override)
+                 sampling_type=sampling_type)
     if ion == 1: # add aliased field too
         ds.field_info.alias((ftype, alias_field), (ftype, field))
         ds.derived_field_list.append((ftype, alias_field))
