@@ -1038,6 +1038,7 @@ def _alias_field(ds, alias_name, name):
         ds.derived_field_list.append(alias_name)
     return
 
+
 # Taken from Cloudy documentation.
 solar_abundance = {
     'H' : 1.00e+00, 'He': 1.00e-01, 'Li': 2.04e-09,
