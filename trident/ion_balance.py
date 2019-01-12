@@ -464,18 +464,15 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
         _add_field(ds, (ftype, field), function=_ion_fraction_field, units="",
                    sampling_type=sampling_type)
     if ion == 1: # add aliased field too
-        ds.field_info.alias((ftype, alias_field), (ftype, field))
-        ds.derived_field_list.append((ftype, alias_field))
+        _alias_field(ds, (ftype, alias_field), (ftype, field))
 
     # if ion particle field, add a smoothed deposited version to gas fields
     if sampling_type == 'particle':
         new_field = ds.add_smoothed_particle_field((ftype, field))
         if ftype != "gas":
-            ds.field_info.alias(("gas", field), new_field)
-            ds.derived_field_list.append(("gas", field))
+            _alias_field(ds, ('gas', field), new_field)
             if ion == 1: # add aliased field too
-                ds.field_info.alias(("gas", alias_field), new_field)
-                ds.derived_field_list.append(("gas", alias_field))
+                _alias_field(ds, ('gas', alias_field), new_field)
 
 def add_ion_number_density_field(atom, ion, ds, ftype="gas",
                                  ionization_table=None,
@@ -591,18 +588,15 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
     _add_field(ds, (ftype, field),function=_ion_number_density,
                units="cm**-3", sampling_type=sampling_type)
     if ion == 1: # add aliased field too
-        ds.field_info.alias((ftype, alias_field), (ftype, field))
-        ds.derived_field_list.append((ftype, alias_field))
+        _alias_field(ds, (ftype, alias_field), (ftype, field))
 
     # if ion particle field, add a smoothed deposited version to gas fields
     if sampling_type == 'particle':
         new_field = ds.add_smoothed_particle_field((ftype, field))
         if ftype != "gas":
-            ds.field_info.alias(("gas", field), new_field)
-            ds.derived_field_list.append(("gas", field))
+            _alias_field(ds, ('gas', field), new_field)
             if ion == 1: # add aliased field too
-                ds.field_info.alias(("gas", alias_field), new_field)
-                ds.derived_field_list.append(("gas", alias_field))
+                _alias_field(ds, ('gas', alias_field), new_field)
 
 def add_ion_density_field(atom, ion, ds, ftype="gas",
                           ionization_table=None,
@@ -719,18 +713,15 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
     _add_field(ds, (ftype, field), function=_ion_density,
                units="g/cm**3", sampling_type=sampling_type)
     if ion == 1: # add aliased field too
-        ds.field_info.alias((ftype, alias_field), (ftype, field))
-        ds.derived_field_list.append((ftype, alias_field))
+        _alias_field(ds, (ftype, alias_field), (ftype, field))
 
     # if ion particle field, add a smoothed deposited version to gas fields
     if sampling_type == 'particle':
         new_field = ds.add_smoothed_particle_field((ftype, field))
         if ftype != "gas":
-            ds.field_info.alias(("gas", field), new_field)
-            ds.derived_field_list.append(("gas", field))
+            _alias_field(ds, ('gas', field), new_field)
             if ion == 1: # add aliased field too
-                ds.field_info.alias(("gas", alias_field), new_field)
-                ds.derived_field_list.append(("gas", alias_field))
+                _alias_field(ds, ('gas', alias_field), new_field)
 
 def add_ion_mass_field(atom, ion, ds, ftype="gas",
                        ionization_table=None,
@@ -848,18 +839,15 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
     _add_field(ds, (ftype, field), function=_ion_mass, units=r"g",
                sampling_type=sampling_type)
     if ion == 1: # add aliased field too
-        ds.field_info.alias((ftype, alias_field), (ftype, field))
-        ds.derived_field_list.append((ftype, alias_field))
+        _alias_field(ds, (ftype, alias_field), (ftype, field))
 
     # if ion particle field, add a smoothed deposited version to gas fields
     if sampling_type == 'particle':
         new_field = ds.add_smoothed_particle_field((ftype, field))
         if ftype != "gas":
-            ds.field_info.alias(("gas", field), new_field)
-            ds.derived_field_list.append(("gas", field))
+            _alias_field(ds, ('gas', field), new_field)
             if ion == 1: # add aliased field too
-                ds.field_info.alias(("gas", alias_field), new_field)
-                ds.derived_field_list.append(("gas", alias_field))
+                _alias_field(ds, ('gas', alias_field), new_field)
 
 def _ion_mass(field, data):
     """
@@ -1029,12 +1017,26 @@ def _add_field(ds, name, function, units, sampling_type):
     applies in Trident.
     """
     if name in ds.derived_field_list:
-        mylog.warning("Field ('%s', '%s') already exists. Not adding." % (name[0], name[1]))
+        mylog.warning("Field ('%s', '%s') already exists. Not clobbering." % (name[0], name[1]))
         return
     else:
         return ds.add_field(name, function=function, units=units,
                             sampling_type=sampling_type)
 
+
+def _alias_field(ds, alias_name, name):
+    """
+    Private function for aliasing fields that wraps the yt alias functionality.
+    First it checks to see if alias field exists and if so, it does not attempt
+    to alias it and gives a warning message to user.  This avoids extra
+    adds of existing aliased fields.
+    """
+    if alias_name in ds.derived_field_list:
+        mylog.warning("Field ('%s', '%s') already exists. Not clobbering." % (alias_name[0], alias_name[1]))
+    else:
+        ds.field_info.alias(alias_name, name)
+        ds.derived_field_list.append(alias_name)
+    return
 
 # Taken from Cloudy documentation.
 solar_abundance = {
