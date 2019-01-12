@@ -311,3 +311,27 @@ def test_ion_fraction_field_is_from_on_disk_fields():
     arr1 = ad['H_p0_ion_fraction']
     arr2 = ad['H_p0_number_density'] / ad['H_nuclei_density']
     assert_array_rel_equal(arr1, arr2, decimals=15)
+
+def test_to_not_overwrite_fields_for_grid():
+    """
+    Test to not overwrite an existing ion field
+    """
+    ds = load(ISO_GALAXY)
+    val_before = ds.r['H_p0_number_density'][0]
+    add_ion_fields(ds, ['H'], ftype='gas')
+    val_after = ds.r['H_p0_number_density'][0]
+    assert val_before == val_after
+
+def test_to_not_overwrite_fields_for_particle():
+    """
+    Test to not overwrite an existing ion field
+    """
+    ds = load(FIRE_SIM)
+    val_sph_before = ds.r[('PartType0', 'H_p0_number_density')][0]
+    val_gas_before = ds.r[('gas', 'H_p0_number_density')][0]
+    add_ion_fields(ds, ['H'], ftype='PartType0')
+    val_sph_after = ds.r[('PartType0', 'H_p0_number_density')][0]
+    val_gas_after = ds.r[('gas', 'H_p0_number_density')][0]
+    assert val_sph_before == val_sph_after
+    assert val_gas_before == val_gas_after
+
