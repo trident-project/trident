@@ -1017,7 +1017,7 @@ def _add_field(ds, name, function, units, sampling_type):
     applies in Trident.
     """
     if name in ds.derived_field_list:
-        mylog.warning("Field ('%s', '%s') already exists. Not clobbering." % (name[0], name[1]))
+        mylog.warning("Field %s already exists. Not clobbering." % str(name))
         return
     else:
         return ds.add_field(name, function=function, units=units,
@@ -1032,7 +1032,7 @@ def _alias_field(ds, alias_name, name):
     adds of existing aliased fields.
     """
     if alias_name in ds.derived_field_list:
-        mylog.warning("Field ('%s', '%s') already exists. Not clobbering." % (alias_name[0], alias_name[1]))
+        mylog.warning("Field %s already exists. Not clobbering." % str(alias_name))
     else:
         ds.field_info.alias(alias_name, name)
         ds.derived_field_list.append(alias_name)
