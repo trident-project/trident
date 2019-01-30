@@ -510,7 +510,7 @@ class LightRay(CosmologySplice):
            fields.append(('gas', 'temperature'))
         data_fields = fields[:]
         all_fields = fields[:]
-        all_fields.extend(['dl', 'dredshift', 'redshift'])
+        all_fields.extend(['l', 'dl', 'redshift'])
         all_fields.extend(['x', 'y', 'z', 'dx', 'dy', 'dz'])
         data_fields.extend(['x', 'y', 'z', 'dx', 'dy', 'dz'])
         if use_peculiar_velocity:
@@ -591,6 +591,9 @@ class LightRay(CosmologySplice):
                 for key, val in field_parameters.items():
                     sub_ray.set_field_parameter(key, val)
                 asort = np.argsort(sub_ray["t"])
+                sub_data['l'].extend(sub_ray['t'][asort] *
+                                     vector_length(sub_ray.start_point,
+                                                   sub_ray.end_point))
                 sub_data['dl'].extend(sub_ray['dts'][asort] *
                                       vector_length(sub_ray.start_point,
                                                     sub_ray.end_point))
@@ -648,11 +651,11 @@ class LightRay(CosmologySplice):
                 sub_data[key] = ds.arr(sub_data[key]).in_cgs()
 
             # Get redshift for each lixel.  Assume linear relation between l
-            # and z.
-            sub_data['dredshift'] = (my_segment['redshift'] - next_redshift) * \
-                (sub_data['dl'] / vector_length(my_start, my_end).in_cgs())
+            # and z.  so z = z_start - (l * (z_range / l_range))
             sub_data['redshift'] = my_segment['redshift'] - \
-              sub_data['dredshift'].cumsum() + sub_data['dredshift']
+              (sub_data['l'] * \
+              (my_segment['redshift'] - next_redshift) / \
+              vector_length(my_start, my_end).in_cgs())
 
             # When using the peculiar velocity, create effective redshift
             # (redshift_eff) field combining cosmological redshift and

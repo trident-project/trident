@@ -47,8 +47,8 @@ def make_simple_ray(dataset_file, start_position, end_position,
     A simple ray is a straight line passing through a single dataset
     where each gas cell intersected by the line is sampled for the desired
     fields and stored.  Several additional fields are created and stored
-    including ``dl`` and ``dredshift`` to represent the path length in space and
-    redshift for each element in the ray, ``v_los`` to represent the line of
+    including ``dl`` to represent the path length in space
+    for each element in the ray, ``v_los`` to represent the line of
     sight velocity along the ray, and ``redshift``, ``redshift_dopp``, and
     ``redshift_eff`` to represent the cosmological redshift, doppler redshift
     and effective redshift (combined doppler and cosmological) for each
@@ -318,8 +318,8 @@ def make_compound_ray(parameter_filename, simulation_type,
     Like the simple ray produced by :class:`~trident.make_simple_ray`,
     each gas cell intersected by the LightRay is sampled for the desired
     fields and stored.  Several additional fields are created and stored
-    including ``dl`` and ``dredshift`` to represent the path length in space and
-    redshift for each element in the ray, ``v_los`` to represent the line of
+    including ``dl`` to represent the path length in space
+    for each element in the ray, ``v_los`` to represent the line of
     sight velocity along the ray, and ``redshift``, ``redshift_dopp``, and
     ``redshift_eff`` to represent the cosmological redshift, doppler redshift
     and effective redshift (combined doppler and cosmological) for each
