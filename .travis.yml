@@ -20,7 +20,8 @@ env:
     TRIDENT_ION_DATA=$HOME/.trident
     TRIDENT_ANSWER_DATA=$HOME/answer_test_data
     TRIDENT_CONFIG=$TRIDENT_ION_DATA/config.tri
-    YT_GOLD=38b79c094ca9
+    YT_GOLD=953248239966
+    YT_HEAD=master
     TRIDENT_GOLD=test-standard-v2
 
 before_install:
@@ -103,17 +104,17 @@ jobs:
     - stage: tests
       name: "tests with Python 2.7 and yt-dev"
       python: 2.7
-      env: YT_VER="HEAD"
+      env: YT_VER=$YT_HEAD
 
     - stage: tests
       name: "tests with Python 3.5 and yt-dev"
       python: 3.5
-      env: YT_VER="HEAD"
+      env: YT_VER=$YT_HEAD
 
     - stage: tests
       name: "tests with Python 3.6 and yt-dev"
       python: 3.6
-      env: YT_VER="HEAD"
+      env: YT_VER=$YT_HEAD
       after_success: coveralls
 
     - stage: tests
