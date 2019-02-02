@@ -235,12 +235,12 @@ def get_datafiles(datadir=None, url=None):
     filenames = []
     print("The following data files are available:")
     for line in line_list:
-       if not line.startswith('<!--X'): # identifies files by comments
+        if not line.startswith('<!--X'): # identifies files by comments
             continue
-       line = line[6:-3]  # strips off the HTML comment chars
-       filenames.append(line.split()[0])
-       print("%d) %s" % (i, line))
-       i += 1
+        line = line[6:-3]  # strips off the HTML comment chars
+        filenames.append(line.split()[0])
+        print("%d) %s" % (i, line))
+        i += 1
 
     # User chooses which file
     print("")
