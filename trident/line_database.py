@@ -364,7 +364,7 @@ class LineDatabase:
         >>> print(lines)
         """
         # if all specified, then use all lines available
-        if subsets is 'all':
+        if subsets == 'all':
             self.lines_subset = self.lines_all
             mylog.info("Using all %d available lines in '%s'." % \
                        (len(self.lines_all), self.input_file))
