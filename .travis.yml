@@ -45,7 +45,7 @@ install:
     pip install cython scipy
     # Install dependencies
     # install cykdtree needed for yt-4.0
-    git clone https://github.com/cykdtree/cykdtree
+    git clone https://github.com/cykdtree/cykdtree $HOME/cykdtree
     pushd cykdtree
     pip install -e .
     popd
