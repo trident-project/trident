@@ -20,8 +20,8 @@ env:
     TRIDENT_ION_DATA=$HOME/.trident
     TRIDENT_ANSWER_DATA=$HOME/answer_test_data
     TRIDENT_CONFIG=$TRIDENT_ION_DATA/config.tri
-    YT_GOLD=953248239966
-    YT_HEAD=master
+    YT_GOLD=yt-4.0
+    YT_HEAD=yt-4.0
     TRIDENT_GOLD=test-standard-sph-viz-v1
 
 before_install:
@@ -54,8 +54,8 @@ install:
         git clone --branch=yt-4.0 https://github.com/yt-project/yt $YT_DIR
     fi
     pushd $YT_DIR
-    git checkout master
-    git pull origin master
+    git checkout $YT_HEAD
+    git pull origin $YT_HEAD
     git checkout $YT_GOLD
     pip install -e .
     popd
