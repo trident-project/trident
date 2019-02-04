@@ -22,7 +22,7 @@ env:
     TRIDENT_CONFIG=$TRIDENT_ION_DATA/config.tri
     YT_GOLD=953248239966
     YT_HEAD=master
-    TRIDENT_GOLD=test-standard-v3
+    TRIDENT_GOLD=test-standard-sph-viz-v1
 
 before_install:
   - |
@@ -44,9 +44,14 @@ install:
     pip install --upgrade setuptools
     pip install cython scipy
     # Install dependencies
-    # install yt
+    # install cykdtree needed for yt-4.0
+    git clone https://github.com/cykdtree/cykdtree
+    pushd cykdtree
+    pip install -e .
+    popd
+    # install yt-4.0 branch
     if [ ! -f $YT_DIR/README.md ]; then
-        git clone --branch=master https://github.com/yt-project/yt $YT_DIR
+        git clone --branch=yt-4.0 https://github.com/yt-project/yt $YT_DIR
     fi
     pushd $YT_DIR
     git checkout master
