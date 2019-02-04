@@ -13,7 +13,6 @@ Tests for Line Database classes and functions
 
 from __future__ import absolute_import
 from __future__ import print_function
-import pytest
 from trident.line_database import \
     uniquify, \
     Line, \
@@ -29,10 +28,10 @@ def test_uniquify():
     """
     Test uniquify function
     """
-    l = list(range(3))
-    l[1] = 0
-    l_unique = uniquify(l)
-    assert len(l_unique) == len(l)-1
+    my_list = list(range(3))
+    my_list[1] = 0
+    l_unique = uniquify(my_list)
+    assert len(l_unique) == len(my_list)-1
 
     arr = np.arange(3)
     arr[1] = 0
