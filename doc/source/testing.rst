@@ -86,12 +86,12 @@ directory.
 If a test fails for some reason, you will be given a detailed traceback and
 reason for it failing.  You can use this to identify what is wrong with your
 source or perhaps a change in the code of your dependencies.  The tests should
-take less than five minutes to run.
+take around ten minutes to run.
 
 .. _generating-answer-tests:
 
-Generating Test Results
------------------------
+Generating Gold Standard Answer Test Results for Comparison
+-----------------------------------------------------------
 
 In order to assure the Trident codebase gives consistent results over time, 
 we compare the outputs of tests of new versions of Trident against an older, 
@@ -109,16 +109,16 @@ with these versions of the code.  Lastly, set the
    $ python gold_standard_versions.py
    
    Latest Gold Standard Commit Tags
-   yt = 38b79c094ca9
-   Trident = test-standard-v1
+   yt = 953248239966
+   Trident = test-standard-v2
 
    To update to them, `git checkout <tag>` in appropriate repository
 
    $ cd /path/to/yt
-   $ git checkout 38b79c094ca9
+   $ git checkout 953248239966
    $ pip install -e .
    $ cd /path/to/trident
-   $ git checkout test-standard-v1
+   $ git checkout test-standard-v2
    $ pip install -e .
    $ export TRIDENT_GENERATE_TEST_RESULTS=1
    $ cd tests
@@ -129,10 +129,33 @@ you specified in your Trident configuration file. You may now run the actual
 tests (see :ref:`running-the-tests`) with your current version of yt and 
 Trident comparing against these gold standard results.
 
+.. _tests-broken:
+
+The Tests Failed -- What Do I Do?
+---------------------------------
+
+If the tests have failed (either locally, or through the automatically generated
+test from Travis), you want to figure out what caused the breakage.  It was
+either a change in trident or a change in one of Trident's dependencies
+(e.g., yt).  So first examine the output from `py.test` to see if you can
+deduce what went wrong.
+
+Sometimes it isn't obvious what caused the break,
+in which case you may need to use `git bisect` to track down the change, either
+in Trident or in yt.  First, start with the tip of yt, and bisect the
+changes in Trident since its gold standard version (see below).  If that doesn't
+ID the bad changeset, then do the same with yt back to its gold standard
+version.  Once you have identified the specific commit that caused
+the tests to break, you have to identify if it was a good or bad change.
+If the unit tests failed and some functionality no longer works, then it was a
+bad, and you'll want to change the code that caused the break.  On the other
+hand, if the answer tests changed, and they did so because of an improvement to
+the code, then you'll simply want to go about :ref:`updating-the-test-results`.
+
 .. _updating-the-test-results:
 
-Updating the Test Results
---------------------------
+Updating the Testing Gold Standard
+----------------------------------
 
 Periodically, the gold standard for our answer tests must be updated as bugs 
 are caught or new more accurate behavior is enabled that causes the answer
@@ -140,22 +163,30 @@ tests to fail.  The first thing to do
 is to identify the most accurate version of the code (e.g., changesets for 
 yt and trident that give the desired behavior).  Tag the Trident changeset with
 the next gold standard iteration.  You can see the current iteration by looking
-in the ``.travis.yml`` file at the ``TRIDENT_GOLD`` entry--enumerate this and
+in the ``.travis.yml`` file at the ``TRIDENT_GOLD`` entry--increment this and
 tag the changeset.  Update the ``.travis.yml`` file so that the ``YT_GOLD`` and
-``TRIDENT_GOLD`` entries point to your desired changeset and tag.  You have to 
-explicitly push the new tag (hereafter ``test-standard-v2``) to 
-the repository.
+``TRIDENT_GOLD`` entries point to your desired changeset and tag.  You have to
+explicitly push the new tag (hereafter ``test-standard-v3``) to your repository
+(here: ``origin``.  Issue a pull request.
 
 .. code-block:: bash
 
-   $ git tag test-standard-v2 <trident-changeset>
+   $ git tag test-standard-v3 <trident-changeset>
    $ ... edit .travis.yml files to update YT_GOLD=<yt changeset>
-   $ ... and TRIDENT_GOLD=<test-standard-v2
+   $ ... and TRIDENT_GOLD=test-standard-v3
    $ git add .travis.yml
    $ git commit
-   $ git push origin
-   $ git push origin test-standard-v2
+   $ git push origin test-standard-v3
+   $ <MAKE PULL REQUEST>
 
-Lastly, someone with admin access to the main trident repository will have to 
+Once the pull request has been accepted, someone with admin access to the
+main trident repository (here ``upstream``) will have to push the gold standard
+tag.
+
+.. code-block:: bash
+
+   $ git push upstream test-standard-v3
+
+Lastly, that person will have to also
 clear Travis' cache, so that it regenerates new answer test results.  This can 
 be done manually here: https://travis-ci.org/trident-project/trident/caches .

@@ -16,9 +16,11 @@ import numpy as np
 from yt.convenience import \
     load
 from yt.testing import \
-    assert_array_equal
+    assert_array_equal, \
+    assert_almost_equal
 from trident import \
-    LightRay
+    LightRay, \
+    make_simple_ray
 from trident.testing import \
     answer_test_data_dir, \
     TempDirTest
@@ -28,6 +30,8 @@ COSMO_PLUS = os.path.join(answer_test_data_dir,
                           "enzo_cosmology_plus/AMRCosmology.enzo")
 COSMO_PLUS_SINGLE = os.path.join(answer_test_data_dir,
                                  "enzo_cosmology_plus/RD0009/RD0009")
+GIZMO_COSMO_SINGLE = os.path.join(answer_test_data_dir,
+                                 "gizmo_cosmology_plus/snap_N128L16_150.hdf5")
 
 def compare_light_ray_solutions(lr1, lr2):
     assert len(lr1.light_ray_solution) == len(lr2.light_ray_solution)
@@ -101,6 +105,16 @@ class LightRayTest(TempDirTest):
         ds = load('lightray.h5')
         compare_light_ray_solutions(lr, ds)
 
+    def test_light_ray_redshift_coverage_grid(self):
+        """
+        Tests to assure a light ray covers the full redshift range appropriate
+        for that comoving line of sight distance.  Was not always so!
+        """
+        ds = load(COSMO_PLUS_SINGLE)
+        ray = make_simple_ray(ds, start_position=ds.domain_left_edge, end_position=ds.domain_right_edge, lines=['H'])
+        assert_almost_equal(ray.r['redshift'][0], 6.99900695e-03, decimal=8)
+        assert_almost_equal(ray.r['redshift'][-1], -1.08961751e-02, decimal=8)
+
     def test_light_ray_non_cosmo_from_dataset(self):
         """
         This test generates a non-cosmological light ray created from an already
@@ -117,3 +131,13 @@ class LightRayTest(TempDirTest):
 
         ds = load('lightray.h5')
         compare_light_ray_solutions(lr, ds)
+
+    def test_light_ray_redshift_coverage(self):
+        """
+        Tests to assure a light ray covers the full redshift range appropriate
+        for that comoving line of sight distance.  Was not always so!
+        """
+        ds = load(GIZMO_COSMO_SINGLE)
+        ray = make_simple_ray(ds, start_position=ds.domain_left_edge, end_position=ds.domain_right_edge, lines=['H'])
+        assert_almost_equal(ray.r['redshift'][0], 0.00489571, decimal=8)
+        assert_almost_equal(ray.r['redshift'][-1], -0.00416831, decimal=8)
