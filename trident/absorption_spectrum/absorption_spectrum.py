@@ -92,6 +92,7 @@ class AbsorptionSpectrum(object):
         self.line_list = []
         self.continuum_list = []
         self.snr = 100  # default signal to noise ratio for error estimation
+        self._auto_lambda = 'auto' in [self.lambda_min, self.lambda_max]
 
     def add_line(self, label, field_name, wavelength,
                  f_value, gamma, atomic_mass,
@@ -573,21 +574,23 @@ class AbsorptionSpectrum(object):
                             (thermal_width < self.bin_width).sum(),
                             n_absorbers)
 
-            # we want to know the bin index in the lambda_field array
-            # where each line has its central wavelength after being
-            # redshifted.  however, because we don't know a priori how wide
-            # a line will be (ie DLAs), we have to include bin indices
-            # *outside* the spectral range of the AbsorptionSpectrum
-            # object.  Thus, we find the "equivalent" bin index, which
-            # may be <0 or >the size of the array.  In the end, we deposit
-            # the bins that actually overlap with the AbsorptionSpectrum's
-            # range in lambda.
+            if not self._auto_lambda:
 
-            # this equation gives us the "equivalent" bin index for each line
-            # if it were placed into the self.lambda_field array
-            center_index = (lambda_obs.in_units('Angstrom').d - self.lambda_min) \
-                            / self.bin_width.d
-            center_index = np.ceil(center_index).astype('int')
+                # we want to know the bin index in the lambda_field array
+                # where each line has its central wavelength after being
+                # redshifted.  however, because we don't know a priori how wide
+                # a line will be (ie DLAs), we have to include bin indices
+                # *outside* the spectral range of the AbsorptionSpectrum
+                # object.  Thus, we find the "equivalent" bin index, which
+                # may be <0 or >the size of the array.  In the end, we deposit
+                # the bins that actually overlap with the AbsorptionSpectrum's
+                # range in lambda.
+
+                # this equation gives us the "equivalent" bin index for each line
+                # if it were placed into the self.lambda_field array
+                center_index = (lambda_obs.in_units('Angstrom').d - self.lambda_min) \
+                                / self.bin_width.d
+                center_index = np.ceil(center_index).astype('int')
 
             # provide a progress bar with information about lines processsed
             pbar = get_pbar("Adding line - %s [%f A]: " % \
@@ -616,15 +619,31 @@ class AbsorptionSpectrum(object):
                 # value at the ends to assure that the wings of a line have been
                 # fully resolved.
                 while True:
-                    left_index = (center_index[i] - window_width_in_bins//2)
-                    right_index = (center_index[i] + window_width_in_bins//2)
-                    n_vbins = (right_index - left_index) * n_vbins_per_bin[i]
 
-                    # the array of virtual bins in lambda space
-                    vbins = \
-                        np.linspace(self.lambda_min + self.bin_width.d * left_index,
-                                    self.lambda_min + self.bin_width.d * right_index,
-                                    n_vbins, endpoint=False)
+                    # calculate wavelength window
+                    if self._auto_lambda:
+                        my_lambda_min = lambda_obs[i] - \
+                          window_width_in_bins * self.bin_width / 2
+                        # round off to multiple of bin_width
+                        my_lambda_min = self.bin_width * \
+                          np.floor(my_lambda_min / self.bin_width)
+                        my_lambda = my_lambda_min + \
+                          self.bin_width * np.arange(window_width_in_bins)
+                        n_vbins = window_width_in_bins * n_vbins_per_bin[i]
+
+                        vbins = np.linspace(my_lambda[0].d, my_lambda[-1].d, n_vbins,
+                                            endpoint=False)
+
+                    else:
+                        left_index = (center_index[i] - window_width_in_bins//2)
+                        right_index = (center_index[i] + window_width_in_bins//2)
+                        n_vbins = (right_index - left_index) * n_vbins_per_bin[i]
+
+                        # the array of virtual bins in lambda space
+                        vbins = \
+                            np.linspace(self.lambda_min + self.bin_width.d * left_index,
+                                        self.lambda_min + self.bin_width.d * right_index,
+                                        n_vbins, endpoint=False)
 
                     # the virtual bins and their corresponding opacities
                     vbins, vtau = \
@@ -639,6 +658,8 @@ class AbsorptionSpectrum(object):
                     if (vtau[0] < min_tau and vtau[-1] < min_tau):
                         break
                     window_width_in_bins *= 2
+
+                breakpoint()
 
                 # Numerically integrate the virtual bins to calculate a
                 # virtual "equivalent width" of optical depth; then sum these
