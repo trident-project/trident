@@ -64,20 +64,31 @@ class AbsorptionSpectrum(object):
        number of wavelength bins.
     """
 
-    def __init__(self, lambda_min, lambda_max, n_lambda):
-        self.n_lambda = int(n_lambda)
-        # lambda, flux, and tau are wavelength, flux, and optical depth
+    def __init__(self, lambda_min, lambda_max, n_lambda=None, dlambda=None):
+        if (n_lambda is None) ^ (dlambda is None):
+            raise RuntimeError(
+                'Either n_lambda or dlambda must be given, but not both.')
+
         self.lambda_min = lambda_min
         self.lambda_max = lambda_max
-        self.lambda_field = YTArray(np.linspace(lambda_min, lambda_max,
-                                    n_lambda), "angstrom")
+        self.n_lambda = n_lambda
+        if dlambda is not None:
+            self.bin_width = YTQuantity(dlambda, 'angstrom')
+            self.lambda_field = None
+        else:
+            self.n_lambda = int(n_lambda)
+            self.bin_width = YTQuantity(
+                float(lambda_max - lambda_min) / (n_lambda - 1), "angstrom")
+
+            # lambda, flux, and tau are wavelength, flux, and optical depth
+            self.lambda_field = YTArray(np.linspace(lambda_min, lambda_max,
+                                        n_lambda), "angstrom")
+
         self.tau_field = None
         self.flux_field = None
         self.absorbers_list = None
         # a dictionary that will store spectral quantities for each index in the light ray
         self.line_observables_dict = None
-        self.bin_width = YTQuantity((lambda_max - lambda_min) /
-                                    float(n_lambda - 1), "angstrom")
         self.line_list = []
         self.continuum_list = []
         self.snr = 100  # default signal to noise ratio for error estimation
