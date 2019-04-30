@@ -451,6 +451,10 @@ class LightRay(CosmologySplice):
         ...                       use_peculiar_velocity=True)
 
         """
+
+        # force unitary units to exist if they don't already
+        self.code_length.in_units("unitary")
+
         if self.simulation_type is None:
             domain = self.ds
         else:
