@@ -1073,9 +1073,9 @@ def load_spectrum(filename, format='auto', instrument=None, lsf_kernel=None,
             format = 'ascii'
     if format == 'hdf5':
         f = _h5py.File(filename, 'r')
-        lambda_field = f['wavelength'].value
-        flux_field = f['flux'].value
-        tau_field = f['tau'].value
+        lambda_field = f['wavelength'][()]
+        flux_field = f['flux'][()]
+        tau_field = f['tau'][()]
     elif format == 'fits':
         pyfits = _astropy.pyfits
         hdulist = pyfits.open(filename)
