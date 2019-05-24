@@ -81,7 +81,7 @@ class IonBalanceTable(object):
         """
 
         input = h5py.File(self.filename, 'r')
-        self.ion_fraction = input[atom].value
+        self.ion_fraction = input[atom][()]
         self.ion_fraction[self.ion_fraction < np.log10(fraction_zero_point)] = zero_out_value
         for par in range(1, len(self.ion_fraction.shape) - 1):
             name = "Parameter%d" % par
