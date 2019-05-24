@@ -689,9 +689,9 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
         
 def _ion_mass(field, data):
     """
-    Creates the function for a derived field to follow the total mass of an
-    ion over a dataset given that the specified ion's density field exists
-    in the dataset.
+    Creates the function for a derived field for following the mass
+    of an ion over a dataset given that the specified ion's ion_fraction field
+    exists in the dataset.
     """
     if isinstance(field.name, tuple):
         ftype = field.name[0]
@@ -699,10 +699,37 @@ def _ion_mass(field, data):
     else:
         ftype = "gas"
         field_name = field.name
+    atom = field_name.split("_")[0]
     prefix = field_name.split("_mass")[0]
     suffix = field_name.split("_mass")[-1]
-    density_field_name = "%s_density%s" % (prefix, suffix)
-    return data[density_field_name]*data['gas','cell_volume']
+    fraction_field_name = "%s_ion_fraction%s" % (prefix, suffix)
+
+    # try the atom-specific density field first
+    nuclei_field = "%s_nuclei_mass_density" % atom
+    if (ftype, nuclei_field) in data.ds.field_info:
+        return data[fraction_field_name] * \
+          data[(ftype, nuclei_field)]
+
+    # try the species metallicity
+    metallicity_field = "%s_metallicity" % atom
+    if (ftype, metallicity_field) in data.ds.field_info:
+        return data[fraction_field_name] * \
+          data[ftype, "mass"] * \
+          data[ftype, metallicity_field]
+    
+    if atom == 'H' or atom == 'He':
+        mass_fraction = solar_abundance[atom] * data[fraction_field_name]
+    else:
+        mass_fraction = data.ds.quan(solar_abundance[atom], "1.0/Zsun") * \
+          data[ftype, fraction_field_name] * \
+          data[ftype, "metallicity"]
+    # convert to total mass
+    # use the on disk hydrogen mass if possible
+    if (ftype, "H_nuclei_mass") in data.ds.derived_field_list:
+        mass = mass_fraction * data[ftype, "H_nuclei_mass"]
+    else:
+        mass = mass_fraction * data[ftype, "mass"]
+    return mass
 
 def _ion_density(field, data):
     """
