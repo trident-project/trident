@@ -638,39 +638,39 @@ def _determine_fields_from_ions(ds, ion_list, fields, ftype, sampling_type):
         ion_state = ion[1]
         nuclei_field = "%s_nuclei_mass_density" % atom
         metallicity_field = "%s_metallicity" % atom
+        field = "%s_p%d_number_density" % (atom, ion_state-1)
+
+        # if neutral ion field, alias X_number_density to X_p0_number_density field
         if ion_state == 1:
-            field = "%s_p0_number_density" % atom
             alias_field = "%s_number_density" % atom
-        else:
-            field = "%s_p%d_number_density" % (atom, ion_state-1)
-            alias_field = "%s_p%d_number_density" % (atom, ion_state-1)
 
         # This is ugly, but I couldn't find a way around it to hit
         # all 6 cases of when fields were present or not and particle
         # type or not.
         if (ftype, field) not in ds.derived_field_list:
-            if (ftype, alias_field) not in ds.derived_field_list:
-                if sampling_type == 'particle':
-                    fields_to_add_to_ds.append((atom, ion_state))
-                    fields.append(("gas", alias_field))
-                else:
-                    # If this is a  grid-based field where the ion field
-                    # doesn't yet exist, just append the density and
-                    # appropriate metal field for ion field calculation
-                    # on the ray itself instead of adding it to the full ds
-                    fields.append(('gas', 'density'))
-                    if ('gas', metallicity_field) in ds.derived_field_list:
-                        fields.append(('gas', metallicity_field))
-                    elif ('gas', nuclei_field) in ds.derived_field_list:
-                        fields.append(('gas', nuclei_field))
-                    elif atom != 'H':
-                        fields.append(('gas', 'metallicity'))
-                    else:
-                        # Don't need metallicity field if we're just looking
-                        # at hydrogen
-                        pass
-            else:
+            #check if alias is present for neutral case
+            if ion_state == 1 and (ftype, alias_field) in ds.derived_field_list:
                 fields.append(("gas", alias_field))
+
+            elif sampling_type == 'particle':
+                fields_to_add_to_ds.append((atom, ion_state))
+                fields.append(("gas", alias_field))
+            else:
+                # If this is a  grid-based field where the ion field
+                # doesn't yet exist, just append the density and
+                # appropriate metal field for ion field calculation
+                # on the ray itself instead of adding it to the full ds
+                fields.append(('gas', 'density'))
+                if ('gas', metallicity_field) in ds.derived_field_list:
+                    fields.append(('gas', metallicity_field))
+                elif ('gas', nuclei_field) in ds.derived_field_list:
+                    fields.append(('gas', nuclei_field))
+                elif atom != 'H':
+                    fields.append(('gas', 'metallicity'))
+                else:
+                    # Don't need metallicity field if we're just looking
+                    # at hydrogen
+                    pass
         else:
             fields.append(("gas", field))
 
