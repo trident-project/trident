@@ -640,21 +640,13 @@ def _determine_fields_from_ions(ds, ion_list, fields, ftype, sampling_type):
         metallicity_field = "%s_metallicity" % atom
         field = "%s_p%d_number_density" % (atom, ion_state-1)
 
-        # if neutral ion field, alias X_number_density to X_p0_number_density field
-        if ion_state == 1:
-            alias_field = "%s_number_density" % atom
-
         # This is ugly, but I couldn't find a way around it to hit
         # all 6 cases of when fields were present or not and particle
         # type or not.
         if (ftype, field) not in ds.derived_field_list:
-            #check if alias is present for neutral case
-            if ion_state == 1 and (ftype, alias_field) in ds.derived_field_list:
-                fields.append(("gas", alias_field))
-
-            elif sampling_type == 'particle':
+            if sampling_type == 'particle':
                 fields_to_add_to_ds.append((atom, ion_state))
-                fields.append(("gas", alias_field))
+                fields.append(("gas", field))
             else:
                 # If this is a  grid-based field where the ion field
                 # doesn't yet exist, just append the density and
