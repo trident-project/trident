@@ -770,19 +770,19 @@ def _ion_number_density(field, data):
     # try the atom-specific density field first
     nuclei_field = "%s_nuclei_mass_density" % atom
     if (ftype, nuclei_field) in data.ds.field_info:
-        return data[fraction_field_name] * \
+        return data[ftype, fraction_field_name] * \
           data[(ftype, nuclei_field)] / (atomic_mass[atom] * mh)
 
     # try the species metallicity
     metallicity_field = "%s_metallicity" % atom
     if (ftype, metallicity_field) in data.ds.field_info:
-        return data[fraction_field_name] * \
+        return data[ftype, fraction_field_name] * \
           data[ftype, "density"] * \
           data[ftype, metallicity_field] / \
           atomic_mass[atom] / mh
 
     if atom == 'H' or atom == 'He':
-        number_density = solar_abundance[atom] * data[fraction_field_name]
+        number_density = solar_abundance[atom] * data[ftype, fraction_field_name]
     else:
         number_density = data.ds.quan(solar_abundance[atom], "1.0/Zsun") * \
           data[ftype, fraction_field_name] * \
