@@ -707,18 +707,18 @@ def _ion_mass(field, data):
     # try the atom-specific density field first
     nuclei_field = "%s_nuclei_mass_density" % atom
     if (ftype, nuclei_field) in data.ds.field_info:
-        return data[fraction_field_name] * \
-          data[(ftype, nuclei_field)]
+        return data[ftype,fraction_field_name] * \
+          data[ftype, nuclei_field]
 
     # try the species metallicity
     metallicity_field = "%s_metallicity" % atom
     if (ftype, metallicity_field) in data.ds.field_info:
-        return data[fraction_field_name] * \
+        return data[ftype,fraction_field_name] * \
           data[ftype, "mass"] * \
           data[ftype, metallicity_field]
     
     if atom == 'H' or atom == 'He':
-        mass_fraction = solar_abundance[atom] * data[fraction_field_name]
+        mass_fraction = solar_abundance[atom] * data[ftype,fraction_field_name]
     else:
         mass_fraction = data.ds.quan(solar_abundance[atom], "1.0/Zsun") * \
           data[ftype, fraction_field_name] * \
@@ -728,7 +728,7 @@ def _ion_mass(field, data):
     if (ftype, "H_nuclei_mass") in data.ds.derived_field_list:
         mass = mass_fraction * data[ftype, "H_nuclei_mass"]
     else:
-        mass = mass_fraction * data[ftype, "mass"]
+        mass = mass_fraction * data[ftype, "mass"] * H_mass_fraction
     return mass
 
 def _ion_density(field, data):
@@ -771,7 +771,7 @@ def _ion_number_density(field, data):
     nuclei_field = "%s_nuclei_mass_density" % atom
     if (ftype, nuclei_field) in data.ds.field_info:
         return data[fraction_field_name] * \
-          data[(ftype, nuclei_field)] / atomic_mass[atom] / mh
+          data[(ftype, nuclei_field)] / (atomic_mass[atom] * mh)
 
     # try the species metallicity
     metallicity_field = "%s_metallicity" % atom
