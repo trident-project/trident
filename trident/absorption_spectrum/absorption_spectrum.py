@@ -22,6 +22,10 @@ import numpy as np
 from trident.absorption_spectrum.absorption_line import \
     tau_profile
 
+from yt.data_objects.data_containers import \
+    YTDataContainer
+from yt.data_objects.static_output import \
+    Dataset
 from yt.extern.six import string_types
 from yt.convenience import load
 from yt.funcs import get_pbar, mylog
@@ -268,9 +272,13 @@ class AbsorptionSpectrum(object):
 
         if isinstance(input_file, string_types):
             input_ds = load(input_file)
-        else:
+            field_data = input_ds.all_data()
+        elif isinstance(input_file, Dataset):
             input_ds = input_file
-        field_data = input_ds.all_data()
+            field_data = input_ds.all_data()
+        elif isinstance(input_file, YTDataContainer):
+            input_ds = input_file.ds
+            field_data = input_file
 
         # temperature field required to calculate voigt profile widths
         if ('temperature' not in input_ds.derived_field_list) and \
