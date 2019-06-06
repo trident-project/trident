@@ -705,7 +705,7 @@ def _ion_mass(field, data):
     fraction_field_name = "%s_ion_fraction%s" % (prefix, suffix)
 
     # try the atom-specific density field first
-    nuclei_field = "%s_nuclei_mass_density" % atom
+    nuclei_field = "%s_nuclei_mass" % atom
     if (ftype, nuclei_field) in data.ds.field_info:
         return data[ftype,fraction_field_name] * \
           data[ftype, nuclei_field]
