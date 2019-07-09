@@ -79,7 +79,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
     **Parameters**
 
     :dataset_file: string or yt Dataset object
-    
+
         Either a yt dataset or the filename of a dataset on disk.  If you are
         passing it a filename, consider usage of the ``load_kwargs`` and
         ``setup_function`` kwargs.
@@ -138,7 +138,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
         Default: None
 
     :data_filename: string, optional
-    
+
         Output filename for ray data stored as an HDF5 file.  Note that
         at present, you *must* save a ray to disk in order for it to be
         returned by this function.  If set to None, defaults to 'ray.h5'.
@@ -314,7 +314,7 @@ def make_compound_ray(parameter_filename, simulation_type,
     in the dataset volume, the compound ray requires the near_redshift and
     far_redshift to determine which datasets to use to get full coverage
     in redshift space as the ray propagates from near_redshift to far_redshift.
-    
+
     Like the simple ray produced by :class:`~trident.make_simple_ray`,
     each gas cell intersected by the LightRay is sampled for the desired
     fields and stored.  Several additional fields are created and stored
@@ -334,7 +334,7 @@ def make_compound_ray(parameter_filename, simulation_type,
     to set the :ftype: keyword appropriately, or you may end up calculating
     ion fields by interpolating on data already smoothed to the grid.  This is
     generally not desired.
- 
+
     **Parameters**
 
     :parameter_filename: string
@@ -638,12 +638,12 @@ def _determine_fields_from_ions(ds, ion_list, fields, ftype, sampling_type):
         ion_state = ion[1]
         nuclei_field = "%s_nuclei_mass_density" % atom
         metallicity_field = "%s_metallicity" % atom
+        field = "%s_p%d_number_density" % (atom, ion_state-1)
+
         if ion_state == 1:
-            field = "%s_number_density" % atom
-            alias_field = "%s_p0_number_density" % atom
+            alias_field = "%s_number_density" % atom
         else:
-            field = "%s_p%d_number_density" % (atom, ion_state-1)
-            alias_field = "%s_p%d_number_density" % (atom, ion_state-1)
+            alias_field = field
 
         # This is ugly, but I couldn't find a way around it to hit
         # all 6 cases of when fields were present or not and particle
@@ -652,7 +652,7 @@ def _determine_fields_from_ions(ds, ion_list, fields, ftype, sampling_type):
             if (ftype, alias_field) not in ds.derived_field_list:
                 if sampling_type == 'particle':
                     fields_to_add_to_ds.append((atom, ion_state))
-                    fields.append(("gas", alias_field))
+                    fields.append(("gas", field))
                 else:
                     # If this is a  grid-based field where the ion field
                     # doesn't yet exist, just append the density and
@@ -669,10 +669,12 @@ def _determine_fields_from_ions(ds, ion_list, fields, ftype, sampling_type):
                         # Don't need metallicity field if we're just looking
                         # at hydrogen
                         pass
+
             else:
                 fields.append(("gas", alias_field))
         else:
             fields.append(("gas", field))
+
 
     return fields, fields_to_add_to_ds
 
