@@ -311,6 +311,7 @@ class LightRay(CosmologySplice):
                        fields=None, setup_function=None,
                        solution_filename=None, data_filename=None,
                        get_los_velocity=None, use_peculiar_velocity=True,
+                       bulk_velocity=None,
                        redshift=None, field_parameters=None, njobs=-1):
         """
         Actually generate the LightRay by traversing the desired dataset.
@@ -407,6 +408,13 @@ class LightRay(CosmologySplice):
             calculating the effective redshift combining the cosmological
             redshift and the doppler redshift.
             Default: True.
+
+        :bulk_velocity: YTArray object
+        
+            The bulk velocity of the simulation. This will be subtracted from 
+            the velocity fields when calculating the doppler redshift due to the  
+            peculiar velocity.   
+            Default: None 
 
         :redshift: optional, float
 
@@ -600,6 +608,16 @@ class LightRay(CosmologySplice):
 
                 for field in data_fields:
                     sub_data[field].extend(sub_ray[field][asort])
+
+                    
+                if bulk_velocity is not None:
+                    # if there's a bulk velocity, subtract it from the ray velocity
+                    # before calculating doppler shift
+                    sub_ray['velocity_x'] -= bulk_velocity[0]
+                    sub_ray['velocity_y'] -= bulk_velocity[1]
+                    sub_ray['velocity_z'] -= bulk_velocity[2]
+                    sub_ray['velocity_magnitude'] = np.sqrt(sub_ray['velocity_x']**2 +\
+                                 sub_ray['velocity_y']**2 + sub_ray['velocity_z']**2)
 
                 if use_peculiar_velocity:
                     line_of_sight = sub_segment[0] - sub_segment[1]
