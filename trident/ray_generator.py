@@ -233,7 +233,6 @@ def make_simple_ray(dataset_file, start_position, end_position,
                              setup_function=setup_function,
                              solution_filename=solution_filename,
                              data_filename=data_filename,
-                             field_parameters=field_parameters,
                              bulk_velocity=bulk_velocity,
                              redshift=redshift)
 
