@@ -22,7 +22,6 @@ import numpy as np
 from trident.absorption_spectrum.absorption_line import \
     tau_profile
 
-from yt.extern.six import string_types
 from yt.convenience import load
 from yt.funcs import get_pbar, mylog
 from yt.units.yt_array import YTArray, YTQuantity
@@ -266,7 +265,7 @@ class AbsorptionSpectrum(object):
                 input_fields.append(feature['field_name'])
                 field_units[feature["field_name"]] = "cm**-3"
 
-        if isinstance(input_file, string_types):
+        if isinstance(input_file, str):
             input_ds = load(input_file)
         else:
             input_ds = input_file
