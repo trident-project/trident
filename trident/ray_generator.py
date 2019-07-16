@@ -33,7 +33,7 @@ from trident.ion_balance import \
 def make_simple_ray(dataset_file, start_position, end_position,
                     lines=None, ftype="gas", fields=None,
                     solution_filename=None, data_filename=None,
-                    trajectory=None, redshift=None, bulk_velocity=None,
+                    trajectory=None, redshift=None, field_parameters=None,
                     setup_function=None, load_kwargs=None,
                     line_database=None, ionization_table=None):
     """
@@ -104,13 +104,6 @@ def make_simple_ray(dataset_file, start_position, end_position,
         See :lines: keyword for additional functionality that will add fields
         necessary for creating absorption line spectra for certain line
         features.
-        Default: None
-
-    :bulk_velocity: YTArray object
-
-        The bulk velocity of the simulation. This will be subtracted from
-        the velocity fields when calculating the doppler redshift due to the
-        peculiar velocity. 
         Default: None
 
     :solution_filename: string, optional
@@ -233,7 +226,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
                              setup_function=setup_function,
                              solution_filename=solution_filename,
                              data_filename=data_filename,
-                             bulk_velocity=bulk_velocity,
+                             field_parameters=field_parameters,
                              redshift=redshift)
 
 def make_compound_ray(parameter_filename, simulation_type,
