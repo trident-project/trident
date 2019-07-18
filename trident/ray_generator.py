@@ -71,7 +71,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
     **Parameters**
 
     :dataset_file: string or yt Dataset object
-    
+
         Either a yt dataset or the filename of a dataset on disk.  If you are
         passing it a filename, consider usage of the ``load_kwargs`` and
         ``setup_function`` kwargs.
@@ -113,7 +113,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
         Default: None
 
     :data_filename: string, optional
-    
+
         Output filename for ray data stored as an HDF5 file.  Note that
         at present, you *must* save a ray to disk in order for it to be
         returned by this function.  If set to None, defaults to 'ray.h5'.
@@ -277,7 +277,7 @@ def make_compound_ray(parameter_filename, simulation_type,
     in the dataset volume, the compound ray requires the near_redshift and
     far_redshift to determine which datasets to use to get full coverage
     in redshift space as the ray propagates from near_redshift to far_redshift.
-    
+
     Like the simple ray produced by :class:`~trident.make_simple_ray`,
     each gas cell intersected by the LightRay is sampled for the desired
     fields and stored.  Several additional fields are created and stored
@@ -291,6 +291,14 @@ def make_compound_ray(parameter_filename, simulation_type,
     The :lines: keyword can be set to automatically add all fields to the
     resulting ray necessary for later use with the SpectrumGenerator class.
 
+<<<<<<< HEAD
+=======
+    If using the :lines: keyword with SPH datasets, it is very important
+    to set the :ftype: keyword appropriately, or you may end up calculating
+    ion fields by interpolating on data already smoothed to the grid.  This is
+    generally not desired.
+
+>>>>>>> 842fa2c7adee4bde79e660e8e9e70163e2e549fe
     **Parameters**
 
     :parameter_filename: string
@@ -538,13 +546,14 @@ def _determine_fields_from_ions(ds, ion_list, fields):
         ion_state = ion[1]
         nuclei_field = "%s_nuclei_mass_density" % atom
         metallicity_field = "%s_metallicity" % atom
-        if ion_state == 1:
-            field = "%s_number_density" % atom
-            alias_field = "%s_p0_number_density" % atom
-        else:
-            field = "%s_p%d_number_density" % (atom, ion_state-1)
-            alias_field = "%s_p%d_number_density" % (atom, ion_state-1)
+        field = "%s_p%d_number_density" % (atom, ion_state-1)
 
+        if ion_state == 1:
+            alias_field = "%s_number_density" % atom
+        else:
+            alias_field = field
+
+<<<<<<< HEAD
         # Check to see if the ion field (or its alias) exists.  If so, add
         # it to the ray.  If not, then append the density and the appropriate
         # metal field so one can create the ion field on the fly on the
@@ -562,12 +571,44 @@ def _determine_fields_from_ions(ds, ion_list, fields):
                     # Don't need metallicity field if we're just looking
                     # at hydrogen
                     pass
+=======
+        # This is ugly, but I couldn't find a way around it to hit
+        # all 6 cases of when fields were present or not and particle
+        # type or not.
+        if (ftype, field) not in ds.derived_field_list:
+            if (ftype, alias_field) not in ds.derived_field_list:
+                if sampling_type == 'particle':
+                    fields_to_add_to_ds.append((atom, ion_state))
+                    fields.append(("gas", field))
+                else:
+                    # If this is a  grid-based field where the ion field
+                    # doesn't yet exist, just append the density and
+                    # appropriate metal field for ion field calculation
+                    # on the ray itself instead of adding it to the full ds
+                    fields.append(('gas', 'density'))
+                    if ('gas', metallicity_field) in ds.derived_field_list:
+                        fields.append(('gas', metallicity_field))
+                    elif ('gas', nuclei_field) in ds.derived_field_list:
+                        fields.append(('gas', nuclei_field))
+                    elif atom != 'H':
+                        fields.append(('gas', 'metallicity'))
+                    else:
+                        # Don't need metallicity field if we're just looking
+                        # at hydrogen
+                        pass
+
+>>>>>>> 842fa2c7adee4bde79e660e8e9e70163e2e549fe
             else:
                 fields.append(("gas", alias_field))
         else:
             fields.append(("gas", field))
 
+<<<<<<< HEAD
     return fields
+=======
+
+    return fields, fields_to_add_to_ds
+>>>>>>> 842fa2c7adee4bde79e660e8e9e70163e2e549fe
 
 def _add_default_fields(ds, fields):
     """

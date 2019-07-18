@@ -365,12 +365,11 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
 
     atom = atom.capitalize()
 
-    # if neutral ion field, alias X_p0_ion_fraction to X_ion_fraction field
+    # if neutral ion field, alias X_number_density to X_p0_number_density field
+    field = "%s_p%d_ion_fraction" % (atom, ion-1)
     if ion == 1:
-        field = "%s_ion_fraction" % atom
-        alias_field = "%s_p0_ion_fraction" % atom
-    else:
-        field = "%s_p%d_ion_fraction" % (atom, ion-1)
+        alias_field = "%s_ion_fraction" % atom
+
     if field_suffix:
         field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
         if ion == 1:
@@ -472,12 +471,11 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
     if ionization_table is None:
         ionization_table = ion_table_filepath
     atom = atom.capitalize()
-    # if neutral ion field, alias X_p0_number_density to X_number_density field
+    # if neutral ion field, alias X_number_density to X_p0_number_density field
+    field = "%s_p%d_number_density" % (atom, ion-1)
     if ion == 1:
-        field = "%s_number_density" % atom
-        alias_field = "%s_p0_number_density" % atom
-    else:
-        field = "%s_p%d_number_density" % (atom, ion-1)
+        alias_field = "%s_number_density" % atom
+
     if field_suffix:
         field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
         if ion == 1:
@@ -570,12 +568,11 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
         ionization_table = ion_table_filepath
     atom = atom.capitalize()
 
-    # if neutral ion field, alias X_p0_number_density to X_number_density field
+    # if neutral ion field, alias X_number_density to X_p0_number_density field
+    field = "%s_p%d_density" % (atom, ion-1)
     if ion == 1:
-        field = "%s_density" % atom
-        alias_field = "%s_p0_density" % atom
-    else:
-        field = "%s_p%d_density" % (atom, ion-1)
+        alias_field = "%s_density" % atom
+
     if field_suffix:
         field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
         if ion == 1:
@@ -668,12 +665,11 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
         ionization_table = ion_table_filepath
     atom = atom.capitalize()
 
-    # if neutral ion field, alias X_p0_number_density to X_number_density field
+    # if neutral ion field, alias X_number_density to X_p0_number_density field
+    field = "%s_p%s_mass" % (atom, ion-1)
     if ion == 1:
-        field = "%s_mass" % atom
-        alias_field = "%s_p0_mass" % atom
-    else:
-        field = "%s_p%s_mass" % (atom, ion-1)
+        alias_field = "%s_mass" % atom
+
     if field_suffix:
         field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
         if ion == 1:
