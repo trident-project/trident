@@ -15,14 +15,12 @@ import gzip
 import os
 from os.path import \
     expanduser
-import six
 import requests
 import tempfile
 import shutil
 from yt.funcs import \
     get_pbar
 import numpy as np
-from six.moves import input
 from yt.units import \
     cm, \
     pc, \
@@ -429,7 +427,7 @@ def make_onezone_ray(density=1e-26, temperature=1000, metallicity=0.3,
 
     # Add additional number_density fields to dataset
     if column_densities:
-        for k,v in six.iteritems(column_densities):
+        for k,v in column_densities.items():
             # Assure we add X_number_density for neutral ions
             # instead of X_p0_number_density
             key_string_list = k.split('_')

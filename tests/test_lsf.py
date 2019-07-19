@@ -11,8 +11,6 @@ Tests for Line Spread Function class and functions
 # The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
-from __future__ import absolute_import
-from __future__ import print_function
 import pytest
 from trident.lsf import LSF
 import numpy as np

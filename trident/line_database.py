@@ -19,9 +19,6 @@ from trident.config import \
 from trident.roman import \
     from_roman
 
-import six
-
-
 
 def uniquify(list):
     # order preserving method for reducing duplicates in a list
@@ -371,7 +368,7 @@ class LineDatabase:
             return self.lines_subset
         if subsets is None:
             subsets = []
-        if isinstance(subsets, six.string_types):
+        if isinstance(subsets, str):
             subsets = [subsets]
         for val in subsets:
             # try to add line based on identifier
