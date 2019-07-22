@@ -451,6 +451,7 @@ class LightRay(CosmologySplice):
         ...                       use_peculiar_velocity=True)
 
         """
+
         if self.simulation_type is None:
             domain = self.ds
         else:
