@@ -5,8 +5,6 @@ AbsorptionSpectrum class and member functions.
 
 """
 
-from __future__ import absolute_import
-
 #-----------------------------------------------------------------------------
 # Copyright (c) 2013-2017, yt Development Team.
 # Copyright (c) 2017, Trident Development Team.
@@ -22,7 +20,6 @@ import numpy as np
 from trident.absorption_spectrum.absorption_line import \
     tau_profile
 
-from yt.extern.six import string_types
 from yt.convenience import load
 from yt.funcs import get_pbar, mylog
 from yt.units.yt_array import YTArray, YTQuantity
@@ -70,14 +67,14 @@ class AbsorptionSpectrum(object):
         self.lambda_min = lambda_min
         self.lambda_max = lambda_max
         self.lambda_field = YTArray(np.linspace(lambda_min, lambda_max,
-                                    n_lambda), "angstrom")
+                                    self.n_lambda), "angstrom")
         self.tau_field = None
         self.flux_field = None
         self.absorbers_list = None
         # a dictionary that will store spectral quantities for each index in the light ray
         self.line_observables_dict = None
         self.bin_width = YTQuantity((lambda_max - lambda_min) /
-                                    float(n_lambda - 1), "angstrom")
+                                    (n_lambda - 1), "angstrom")
         self.line_list = []
         self.continuum_list = []
         self.snr = 100  # default signal to noise ratio for error estimation
@@ -266,7 +263,7 @@ class AbsorptionSpectrum(object):
                 input_fields.append(feature['field_name'])
                 field_units[feature["field_name"]] = "cm**-3"
 
-        if isinstance(input_file, string_types):
+        if isinstance(input_file, str):
             input_ds = load(input_file)
         else:
             input_ds = input_file
@@ -529,7 +526,7 @@ class AbsorptionSpectrum(object):
 
             # the actual thermal width of the lines
             thermal_width = (lambda_obs * thermal_b /
-                             speed_of_light_cgs).convert_to_units("angstrom")
+                             speed_of_light_cgs).to("angstrom")
 
             # Sanitize units for faster runtime of the tau_profile machinery.
             lambda_0 = line['wavelength'].d  # line's rest frame; angstroms

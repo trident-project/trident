@@ -11,8 +11,6 @@ Tests for Instrument Class and Functions
 # The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
-from __future__ import absolute_import
-from __future__ import print_function
 from trident.instrument import Instrument
 
 def test_instrument():

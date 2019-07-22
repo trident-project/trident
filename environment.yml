@@ -14,7 +14,6 @@ dependencies:
 - readline=6.2=2
 - requests=2.13.0=py35_0
 - setuptools=27.2.0=py35_0
-- six=1.10.0=py35_0
 - snowballstemmer=1.2.1=py35_0
 - sphinx=1.5.4=py35_0
 - sqlite=3.13.0=0

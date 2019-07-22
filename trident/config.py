@@ -12,10 +12,8 @@ Trident config
 #-----------------------------------------------------------------------------
 
 import os
-from six.moves.configparser import \
-    SafeConfigParser
-from six.moves import \
-    input
+from configparser import \
+    ConfigParser
 import shutil
 import tempfile
 import sys
@@ -108,7 +106,7 @@ def create_config():
     datafile = get_datafiles(datadir=datadir)
 
     # Create the config file and make it to the datadir and datafiles chosen
-    config = SafeConfigParser()
+    config = ConfigParser()
     config.add_section('Trident')
     config.set('Trident', 'ion_table_dir', datadir)
     config.set('Trident', 'ion_table_file', datafile)
@@ -152,13 +150,13 @@ def parse_config(variable=None):
     if os.path.exists(local_filename):
         config_filename = local_filename
     try:
-        parser = SafeConfigParser()
+        parser = ConfigParser()
         parser.read(config_filename)
         ion_table_dir = parser.get('Trident', 'ion_table_dir')
         ion_table_file = parser.get('Trident', 'ion_table_file')
     except BaseException:
         config_filename = create_config()
-        parser = SafeConfigParser()
+        parser = ConfigParser()
         parser.read(config_filename)
         ion_table_dir = parser.get('Trident', 'ion_table_dir')
         ion_table_file = parser.get('Trident', 'ion_table_file')

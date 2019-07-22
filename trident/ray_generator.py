@@ -11,8 +11,6 @@ SpectrumGenerator class and member functions.
 # The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
-import six
-
 from trident.light_ray import \
     LightRay
 from yt.convenience import \
@@ -507,7 +505,7 @@ def _determine_ions_from_lines(line_database, lines):
     else:
         ion_list = []
         if lines == 'all' or lines == ['all']:
-            for k,v in six.iteritems(atomic_number):
+            for k,v in atomic_number.items():
                 for j in range(v+1):
                     ion_list.append((k, j+1))
         else:
