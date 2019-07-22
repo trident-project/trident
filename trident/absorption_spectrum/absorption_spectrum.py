@@ -67,14 +67,14 @@ class AbsorptionSpectrum(object):
         self.lambda_min = lambda_min
         self.lambda_max = lambda_max
         self.lambda_field = YTArray(np.linspace(lambda_min, lambda_max,
-                                    n_lambda), "angstrom")
+                                    self.n_lambda), "angstrom")
         self.tau_field = None
         self.flux_field = None
         self.absorbers_list = None
         # a dictionary that will store spectral quantities for each index in the light ray
         self.line_observables_dict = None
         self.bin_width = YTQuantity((lambda_max - lambda_min) /
-                                    float(n_lambda - 1), "angstrom")
+                                    (n_lambda - 1), "angstrom")
         self.line_list = []
         self.continuum_list = []
         self.snr = 100  # default signal to noise ratio for error estimation
