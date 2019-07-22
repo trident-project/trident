@@ -526,7 +526,7 @@ class AbsorptionSpectrum(object):
 
             # the actual thermal width of the lines
             thermal_width = (lambda_obs * thermal_b /
-                             speed_of_light_cgs).convert_to_units("angstrom")
+                             speed_of_light_cgs).to("angstrom")
 
             # Sanitize units for faster runtime of the tau_profile machinery.
             lambda_0 = line['wavelength'].d  # line's rest frame; angstroms

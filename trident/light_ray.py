@@ -756,6 +756,8 @@ class LightRay(CosmologySplice):
                 # to avoid errors later
                 if arr.dtype == 'O':
                     arr = arr.astype(str)
+                if arr.dtype.kind == 'U':
+                    arr = arr.astype('|S')
                 extra_attrs["light_ray_solution_%s" % key] = arr
 
         field_types = dict([(field, "grid") for field in data.keys()])
