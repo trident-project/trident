@@ -65,7 +65,7 @@ class AbsorptionSpectrum(object):
     """
 
     def __init__(self, lambda_min, lambda_max, n_lambda=None, dlambda=None):
-        if (n_lambda is None) ^ (dlambda is None):
+        if not ((n_lambda is None) ^ (dlambda is None)):
             raise RuntimeError(
                 'Either n_lambda or dlambda must be given, but not both.')
 
