@@ -759,6 +759,14 @@ class AbsorptionSpectrum(object):
 
 
         comm = _get_comm(())
+        if self._auto_lambda:
+            lf_min = comm.mpi_allreduce(self.lambda_field[0], op="min")
+            lf_max = comm.mpi_allreduce(self.lambda_field[-1], op="max")
+            new_lambda = YTArray(
+                np.arange(lf_min, lf_max+self.bin_width, self.bin_width),
+                'angstrom')
+            self._adjust_tau_field(self.lambda_field, new_lambda)
+            self.lambda_field = new_lambda
         self.tau_field = comm.mpi_allreduce(self.tau_field, op="sum")
         if output_absorbers_file:
             self.absorbers_list = comm.par_combine_object(
@@ -793,12 +801,20 @@ class AbsorptionSpectrum(object):
             np.arange(new_lambda_min, new_lambda_max, dlambda), 'angstrom')
 
         if self._tau_field is not None:
-            start_index = np.digitize(self.lambda_field[0], new_lambda) - 1
-            new_tau = np.zeros(new_lambda.size)
-            new_tau[start_index:start_index+my_lambda.size] = self.tau_field
-            self.tau_field = new_tau
+            self._adjust_tau_field(self.lambda_field, new_lambda)
 
         self.lambda_field = new_lambda
+
+    def _adjust_tau_field(self, old_lambda, new_lambda):
+        """
+        Adjust the tau field associated with the old wavelength array
+        so that it lines up correctly with the new wavelength array.
+        """
+        start_index = np.digitize(old_lambda[0], new_lambda) - 1
+        new_tau = np.zeros(new_lambda.size)
+
+        new_tau[start_index:start_index+self.tau_field.size] = self.tau_field
+        self.tau_field = new_tau
 
     @parallel_root_only
     def _write_absorbers_file(self, filename):
