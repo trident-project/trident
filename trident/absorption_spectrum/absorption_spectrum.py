@@ -95,6 +95,9 @@ class AbsorptionSpectrum(object):
     _tau_field = None
     @property
     def tau_field(self):
+        """
+        This is the total optical depth of all lines and continua.
+        """
         if self._tau_field is None:
             self._tau_field = np.zeros(self.lambda_field.size)
         return self._tau_field
@@ -102,6 +105,22 @@ class AbsorptionSpectrum(object):
     @tau_field.setter
     def tau_field(self, val):
         self._tau_field = val
+
+    _current_tau_field = None
+    @property
+    def current_tau_field(self):
+        """
+        This is the optical depth array for the current absorption line
+        being deposited. We will do the deposition of lines into this
+        array, and then add it to self.tau_field at the end.
+        """
+        if self._current_tau_field is None:
+            self._current_tau_field = np.zeros(self.lambda_field.size)
+        return self._current_tau_field
+
+    @current_tau_field.setter
+    def current_tau_field(self, val):
+        self._current_tau_field = val
 
     def add_line(self, label, field_name, wavelength,
                  f_value, gamma, atomic_mass,
@@ -544,8 +563,6 @@ class AbsorptionSpectrum(object):
             # light ray that is deposited to the final spectrum
             if store_observables:
                 tau_ray = np.zeros(cdens.size)
-                # current_tau_field is a clean copy of tau_field, but for use on only one ion at a time
-                current_tau_field = 0*self.tau_field
             if use_peculiar_velocity:
                 vlos = field_data['velocity_los'].in_units("km/s").d # km/s
             else:
@@ -577,6 +594,10 @@ class AbsorptionSpectrum(object):
                             "deposited as unresolved lines.",
                             (thermal_width < self.bin_width).sum(),
                             n_absorbers)
+
+            # Keep track of the lambda field before depositing a new line
+            # so we can add the current_tau_field and the tau_field together.
+            last_lambda_field = self.lambda_field
 
             # provide a progress bar with information about lines processsed
             pbar = get_pbar("Adding line - %s [%f A]: " % \
@@ -697,12 +718,10 @@ class AbsorptionSpectrum(object):
                     intersect_right_index = min(right_index, self.lambda_field.size-1)
                     EW_tau_deposit = EW_tau[(intersect_left_index - left_index): \
                                             (intersect_right_index - left_index)]
-                    self.tau_field[intersect_left_index:intersect_right_index] \
+                    self.current_tau_field[intersect_left_index:intersect_right_index] \
                         += EW_tau_deposit
                     if store_observables:
                         tau_ray[i] = np.sum(EW_tau_deposit)
-                        current_tau_field[intersect_left_index:intersect_right_index] \
-                          += EW_tau_deposit
                 # write out absorbers to file if the column density of
                 # an absorber is greater than the specified "label_threshold"
                 # of that absorption line
@@ -724,21 +743,37 @@ class AbsorptionSpectrum(object):
                 pbar.update(i)
             pbar.finish()
 
+            if last_lambda_field is None:
+                self.tau_field = self.current_tau_field[:]
+            else:
+                # Expand the tau_field array to match the updated wavelength
+                # array from the last line deposition.
+                self._adjust_field_array(last_lambda_field, self.lambda_field,
+                                         "tau_field")
+                # Now add the current_tau_field.
+                self.tau_field += self.current_tau_field
+
             ## Check keyword before storing any observables
             if store_observables:
                 # If running in parallel, make sure that the observable
                 # quantities for the dictionary are combined correctly.
                 comm = _get_comm(())
+
+                if self._auto_lambda:
+                    global_lambda_field = self._get_global_lambda_field(comm=comm)
+                    self._adjust_field_array(self.lambda_field, global_lambda_field,
+                                            "current_tau_field")
+
                 if comm.size > 1:
                     obs_dict_fields = \
-                      [column_density, tau_ray, current_tau_field,
+                      [column_density, tau_ray, self.current_tau_field,
                        delta_lambda, lambda_obs, thermal_b, thermal_width]
                     obs_dict_fields = [comm.mpi_allreduce(field,op="sum")
                                        for field in obs_dict_fields]
 
                 # Calculate the flux decrement equivalent width (the true
                 # equivalent width!) for use in post-processing
-                EW = np.sum(1-np.exp(-current_tau_field))*self.bin_width
+                EW = np.sum(1-np.exp(-self.current_tau_field))*self.bin_width
                 # Update the line_observables_dict with values for this line
                 obs_dict = {"column_density":column_density,
                             "tau_ray":tau_ray,
@@ -752,6 +787,8 @@ class AbsorptionSpectrum(object):
                 ## Can only delete these if in this statement:
                 del obs_dict, tau_ray
 
+            self.current_tau_field = None
+
             # These always need to be deleted
             del column_density, delta_lambda, lambda_obs, \
                 thermal_b, thermal_width, cdens, thermb, dlambda, \
@@ -760,17 +797,27 @@ class AbsorptionSpectrum(object):
 
         comm = _get_comm(())
         if self._auto_lambda:
-            lf_min = comm.mpi_allreduce(self.lambda_field[0], op="min")
-            lf_max = comm.mpi_allreduce(self.lambda_field[-1], op="max")
-            new_lambda = YTArray(
-                np.arange(lf_min, lf_max+self.bin_width, self.bin_width),
-                'angstrom')
-            self._adjust_tau_field(self.lambda_field, new_lambda)
+            new_lambda = self._get_global_lambda_field(comm=comm)
+            self._adjust_field_array(self.lambda_field, new_lambda,
+                                     "tau_field")
             self.lambda_field = new_lambda
         self.tau_field = comm.mpi_allreduce(self.tau_field, op="sum")
         if output_absorbers_file:
             self.absorbers_list = comm.par_combine_object(
                 self.absorbers_list, "cat", datatype="list")
+
+    def _get_global_lambda_field(self, comm=None):
+        """
+        Get the maximum lambda field bounds and create a new array.
+        """
+        if comm is None:
+            comm = _get_comm(())
+        lf_min = comm.mpi_allreduce(self.lambda_field[0], op="min")
+        lf_max = comm.mpi_allreduce(self.lambda_field[-1], op="max")
+        new_lambda = YTArray(
+            np.arange(lf_min, lf_max+self.bin_width, self.bin_width),
+            'angstrom')
+        return new_lambda
 
     def _create_auto_field_arrays(self, left_index, right_index,
                                   my_lambda):
@@ -800,21 +847,23 @@ class AbsorptionSpectrum(object):
         new_lambda = YTArray(
             np.arange(new_lambda_min, new_lambda_max, dlambda), 'angstrom')
 
-        if self._tau_field is not None:
-            self._adjust_tau_field(self.lambda_field, new_lambda)
+        if self._current_tau_field is not None:
+            self._adjust_field_array(self.lambda_field, new_lambda,
+                                     "current_tau_field")
 
         self.lambda_field = new_lambda
 
-    def _adjust_tau_field(self, old_lambda, new_lambda):
+    def _adjust_field_array(self, old_lambda, new_lambda, array_name):
         """
-        Adjust the tau field associated with the old wavelength array
+        Adjust the field array associated with the old wavelength array
         so that it lines up correctly with the new wavelength array.
         """
         start_index = np.digitize(old_lambda[0], new_lambda) - 1
-        new_tau = np.zeros(new_lambda.size)
+        new_array = np.zeros(new_lambda.size)
 
-        new_tau[start_index:start_index+self.tau_field.size] = self.tau_field
-        self.tau_field = new_tau
+        old_array = getattr(self, array_name)
+        new_array[start_index:start_index+old_array.size] = old_array
+        setattr(self, array_name, new_array)
 
     @parallel_root_only
     def _write_absorbers_file(self, filename):
