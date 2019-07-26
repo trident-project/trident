@@ -71,12 +71,11 @@ class AbsorptionSpectrum(object):
 
         self.lambda_min = lambda_min
         self.lambda_max = lambda_max
-        self.n_lambda = n_lambda
         if dlambda is not None:
             self.bin_width = YTQuantity(dlambda, 'angstrom')
             self.lambda_field = None
         else:
-            self.n_lambda = int(n_lambda)
+            n_lambda = int(n_lambda)
             self.bin_width = YTQuantity(
                 float(lambda_max - lambda_min) / (n_lambda - 1), "angstrom")
 
@@ -84,7 +83,6 @@ class AbsorptionSpectrum(object):
             self.lambda_field = YTArray(np.linspace(lambda_min, lambda_max,
                                         n_lambda), "angstrom")
 
-        self.tau_field = None
         self.flux_field = None
         self.absorbers_list = None
         # a dictionary that will store spectral quantities for each index in the light ray
@@ -93,6 +91,17 @@ class AbsorptionSpectrum(object):
         self.continuum_list = []
         self.snr = 100  # default signal to noise ratio for error estimation
         self._auto_lambda = 'auto' in [self.lambda_min, self.lambda_max]
+
+    _tau_field = None
+    @property
+    def tau_field(self):
+        if self._tau_field is None:
+            self._tau_field = np.zeros(self.lambda_field.size)
+        return self._tau_field
+
+    @tau_field.setter
+    def tau_field(self, val):
+        self._tau_field = val
 
     def add_line(self, label, field_name, wavelength,
                  f_value, gamma, atomic_mass,
@@ -291,11 +300,6 @@ class AbsorptionSpectrum(object):
                 "('gas', 'temperature') field required to be present in %s "
                 "for AbsorptionSpectrum to function." % input_file)
 
-        if self.lambda_field is not None:
-            self.tau_field = np.zeros(self.lambda_field.size)
-        else:
-            self.tau_field = None
-
         self.absorbers_list = []
         self.line_observables_dict = {}
 
@@ -444,14 +448,14 @@ class AbsorptionSpectrum(object):
             # right index of continuum affected area is wavelength itself
             this_wavelength = delta_lambda + continuum['wavelength']
             right_index = np.digitize(this_wavelength,
-                                      self.lambda_field).clip(0, self.n_lambda)
+                                      self.lambda_field).clip(0, self.lambda_field.size)
             # left index of continuum affected area wavelength at which
             # optical depth reaches tau_min
             left_index = np.digitize((this_wavelength *
                               np.power((min_tau * continuum['normalization'] /
                                         column_density),
                                        (1. / continuum['index']))),
-                              self.lambda_field).clip(0, self.n_lambda)
+                              self.lambda_field).clip(0, self.lambda_field.size)
 
             # Only calculate the effects of continuua where normalized
             # column_density is greater than min_tau
@@ -518,7 +522,7 @@ class AbsorptionSpectrum(object):
             else:
                 delta_lambda = line['wavelength'] * redshift
             # lambda_obs is central wavelength of line after redshift
-            lambda_obs = line['wavelength'] + delta_lambda
+            lambda_obs = (line['wavelength'] + delta_lambda).to('Angstrom')
             # the total number of absorbers per transition
             n_absorbers = len(lambda_obs)
 
@@ -529,7 +533,7 @@ class AbsorptionSpectrum(object):
 
             # the actual thermal width of the lines
             thermal_width = (lambda_obs * thermal_b /
-                             speed_of_light_cgs).convert_to_units("angstrom")
+                             speed_of_light_cgs).to("angstrom")
 
             # Sanitize units for faster runtime of the tau_profile machinery.
             lambda_0 = line['wavelength'].d  # line's rest frame; angstroms
@@ -574,24 +578,6 @@ class AbsorptionSpectrum(object):
                             (thermal_width < self.bin_width).sum(),
                             n_absorbers)
 
-            if not self._auto_lambda:
-
-                # we want to know the bin index in the lambda_field array
-                # where each line has its central wavelength after being
-                # redshifted.  however, because we don't know a priori how wide
-                # a line will be (ie DLAs), we have to include bin indices
-                # *outside* the spectral range of the AbsorptionSpectrum
-                # object.  Thus, we find the "equivalent" bin index, which
-                # may be <0 or >the size of the array.  In the end, we deposit
-                # the bins that actually overlap with the AbsorptionSpectrum's
-                # range in lambda.
-
-                # this equation gives us the "equivalent" bin index for each line
-                # if it were placed into the self.lambda_field array
-                center_index = (lambda_obs.in_units('Angstrom').d - self.lambda_min) \
-                                / self.bin_width.d
-                center_index = np.ceil(center_index).astype('int')
-
             # provide a progress bar with information about lines processsed
             pbar = get_pbar("Adding line - %s [%f A]: " % \
                             (line['label'], line['wavelength']), n_absorbers)
@@ -621,29 +607,38 @@ class AbsorptionSpectrum(object):
                 while True:
 
                     # calculate wavelength window
-                    if self._auto_lambda:
+                    if self._auto_lambda and self.lambda_field is None:
                         my_lambda_min = lambda_obs[i] - \
                           window_width_in_bins * self.bin_width / 2
                         # round off to multiple of bin_width
                         my_lambda_min = self.bin_width * \
-                          np.floor(my_lambda_min / self.bin_width)
+                          np.ceil(my_lambda_min / self.bin_width)
                         my_lambda = my_lambda_min + \
                           self.bin_width * np.arange(window_width_in_bins)
-                        n_vbins = window_width_in_bins * n_vbins_per_bin[i]
-
-                        vbins = np.linspace(my_lambda[0].d, my_lambda[-1].d, n_vbins,
-                                            endpoint=False)
 
                     else:
-                        left_index = (center_index[i] - window_width_in_bins//2)
-                        right_index = (center_index[i] + window_width_in_bins//2)
-                        n_vbins = (right_index - left_index) * n_vbins_per_bin[i]
+                        my_lambda = self.lambda_field
 
-                        # the array of virtual bins in lambda space
-                        vbins = \
-                            np.linspace(self.lambda_min + self.bin_width.d * left_index,
-                                        self.lambda_min + self.bin_width.d * right_index,
-                                        n_vbins, endpoint=False)
+                    # we want to know the bin index in the lambda_field array
+                    # where each line has its central wavelength after being
+                    # redshifted.  however, because we don't know a priori how wide
+                    # a line will be (ie DLAs), we have to include bin indices
+                    # *outside* the spectral range of the AbsorptionSpectrum
+                    # object.  Thus, we find the "equivalent" bin index, which
+                    # may be <0 or >the size of the array.  In the end, we deposit
+                    # the bins that actually overlap with the AbsorptionSpectrum's
+                    # range in lambda.
+
+                    left_index, center_index, right_index = \
+                      get_bin_indices(my_lambda, self.bin_width,
+                                      lambda_obs[i], window_width_in_bins)
+                    n_vbins = window_width_in_bins * n_vbins_per_bin[i]
+
+                    # the array of virtual bins in lambda space
+                    vbins = \
+                        np.linspace(my_lambda.d[0] + self.bin_width.d * left_index,
+                                    my_lambda.d[0] + self.bin_width.d * right_index,
+                                    n_vbins, endpoint=False)
 
                     # the virtual bins and their corresponding opacities
                     vbins, vtau = \
@@ -656,10 +651,16 @@ class AbsorptionSpectrum(object):
                     # edges (ie the wings), then widen the wavelength
                     # window and repeat process.
                     if (vtau[0] < min_tau and vtau[-1] < min_tau):
+                        if self._auto_lambda:
+                            self._create_auto_field_arrays(
+                                left_index, right_index, my_lambda)
+                            left_index, center_index, right_index = \
+                              get_bin_indices(
+                                  self.lambda_field, self.bin_width,
+                                  lambda_obs[i], window_width_in_bins)
+
                         break
                     window_width_in_bins *= 2
-
-                breakpoint()
 
                 # Numerically integrate the virtual bins to calculate a
                 # virtual "equivalent width" of optical depth; then sum these
@@ -673,8 +674,8 @@ class AbsorptionSpectrum(object):
                 EW_tau = np.zeros(right_index - left_index)
                 EW_tau_indices = np.arange(left_index, right_index)
                 for k, val in enumerate(EW_tau_indices):
-                    EW_tau[k] = vEW_tau[n_vbins_per_bin[i] * k: \
-                                n_vbins_per_bin[i] * (k + 1)].sum()
+                    EW_tau[k] = vEW_tau[n_vbins_per_bin[i] * k:
+                                        n_vbins_per_bin[i] * (k + 1)].sum()
                 EW_tau = EW_tau/self.bin_width.d
 
                 # only deposit EW_tau bins that actually intersect the original
@@ -682,7 +683,7 @@ class AbsorptionSpectrum(object):
 
                 # if EW_tau bins don't intersect the original spectral range at
                 # all then skip the deposition
-                if ((left_index >= self.n_lambda) or \
+                if ((left_index >= self.lambda_field.size) or \
                     (right_index < 0)):
                     pbar.update(i)
                     continue
@@ -693,7 +694,7 @@ class AbsorptionSpectrum(object):
                 # window in the original spectrum's tau array
                 else:
                     intersect_left_index = max(left_index, 0)
-                    intersect_right_index = min(right_index, self.n_lambda-1)
+                    intersect_right_index = min(right_index, self.lambda_field.size-1)
                     EW_tau_deposit = EW_tau[(intersect_left_index - left_index): \
                                             (intersect_right_index - left_index)]
                     self.tau_field[intersect_left_index:intersect_right_index] \
@@ -729,9 +730,11 @@ class AbsorptionSpectrum(object):
                 # quantities for the dictionary are combined correctly.
                 comm = _get_comm(())
                 if comm.size > 1:
-                    obs_dict_fields = [column_density, tau_ray, current_tau_field, delta_lambda,
-                                       lambda_obs, thermal_b, thermal_width]
-                    obs_dict_fields = [comm.mpi_allreduce(field,op="sum") for field in obs_dict_fields]
+                    obs_dict_fields = \
+                      [column_density, tau_ray, current_tau_field,
+                       delta_lambda, lambda_obs, thermal_b, thermal_width]
+                    obs_dict_fields = [comm.mpi_allreduce(field,op="sum")
+                                       for field in obs_dict_fields]
 
                 # Calculate the flux decrement equivalent width (the true
                 # equivalent width!) for use in post-processing
@@ -750,7 +753,7 @@ class AbsorptionSpectrum(object):
                 del obs_dict, tau_ray
 
             # These always need to be deleted
-            del column_density, delta_lambda, lambda_obs, center_index, \
+            del column_density, delta_lambda, lambda_obs, \
                 thermal_b, thermal_width, cdens, thermb, dlambda, \
                 vlos, resolution, vbin_width, n_vbins, n_vbins_per_bin
 
@@ -760,6 +763,42 @@ class AbsorptionSpectrum(object):
         if output_absorbers_file:
             self.absorbers_list = comm.par_combine_object(
                 self.absorbers_list, "cat", datatype="list")
+
+    def _create_auto_field_arrays(self, left_index, right_index,
+                                  my_lambda):
+        """
+        Adjust the current wavelength window to encompass the full
+        window of the next feature we are depositing.
+
+        my_lambda is the current wavelength window and the left and
+        right index are the bounds of the desired wavelength window.
+        If the bounds are outside the current window, we enlarge it
+        to fit and adjust the tau field accordingly.
+        """
+
+        if left_index >= 0 and right_index < my_lambda.size:
+            return
+
+        dlambda = my_lambda[1] - my_lambda[0]
+        new_lambda_min = my_lambda[0] + \
+          dlambda * min(0, left_index)
+        new_lambda_max = my_lambda[0] + \
+          dlambda * max(my_lambda.size, right_index)
+
+        if self.lambda_min != 'auto':
+            new_lambda_min = max(new_lambda_min, self.lambda_min)
+        if self.lambda_max != 'auto':
+            new_lambda_max = max(new_lambda_max, self.lambda_max)
+        new_lambda = YTArray(
+            np.arange(new_lambda_min, new_lambda_max, dlambda), 'angstrom')
+
+        if self._tau_field is not None:
+            start_index = np.digitize(self.lambda_field[0], new_lambda) - 1
+            new_tau = np.zeros(new_lambda.size)
+            new_tau[start_index:start_index+my_lambda.size] = self.tau_field
+            self.tau_field = new_tau
+
+        self.lambda_field = new_lambda
 
     @parallel_root_only
     def _write_absorbers_file(self, filename):
@@ -823,3 +862,14 @@ class AbsorptionSpectrum(object):
         output.create_dataset('flux_error', data=self.error_func(self.flux_field))
         output.close()
 
+def get_bin_indices(lambda_field, dlambda, lambda_obs,
+                    window_width_in_bins):
+    # this equation gives us the "equivalent" bin index for each line
+    # if it were placed into the self.lambda_field array
+    center_index = ((lambda_obs - lambda_field[0]) /
+                    dlambda).d
+    center_index = int(np.ceil(center_index))
+    left_index = (center_index - window_width_in_bins//2)
+    right_index = (center_index + window_width_in_bins//2)
+
+    return left_index, center_index, right_index
