@@ -95,15 +95,23 @@ class SpectrumGenerator(AbsorptionSpectrum):
         leave this set to None.
         Default: None
 
-    :lambda_min: int
+    :lambda_min: float or 'auto'
+
+        The wavelength extrema of the spectra in angstroms.
+        If set to 'auto', the lower bound will be automatically
+        adjusted to encompass all absorption lines. The wavelength
+        window will not be expanded for continuum features, only
+        absorption lines.
+        Default: None
+
+    :lambda_max: float or 'auto'
 
         The wavelength extrema of the spectra in angstroms
-        Defaults: None
-
-    :lambda_max: int
-
-        The wavelength extrema of the spectra in angstroms
-        Defaults: None
+        If set to 'auto', the upper bound will be automatically
+        adjusted to encompass all absorption lines. The wavelength
+        window will not be expanded for continuum features, only
+        absorption lines.
+        Default: None
 
     :n_lambda: int
 
