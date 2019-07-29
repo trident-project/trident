@@ -96,7 +96,8 @@ class AbsorptionSpectrum(object):
             lambda_max = YTQuantity(lambda_max, 'angstrom')
         self.lambda_max = lambda_max
 
-        self._auto_lambda = 'auto' in [self.lambda_min, self.lambda_max]
+        self._auto_lambda = 'auto' in [str(self.lambda_min),
+                                       str(self.lambda_max)]
         if self._auto_lambda and \
           (n_lambda is not None and n_lambda != 'auto'):
             raise RuntimeError(
