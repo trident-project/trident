@@ -51,26 +51,48 @@ class AbsorptionSpectrum(object):
 
     **Parameters**
 
-    :lambda_min: float
+    :lambda_min: float or 'auto'
 
-       lower wavelength bound in angstroms.
+       lower wavelength bound in angstroms. If set to 'auto', the lower
+       bound will be automatically adjusted to encompass all absorption
+       lines. The wavelength window will not be expanded for continuum
+       features, only absorption lines.
 
-    :lambda_max: float
+    :lambda_max: float or 'auto'
 
-       upper wavelength bound in angstroms.
+       upper wavelength bound in angstroms. If set to 'auto', the upper
+       bound will be automatically adjusted to encompass all absorption
+       lines. The wavelength window will not be expanded for continuum
+       features, only absorption lines.
 
-    :n_lambda: int
+    :n_lambda: optional, int
 
-       number of wavelength bins.
+       number of wavelength bins. This cannot be set when setting
+       either lambda_min or lambda_max to auto.
+
+    :dlambda: optional, float
+
+      size of the wavelength bins in angstroms.
     """
 
     def __init__(self, lambda_min, lambda_max, n_lambda=None, dlambda=None):
-        if not ((n_lambda is None) ^ (dlambda is None)):
+        if not ((n_lambda is None or n_lambda == 'auto') ^ (dlambda is None)):
             raise RuntimeError(
                 'Either n_lambda or dlambda must be given, but not both.')
 
+        if lambda_min != 'auto':
+            lambda_min = YTQuantity(lambda_min, 'angstrom')
+        if lambda_max != 'auto':
+            lambda_max = YTQuantity(lambda_max, 'angstrom')
+
         self.lambda_min = lambda_min
         self.lambda_max = lambda_max
+        self._auto_lambda = 'auto' in [self.lambda_min, self.lambda_max]
+        if self._auto_lambda and \
+          (n_lambda is not None and n_lambda != 'auto'):
+            raise RuntimeError(
+                'Cannot set n_lambda when setting lambda_min or lambda_max to auto.')
+
         if dlambda is not None:
             self.bin_width = YTQuantity(dlambda, 'angstrom')
             self.lambda_field = None
@@ -90,7 +112,6 @@ class AbsorptionSpectrum(object):
         self.line_list = []
         self.continuum_list = []
         self.snr = 100  # default signal to noise ratio for error estimation
-        self._auto_lambda = 'auto' in [self.lambda_min, self.lambda_max]
 
     _tau_field = None
     @property
@@ -98,6 +119,8 @@ class AbsorptionSpectrum(object):
         """
         This is the total optical depth of all lines and continua.
         """
+        if self.lambda_field is None:
+            return None
         if self._tau_field is None:
             self._tau_field = np.zeros(self.lambda_field.size)
         return self._tau_field
@@ -683,6 +706,10 @@ class AbsorptionSpectrum(object):
                         break
                     window_width_in_bins *= 2
 
+                if center_index is None:
+                    pbar.update(i)
+                    continue
+
                 # Numerically integrate the virtual bins to calculate a
                 # virtual "equivalent width" of optical depth; then sum these
                 # virtual equivalent widths in tau and deposit back into each
@@ -843,7 +870,10 @@ class AbsorptionSpectrum(object):
         if self.lambda_min != 'auto':
             new_lambda_min = max(new_lambda_min, self.lambda_min)
         if self.lambda_max != 'auto':
-            new_lambda_max = max(new_lambda_max, self.lambda_max)
+            new_lambda_max = min(new_lambda_max, self.lambda_max)
+        if new_lambda_min >= new_lambda_max:
+            return
+
         new_lambda = YTArray(
             np.arange(new_lambda_min, new_lambda_max, dlambda), 'angstrom')
 
@@ -929,6 +959,14 @@ class AbsorptionSpectrum(object):
 
 def get_bin_indices(lambda_field, dlambda, lambda_obs,
                     window_width_in_bins):
+    """
+    Return the indices of the lambda field corresponding to
+    the lower limit, line center, and upper limit.
+    """
+
+    if lambda_field is None or lambda_field.size == 0:
+        return None, None, None
+
     # this equation gives us the "equivalent" bin index for each line
     # if it were placed into the self.lambda_field array
     center_index = ((lambda_obs - lambda_field[0]) /
