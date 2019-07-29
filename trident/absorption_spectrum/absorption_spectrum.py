@@ -657,7 +657,7 @@ class AbsorptionSpectrum(object):
                 # window in the original spectrum's tau array
                 else:
                     intersect_left_index = max(left_index, 0)
-                    intersect_right_index = min(right_index, self.n_lambda-1)
+                    intersect_right_index = min(right_index, self.n_lambda)
                     EW_tau_deposit = EW_tau[(intersect_left_index - left_index): \
                                             (intersect_right_index - left_index)]
                     self.tau_field[intersect_left_index:intersect_right_index] \
