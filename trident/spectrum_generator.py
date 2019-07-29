@@ -180,7 +180,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
     def __init__(self, instrument=None, lambda_min=None, lambda_max=None,
                  n_lambda=None, dlambda=None, lsf_kernel=None,
                  line_database='lines.txt', ionization_table=None):
-        if instrument is None and (lambda_min is None or dlambda is None):
+        if instrument is None and (lambda_min is None or
+                                   (dlambda is None and n_lambda is None)):
             instrument = 'COS'
             mylog.info("No parameters specified, defaulting to COS instrument.")
         elif instrument is None:

@@ -76,17 +76,26 @@ class AbsorptionSpectrum(object):
     """
 
     def __init__(self, lambda_min, lambda_max, n_lambda=None, dlambda=None):
-        if not ((n_lambda is None or n_lambda == 'auto') ^ (dlambda is None)):
+        if n_lambda is None and dlambda is None:
             raise RuntimeError(
-                'Either n_lambda or dlambda must be given, but not both.')
+                'Either n_lambda or dlambda must be given.')
+        if n_lambda is not None and dlambda is not None:
+            n_lambda = None
 
         if lambda_min != 'auto':
+            # round limits to bin size
+            if dlambda is not None:
+                lambda_min = np.round(lambda_min / dlambda) * dlambda
             lambda_min = YTQuantity(lambda_min, 'angstrom')
-        if lambda_max != 'auto':
-            lambda_max = YTQuantity(lambda_max, 'angstrom')
-
         self.lambda_min = lambda_min
+
+        if lambda_max != 'auto':
+            # round limits to bin size
+            if dlambda is not None:
+                lambda_max = np.round(lambda_max / dlambda) * dlambda
+            lambda_max = YTQuantity(lambda_max, 'angstrom')
         self.lambda_max = lambda_max
+
         self._auto_lambda = 'auto' in [self.lambda_min, self.lambda_max]
         if self._auto_lambda and \
           (n_lambda is not None and n_lambda != 'auto'):
@@ -95,13 +104,16 @@ class AbsorptionSpectrum(object):
 
         if dlambda is not None:
             self.bin_width = YTQuantity(dlambda, 'angstrom')
+            if not self._auto_lambda:
+                n_lambda = np.round(
+                    (self.lambda_max - self.lambda_min) / self.bin_width + 1)
+
+        if self._auto_lambda:
             self.lambda_field = None
         else:
             n_lambda = int(n_lambda)
             self.bin_width = YTQuantity(
                 float(lambda_max - lambda_min) / (n_lambda - 1), "angstrom")
-
-            # lambda, flux, and tau are wavelength, flux, and optical depth
             self.lambda_field = YTArray(np.linspace(lambda_min, lambda_max,
                                         n_lambda), "angstrom")
 
