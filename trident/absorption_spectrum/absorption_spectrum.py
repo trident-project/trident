@@ -479,6 +479,7 @@ class AbsorptionSpectrum(object):
             mylog.warning(
                 'Cannot add continuum with empty spectrum and lambda_min/max ' +
                 'set to auto.')
+            return
 
         # Change the redshifts of continuum sources to account for the
         # redshift at which the observer sits
@@ -912,9 +913,9 @@ class AbsorptionSpectrum(object):
         new_lambda_max = my_lambda[0] + \
           dlambda * max(my_lambda.size, right_index)
 
-        if self.lambda_min != 'auto':
+        if str(self.lambda_min) != 'auto':
             new_lambda_min = max(new_lambda_min, self.lambda_min)
-        if self.lambda_max != 'auto':
+        if str(self.lambda_max) != 'auto':
             new_lambda_max = min(new_lambda_max, self.lambda_max)
         if new_lambda_min >= new_lambda_max:
             return
