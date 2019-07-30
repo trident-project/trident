@@ -131,3 +131,49 @@ class AutoLambdaTest(TempDirTest):
         assert sg.lambda_field is None
         assert sg.tau_field is None
         assert sg.flux_field is None
+
+    def test_setting_lambda_min(self):
+        """
+        Test setting an arbitrary lambda_min with auto-lambda.
+        """
+
+        sg_auto = SpectrumGenerator(
+            lambda_min='auto', lambda_max='auto',
+            dlambda=0.01)
+        sg_auto.make_spectrum("ray.h5", lines=self.line_list,
+                              ly_continuum=False)
+
+        sg_comp = SpectrumGenerator(
+            lambda_min=1100, lambda_max='auto',
+            dlambda=0.01)
+        sg_comp.make_spectrum("ray.h5", lines=self.line_list,
+                              ly_continuum=False)
+
+        comp_lambda = sg_auto.lambda_field >= sg_comp.lambda_field[0]
+
+        assert_allclose(
+            sg_auto.tau_field[comp_lambda].sum(),
+            sg_comp.tau_field.sum())
+
+    def test_setting_lambda_max(self):
+        """
+        Test setting an arbitrary lambda_max with auto-lambda.
+        """
+
+        sg_auto = SpectrumGenerator(
+            lambda_min='auto', lambda_max='auto',
+            dlambda=0.01)
+        sg_auto.make_spectrum("ray.h5", lines=self.line_list,
+                              ly_continuum=False)
+
+        sg_comp = SpectrumGenerator(
+            lambda_min='auto', lambda_max=1100,
+            dlambda=0.01)
+        sg_comp.make_spectrum("ray.h5", lines=self.line_list,
+                              ly_continuum=False)
+
+        comp_lambda = sg_auto.lambda_field <= sg_comp.lambda_field[-1]
+
+        assert_allclose(
+            sg_auto.tau_field[comp_lambda].sum(),
+            sg_comp.tau_field.sum())
