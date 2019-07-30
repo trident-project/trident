@@ -106,8 +106,9 @@ class AbsorptionSpectrum(object):
         if dlambda is not None:
             self.bin_width = YTQuantity(dlambda, 'angstrom')
             if not self._auto_lambda:
-                n_lambda = np.round(
-                    (self.lambda_max - self.lambda_min) / self.bin_width + 1)
+                n_lambda = \
+                  self._get_field_size(self.lambda_min, self.lambda_max,
+                                       self.bin_width, do_round=True)
 
         if self._auto_lambda:
             self.lambda_field = None
@@ -120,8 +121,8 @@ class AbsorptionSpectrum(object):
             n_lambda = int(n_lambda)
             self.bin_width = YTQuantity(
                 float(lambda_max - lambda_min) / (n_lambda - 1), "angstrom")
-            self.lambda_field = YTArray(np.linspace(lambda_min, lambda_max,
-                                        n_lambda), "angstrom")
+            self.lambda_field = \
+              self._create_lambda_field(lambda_min, lambda_max, n_lambda)
 
         self.flux_field = None
         self.absorbers_list = None
@@ -130,6 +131,48 @@ class AbsorptionSpectrum(object):
         self.line_list = []
         self.continuum_list = []
         self.snr = 100  # default signal to noise ratio for error estimation
+
+    def _get_field_size(self, lambda_min, lambda_max, dlambda, do_round=False):
+        """
+        Calculate number of bins.
+        """
+
+        if isinstance(lambda_min, YTQuantity):
+            my_min = lambda_min.d
+        else:
+            my_min = lambda_min
+
+        if isinstance(lambda_max, YTQuantity):
+            my_max = lambda_max.d
+        else:
+            my_max = lambda_max
+
+        if isinstance(dlambda, YTQuantity):
+            my_dlambda = dlambda.d
+        else:
+            my_dlambda = dlambda
+
+        n_lambda = (my_max - my_min) / my_dlambda + 1
+        if do_round:
+            n_lambda = np.round(n_lambda)
+        return int(n_lambda)
+
+    def _create_lambda_field(self, lambda_min, lambda_max, n_lambda, units='angstrom'):
+        """
+        Create a lambda array with units.
+        """
+
+        if isinstance(lambda_min, YTQuantity):
+            my_min = lambda_min.d
+        else:
+            my_min = lambda_min
+
+        if isinstance(lambda_max, YTQuantity):
+            my_max = lambda_max.d
+        else:
+            my_max = lambda_max
+
+        return YTArray(np.linspace(my_min, my_max, n_lambda), units)
 
     _tau_field = None
     @property
@@ -884,9 +927,8 @@ class AbsorptionSpectrum(object):
         lf_max = comm.mpi_allreduce(my_max, op="max")
 
         if lf_min != np.inf:
-            new_lambda = YTArray(
-                np.arange(lf_min, lf_max+self.bin_width, self.bin_width),
-                'angstrom')
+            n_lambda = self._get_field_size(lf_min, lf_max, self.bin_width) + 1
+            new_lambda = self._create_lambda_field(lf_min, lf_max, n_lambda)
         else:
             new_lambda = None
 
@@ -911,7 +953,7 @@ class AbsorptionSpectrum(object):
         new_lambda_min = my_lambda[0] + \
           dlambda * min(0, left_index)
         new_lambda_max = my_lambda[0] + \
-          dlambda * max(my_lambda.size, right_index)
+          dlambda * max(my_lambda.size-1, right_index)
 
         if str(self.lambda_min) != 'auto':
             new_lambda_min = max(new_lambda_min, self.lambda_min)
@@ -920,8 +962,11 @@ class AbsorptionSpectrum(object):
         if new_lambda_min >= new_lambda_max:
             return
 
-        new_lambda = YTArray(
-            np.arange(new_lambda_min, new_lambda_max, dlambda), 'angstrom')
+        n_lambda = self._get_field_size(
+            new_lambda_min, new_lambda_max, dlambda)
+        new_lambda = \
+          self._create_lambda_field(new_lambda_min, new_lambda_max,
+                                    n_lambda)
 
         if self._current_tau_field is not None:
             self._adjust_field_array(self.lambda_field, new_lambda,
