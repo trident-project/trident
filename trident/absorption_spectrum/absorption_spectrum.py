@@ -112,6 +112,11 @@ class AbsorptionSpectrum(object):
         if self._auto_lambda:
             self.lambda_field = None
         else:
+            if lambda_min >= lambda_max:
+                raise RuntimeError(
+                    'lambda_min (%f) cannot be greater than or equal to lambda_max (%f).' %
+                    (lambda_min, lambda_max))
+
             n_lambda = int(n_lambda)
             self.bin_width = YTQuantity(
                 float(lambda_max - lambda_min) / (n_lambda - 1), "angstrom")
@@ -150,6 +155,8 @@ class AbsorptionSpectrum(object):
         being deposited. We will do the deposition of lines into this
         array, and then add it to self.tau_field at the end.
         """
+        if self.lambda_field is None:
+            return None
         if self._current_tau_field is None:
             self._current_tau_field = np.zeros(self.lambda_field.size)
         return self._current_tau_field
@@ -372,7 +379,10 @@ class AbsorptionSpectrum(object):
                                        observing_redshift=observing_redshift,
                                        min_tau=min_tau)
 
-        self.flux_field = np.exp(-self.tau_field)
+        if self.tau_field is not None:
+            self.flux_field = np.exp(-self.tau_field)
+
+        mylog.warning('Spectrum is totally empty!')
 
         if output_file is None:
             pass
@@ -464,6 +474,12 @@ class AbsorptionSpectrum(object):
         denoted wavelength, and then slowly increases with decreasing wavelength
         according to the power law.
         """
+
+        if self._auto_lambda and self.lambda_field is None:
+            mylog.warning(
+                'Cannot add continuum with empty spectrum and lambda_min/max ' +
+                'set to auto.')
+
         # Change the redshifts of continuum sources to account for the
         # redshift at which the observer sits
         redshift, redshift_eff = self._apply_observing_redshift(field_data,
@@ -563,7 +579,8 @@ class AbsorptionSpectrum(object):
                                             storage=self.line_observables_dict):
             column_density = field_data[line['field_name']] * field_data['dl']
             if (column_density < 0).any():
-                mylog.warn("Setting negative densities for field %s to 0! Bad!" % line['field_name'])
+                mylog.warning(
+                    "Setting negative densities for field %s to 0! Bad!" % line['field_name'])
                 np.clip(column_density, 0, np.inf, out=column_density)
             if (column_density == 0).all():
                 mylog.info("Not adding line %s: insufficient column density" % line['label'])
@@ -783,13 +800,12 @@ class AbsorptionSpectrum(object):
                 pbar.update(i)
             pbar.finish()
 
-            if last_lambda_field is None:
-                self.tau_field = self.current_tau_field[:]
-            else:
-                # Expand the tau_field array to match the updated wavelength
-                # array from the last line deposition.
-                self._adjust_field_array(last_lambda_field, self.lambda_field,
-                                         "tau_field")
+            # Expand the tau_field array to match the updated wavelength
+            # array from the last line deposition.
+            self._adjust_field_array(last_lambda_field, self.lambda_field,
+                                     "tau_field")
+
+            if self.current_tau_field is not None:
                 # Now add the current_tau_field.
                 self.tau_field += self.current_tau_field
 
@@ -802,7 +818,7 @@ class AbsorptionSpectrum(object):
                 if self._auto_lambda:
                     global_lambda_field = self._get_global_lambda_field(comm=comm)
                     self._adjust_field_array(self.lambda_field, global_lambda_field,
-                                            "current_tau_field")
+                                             "current_tau_field")
 
                 if comm.size > 1:
                     obs_dict_fields = \
@@ -813,7 +829,10 @@ class AbsorptionSpectrum(object):
 
                 # Calculate the flux decrement equivalent width (the true
                 # equivalent width!) for use in post-processing
-                EW = np.sum(1-np.exp(-self.current_tau_field))*self.bin_width
+                if self.current_tau_field is None:
+                    EW = 0.
+                else:
+                    EW = np.sum(1-np.exp(-self.current_tau_field))*self.bin_width
                 # Update the line_observables_dict with values for this line
                 obs_dict = {"column_density":column_density,
                             "tau_ray":tau_ray,
@@ -852,11 +871,24 @@ class AbsorptionSpectrum(object):
         """
         if comm is None:
             comm = _get_comm(())
-        lf_min = comm.mpi_allreduce(self.lambda_field[0], op="min")
-        lf_max = comm.mpi_allreduce(self.lambda_field[-1], op="max")
-        new_lambda = YTArray(
-            np.arange(lf_min, lf_max+self.bin_width, self.bin_width),
-            'angstrom')
+
+        if self.lambda_field is None:
+            my_min = np.inf
+            my_max = -np.inf
+        else:
+            my_min = self.lambda_field[0]
+            my_max = self.lambda_field[-1]
+
+        lf_min = comm.mpi_allreduce(my_min, op="min")
+        lf_max = comm.mpi_allreduce(my_max, op="max")
+
+        if lf_min != np.inf:
+            new_lambda = YTArray(
+                np.arange(lf_min, lf_max+self.bin_width, self.bin_width),
+                'angstrom')
+        else:
+            new_lambda = None
+
         return new_lambda
 
     def _create_auto_field_arrays(self, left_index, right_index,
@@ -901,6 +933,9 @@ class AbsorptionSpectrum(object):
         Adjust the field array associated with the old wavelength array
         so that it lines up correctly with the new wavelength array.
         """
+        if old_lambda is None or new_lambda is None:
+            return
+
         start_index = np.digitize(old_lambda[0], new_lambda) - 1
         new_array = np.zeros(new_lambda.size)
 
@@ -914,6 +949,8 @@ class AbsorptionSpectrum(object):
         Write out ASCII list of all substantial absorbers found in spectrum
         """
         if filename is None:
+            return
+        if self.tau_field is None:
             return
         mylog.info("Writing absorber list: %s.", filename)
         self.absorbers_list.sort(key=lambda obj: obj['wavelength'])
@@ -932,6 +969,8 @@ class AbsorptionSpectrum(object):
         """
         Write spectrum to an ascii file.
         """
+        if self.tau_field is None:
+            return
         mylog.info("Writing spectrum to ascii file: %s.", filename)
         f = open(filename, 'w')
         f.write("# wavelength[A] tau flux flux_error\n")
@@ -947,6 +986,8 @@ class AbsorptionSpectrum(object):
         """
         Write spectrum to a fits file.
         """
+        if self.tau_field is None:
+            return
         mylog.info("Writing spectrum to fits file: %s.", filename)
         col1 = pyfits.Column(name='wavelength', format='E', array=self.lambda_field)
         col2 = pyfits.Column(name='tau', format='E', array=self.tau_field)
@@ -962,6 +1003,8 @@ class AbsorptionSpectrum(object):
         Write spectrum to an hdf5 file.
 
         """
+        if self.tau_field is None:
+            return
         mylog.info("Writing spectrum to hdf5 file: %s.", filename)
         output = h5py.File(filename, 'w')
         output.create_dataset('wavelength', data=self.lambda_field)

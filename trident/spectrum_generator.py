@@ -931,7 +931,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         elif format == 'ASCII':
             self._write_spectrum_ascii(filename)
         else:
-            mylog.warn("Invalid format.  Must be 'HDF5', 'FITS', 'ASCII'. Defaulting to ASCII.")
+            mylog.warning("Invalid format.  Must be 'HDF5', 'FITS', 'ASCII'. Defaulting to ASCII.")
             self._write_spectrum_ascii(filename)
 
     def plot_spectrum(self, filename="spectrum.png",
@@ -1011,6 +1011,11 @@ class SpectrumGenerator(AbsorptionSpectrum):
         >>> sg.make_spectrum(ray)
         >>> sg.plot_spectrum('spec_raw.png', features={'Ly a' : 1216})
         """
+
+        if self.tau_field is None:
+            mylog.warning('Spectrum is totally empty, no plotting to be done.')
+            return
+
         plot_spectrum(self.lambda_field, self.flux_field, filename=filename,
                       lambda_limits=lambda_limits, flux_limits=flux_limits,
                       title=title, label=label, figsize=figsize, step=step,
