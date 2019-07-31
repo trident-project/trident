@@ -37,6 +37,10 @@ from yt.utilities.parallel_tools.parallel_analysis_interface import \
 
 pyfits = _astropy.pyfits
 
+_bin_space_units = {'wavelength': 'angstrom',
+                    'velocity': 'km/s'}
+c_kms = speed_of_light_cgs.to('km/s')
+
 class AbsorptionSpectrum(object):
     r"""Base class for generating absorption spectra.  This code was originally
     based in yt and more restrictive in terms of what development was allowed,
@@ -75,7 +79,15 @@ class AbsorptionSpectrum(object):
       size of the wavelength bins in angstroms.
     """
 
-    def __init__(self, lambda_min, lambda_max, n_lambda=None, dlambda=None):
+    def __init__(self, lambda_min, lambda_max, n_lambda=None, dlambda=None,
+                 bin_space='wavelength'):
+
+        if bin_space not in _bin_space_units:
+            raise RuntimeError(
+                'Invalid bin_space value: "%s". Valid values are: "%s".' %
+                (bin_space, '", "'.join(list(_bin_space_units))))
+        self.bin_space = bin_space
+
         if n_lambda is None and dlambda is None:
             raise RuntimeError(
                 'Either n_lambda or dlambda must be given.')
@@ -86,14 +98,14 @@ class AbsorptionSpectrum(object):
             # round limits to bin size
             if dlambda is not None:
                 lambda_min = np.round(lambda_min / dlambda) * dlambda
-            lambda_min = YTQuantity(lambda_min, 'angstrom')
+            lambda_min = YTQuantity(lambda_min, _bin_space_units[self.bin_space])
         self.lambda_min = lambda_min
 
         if lambda_max != 'auto':
             # round limits to bin size
             if dlambda is not None:
                 lambda_max = np.round(lambda_max / dlambda) * dlambda
-            lambda_max = YTQuantity(lambda_max, 'angstrom')
+            lambda_max = YTQuantity(lambda_max, _bin_space_units[self.bin_space])
         self.lambda_max = lambda_max
 
         self._auto_lambda = 'auto' in [str(self.lambda_min),
@@ -104,7 +116,7 @@ class AbsorptionSpectrum(object):
                 'Cannot set n_lambda when setting lambda_min or lambda_max to auto.')
 
         if dlambda is not None:
-            self.bin_width = YTQuantity(dlambda, 'angstrom')
+            self.bin_width = YTQuantity(dlambda, _bin_space_units[self.bin_space])
             if not self._auto_lambda:
                 n_lambda = \
                   self._get_field_size(self.lambda_min, self.lambda_max,
@@ -120,7 +132,7 @@ class AbsorptionSpectrum(object):
 
             n_lambda = int(n_lambda)
             self.bin_width = YTQuantity(
-                float(lambda_max - lambda_min) / (n_lambda - 1), "angstrom")
+                float(lambda_max - lambda_min) / (n_lambda - 1), _bin_space_units[self.bin_space])
             self.lambda_field = \
               self._create_lambda_field(lambda_min, lambda_max, n_lambda)
 
@@ -157,10 +169,14 @@ class AbsorptionSpectrum(object):
             n_lambda = np.round(n_lambda)
         return int(n_lambda)
 
-    def _create_lambda_field(self, lambda_min, lambda_max, n_lambda, units='angstrom'):
+    def _create_lambda_field(self, lambda_min, lambda_max, n_lambda,
+                             units=None):
         """
         Create a lambda array with units.
         """
+
+        if units is None:
+            units = _bin_space_units[self.bin_space]
 
         if isinstance(lambda_min, YTQuantity):
             my_min = lambda_min.d
@@ -239,6 +255,7 @@ class AbsorptionSpectrum(object):
 
            mass of atom in amu.
         """
+
         self.line_list.append({'label': label, 'field_name': field_name,
                                'wavelength': YTQuantity(wavelength, "angstrom"),
                                'f_value': f_value,
@@ -612,6 +629,12 @@ class AbsorptionSpectrum(object):
         Add the absorption lines to the spectrum.
         """
 
+        if len(self.line_list) == 0:
+            return
+
+        if self.bin_space == 'velocity':
+            wavelength_zero_point = self.line_list[0]['wavelength']
+
         # Change the redshifts of individual absorbers to account for the
         # redshift at which the observer sits
         redshift, redshift_eff = self._apply_observing_redshift(field_data,
@@ -638,7 +661,19 @@ class AbsorptionSpectrum(object):
             else:
                 delta_lambda = line['wavelength'] * redshift
             # lambda_obs is central wavelength of line after redshift
-            lambda_obs = (line['wavelength'] + delta_lambda).to('Angstrom')
+            lambda_obs = (line['wavelength'] + delta_lambda).to('angstrom')
+
+            # either the observed wavelength or velocity offset
+            if self.bin_space == 'wavelength':
+                my_obs = lambda_obs[:]
+            elif self.bin_space == 'velocity':
+                my_obs = c_kms * \
+                  (lambda_obs - wavelength_zero_point) / \
+                  wavelength_zero_point
+                my_obs.convert_to_units(_bin_space_units[self.bin_space])
+            else:
+                raise RuntimeError('What bin_space is this?')
+
             # the total number of absorbers per transition
             n_absorbers = len(lambda_obs)
 
@@ -649,12 +684,12 @@ class AbsorptionSpectrum(object):
 
             # the actual thermal width of the lines
             thermal_width = (lambda_obs * thermal_b /
-                             speed_of_light_cgs).to("angstrom")
+                             c_kms).to('angstrom')
 
             # Sanitize units for faster runtime of the tau_profile machinery.
             lambda_0 = line['wavelength'].d  # line's rest frame; angstroms
             cdens = column_density.in_units("cm**-2").d # cm**-2
-            thermb = thermal_b.in_cgs().d  # thermal b coefficient; cm / s
+            thermb = thermal_b.to('cm/s').d  # thermal b coefficient; cm / s
             dlambda = delta_lambda.d  # lambda offset; angstroms
             # Array to store sum of the tau values for each index in the
             # light ray that is deposited to the final spectrum
@@ -680,13 +715,21 @@ class AbsorptionSpectrum(object):
             # 3) a bin width will be divisible by vbin_width times a power of
             #    10; this will assure we don't get spikes in the deposited
             #    spectra from uneven numbers of vbins per bin
-            resolution = thermal_width / self.bin_width
+
+            if self.bin_space == 'wavelength':
+                my_width = thermal_width
+            elif self.bin_space == 'velocity':
+                my_width = thermal_b
+            else:
+                raise RuntimeError('What bin space is this?')
+
+            resolution = my_width / self.bin_width
             n_vbins_per_bin = (10 ** (np.ceil( np.log10( subgrid_resolution /
                                resolution) ).clip(0, np.inf) ) ).astype('int')
             vbin_width = self.bin_width.d / n_vbins_per_bin
 
             # a note to the user about which lines components are unresolved
-            if (thermal_width < self.bin_width).any():
+            if (my_width < self.bin_width).any():
                 mylog.info("%d out of %d line components will be " +
                             "deposited as unresolved lines.",
                             (thermal_width < self.bin_width).sum(),
@@ -726,7 +769,7 @@ class AbsorptionSpectrum(object):
 
                     # calculate wavelength window
                     if self._auto_lambda and self.lambda_field is None:
-                        my_lambda_min = lambda_obs[i] - \
+                        my_lambda_min = my_obs[i] - \
                           window_width_in_bins * self.bin_width / 2
                         # round off to multiple of bin_width
                         my_lambda_min = self.bin_width * \
@@ -750,7 +793,7 @@ class AbsorptionSpectrum(object):
                     left_index, center_index, right_index = \
                       self._get_bin_indices(
                           my_lambda, self.bin_width,
-                          lambda_obs[i], window_width_in_bins)
+                          my_obs[i], window_width_in_bins)
                     n_vbins = window_width_in_bins * n_vbins_per_bin[i]
 
                     # the array of virtual bins in lambda space
@@ -759,12 +802,21 @@ class AbsorptionSpectrum(object):
                                     my_lambda.d[0] + self.bin_width.d * right_index,
                                     n_vbins, endpoint=False)
 
+                    if self.bin_space == 'wavelength':
+                        my_vbins = vbins
+                    elif self.bin_space == 'velocity':
+                        my_vbins = vbins * \
+                          wavelength_zero_point.d / c_kms.d + \
+                          wavelength_zero_point.d
+                    else:
+                        raise RuntimeError('What bin_space is this?')
+
                     # the virtual bins and their corresponding opacities
-                    vbins, vtau = \
+                    my_vbins, vtau = \
                         tau_profile(
                             lambda_0, line['f_value'], line['gamma'],
                             thermb[i], cdens[i],
-                            delta_lambda=dlambda[i], lambda_bins=vbins)
+                            delta_lambda=dlambda[i], lambda_bins=my_vbins)
 
                     # If tau has not dropped below min tau threshold by the
                     # edges (ie the wings), then widen the wavelength
@@ -776,7 +828,7 @@ class AbsorptionSpectrum(object):
                             left_index, center_index, right_index = \
                               self._get_bin_indices(
                                   self.lambda_field, self.bin_width,
-                                  lambda_obs[i], window_width_in_bins)
+                                  my_obs[i], window_width_in_bins)
 
                         break
                     window_width_in_bins *= 2
