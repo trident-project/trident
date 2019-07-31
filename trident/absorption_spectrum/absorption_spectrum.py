@@ -748,8 +748,9 @@ class AbsorptionSpectrum(object):
                     # range in lambda.
 
                     left_index, center_index, right_index = \
-                      get_bin_indices(my_lambda, self.bin_width,
-                                      lambda_obs[i], window_width_in_bins)
+                      self._get_bin_indices(
+                          my_lambda, self.bin_width,
+                          lambda_obs[i], window_width_in_bins)
                     n_vbins = window_width_in_bins * n_vbins_per_bin[i]
 
                     # the array of virtual bins in lambda space
@@ -773,7 +774,7 @@ class AbsorptionSpectrum(object):
                             self._create_auto_field_arrays(
                                 left_index, right_index, my_lambda)
                             left_index, center_index, right_index = \
-                              get_bin_indices(
+                              self._get_bin_indices(
                                   self.lambda_field, self.bin_width,
                                   lambda_obs[i], window_width_in_bins)
 
@@ -908,6 +909,27 @@ class AbsorptionSpectrum(object):
         if output_absorbers_file:
             self.absorbers_list = comm.par_combine_object(
                 self.absorbers_list, "cat", datatype="list")
+
+
+    def _get_bin_indices(self, lambda_field, dlambda, lambda_obs,
+                         window_width_in_bins):
+        """
+        Return the indices of the lambda field corresponding to
+        the lower limit, line center, and upper limit.
+        """
+
+        if lambda_field is None or lambda_field.size == 0:
+            return None, None, None
+
+        # this equation gives us the "equivalent" bin index for each line
+        # if it were placed into the self.lambda_field array
+        center_index = ((lambda_obs - lambda_field[0]) /
+                        dlambda).d
+        center_index = int(np.ceil(center_index))
+        left_index = (center_index - window_width_in_bins//2)
+        right_index = (center_index + window_width_in_bins//2)
+
+        return left_index, center_index, right_index
 
     def _get_global_lambda_field(self, comm=None):
         """
@@ -1058,23 +1080,3 @@ class AbsorptionSpectrum(object):
         output.create_dataset('flux', data=self.flux_field)
         output.create_dataset('flux_error', data=self.error_func(self.flux_field))
         output.close()
-
-def get_bin_indices(lambda_field, dlambda, lambda_obs,
-                    window_width_in_bins):
-    """
-    Return the indices of the lambda field corresponding to
-    the lower limit, line center, and upper limit.
-    """
-
-    if lambda_field is None or lambda_field.size == 0:
-        return None, None, None
-
-    # this equation gives us the "equivalent" bin index for each line
-    # if it were placed into the self.lambda_field array
-    center_index = ((lambda_obs - lambda_field[0]) /
-                    dlambda).d
-    center_index = int(np.ceil(center_index))
-    left_index = (center_index - window_width_in_bins//2)
-    right_index = (center_index + window_width_in_bins//2)
-
-    return left_index, center_index, right_index
