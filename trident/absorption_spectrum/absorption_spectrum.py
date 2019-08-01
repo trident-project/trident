@@ -57,26 +57,28 @@ class AbsorptionSpectrum(object):
 
     :lambda_min: float, YTQuantity, or 'auto'
 
-       lower wavelength bound in angstroms. If set to 'auto', the lower
+       lower wavelength bound in angstroms or velocity bound in km/s
+       (if bin_space set to 'velocity'). If set to 'auto', the lower
        bound will be automatically adjusted to encompass all absorption
-       lines. The wavelength window will not be expanded for continuum
-       features, only absorption lines.
+       lines. The window will not be expanded for continuum features,
+       only absorption lines.
 
     :lambda_max: float, YTQuantity, or 'auto'
 
-       upper wavelength bound in angstroms. If set to 'auto', the upper
+       upper wavelength bound in angstroms or velocity bound in km/s
+       (if bin_space set to 'velocity'). If set to 'auto', the upper
        bound will be automatically adjusted to encompass all absorption
-       lines. The wavelength window will not be expanded for continuum
-       features, only absorption lines.
+       lines. The window will not be expanded for continuum features,
+       only absorption lines.
 
     :n_lambda: optional, int
 
-       number of wavelength bins. This cannot be set when setting
-       either lambda_min or lambda_max to auto.
+       number of bins. This cannot be set when setting either lambda_min
+       or lambda_max to auto.
 
     :dlambda: optional, float or YTQuantity
 
-      size of the wavelength bins in angstroms.
+      size of the wavelength bins in angstroms or velocity bins in km/s.
 
     :bin_space: 'wavelength' or 'velocity'
 

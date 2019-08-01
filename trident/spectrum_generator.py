@@ -95,33 +95,31 @@ class SpectrumGenerator(AbsorptionSpectrum):
         leave this set to None.
         Default: None
 
-    :lambda_min: float or 'auto'
+    :lambda_min: float, YTQuantity, or 'auto'
 
-        The wavelength extrema of the spectra in angstroms.
-        If set to 'auto', the lower bound will be automatically
-        adjusted to encompass all absorption lines. The wavelength
-        window will not be expanded for continuum features, only
-        absorption lines.
-        Default: None
+       lower wavelength bound in angstroms or velocity bound in km/s
+       (if bin_space set to 'velocity'). If set to 'auto', the lower
+       bound will be automatically adjusted to encompass all absorption
+       lines. The window will not be expanded for continuum features,
+       only absorption lines.
 
-    :lambda_max: float or 'auto'
+    :lambda_max: float, YTQuantity, or 'auto'
 
-        The wavelength extrema of the spectra in angstroms
-        If set to 'auto', the upper bound will be automatically
-        adjusted to encompass all absorption lines. The wavelength
-        window will not be expanded for continuum features, only
-        absorption lines.
-        Default: None
+       upper wavelength bound in angstroms or velocity bound in km/s
+       (if bin_space set to 'velocity'). If set to 'auto', the upper
+       bound will be automatically adjusted to encompass all absorption
+       lines. The window will not be expanded for continuum features,
+       only absorption lines.
 
     :n_lambda: int
 
-        The number of wavelength bins in the spectrum (inclusive), so if
+        The number of bins in the spectrum (inclusive), so if
         extrema = 10 and 20, and dlambda (binsize) = 1, then n_lambda = 11.
         Default: None
 
     :dlambda: float
 
-        The desired wavelength bin width of the spectrum (in angstroms).
+        size of the wavelength bins in angstroms or velocity bins in km/s.
         Default: None
 
     :bin_space: 'wavelength' or 'velocity'
