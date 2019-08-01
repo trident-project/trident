@@ -961,6 +961,8 @@ class AbsorptionSpectrum(object):
                             "lambda_obs":lambda_obs,
                             "thermal_b":thermal_b,
                             "thermal_width":thermal_width}
+                if self.bin_space == 'velocity':
+                    obs_dict['velocity_offset'] = my_obs
                 store.result_id = line['label']
                 store.result = obs_dict
                 ## Can only delete these if in this statement:
@@ -969,7 +971,7 @@ class AbsorptionSpectrum(object):
             self.current_tau_field = None
 
             # These always need to be deleted
-            del column_density, delta_lambda, lambda_obs, \
+            del column_density, delta_lambda, lambda_obs, my_obs, \
                 thermal_b, thermal_width, cdens, thermb, dlambda, \
                 vlos, resolution, vbin_width, n_vbins, n_vbins_per_bin
 
