@@ -124,6 +124,14 @@ class SpectrumGenerator(AbsorptionSpectrum):
         The desired wavelength bin width of the spectrum (in angstroms).
         Default: None
 
+    :bin_space: 'wavelength' or 'velocity'
+
+        Sets the dimension in which spectra are created. If set to
+        wavelength, the resulting spectra are flux (or tau) vs. observed
+        wavelength. If set to velocity, the spectra are flux vs.
+        velocity offset from the rest wavelength of the absorption line.
+        Default: wavelength
+
     :lsf_kernel: string, optional
 
         The filename for the LSF kernel. Files are found in

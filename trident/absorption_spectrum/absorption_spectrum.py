@@ -77,6 +77,14 @@ class AbsorptionSpectrum(object):
     :dlambda: optional, float or YTQuantity
 
       size of the wavelength bins in angstroms.
+
+    :bin_space: 'wavelength' or 'velocity'
+
+        Sets the dimension in which spectra are created. If set to
+        wavelength, the resulting spectra are flux (or tau) vs. observed
+        wavelength. If set to velocity, the spectra are flux vs.
+        velocity offset from the rest wavelength of the absorption line.
+        Default: wavelength
     """
 
     def __init__(self, lambda_min, lambda_max, n_lambda=None, dlambda=None,
