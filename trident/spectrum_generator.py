@@ -190,7 +190,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                     lambda_max=lambda_max,
                                     n_lambda=n_lambda,
                                     dlambda=dlambda,
-                                    lsf_kernel=lsf_kernel, name="Custom")
+                                    lsf_kernel=lsf_kernel, name="Custom",
+                                    bin_space=bin_space)
         self.observing_redshift = 0.
         self._set_instrument(instrument)
         mylog.info("Setting instrument to %s" % self.instrument.name)
