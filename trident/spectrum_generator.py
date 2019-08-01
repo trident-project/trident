@@ -236,9 +236,12 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
         **Parameters**
 
-        :ray: string or dataset
+        :ray: string, dataset, or data container
 
-            Ray dataset filename or a loaded ray dataset
+            If a string, the path to the ray dataset. As a dataset,
+            this is the ray dataset loaded by yt. As a data container,
+            this is a data object created from a ray dataset, such as
+            a cut region.
 
         :lines: list of strings
 
