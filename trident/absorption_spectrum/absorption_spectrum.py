@@ -55,14 +55,14 @@ class AbsorptionSpectrum(object):
 
     **Parameters**
 
-    :lambda_min: float or 'auto'
+    :lambda_min: float, YTQuantity, or 'auto'
 
        lower wavelength bound in angstroms. If set to 'auto', the lower
        bound will be automatically adjusted to encompass all absorption
        lines. The wavelength window will not be expanded for continuum
        features, only absorption lines.
 
-    :lambda_max: float or 'auto'
+    :lambda_max: float, YTQuantity, or 'auto'
 
        upper wavelength bound in angstroms. If set to 'auto', the upper
        bound will be automatically adjusted to encompass all absorption
@@ -74,7 +74,7 @@ class AbsorptionSpectrum(object):
        number of wavelength bins. This cannot be set when setting
        either lambda_min or lambda_max to auto.
 
-    :dlambda: optional, float
+    :dlambda: optional, float or YTQuantity
 
       size of the wavelength bins in angstroms.
     """
@@ -88,6 +88,11 @@ class AbsorptionSpectrum(object):
                 (bin_space, '", "'.join(list(_bin_space_units))))
         self.bin_space = bin_space
 
+        if dlambda is not None:
+            if not isinstance(dlambda, YTQuantity):
+                dlambda = YTQuantity(dlambda, _bin_space_units[self.bin_space])
+            self.bin_width = dlambda
+
         if n_lambda is None and dlambda is None:
             raise RuntimeError(
                 'Either n_lambda or dlambda must be given.')
@@ -95,17 +100,21 @@ class AbsorptionSpectrum(object):
             n_lambda = None
 
         if lambda_min != 'auto':
+            if not isinstance(lambda_min, YTQuantity):
+                lambda_min = YTQuantity(
+                    lambda_min, _bin_space_units[self.bin_space])
             # round limits to bin size
             if dlambda is not None:
                 lambda_min = np.round(lambda_min / dlambda) * dlambda
-            lambda_min = YTQuantity(lambda_min, _bin_space_units[self.bin_space])
         self.lambda_min = lambda_min
 
         if lambda_max != 'auto':
+            if not isinstance(lambda_max, YTQuantity):
+                lambda_max = YTQuantity(
+                    lambda_max, _bin_space_units[self.bin_space])
             # round limits to bin size
             if dlambda is not None:
                 lambda_max = np.round(lambda_max / dlambda) * dlambda
-            lambda_max = YTQuantity(lambda_max, _bin_space_units[self.bin_space])
         self.lambda_max = lambda_max
 
         self._auto_lambda = 'auto' in [str(self.lambda_min),
@@ -115,13 +124,6 @@ class AbsorptionSpectrum(object):
             raise RuntimeError(
                 'Cannot set n_lambda when setting lambda_min or lambda_max to auto.')
 
-        if dlambda is not None:
-            self.bin_width = YTQuantity(dlambda, _bin_space_units[self.bin_space])
-            if not self._auto_lambda:
-                n_lambda = \
-                  self._get_field_size(self.lambda_min, self.lambda_max,
-                                       self.bin_width)
-
         if self._auto_lambda:
             self.lambda_field = None
         else:
@@ -130,9 +132,16 @@ class AbsorptionSpectrum(object):
                     'lambda_min (%f) cannot be greater than or equal to lambda_max (%f).' %
                     (lambda_min, lambda_max))
 
-            n_lambda = int(n_lambda)
-            self.bin_width = YTQuantity(
-                float(lambda_max - lambda_min) / (n_lambda - 1), _bin_space_units[self.bin_space])
+            if dlambda is None:
+                n_lambda = int(n_lambda)
+                self.bin_width = YTQuantity(
+                    float(lambda_max - lambda_min) / (n_lambda - 1),
+                    _bin_space_units[self.bin_space])
+            else:
+                n_lambda = \
+                  self._get_field_size(self.lambda_min, self.lambda_max,
+                                       self.bin_width)
+
             self.lambda_field = \
               self._create_lambda_field(lambda_min, lambda_max, n_lambda)
 
@@ -188,6 +197,21 @@ class AbsorptionSpectrum(object):
             my_max = lambda_max
 
         return YTArray(np.linspace(my_min, my_max, n_lambda), units)
+
+    _lambda_field = None
+    @property
+    def lambda_field(self):
+        """
+        The lambda field.
+        """
+        return self._lambda_field
+
+    @lambda_field.setter
+    def lambda_field(self, val):
+        # This is useful for testing. If something goes wrong with
+        # the lambda field, put something here to see every time
+        # it gets set.
+        self._lambda_field = val
 
     _tau_field = None
     @property
