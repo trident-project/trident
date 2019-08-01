@@ -19,7 +19,7 @@ from matplotlib.backends.backend_agg import \
     FigureCanvasAgg
 
 _xlabels = {'angstrom': 'Wavelength [$\\rm\\AA$]',
-            'km/s': 'Velocity [km/s]'}
+            'km/s': 'Velocity Offset [km/s]'}
 
 def plot_spectrum(wavelength, flux, filename="spectrum.png",
                   lambda_limits=None, flux_limits=None,
@@ -207,7 +207,11 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
     # A running maximum of flux for use in ylim scaling in final plot
     max_flux = 0.
 
-    xlabel = _xlabels[str(wavelength.units)]
+    if isinstance(wavelength, list):
+        key = wavelength[0]
+    else:
+        key = wavelength
+    xlabel = _xlabels.get(str(key.units))
 
     for i, (wavelength, flux) in enumerate(zip(wavelengths, fluxs)):
 
