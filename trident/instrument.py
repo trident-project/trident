@@ -60,11 +60,11 @@ class Instrument(object):
 
         self.bin_space = bin_space
 
-        if lambda_min != 'auto' and not isinstance(lambda_min, YTQuantity):
+        if str(lambda_min) != 'auto' and not isinstance(lambda_min, YTQuantity):
             lambda_min = YTQuantity(lambda_min, _bin_space_units[self.bin_space])
         self.lambda_min = lambda_min
 
-        if lambda_max != 'auto' and not isinstance(lambda_max, YTQuantity):
+        if str(lambda_max) != 'auto' and not isinstance(lambda_max, YTQuantity):
             lambda_max = YTQuantity(lambda_max, _bin_space_units[self.bin_space])
         self.lambda_max = lambda_max
 
@@ -76,7 +76,7 @@ class Instrument(object):
         elif dlambda is not None:
             if not isinstance(dlambda, YTQuantity):
                 dlambda = YTQuantity(dlambda, _bin_space_units[self.bin_space])
-            if lambda_min == 'auto' or lambda_max == 'auto':
+            if str(lambda_min) == 'auto' or str(lambda_max) == 'auto':
                 n_lambda = 'auto'
             else:
                 # adding 1 here to assure we cover full lambda range

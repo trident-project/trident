@@ -99,7 +99,7 @@ class AbsorptionSpectrum(object):
         if n_lambda is not None and dlambda is not None:
             n_lambda = None
 
-        if lambda_min != 'auto':
+        if str(lambda_min) != 'auto':
             if not isinstance(lambda_min, YTQuantity):
                 lambda_min = YTQuantity(
                     lambda_min, _bin_space_units[self.bin_space])
@@ -108,7 +108,7 @@ class AbsorptionSpectrum(object):
                 lambda_min = np.round(lambda_min / dlambda) * dlambda
         self.lambda_min = lambda_min
 
-        if lambda_max != 'auto':
+        if str(lambda_max) != 'auto':
             if not isinstance(lambda_max, YTQuantity):
                 lambda_max = YTQuantity(
                     lambda_max, _bin_space_units[self.bin_space])

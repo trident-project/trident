@@ -20,25 +20,11 @@ from trident import \
     SpectrumGenerator
 from trident.testing import \
     answer_test_data_dir, \
+    compare_spectra, \
     TempDirTest
 
 COSMO_PLUS_SINGLE = os.path.join(answer_test_data_dir,
                                  "enzo_cosmology_plus/RD0009/RD0009")
-
-def compare_spectra(sg1, sg2, comp_key):
-    assert_allclose(
-        sg1.tau_field, sg2.tau_field, rtol=1e-6,
-        err_msg='tau arrays for auto and %s disagree!' % comp_key)
-    assert_allclose(
-        sg1.lambda_field, sg2.lambda_field, rtol=1e-10,
-        err_msg='lambda arrays for auto and %s disagree!' % comp_key)
-
-    for my_line in sg1.line_observables_dict:
-        for key in sg1.line_observables_dict[my_line]:
-            assert_allclose(
-                sg1.line_observables_dict[my_line][key],
-                sg2.line_observables_dict[my_line][key], rtol=1e-7,
-                err_msg='%s field for auto and %s disagree!' % (key, comp_key))
 
 class AutoLambdaTest(TempDirTest):
 
