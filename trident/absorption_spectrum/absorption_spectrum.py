@@ -120,7 +120,7 @@ class AbsorptionSpectrum(object):
             if not self._auto_lambda:
                 n_lambda = \
                   self._get_field_size(self.lambda_min, self.lambda_max,
-                                       self.bin_width, do_round=True)
+                                       self.bin_width)
 
         if self._auto_lambda:
             self.lambda_field = None
@@ -144,7 +144,7 @@ class AbsorptionSpectrum(object):
         self.continuum_list = []
         self.snr = 100  # default signal to noise ratio for error estimation
 
-    def _get_field_size(self, lambda_min, lambda_max, dlambda, do_round=False):
+    def _get_field_size(self, lambda_min, lambda_max, dlambda):
         """
         Calculate number of bins.
         """
@@ -165,9 +165,8 @@ class AbsorptionSpectrum(object):
             my_dlambda = dlambda
 
         n_lambda = (my_max - my_min) / my_dlambda + 1
-        if do_round:
-            n_lambda = np.round(n_lambda)
-        return int(n_lambda)
+        n_lambda = int(np.round(n_lambda))
+        return n_lambda
 
     def _create_lambda_field(self, lambda_min, lambda_max, n_lambda,
                              units=None):
@@ -1001,7 +1000,9 @@ class AbsorptionSpectrum(object):
         lf_max = comm.mpi_allreduce(my_max, op="max")
 
         if lf_min != np.inf:
-            n_lambda = self._get_field_size(lf_min, lf_max, self.bin_width) + 1
+            lf_min = np.round(lf_min / self.bin_width) * self.bin_width
+            lf_max = np.round(lf_max / self.bin_width) * self.bin_width
+            n_lambda = self._get_field_size(lf_min, lf_max, self.bin_width)
             new_lambda = self._create_lambda_field(lf_min, lf_max, n_lambda)
         else:
             new_lambda = None
