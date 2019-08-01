@@ -422,10 +422,10 @@ class AbsorptionSpectrum(object):
                                        observing_redshift=observing_redshift,
                                        min_tau=min_tau)
 
-        if self.tau_field is not None:
+        if self.tau_field is None:
+            mylog.warning('Spectrum is totally empty!')
+        else:
             self.flux_field = np.exp(-self.tau_field)
-
-        mylog.warning('Spectrum is totally empty!')
 
         if output_file is None:
             pass
