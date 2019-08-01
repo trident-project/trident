@@ -157,7 +157,7 @@ class AbsorptionSpectrum(object):
                                     'normalization': normalization,
                                     'index': index})
 
-    def make_spectrum(self, input_file, output_file=None,
+    def make_spectrum(self, input_object, output_file=None,
                       line_list_file=None, output_absorbers_file=None,
                       use_peculiar_velocity=True,
                       store_observables=False,
@@ -168,9 +168,12 @@ class AbsorptionSpectrum(object):
 
         **Parameters**
 
-        :input_file: string or dataset
+        :input_object: string, dataset, or data container
 
-           path to input ray data or a loaded ray dataset
+           If a string, the path to the ray dataset. As a dataset,
+           this is the ray dataset loaded by yt. As a data container,
+           this is a data object created from a ray dataset, such as
+           a cut region.
 
         :output_file: optional, string
 
@@ -270,22 +273,22 @@ class AbsorptionSpectrum(object):
                 input_fields.append(feature['field_name'])
                 field_units[feature["field_name"]] = "cm**-3"
 
-        if isinstance(input_file, string_types):
-            input_ds = load(input_file)
+        if isinstance(input_object, string_types):
+            input_ds = load(input_object)
             field_data = input_ds.all_data()
-        elif isinstance(input_file, Dataset):
-            input_ds = input_file
+        elif isinstance(input_object, Dataset):
+            input_ds = input_object
             field_data = input_ds.all_data()
-        elif isinstance(input_file, YTDataContainer):
-            input_ds = input_file.ds
-            field_data = input_file
+        elif isinstance(input_object, YTDataContainer):
+            input_ds = input_object.ds
+            field_data = input_object
 
         # temperature field required to calculate voigt profile widths
         if ('temperature' not in input_ds.derived_field_list) and \
            (('gas', 'temperature') not in input_ds.derived_field_list):
             raise RuntimeError(
                 "('gas', 'temperature') field required to be present in %s "
-                "for AbsorptionSpectrum to function." % input_file)
+                "for AbsorptionSpectrum to function." % str(input_object))
 
         self.tau_field = np.zeros(self.lambda_field.size)
         self.absorbers_list = []
