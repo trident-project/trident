@@ -184,28 +184,30 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
     my_axes = figure.add_axes((left_side, bottom_side, panel_width, panel_height))
 
     # Are we overplotting several spectra?  or just one?
-    if not (isinstance(wavelength, list) and isinstance(flux, list)):
-        wavelengths = [wavelength]
-        fluxs = [flux]
-        labels = [label]
-        steps = [step]
-    else:
-        wavelengths = wavelength
+    if isinstance(flux, list):
         fluxs = flux
-        if label is not None:
-            labels = label
-        else:
-            labels = [None]*len(fluxs)
-        if step is not None:
-            steps = step
-        else:
-            steps = [None]*len(fluxs)
+    else:
+        fluxs = [flux]
+
+    if isinstance(wavelength, list):
+        wavelengths = wavelength
+    else:
+        wavelengths = [wavelength]*len(fluxs)
+
+    if isinstance(step, list):
+        steps = step
+    else:
+        steps = [step]*len(fluxs)
+
+    if isinstance(label, list):
+        labels = label
+    else:
+        labels = [label]*len(fluxs)
 
     # A running maximum of flux for use in ylim scaling in final plot
     max_flux = 0.
 
     for i, (wavelength, flux) in enumerate(zip(wavelengths, fluxs)):
-
         # Do we stagger the fluxes?
         if stagger is not None:
             flux -= stagger * i
