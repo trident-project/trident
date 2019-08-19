@@ -164,3 +164,35 @@ Note, the above example is for a different ray than is used in the
 previous examples. The resulting spectrum will minimally contain all
 absorption present in the ray. This should be used with care when depositing
 multiple lines as this can lead to an extremely large spectrum.
+
+Making Spectra from a Subset of a Ray
+-------------------------------------
+
+The situation may arise where you want to see the spectrum that is generated
+by only a portion of the gas along a line of sight. For example, you may want to
+see the spectrum of only the cold gas. This can be done by creating a
+:class:`~yt.data_objects.selection_data_containers.YTCutRegion` from a loaded ray
+dataset::
+
+    import trident
+    import yt
+
+    ds = yt.load('ray.h5')
+    all_data = ds.all_data()
+    cold_gas = ds.cut_region(all_data, 'obj["gas", "temperature"] < 10000')
+
+    sg = trident.SpectrumGenerator(lambda_min=1200, lambda_max=1225,
+                                   dlambda=0.01)
+
+    # spectrum of entire ray
+    sg.make_spectrum(all_data, lines=['H I 1216'])
+    all_spectrum = sg.flux_field[:]
+
+    # spectrum of cold gas
+    sg.make_spectrum(cold_gas, lines=['H I 1216'])
+    cold_spectrum = sg.flux_field[:]
+
+    trident.plot_spectrum(sg.lambda_field, [all_spectrum, cold_spectrum],
+                          label=['all gas', 'cold gas'], stagger=None)
+
+.. image:: https://raw.githubusercontent.com/trident-project/trident-docs-images/master/spec_cutregion.png
