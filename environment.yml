@@ -9,25 +9,25 @@ dependencies:
     - backcall==0.1.0
     - chardet==3.0.4
     - cycler==0.10.0
-    - cython==0.29.12
+    - cython==0.29.13
     - decorator==4.4.0
     - future==0.17.1
     - h5py==2.9.0
     - idna==2.8
-    - ipython==7.6.1
+    - ipython==7.7.0
     - ipython-genutils==0.2.0
     - jedi==0.14.1
     - kiwisolver==1.1.0
     - matplotlib==3.1.1
     - mpmath==1.1.0
-    - numpy==1.16.4
+    - numpy==1.17.0
     - parso==0.5.1
     - pexpect==4.7.0
     - pickleshare==0.7.5
     - prompt-toolkit==2.0.9
     - ptyprocess==0.6.0
     - pygments==2.4.2
-    - pyparsing==2.4.1
+    - pyparsing==2.4.2
     - python-dateutil==2.8.0
     - requests==2.22.0
     - six==1.12.0

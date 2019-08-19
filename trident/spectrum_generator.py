@@ -18,6 +18,10 @@ from trident.absorption_spectrum.absorption_spectrum import \
     AbsorptionSpectrum
 from yt.convenience import \
     load
+from yt.data_objects.data_containers import \
+    YTDataContainer
+from yt.data_objects.static_output import \
+    Dataset
 from yt.funcs import \
     mylog, \
     YTArray
@@ -251,9 +255,12 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
         **Parameters**
 
-        :ray: string or dataset
+        :ray: string, dataset, or data container
 
-            Ray dataset filename or a loaded ray dataset
+            If a string, the path to the ray dataset. As a dataset,
+            this is the ray dataset loaded by yt. As a data container,
+            this is a data object created from a ray dataset, such as
+            a cut region.
 
         :lines: list of strings
 
@@ -353,7 +360,13 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
         if isinstance(ray, str):
             ray = load(ray)
-        ad = ray.all_data()
+        if isinstance(ray, Dataset):
+            ad = ray.all_data()
+        elif isinstance(ray, YTDataContainer):
+            ad = ray
+            ray = ad.ds
+        else:
+            raise RuntimeError("Unrecognized ray type.")
 
         # Clear out any previous spectrum that existed first
         self.clear_spectrum()
@@ -415,7 +428,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         if len(H_lines) > 0 and ly_continuum:
             self.add_continuum('Ly C', H_lines[0].field, 912.32336, 1.6e17, 3.0)
 
-        AbsorptionSpectrum.make_spectrum(self, ray,
+        AbsorptionSpectrum.make_spectrum(self, ad,
                                          output_file=None,
                                          line_list_file=None,
                                          output_absorbers_file=output_absorbers_file,

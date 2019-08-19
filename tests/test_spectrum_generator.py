@@ -12,6 +12,7 @@ Tests for Spectrum Generation
 #-----------------------------------------------------------------------------
 
 from __future__ import absolute_import
+from trident.plotting import plot_spectrum
 from trident.utilities import make_onezone_ray
 from trident.spectrum_generator import \
     SpectrumGenerator, \
@@ -35,7 +36,6 @@ def test_save_load_spectrum_ascii():
     sg = load_spectrum(os.path.join(dirpath, 'spec.txt'))
     sg.plot_spectrum(filename=os.path.join(dirpath, 'spec.png'))
     shutil.rmtree(dirpath)
-    assert True
 
 def test_save_load_spectrum_hdf5():
     """
@@ -52,7 +52,6 @@ def test_save_load_spectrum_hdf5():
     sg = load_spectrum(os.path.join(dirpath, 'spec.h5'))
     sg.plot_spectrum(filename=os.path.join(dirpath, 'spec.png'))
     shutil.rmtree(dirpath)
-    assert True
 
 def test_save_load_spectrum_fits():
     """
@@ -69,7 +68,6 @@ def test_save_load_spectrum_fits():
     sg = load_spectrum(os.path.join(dirpath, 'spec.fits'))
     sg.plot_spectrum(filename=os.path.join(dirpath, 'spec.png'))
     shutil.rmtree(dirpath)
-    assert True
 
 def test_create_spectrum_all_lines():
     """
@@ -82,7 +80,6 @@ def test_create_spectrum_all_lines():
     sg.make_spectrum(ray, lines='all')
     sg.plot_spectrum(os.path.join(dirpath, 'spec.png'))
     shutil.rmtree(dirpath)
-    assert True
 
 def test_create_spectrum_H_O_lines():
     """
@@ -95,7 +92,6 @@ def test_create_spectrum_H_O_lines():
     sg.make_spectrum(ray, lines=['H', 'O'])
     sg.plot_spectrum(os.path.join(dirpath, 'spec.png'))
     shutil.rmtree(dirpath)
-    assert True
 
 def test_create_spectrum_H_lines_no_continuum():
     """
@@ -109,4 +105,34 @@ def test_create_spectrum_H_lines_no_continuum():
     sg.make_spectrum(ray, lines=['H I'], ly_continuum=False)
     sg.plot_spectrum(os.path.join(dirpath, 'spec.png'))
     shutil.rmtree(dirpath)
-    assert True
+
+def test_input_types():
+    """
+    Test that spectra can be generated from ray file, dataset, or
+    data container.
+    """
+
+    dirpath = tempfile.mkdtemp()
+    filename = os.path.join(dirpath, 'ray.h5')
+    ray = make_onezone_ray(filename=filename)
+
+    sg = SpectrumGenerator(lambda_min=1200, lambda_max=1300, dlambda=0.5)
+    spectra = []
+
+    # from file
+    sg.make_spectrum(filename, lines=['H I'], ly_continuum=False)
+    spectra.append(sg.flux_field[:])
+
+    # from dataset
+    sg.make_spectrum(ray, lines=['H I'], ly_continuum=False)
+    spectra.append(sg.flux_field[:])
+    assert (spectra[0] == spectra[1]).all()
+
+    # from data container
+    sg.make_spectrum(ray.all_data(), lines=['H I'], ly_continuum=False)
+    spectra.append(sg.flux_field[:])
+    assert (spectra[0] == spectra[2]).all()
+
+    plot_spectrum(sg.lambda_field, spectra,
+                  filename=os.path.join(dirpath, 'spec.png'))
+    shutil.rmtree(dirpath)
