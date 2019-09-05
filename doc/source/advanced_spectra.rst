@@ -165,8 +165,8 @@ previous examples. The resulting spectrum will minimally contain all
 absorption present in the ray. This should be used with care when depositing
 multiple lines as this can lead to an extremely large spectrum.
 
-Make Spectra in Velocity Space
-------------------------------
+Making Spectra in Velocity Space
+--------------------------------
 
 Trident can be configured to create spectra in velocity space instead of
 wavelength spacem where velocity corresponds to the velocity offset from
@@ -215,4 +215,3 @@ dataset::
                           label=['all gas', 'cold gas'], stagger=None)
 
 .. image:: https://raw.githubusercontent.com/trident-project/trident-docs-images/master/spec_cutregion.png
->>>>>>> master
