@@ -101,10 +101,11 @@ class AbsorptionSpectrum(object):
                 'Invalid bin_space value: "%s". Valid values are: "%s".' %
                 (bin_space, '", "'.join(list(_bin_space_units))))
         self.bin_space = bin_space
+        lunits = _bin_space_units[self.bin_space]
 
         if dlambda is not None:
             if not isinstance(dlambda, YTQuantity):
-                dlambda = YTQuantity(dlambda, _bin_space_units[self.bin_space])
+                dlambda = YTQuantity(dlambda, lunits)
             self.bin_width = dlambda
 
         if n_lambda is None and dlambda is None:
@@ -116,7 +117,7 @@ class AbsorptionSpectrum(object):
         if str(lambda_min) != 'auto':
             if not isinstance(lambda_min, YTQuantity):
                 lambda_min = YTQuantity(
-                    lambda_min, _bin_space_units[self.bin_space])
+                    lambda_min, lunits)
             # round limits to bin size
             if dlambda is not None:
                 lambda_min = np.round(lambda_min / dlambda) * dlambda
@@ -125,7 +126,7 @@ class AbsorptionSpectrum(object):
         if str(lambda_max) != 'auto':
             if not isinstance(lambda_max, YTQuantity):
                 lambda_max = YTQuantity(
-                    lambda_max, _bin_space_units[self.bin_space])
+                    lambda_max, lunits)
             # round limits to bin size
             if dlambda is not None:
                 lambda_max = np.round(lambda_max / dlambda) * dlambda
@@ -139,7 +140,7 @@ class AbsorptionSpectrum(object):
                 'Cannot set n_lambda when setting lambda_min or lambda_max to auto.')
 
         if dlambda is not None:
-            self.bin_width = YTQuantity(dlambda, 'angstrom')
+            self.bin_width = YTQuantity(dlambda, lunits)
             if not self._auto_lambda:
                 n_lambda = \
                   self._get_field_size(self.lambda_min, self.lambda_max,
@@ -157,7 +158,7 @@ class AbsorptionSpectrum(object):
                 n_lambda = int(n_lambda)
                 self.bin_width = YTQuantity(
                     float(lambda_max - lambda_min) / (n_lambda - 1),
-                    _bin_space_units[self.bin_space])
+                    lunits)
             else:
                 n_lambda = \
                   self._get_field_size(self.lambda_min, self.lambda_max,
