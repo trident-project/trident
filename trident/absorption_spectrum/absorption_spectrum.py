@@ -19,25 +19,25 @@ from __future__ import absolute_import
 from yt.utilities.on_demand_imports import _h5py as h5py
 import numpy as np
 
-from trident.absorption_spectrum.absorption_line import \
-    tau_profile
-
 from yt.data_objects.data_containers import \
     YTDataContainer
 from yt.data_objects.static_output import \
     Dataset
-from yt.extern.six import string_types
 from yt.convenience import load
+from yt.extern.six import string_types
 from yt.funcs import get_pbar, mylog
 from yt.units.yt_array import YTArray, YTQuantity
-from yt.utilities.physical_constants import \
-    boltzmann_constant_cgs, \
-    speed_of_light_cgs
 from yt.utilities.on_demand_imports import _astropy
 from yt.utilities.parallel_tools.parallel_analysis_interface import \
     _get_comm, \
     parallel_objects, \
     parallel_root_only
+from yt.utilities.physical_constants import \
+    boltzmann_constant_cgs, \
+    speed_of_light_cgs
+
+from trident.absorption_spectrum.absorption_line import \
+    tau_profile
 
 pyfits = _astropy.pyfits
 
