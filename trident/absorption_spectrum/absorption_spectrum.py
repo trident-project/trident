@@ -19,21 +19,25 @@ from __future__ import absolute_import
 from yt.utilities.on_demand_imports import _h5py as h5py
 import numpy as np
 
-from trident.absorption_spectrum.absorption_line import \
-    tau_profile
-
-from yt.extern.six import string_types
+from yt.data_objects.data_containers import \
+    YTDataContainer
+from yt.data_objects.static_output import \
+    Dataset
 from yt.convenience import load
+from yt.extern.six import string_types
 from yt.funcs import get_pbar, mylog
 from yt.units.yt_array import YTArray, YTQuantity
-from yt.utilities.physical_constants import \
-    boltzmann_constant_cgs, \
-    speed_of_light_cgs
 from yt.utilities.on_demand_imports import _astropy
 from yt.utilities.parallel_tools.parallel_analysis_interface import \
     _get_comm, \
     parallel_objects, \
     parallel_root_only
+from yt.utilities.physical_constants import \
+    boltzmann_constant_cgs, \
+    speed_of_light_cgs
+
+from trident.absorption_spectrum.absorption_line import \
+    tau_profile
 
 pyfits = _astropy.pyfits
 
@@ -133,6 +137,13 @@ class AbsorptionSpectrum(object):
           (n_lambda is not None and n_lambda != 'auto'):
             raise RuntimeError(
                 'Cannot set n_lambda when setting lambda_min or lambda_max to auto.')
+
+        if dlambda is not None:
+            self.bin_width = YTQuantity(dlambda, 'angstrom')
+            if not self._auto_lambda:
+                n_lambda = \
+                  self._get_field_size(self.lambda_min, self.lambda_max,
+                                       self.bin_width)
 
         if self._auto_lambda:
             self.lambda_field = None
@@ -329,7 +340,7 @@ class AbsorptionSpectrum(object):
                                     'normalization': normalization,
                                     'index': index})
 
-    def make_spectrum(self, input_file, output_file=None,
+    def make_spectrum(self, input_object, output_file=None,
                       line_list_file=None, output_absorbers_file=None,
                       use_peculiar_velocity=True,
                       store_observables=False,
@@ -340,9 +351,12 @@ class AbsorptionSpectrum(object):
 
         **Parameters**
 
-        :input_file: string or dataset
+        :input_object: string, dataset, or data container
 
-           path to input ray data or a loaded ray dataset
+           If a string, the path to the ray dataset. As a dataset,
+           this is the ray dataset loaded by yt. As a data container,
+           this is a data object created from a ray dataset, such as
+           a cut region.
 
         :output_file: optional, string
 
@@ -442,18 +456,22 @@ class AbsorptionSpectrum(object):
                 input_fields.append(feature['field_name'])
                 field_units[feature["field_name"]] = "cm**-3"
 
-        if isinstance(input_file, string_types):
-            input_ds = load(input_file)
-        else:
-            input_ds = input_file
-        field_data = input_ds.all_data()
+        if isinstance(input_object, string_types):
+            input_ds = load(input_object)
+            field_data = input_ds.all_data()
+        elif isinstance(input_object, Dataset):
+            input_ds = input_object
+            field_data = input_ds.all_data()
+        elif isinstance(input_object, YTDataContainer):
+            input_ds = input_object.ds
+            field_data = input_object
 
         # temperature field required to calculate voigt profile widths
         if ('temperature' not in input_ds.derived_field_list) and \
            (('gas', 'temperature') not in input_ds.derived_field_list):
             raise RuntimeError(
                 "('gas', 'temperature') field required to be present in %s "
-                "for AbsorptionSpectrum to function." % input_file)
+                "for AbsorptionSpectrum to function." % str(input_object))
 
         self.absorbers_list = []
         self.line_observables_dict = {}

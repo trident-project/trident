@@ -183,3 +183,36 @@ keyword ``bin_space='velocity'`` to the :class:`~trident.SpectrumGenerator`::
 When working in velocity space, limits and bin sizes should be provided in km/s.
 If more than one transition is added to the spectrum (e.g., Ly-a and Ly-b), the
 zero point will correspond to the rest wavelength of the first transition added.
+
+Making Spectra from a Subset of a Ray
+-------------------------------------
+
+The situation may arise where you want to see the spectrum that is generated
+by only a portion of the gas along a line of sight. For example, you may want to
+see the spectrum of only the cold gas. This can be done by creating a
+:class:`~yt.data_objects.selection_data_containers.YTCutRegion` from a loaded ray
+dataset::
+
+    import trident
+    import yt
+
+    ds = yt.load('ray.h5')
+    all_data = ds.all_data()
+    cold_gas = ds.cut_region(all_data, 'obj["gas", "temperature"] < 10000')
+
+    sg = trident.SpectrumGenerator(lambda_min=1200, lambda_max=1225,
+                                   dlambda=0.01)
+
+    # spectrum of entire ray
+    sg.make_spectrum(all_data, lines=['H I 1216'])
+    all_spectrum = sg.flux_field[:]
+
+    # spectrum of cold gas
+    sg.make_spectrum(cold_gas, lines=['H I 1216'])
+    cold_spectrum = sg.flux_field[:]
+
+    trident.plot_spectrum(sg.lambda_field, [all_spectrum, cold_spectrum],
+                          label=['all gas', 'cold gas'], stagger=None)
+
+.. image:: https://raw.githubusercontent.com/trident-project/trident-docs-images/master/spec_cutregion.png
+>>>>>>> master
