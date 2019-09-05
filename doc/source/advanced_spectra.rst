@@ -143,6 +143,28 @@ To understand how to further customize your spectra, look at the documentation
 for the :class:`~trident.SpectrumGenerator` and :class:`~trident.LineDatabase`
 classes and other :ref:`API <api-reference>` documentation.
 
+Setting Wavelength Bounds Automatically
+---------------------------------------
+
+If you are interested in creating a spectrum that contains all possible
+absorption features for a given set of lines, the
+:class:`~trident.SpectrumGenerator` can be configured to automatically
+enlarge the wavelength window until all absorption is captured. This is
+done by setting the ``lambda_min`` and ``lambda_max`` keywords to 'auto'
+and specifying a bin size with the ``dlambda`` keyword::
+
+    sg = trident.SpectrumGenerator(lambda_min='auto', lambda_max='auto',
+                                   dlambda=0.01)
+    sg.make_spectrum("ray.h5", lines=['H I 1216'])
+    sg.plot_spectrum('spec_auto.png')
+
+.. image:: https://raw.githubusercontent.com/trident-project/trident-docs-images/master/spec_auto.png
+
+Note, the above example is for a different ray than is used in the
+previous examples. The resulting spectrum will minimally contain all
+absorption present in the ray. This should be used with care when depositing
+multiple lines as this can lead to an extremely large spectrum.
+
 Making Spectra from a Subset of a Ray
 -------------------------------------
 

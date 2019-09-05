@@ -58,8 +58,11 @@ class Instrument(object):
             raise RuntimeError("Either n_lambda or dlambda must be set to "
                                "specify the binsize")
         elif dlambda is not None:
-            # adding 1 here to assure we cover full lambda range
-            n_lambda = (lambda_max - lambda_min) / float(dlambda) + 1
+            if lambda_min == 'auto' or lambda_max == 'auto':
+                n_lambda = 'auto'
+            else:
+                # adding 1 here to assure we cover full lambda range
+                n_lambda = (lambda_max - lambda_min) / float(dlambda) + 1
         self.n_lambda = n_lambda
         if dlambda is None:
             # adding 1 here to assure we cover full lambda range
@@ -69,9 +72,9 @@ class Instrument(object):
     def __repr__(self):
         disp = "<Instrument>:\n"
         disp += "    name: %s\n" % self.name
-        disp += "    lambda_min: %f\n" % self.lambda_min
-        disp += "    lambda_max: %f\n" % self.lambda_max
-        disp += "    n_lambda: %d\n" % self.n_lambda
-        disp += "    dlambda: %f\n" % self.dlambda
+        disp += "    lambda_min: %s\n" % self.lambda_min
+        disp += "    lambda_max: %s\n" % self.lambda_max
+        disp += "    n_lambda: %s\n" % self.n_lambda
+        disp += "    dlambda: %s\n" % self.dlambda
         disp += "    lsf_kernel: %s\n" % self.lsf_kernel
         return disp

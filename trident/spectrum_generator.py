@@ -99,15 +99,23 @@ class SpectrumGenerator(AbsorptionSpectrum):
         leave this set to None.
         Default: None
 
-    :lambda_min: int
+    :lambda_min: float or 'auto'
+
+        The wavelength extrema of the spectra in angstroms.
+        If set to 'auto', the lower bound will be automatically
+        adjusted to encompass all absorption lines. The wavelength
+        window will not be expanded for continuum features, only
+        absorption lines.
+        Default: None
+
+    :lambda_max: float or 'auto'
 
         The wavelength extrema of the spectra in angstroms
-        Defaults: None
-
-    :lambda_max: int
-
-        The wavelength extrema of the spectra in angstroms
-        Defaults: None
+        If set to 'auto', the upper bound will be automatically
+        adjusted to encompass all absorption lines. The wavelength
+        window will not be expanded for continuum features, only
+        absorption lines.
+        Default: None
 
     :n_lambda: int
 
@@ -176,7 +184,9 @@ class SpectrumGenerator(AbsorptionSpectrum):
     def __init__(self, instrument=None, lambda_min=None, lambda_max=None,
                  n_lambda=None, dlambda=None, lsf_kernel=None,
                  line_database='lines.txt', ionization_table=None):
-        if instrument is None and lambda_min is None:
+        if instrument is None and \
+          ((lambda_min is None or lambda_max is None) or \
+           (dlambda is None and n_lambda is None)):
             instrument = 'COS'
             mylog.info("No parameters specified, defaulting to COS instrument.")
         elif instrument is None:
@@ -193,7 +203,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
         AbsorptionSpectrum.__init__(self,
                                     self.instrument.lambda_min,
                                     self.instrument.lambda_max,
-                                    self.instrument.n_lambda)
+                                    n_lambda=self.instrument.n_lambda,
+                                    dlambda=self.instrument.dlambda)
 
         if isinstance(line_database, LineDatabase):
             self.line_database = line_database
@@ -800,9 +811,13 @@ class SpectrumGenerator(AbsorptionSpectrum):
         the AbsorptionSpectrum object as well.  Also clear the line_subset
         stored by the LineDatabase.
         """
-        # Set flux and tau to ones and zeros
-        self.flux_field = np.ones(self.lambda_field.size)
-        self.tau_field = np.zeros(self.lambda_field.size)
+        if self.lambda_field is not None:
+            # Set flux and tau to ones and zeros
+            self.flux_field = np.ones(self.lambda_field.size)
+            self.tau_field = np.zeros(self.lambda_field.size)
+        else:
+            self.flux_field = None
+            self.tau_field = None
 
         # Clear out the line list that is stored in AbsorptionSpectrum
         self.line_list = []
@@ -930,7 +945,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         elif format == 'ASCII':
             self._write_spectrum_ascii(filename)
         else:
-            mylog.warn("Invalid format.  Must be 'HDF5', 'FITS', 'ASCII'. Defaulting to ASCII.")
+            mylog.warning("Invalid format.  Must be 'HDF5', 'FITS', 'ASCII'. Defaulting to ASCII.")
             self._write_spectrum_ascii(filename)
 
     def plot_spectrum(self, filename="spectrum.png",
@@ -1010,6 +1025,11 @@ class SpectrumGenerator(AbsorptionSpectrum):
         >>> sg.make_spectrum(ray)
         >>> sg.plot_spectrum('spec_raw.png', features={'Ly a' : 1216})
         """
+
+        if self.tau_field is None:
+            mylog.warning('Spectrum is totally empty, no plotting to be done.')
+            return
+
         plot_spectrum(self.lambda_field, self.flux_field, filename=filename,
                       lambda_limits=lambda_limits, flux_limits=flux_limits,
                       title=title, label=label, figsize=figsize, step=step,
