@@ -169,7 +169,7 @@ Making Spectra in Velocity Space
 --------------------------------
 
 Trident can be configured to create spectra in velocity space instead of
-wavelength spacem where velocity corresponds to the velocity offset from
+wavelength space where velocity corresponds to the velocity offset from
 the rest wavelength of a given line. This can be done by providing the
 keyword ``bin_space='velocity'`` to the :class:`~trident.SpectrumGenerator`::
 
