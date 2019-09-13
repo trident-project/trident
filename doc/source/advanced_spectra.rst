@@ -165,6 +165,25 @@ previous examples. The resulting spectrum will minimally contain all
 absorption present in the ray. This should be used with care when depositing
 multiple lines as this can lead to an extremely large spectrum.
 
+Making Spectra in Velocity Space
+--------------------------------
+
+Trident can be configured to create spectra in velocity space instead of
+wavelength space where velocity corresponds to the velocity offset from
+the rest wavelength of a given line. This can be done by providing the
+keyword ``bin_space='velocity'`` to the :class:`~trident.SpectrumGenerator`::
+
+    sg = trident.SpectrumGenerator(lambda_min='auto', lambda_max='auto',
+                                   dlambda=1., bin_space='velocity')
+    sg.make_spectrum("ray.h5", lines=['H I 1216'])
+    sg.plot_spectrum('spec_velocity.png')
+
+.. image:: https://raw.githubusercontent.com/trident-project/trident-docs-images/master/spec_velocity.png
+
+When working in velocity space, limits and bin sizes should be provided in km/s.
+If more than one transition is added to the spectrum (e.g., Ly-a and Ly-b), the
+zero point will correspond to the rest wavelength of the first transition added.
+
 Making Spectra from a Subset of a Ray
 -------------------------------------
 

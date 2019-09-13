@@ -1,5 +1,5 @@
 """
-tests for auto-lambda feature
+tests for velocity bin space
 """
 
 #-----------------------------------------------------------------------------
@@ -26,10 +26,10 @@ from trident.testing import \
 COSMO_PLUS_SINGLE = os.path.join(answer_test_data_dir,
                                  "enzo_cosmology_plus/RD0009/RD0009")
 
-class AutoLambdaTest(TempDirTest):
+class VelocitySpaceTest(TempDirTest):
 
     def setUp(self):
-        super(AutoLambdaTest, self).setUp()
+        super(VelocitySpaceTest, self).setUp()
         ds = load(COSMO_PLUS_SINGLE)
         line_list = ['H I 1216', 'H I 1026']
 
@@ -41,58 +41,61 @@ class AutoLambdaTest(TempDirTest):
 
     def test_dlambda(self):
         """
-        Compare auto wavelength against setting same min, max, and dlambda
+        Compare auto velocity against setting same min, max, and dlambda
         """
 
         sg_auto = SpectrumGenerator(
             lambda_min='auto', lambda_max='auto',
-            dlambda=0.01)
+            dlambda=1.0, bin_space='velocity')
         sg_auto.make_spectrum("ray.h5", lines=self.line_list,
                               store_observables=True)
 
         sg_comp = SpectrumGenerator(
             lambda_min=sg_auto.lambda_field[0],
             lambda_max=sg_auto.lambda_field[-1],
-            dlambda=sg_auto.bin_width)
+            dlambda=sg_auto.bin_width,
+            bin_space='velocity')
         sg_comp.make_spectrum("ray.h5", lines=self.line_list,
                               store_observables=True)
         compare_spectra(sg_auto, sg_comp, 'manually setting dlambda')
 
     def test_n_lambda(self):
         """
-        Compare auto wavelength against setting same min, max, and n_lambda
+        Compare auto velocity against setting same min, max, and n_lambda
         """
 
         sg_auto = SpectrumGenerator(
             lambda_min='auto', lambda_max='auto',
-            dlambda=0.01)
+            dlambda=1.0, bin_space='velocity')
         sg_auto.make_spectrum("ray.h5", lines=self.line_list,
                               store_observables=True)
 
         sg_comp = SpectrumGenerator(
             lambda_min=sg_auto.lambda_field[0],
             lambda_max=sg_auto.lambda_field[-1],
-            n_lambda=sg_auto.lambda_field.size)
+            n_lambda=sg_auto.lambda_field.size,
+            bin_space='velocity')
         sg_comp.make_spectrum("ray.h5", lines=self.line_list,
                               store_observables=True)
         compare_spectra(sg_auto, sg_comp, 'manually setting n_lambda')
 
     def test_dlambda_extra_wide(self):
         """
-        Compare auto wavelength against setting same dlambda with
+        Compare auto velocity against setting same dlambda with
         min and max set extra wide.
         """
 
         sg_auto = SpectrumGenerator(
             lambda_min='auto', lambda_max='auto',
-            dlambda=0.01)
+            dlambda=1.0, bin_space='velocity')
         sg_auto.make_spectrum("ray.h5", lines=self.line_list,
                               store_observables=True)
 
         sg_comp = SpectrumGenerator(
             lambda_min=sg_auto.lambda_field[0],
             lambda_max=sg_auto.lambda_field[-1],
-            n_lambda=sg_auto.lambda_field.size)
+            n_lambda=sg_auto.lambda_field.size,
+            bin_space='velocity')
         sg_comp.make_spectrum("ray.h5", lines=self.line_list,
                               store_observables=True)
 
@@ -106,9 +109,10 @@ class AutoLambdaTest(TempDirTest):
         Test we can make an empty spectrum without crashing.
         """
 
-        sg = SpectrumGenerator(lambda_max=1100,
-                               lambda_min='auto',
-                               dlambda=0.01)
+        sg = SpectrumGenerator(lambda_min=3000,
+                               lambda_max='auto',
+                               dlambda=1.0,
+                               bin_space='velocity')
         sg.make_spectrum("ray.h5", lines=['H I 1216'],
                          output_file='blank.h5',
                          output_absorbers_file='blank.txt',
@@ -125,13 +129,13 @@ class AutoLambdaTest(TempDirTest):
 
         sg_auto = SpectrumGenerator(
             lambda_min='auto', lambda_max='auto',
-            dlambda=0.01)
+            dlambda=1.0, bin_space='velocity')
         sg_auto.make_spectrum("ray.h5", lines=self.line_list,
                               ly_continuum=False)
 
         sg_comp = SpectrumGenerator(
-            lambda_min=1100, lambda_max='auto',
-            dlambda=0.01)
+            lambda_min=0., lambda_max='auto',
+            dlambda=1.0, bin_space='velocity')
         sg_comp.make_spectrum("ray.h5", lines=self.line_list,
                               ly_continuum=False)
 
@@ -148,13 +152,13 @@ class AutoLambdaTest(TempDirTest):
 
         sg_auto = SpectrumGenerator(
             lambda_min='auto', lambda_max='auto',
-            dlambda=0.01)
+            dlambda=1.0, bin_space='velocity')
         sg_auto.make_spectrum("ray.h5", lines=self.line_list,
                               ly_continuum=False)
 
         sg_comp = SpectrumGenerator(
-            lambda_min='auto', lambda_max=1100,
-            dlambda=0.01)
+            lambda_min='auto', lambda_max=0.,
+            dlambda=1.0, bin_space='velocity')
         sg_comp.make_spectrum("ray.h5", lines=self.line_list,
                               ly_continuum=False)
 

@@ -99,34 +99,40 @@ class SpectrumGenerator(AbsorptionSpectrum):
         leave this set to None.
         Default: None
 
-    :lambda_min: float or 'auto'
+    :lambda_min: float, YTQuantity, or 'auto'
 
-        The wavelength extrema of the spectra in angstroms.
-        If set to 'auto', the lower bound will be automatically
-        adjusted to encompass all absorption lines. The wavelength
-        window will not be expanded for continuum features, only
-        absorption lines.
-        Default: None
+       lower wavelength bound in angstroms or velocity bound in km/s
+       (if bin_space set to 'velocity'). If set to 'auto', the lower
+       bound will be automatically adjusted to encompass all absorption
+       lines. The window will not be expanded for continuum features,
+       only absorption lines.
 
-    :lambda_max: float or 'auto'
+    :lambda_max: float, YTQuantity, or 'auto'
 
-        The wavelength extrema of the spectra in angstroms
-        If set to 'auto', the upper bound will be automatically
-        adjusted to encompass all absorption lines. The wavelength
-        window will not be expanded for continuum features, only
-        absorption lines.
-        Default: None
+       upper wavelength bound in angstroms or velocity bound in km/s
+       (if bin_space set to 'velocity'). If set to 'auto', the upper
+       bound will be automatically adjusted to encompass all absorption
+       lines. The window will not be expanded for continuum features,
+       only absorption lines.
 
     :n_lambda: int
 
-        The number of wavelength bins in the spectrum (inclusive), so if
+        The number of bins in the spectrum (inclusive), so if
         extrema = 10 and 20, and dlambda (binsize) = 1, then n_lambda = 11.
         Default: None
 
     :dlambda: float
 
-        The desired wavelength bin width of the spectrum (in angstroms).
+        size of the wavelength bins in angstroms or velocity bins in km/s.
         Default: None
+
+    :bin_space: 'wavelength' or 'velocity'
+
+        Sets the dimension in which spectra are created. If set to
+        wavelength, the resulting spectra are flux (or tau) vs. observed
+        wavelength. If set to velocity, the spectra are flux vs.
+        velocity offset from the rest wavelength of the absorption line.
+        Default: wavelength
 
     :lsf_kernel: string, optional
 
@@ -183,7 +189,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
     """
     def __init__(self, instrument=None, lambda_min=None, lambda_max=None,
                  n_lambda=None, dlambda=None, lsf_kernel=None,
-                 line_database='lines.txt', ionization_table=None):
+                 line_database='lines.txt', ionization_table=None,
+                 bin_space='wavelength'):
         if instrument is None and \
           ((lambda_min is None or lambda_max is None) or \
            (dlambda is None and n_lambda is None)):
@@ -194,7 +201,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                     lambda_max=lambda_max,
                                     n_lambda=n_lambda,
                                     dlambda=dlambda,
-                                    lsf_kernel=lsf_kernel, name="Custom")
+                                    lsf_kernel=lsf_kernel, name="Custom",
+                                    bin_space=bin_space)
         self.observing_redshift = 0.
         self._set_instrument(instrument)
         mylog.info("Setting instrument to %s" % self.instrument.name)
@@ -204,7 +212,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                     self.instrument.lambda_min,
                                     self.instrument.lambda_max,
                                     n_lambda=self.instrument.n_lambda,
-                                    dlambda=self.instrument.dlambda)
+                                    dlambda=self.instrument.dlambda,
+                                    bin_space=bin_space)
 
         if isinstance(line_database, LineDatabase):
             self.line_database = line_database

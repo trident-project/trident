@@ -18,6 +18,9 @@ import matplotlib.figure
 from matplotlib.backends.backend_agg import \
     FigureCanvasAgg
 
+_xlabels = {'angstrom': 'Wavelength [$\\rm\\AA$]',
+            'km/s': 'Velocity Offset [km/s]'}
+
 def plot_spectrum(wavelength, flux, filename="spectrum.png",
                   lambda_limits=None, flux_limits=None,
                   title=None, label=None, figsize=None, step=False,
@@ -207,6 +210,12 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
     # A running maximum of flux for use in ylim scaling in final plot
     max_flux = 0.
 
+    if isinstance(wavelength, list):
+        key = wavelength[0]
+    else:
+        key = wavelength
+    xlabel = _xlabels.get(str(key.units))
+
     for i, (wavelength, flux) in enumerate(zip(wavelengths, fluxs)):
         # Do we stagger the fluxes?
         if stagger is not None:
@@ -239,7 +248,7 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
         flux_limits = (0, 1.1*max_flux)
     my_axes.set_ylim(flux_limits[0], flux_limits[1])
     if axis_labels is None:
-        axis_labels = ('Wavelength [$\\rm\\AA$]', 'Relative Flux')
+        axis_labels = (xlabel, 'Relative Flux')
     my_axes.xaxis.set_label_text(axis_labels[0])
     my_axes.yaxis.set_label_text(axis_labels[1])
 
