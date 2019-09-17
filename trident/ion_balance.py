@@ -16,7 +16,6 @@ from yt.fields.field_detector import \
 from yt.utilities.linear_interpolators import \
     TrilinearFieldInterpolator, \
     UnilinearFieldInterpolator
-import six
 from yt.utilities.physical_constants import mh
 from yt.funcs import mylog
 import numpy as np
@@ -252,7 +251,7 @@ def add_ion_fields(ds, ions, ftype='gas',
     # Otherwise, any ion can be selected (not just ones in the line list).
     else:
         if ions == 'all' or ions == ['all']:
-            for k, v in six.iteritems(atomic_number):
+            for k, v in atomic_number.items():
                 for j in range(v+1):
                     ion_list.append((k, j+1))
         else:
@@ -365,12 +364,11 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
 
     atom = atom.capitalize()
 
-    # if neutral ion field, alias X_p0_ion_fraction to X_ion_fraction field
+    # if neutral ion field, alias X_number_density to X_p0_number_density field
+    field = "%s_p%d_ion_fraction" % (atom, ion-1)
     if ion == 1:
-        field = "%s_ion_fraction" % atom
-        alias_field = "%s_p0_ion_fraction" % atom
-    else:
-        field = "%s_p%d_ion_fraction" % (atom, ion-1)
+        alias_field = "%s_ion_fraction" % atom
+
     if field_suffix:
         field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
         if ion == 1:
@@ -472,12 +470,11 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
     if ionization_table is None:
         ionization_table = ion_table_filepath
     atom = atom.capitalize()
-    # if neutral ion field, alias X_p0_number_density to X_number_density field
+    # if neutral ion field, alias X_number_density to X_p0_number_density field
+    field = "%s_p%d_number_density" % (atom, ion-1)
     if ion == 1:
-        field = "%s_number_density" % atom
-        alias_field = "%s_p0_number_density" % atom
-    else:
-        field = "%s_p%d_number_density" % (atom, ion-1)
+        alias_field = "%s_number_density" % atom
+
     if field_suffix:
         field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
         if ion == 1:
@@ -570,12 +567,11 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
         ionization_table = ion_table_filepath
     atom = atom.capitalize()
 
-    # if neutral ion field, alias X_p0_number_density to X_number_density field
+    # if neutral ion field, alias X_number_density to X_p0_number_density field
+    field = "%s_p%d_density" % (atom, ion-1)
     if ion == 1:
-        field = "%s_density" % atom
-        alias_field = "%s_p0_density" % atom
-    else:
-        field = "%s_p%d_density" % (atom, ion-1)
+        alias_field = "%s_density" % atom
+
     if field_suffix:
         field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
         if ion == 1:
@@ -668,12 +664,11 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
         ionization_table = ion_table_filepath
     atom = atom.capitalize()
 
-    # if neutral ion field, alias X_p0_number_density to X_number_density field
+    # if neutral ion field, alias X_number_density to X_p0_number_density field
+    field = "%s_p%s_mass" % (atom, ion-1)
     if ion == 1:
-        field = "%s_mass" % atom
-        alias_field = "%s_p0_mass" % atom
-    else:
-        field = "%s_p%s_mass" % (atom, ion-1)
+        alias_field = "%s_mass" % atom
+
     if field_suffix:
         field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
         if ion == 1:
@@ -686,12 +681,12 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
                sampling_type=sampling_type)
     if ion == 1: # add aliased field too
         _alias_field(ds, ("gas", alias_field), ("gas", field))
-
+        
 def _ion_mass(field, data):
     """
-    Creates the function for a derived field to follow the total mass of an
-    ion over a dataset given that the specified ion's density field exists
-    in the dataset.
+    Creates the function for a derived field for following the mass
+    of an ion over a dataset given that the specified ion's ion_fraction field
+    exists in the dataset.
     """
     if isinstance(field.name, tuple):
         ftype = field.name[0]
@@ -699,10 +694,37 @@ def _ion_mass(field, data):
     else:
         ftype = "gas"
         field_name = field.name
+    atom = field_name.split("_")[0]
     prefix = field_name.split("_mass")[0]
     suffix = field_name.split("_mass")[-1]
     fraction_field_name = "%s_ion_fraction%s" % (prefix, suffix)
-    return data[ftype, fraction_field_name] * data["gas", "mass"]
+
+    # try the atom-specific density field first
+    nuclei_field = "%s_nuclei_mass" % atom
+    if (ftype, nuclei_field) in data.ds.field_info:
+        return data[ftype,fraction_field_name] * \
+          data[ftype, nuclei_field]
+
+    # try the species metallicity
+    metallicity_field = "%s_metallicity" % atom
+    if (ftype, metallicity_field) in data.ds.field_info:
+        return data[ftype,fraction_field_name] * \
+          data[ftype, "mass"] * \
+          data[ftype, metallicity_field]
+    
+    if atom == 'H' or atom == 'He':
+        mass_fraction = solar_abundance[atom] * data[ftype,fraction_field_name]
+    else:
+        mass_fraction = data.ds.quan(solar_abundance[atom], "1.0/Zsun") * \
+          data[ftype, fraction_field_name] * \
+          data[ftype, "metallicity"]
+    # convert to total mass
+    # use the on disk hydrogen mass if possible
+    if (ftype, "H_nuclei_mass") in data.ds.derived_field_list:
+        mass = mass_fraction * data[ftype, "H_nuclei_mass"]
+    else:
+        mass = mass_fraction * data[ftype, "mass"] * H_mass_fraction
+    return mass
 
 def _ion_density(field, data):
     """
@@ -743,19 +765,19 @@ def _ion_number_density(field, data):
     # try the atom-specific density field first
     nuclei_field = "%s_nuclei_mass_density" % atom
     if (ftype, nuclei_field) in data.ds.field_info:
-        return data[fraction_field_name] * \
-          data[(ftype, nuclei_field)] / atomic_mass[atom] / mh
+        return data[ftype, fraction_field_name] * \
+          data[(ftype, nuclei_field)] / (atomic_mass[atom] * mh)
 
     # try the species metallicity
     metallicity_field = "%s_metallicity" % atom
     if (ftype, metallicity_field) in data.ds.field_info:
-        return data[fraction_field_name] * \
+        return data[ftype, fraction_field_name] * \
           data[ftype, "density"] * \
           data[ftype, metallicity_field] / \
           atomic_mass[atom] / mh
 
     if atom == 'H' or atom == 'He':
-        number_density = solar_abundance[atom] * data[fraction_field_name]
+        number_density = solar_abundance[atom] * data[ftype, fraction_field_name]
     else:
         number_density = data.ds.quan(solar_abundance[atom], "1.0/Zsun") * \
           data[ftype, fraction_field_name] * \

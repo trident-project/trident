@@ -11,7 +11,6 @@ Testing utilities for Trident
 # The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
-from __future__ import print_function
 from trident import path as trident_path
 import os
 

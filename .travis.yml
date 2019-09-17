@@ -20,9 +20,9 @@ env:
     TRIDENT_ION_DATA=$HOME/.trident
     TRIDENT_ANSWER_DATA=$HOME/answer_test_data
     TRIDENT_CONFIG=$TRIDENT_ION_DATA/config.tri
-    YT_GOLD=107a9c671cbea88abca46a901df663299653f9ce
+    YT_GOLD=4f56c4c9b534106fd45e8dfe644280755236fb5d
     YT_HEAD=yt-4.0
-    TRIDENT_GOLD=test-standard-sph-viz-v1
+    TRIDENT_GOLD=test-standard-sph-viz-v3
 
 before_install:
   - |

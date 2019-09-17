@@ -15,14 +15,12 @@ import gzip
 import os
 from os.path import \
     expanduser
-import six
 import requests
 import tempfile
 import shutil
 from yt.funcs import \
     get_pbar
 import numpy as np
-from six.moves import input
 from yt.units import \
     cm, \
     pc, \
@@ -429,13 +427,7 @@ def make_onezone_ray(density=1e-26, temperature=1000, metallicity=0.3,
 
     # Add additional number_density fields to dataset
     if column_densities:
-        for k,v in six.iteritems(column_densities):
-            # Assure we add X_number_density for neutral ions
-            # instead of X_p0_number_density
-            key_string_list = k.split('_')
-            if key_string_list[1] == 'p0':
-                k = '_'.join([key_string_list[0], key_string_list[2],
-                              key_string_list[3]])
+        for k,v in column_densities.items():
             v = YTArray([v], 'cm**-2')
             data[k] = v/length
             field_types[k] = 'grid'
