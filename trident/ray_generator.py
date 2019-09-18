@@ -31,7 +31,7 @@ from trident.ion_balance import \
 def make_simple_ray(dataset_file, start_position, end_position,
                     lines=None, ftype="gas", fields=None,
                     solution_filename=None, data_filename=None,
-                    trajectory=None, redshift=None,
+                    trajectory=None, redshift=None, field_parameters=None,
                     setup_function=None, load_kwargs=None,
                     line_database=None, ionization_table=None):
     """
@@ -224,6 +224,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
                              setup_function=setup_function,
                              solution_filename=solution_filename,
                              data_filename=data_filename,
+                             field_parameters=field_parameters,
                              redshift=redshift)
 
 def make_compound_ray(parameter_filename, simulation_type,

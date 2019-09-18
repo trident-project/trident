@@ -515,10 +515,11 @@ class LightRay(CosmologySplice):
         all_fields.extend(['x', 'y', 'z'])
         data_fields.extend(['x', 'y', 'z'])
         if use_peculiar_velocity:
-            all_fields.extend(['velocity_x', 'velocity_y', 'velocity_z',
+            all_fields.extend(['relative_velocity_x', 'relative_velocity_y',
+                               'relative_velocity_z',
                                'velocity_los', 'redshift_eff',
                                'redshift_dopp'])
-            data_fields.extend(['velocity_x', 'velocity_y', 'velocity_z'])
+            data_fields.extend(['relative_velocity_x', 'relative_velocity_y', 'relative_velocity_z'])
 
         all_ray_storage = {}
         for my_storage, my_segment in parallel_objects(self.light_ray_solution,
@@ -605,9 +606,9 @@ class LightRay(CosmologySplice):
                 if use_peculiar_velocity:
                     line_of_sight = sub_segment[0] - sub_segment[1]
                     line_of_sight /= ((line_of_sight**2).sum())**0.5
-                    sub_vel = ds.arr([sub_ray['velocity_x'],
-                                      sub_ray['velocity_y'],
-                                      sub_ray['velocity_z']])
+                    sub_vel = ds.arr([sub_ray['relative_velocity_x'],
+                                      sub_ray['relative_velocity_y'],
+                                      sub_ray['relative_velocity_z']])
                     # Line of sight velocity = vel_los
                     sub_vel_los = (np.rollaxis(sub_vel, 1) * \
                                    line_of_sight).sum(axis=1)
