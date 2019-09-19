@@ -157,7 +157,7 @@ jobs:
 
     - stage: deploy
       name: "deploy to pypi"
-      if: (tag =~ ^v) AND (branch = master)
+      if: tag =~ ^v
       python: 3.6
       before_script: skip
       before_install: skip
