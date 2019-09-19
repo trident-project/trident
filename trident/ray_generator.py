@@ -36,7 +36,7 @@ from trident.utilities import \
 def make_simple_ray(dataset_file, start_position, end_position,
                     lines=None, ftype="gas", fields=None,
                     solution_filename=None, data_filename=None,
-                    trajectory=None, redshift=None,
+                    trajectory=None, redshift=None, field_parameters=None,
                     setup_function=None, load_kwargs=None,
                     line_database=None, ionization_table=None):
     """
@@ -157,6 +157,13 @@ def make_simple_ray(dataset_file, start_position, end_position,
         it will use a redshift of 0.
         Default: None
 
+    :field_parameters: optional, dict
+        Used to set field parameters in light rays. For example,
+        if the 'bulk_velocity' field parameter is set, the relative
+        velocities used to calculate peculiar velocity will be adjusted
+        accordingly.
+        Default: None.
+
     :setup_function: function, optional
 
         A function that will be called on the dataset as it is loaded but
@@ -263,6 +270,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
                              setup_function=setup_function,
                              solution_filename=solution_filename,
                              data_filename=data_filename,
+                             field_parameters=field_parameters,
                              redshift=redshift)
 
 def make_compound_ray(parameter_filename, simulation_type,
@@ -272,7 +280,8 @@ def make_compound_ray(parameter_filename, simulation_type,
                       use_minimum_datasets=True, max_box_fraction=1.0,
                       deltaz_min=0.0, minimum_coherent_box_fraction=0.0,
                       seed=None, setup_function=None, load_kwargs=None,
-                      line_database=None, ionization_table=None):
+                      line_database=None, ionization_table=None,
+                      field_parameters = None):
     """
     Create a yt LightRay object for multiple consecutive datasets (eg IGM).
     This is a wrapper function around yt's LightRay interface to reduce some
@@ -473,6 +482,13 @@ def make_compound_ray(parameter_filename, simulation_type,
         it uses the table specified in ~/.trident/config
         Default: None
 
+    :field_parameters: optional, dict
+        Used to set field parameters in light rays. For example,
+        if the 'bulk_velocity' field parameter is set, the relative
+        velocities used to calculate peculiar velocity will be adjusted
+        accordingly.
+        Default: None.
+
     **Example**
 
     Generate a compound ray passing from the redshift 0 to redshift 0.05
@@ -581,7 +597,8 @@ def make_compound_ray(parameter_filename, simulation_type,
                              setup_function=setup_ds,
                              solution_filename=solution_filename,
                              data_filename=data_filename,
-                             redshift=None, njobs=-1)
+                             redshift=None, njobs=-1,
+                             field_parameters = field_parameters)
 
 def _determine_ions_from_lines(line_database, lines):
     """
