@@ -160,9 +160,9 @@ def make_simple_ray(dataset_file, start_position, end_position,
     :field_parameters: optional, dict
         Used to set field parameters in light rays. For example,
         if the 'bulk_velocity' field parameter is set, the relative
-        velocities used to calculate peculiar velocity will be adjusted 
+        velocities used to calculate peculiar velocity will be adjusted
         accordingly.
-        Default: None. 
+        Default: None.
 
     :setup_function: function, optional
 
@@ -280,7 +280,7 @@ def make_compound_ray(parameter_filename, simulation_type,
                       use_minimum_datasets=True, max_box_fraction=1.0,
                       deltaz_min=0.0, minimum_coherent_box_fraction=0.0,
                       seed=None, setup_function=None, load_kwargs=None,
-                      line_database=None, ionization_table=None, 
+                      line_database=None, ionization_table=None,
                       field_parameters = None):
     """
     Create a yt LightRay object for multiple consecutive datasets (eg IGM).
@@ -487,7 +487,7 @@ def make_compound_ray(parameter_filename, simulation_type,
         if the 'bulk_velocity' field parameter is set, the relative
         velocities used to calculate peculiar velocity will be adjusted
         accordingly.
-        Default: None. 
+        Default: None.
 
     **Example**
 
@@ -597,7 +597,7 @@ def make_compound_ray(parameter_filename, simulation_type,
                              setup_function=setup_ds,
                              solution_filename=solution_filename,
                              data_filename=data_filename,
-                             redshift=None, njobs=-1, 
+                             redshift=None, njobs=-1,
                              field_parameters = field_parameters)
 
 def _determine_ions_from_lines(line_database, lines):
