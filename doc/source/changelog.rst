@@ -11,8 +11,67 @@ Contributors
 The `CREDITS file <https://github.com/trident-project/trident/blob/master/CREDITS>`_
 has an updated list of contributors to the codebase.
 
-Version 1.1
------------
+Version 1.2 (September 19, 2019)
+--------------------------------
+
+New Features
+^^^^^^^^^^^^
+
+- Add support for creating spectra in velocity space
+  (`PR 90 <https://github.com/trident-project/trident/pull/90>`__)
+- Add ability to set wavelength limits to 'auto'
+  (`PR 87 <https://github.com/trident-project/trident/pull/87>`__)
+- Add ability to make spectrum from data container
+  (`PR 91 <https://github.com/trident-project/trident/pull/91>`__)
+
+Bug Fixes
+^^^^^^^^^
+
+- off by one error in subgrid index calculation
+  (`PR 85 <https://github.com/trident-project/trident/pull/85>`__)
+- fixing error in _ion_mass
+  (`PR 81 <https://github.com/trident-project/trident/pull/81>`__)
+- H_p0_number_density to default, H_number_density to alias
+  (`PR 78 <https://github.com/trident-project/trident/pull/78>`__)
+- Implements a better way of calculating the redshift on the light ray
+  (`PR 71 <https://github.com/trident-project/trident/pull/71>`__)
+- Assures that ion_fraction field reflects on-disk fields
+  (`PR 64 <https://github.com/trident-project/trident/pull/64>`__)
+- Fix atomic data for Si II 1260 according to Morton 2003
+  (`PR 43 <https://github.com/trident-project/trident/pull/43>`__)
+- A check to avoid failure when no continuum absorbers were found in the ray
+  (`PR 39 <https://github.com/trident-project/trident/pull/39>`__)
+- Auto-addition of H_nuclei_density to a LightRay when present in the base dataset
+  (`PR 39 <https://github.com/trident-project/trident/pull/39>`__)
+- Adding max_box_fraction as a kwarg to make_compound_ray
+  (`PR 37 <https://github.com/trident-project/trident/pull/37>`__)
+- Updated trident_path() to be OS Independent
+  (`PR 36 <https://github.com/trident-project/trident/pull/36>`__)
+- simplify setting up ion fields using the "local" field type
+  (`PR 30 <https://github.com/trident-project/trident/pull/30>`__)
+- split and join filenames using os.sep instead of assuming unix
+  (`PR 29 <https://github.com/trident-project/trident/pull/29>`__)
+- updated oscillator strengths and gamma's for Si II 1206 and Si III 1260
+  (`PR 25 <https://github.com/trident-project/trident/pull/25>`__)
+
+Minor Enhancements
+^^^^^^^^^^^^^^^^^^
+
+- Calculating LOS velocity with relative velocities to account for bulk motion
+  (`PR 93 <https://github.com/trident-project/trident/pull/93>`__)
+- Enabling use of `output_absorbers_file` kwarg in SpectrumGenerator
+  (`PR 58 <https://github.com/trident-project/trident/pull/58>`__)
+- Switching imports from yt.analysis_modules to yt_astro_analysis
+  (`PR 55 <https://github.com/trident-project/trident/pull/55>`__)
+- Enable passing in-memory LineDatabase to SpectrumGenerator
+  (`PR 42 <https://github.com/trident-project/trident/pull/42>`__)
+- Added equivalent width calculation to line_observables_dict
+  (`PR 40 <https://github.com/trident-project/trident/pull/40>`__)
+- Numerous documentation updates
+- Updates and fixes to testing
+
+Version 1.1 (November 18, 2017)
+-------------------------------
 
 - Trident development has changed from mercurial to git, and the source has
   moved from bitbucket to github.  This was done in recognition that more
@@ -63,8 +122,8 @@ Version 1.1
 - Replaced internal instances of ``particle_type`` with ``sampling_type`` to
   match similar yt conversion.
 
-Version 1.0
------------
+Version 1.0 (November 16, 2017)
+-------------------------------
 
 Initial release.  See our :ref:`method paper <citation>` for details.
 

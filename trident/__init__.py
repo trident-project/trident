@@ -15,7 +15,7 @@ http://yt-project.org
 # The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
-__version__ = "1.2-dev"
+__version__ = "1.2"
 
 # Must run import_check() before anything else is imported to avoid
 # astropy error when importing trident in trident package directory

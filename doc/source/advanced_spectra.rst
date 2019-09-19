@@ -142,3 +142,76 @@ Giving us:
 To understand how to further customize your spectra, look at the documentation 
 for the :class:`~trident.SpectrumGenerator` and :class:`~trident.LineDatabase`
 classes and other :ref:`API <api-reference>` documentation.
+
+Setting Wavelength Bounds Automatically
+---------------------------------------
+
+If you are interested in creating a spectrum that contains all possible
+absorption features for a given set of lines, the
+:class:`~trident.SpectrumGenerator` can be configured to automatically
+enlarge the wavelength window until all absorption is captured. This is
+done by setting the ``lambda_min`` and ``lambda_max`` keywords to 'auto'
+and specifying a bin size with the ``dlambda`` keyword::
+
+    sg = trident.SpectrumGenerator(lambda_min='auto', lambda_max='auto',
+                                   dlambda=0.01)
+    sg.make_spectrum("ray.h5", lines=['H I 1216'])
+    sg.plot_spectrum('spec_auto.png')
+
+.. image:: https://raw.githubusercontent.com/trident-project/trident-docs-images/master/spec_auto.png
+
+Note, the above example is for a different ray than is used in the
+previous examples. The resulting spectrum will minimally contain all
+absorption present in the ray. This should be used with care when depositing
+multiple lines as this can lead to an extremely large spectrum.
+
+Making Spectra in Velocity Space
+--------------------------------
+
+Trident can be configured to create spectra in velocity space instead of
+wavelength space where velocity corresponds to the velocity offset from
+the rest wavelength of a given line. This can be done by providing the
+keyword ``bin_space='velocity'`` to the :class:`~trident.SpectrumGenerator`::
+
+    sg = trident.SpectrumGenerator(lambda_min='auto', lambda_max='auto',
+                                   dlambda=1., bin_space='velocity')
+    sg.make_spectrum("ray.h5", lines=['H I 1216'])
+    sg.plot_spectrum('spec_velocity.png')
+
+.. image:: https://raw.githubusercontent.com/trident-project/trident-docs-images/master/spec_velocity.png
+
+When working in velocity space, limits and bin sizes should be provided in km/s.
+If more than one transition is added to the spectrum (e.g., Ly-a and Ly-b), the
+zero point will correspond to the rest wavelength of the first transition added.
+
+Making Spectra from a Subset of a Ray
+-------------------------------------
+
+The situation may arise where you want to see the spectrum that is generated
+by only a portion of the gas along a line of sight. For example, you may want to
+see the spectrum of only the cold gas. This can be done by creating a
+:class:`~yt.data_objects.selection_data_containers.YTCutRegion` from a loaded ray
+dataset::
+
+    import trident
+    import yt
+
+    ds = yt.load('ray.h5')
+    all_data = ds.all_data()
+    cold_gas = ds.cut_region(all_data, 'obj["gas", "temperature"] < 10000')
+
+    sg = trident.SpectrumGenerator(lambda_min=1200, lambda_max=1225,
+                                   dlambda=0.01)
+
+    # spectrum of entire ray
+    sg.make_spectrum(all_data, lines=['H I 1216'])
+    all_spectrum = sg.flux_field[:]
+
+    # spectrum of cold gas
+    sg.make_spectrum(cold_gas, lines=['H I 1216'])
+    cold_spectrum = sg.flux_field[:]
+
+    trident.plot_spectrum(sg.lambda_field, [all_spectrum, cold_spectrum],
+                          label=['all gas', 'cold gas'], stagger=None)
+
+.. image:: https://raw.githubusercontent.com/trident-project/trident-docs-images/master/spec_cutregion.png
