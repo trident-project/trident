@@ -5,8 +5,6 @@ AbsorptionSpectrum class and member functions.
 
 """
 
-from __future__ import absolute_import
-
 #-----------------------------------------------------------------------------
 # Copyright (c) 2013-2017, yt Development Team.
 # Copyright (c) 2017, Trident Development Team.
@@ -24,7 +22,6 @@ from yt.data_objects.data_containers import \
 from yt.data_objects.static_output import \
     Dataset
 from yt.convenience import load
-from yt.extern.six import string_types
 from yt.funcs import get_pbar, mylog
 from yt.units.yt_array import YTArray, YTQuantity
 from yt.utilities.on_demand_imports import _astropy
@@ -457,7 +454,7 @@ class AbsorptionSpectrum(object):
                 input_fields.append(feature['field_name'])
                 field_units[feature["field_name"]] = "cm**-3"
 
-        if isinstance(input_object, string_types):
+        if isinstance(input_object, str):
             input_ds = load(input_object)
             field_data = input_ds.all_data()
         elif isinstance(input_object, Dataset):

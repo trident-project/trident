@@ -98,7 +98,7 @@ class PipelineTest(TempDirTest):
             old_spec = h5py.File(raw_file_compare, 'r')
             new_spec = h5py.File(raw_file, 'r')
             for key in old_spec.keys():
-                assert_almost_equal(new_spec[key].value, old_spec[key].value, \
+                assert_almost_equal(new_spec[key][()], old_spec[key][()], \
                                     decimal=err_precision,
                                     err_msg='Raw spectrum array does not match '+\
                                     'for enzo_small_simple answer test')
@@ -108,7 +108,7 @@ class PipelineTest(TempDirTest):
             old_spec = h5py.File(final_file_compare, 'r')
             new_spec = h5py.File(final_file, 'r')
             for key in old_spec.keys():
-                assert_almost_equal(new_spec[key].value, old_spec[key].value, \
+                assert_almost_equal(new_spec[key][()], old_spec[key][()], \
                                     decimal=err_precision,
                                     err_msg='Final spectrum array does not match '+\
                                     'for enzo_small_simple answer test')
@@ -170,7 +170,7 @@ class PipelineTest(TempDirTest):
             old_spec = h5py.File(raw_file_compare, 'r')
             new_spec = h5py.File(raw_file, 'r')
             for key in old_spec.keys():
-                assert_almost_equal(new_spec[key].value, old_spec[key].value, \
+                assert_almost_equal(new_spec[key][()], old_spec[key][()], \
                                     decimal=err_precision,
                                     err_msg='Raw spectrum array does not match '+\
                                     'for enzo_small_compound answer test')
@@ -180,7 +180,7 @@ class PipelineTest(TempDirTest):
             old_spec = h5py.File(final_file_compare, 'r')
             new_spec = h5py.File(final_file, 'r')
             for key in old_spec.keys():
-                assert_almost_equal(new_spec[key].value, old_spec[key].value, \
+                assert_almost_equal(new_spec[key][()], old_spec[key][()], \
                                     decimal=err_precision,
                                     err_msg='Final spectrum array does not match '+\
                                     'for enzo_small_compound answer test')
@@ -212,7 +212,7 @@ class PipelineTest(TempDirTest):
         # Note: We use PartType0, the gas particle field type as our ftype!
         ray = make_simple_ray(ds, start_position=ray_start,
                               end_position=ray_end, data_filename='ray.h5',
-                              lines=line_list, ftype='PartType0')
+                              lines=line_list)
 
         # Now use the ray object to actually generate an absorption spectrum
         # Use the settings (spectral range, LSF, and spectral resolution) for COS
@@ -243,7 +243,7 @@ class PipelineTest(TempDirTest):
             old_spec = h5py.File(raw_file_compare, 'r')
             new_spec = h5py.File(raw_file, 'r')
             for key in old_spec.keys():
-                assert_almost_equal(new_spec[key].value, old_spec[key].value, \
+                assert_almost_equal(new_spec[key][()], old_spec[key][()], \
                                     decimal=err_precision,
                                     err_msg='Raw spectrum array does not match '+\
                                     'for gizmo_small_simple answer test')
@@ -253,7 +253,7 @@ class PipelineTest(TempDirTest):
             old_spec = h5py.File(final_file_compare, 'r')
             new_spec = h5py.File(final_file, 'r')
             for key in old_spec.keys():
-                assert_almost_equal(new_spec[key].value, old_spec[key].value, \
+                assert_almost_equal(new_spec[key][()], old_spec[key][()], \
                                     decimal=err_precision,
                                     err_msg='Final spectrum array does not match '+\
                                     'for gizmo_small_simple answer test')

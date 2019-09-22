@@ -458,6 +458,7 @@ class LightRay(CosmologySplice):
         ...                       use_peculiar_velocity=True)
 
         """
+
         if self.simulation_type is None:
             domain = self.ds
         else:
@@ -518,8 +519,8 @@ class LightRay(CosmologySplice):
         data_fields = fields[:]
         all_fields = fields[:]
         all_fields.extend(['l', 'dl', 'redshift'])
-        all_fields.extend(['x', 'y', 'z', 'dx', 'dy', 'dz'])
-        data_fields.extend(['x', 'y', 'z', 'dx', 'dy', 'dz'])
+        all_fields.extend(['x', 'y', 'z'])
+        data_fields.extend(['x', 'y', 'z'])
         if use_peculiar_velocity:
             all_fields.extend(['relative_velocity_x', 'relative_velocity_y',
                                'relative_velocity_z',
@@ -764,6 +765,8 @@ class LightRay(CosmologySplice):
                 # to avoid errors later
                 if arr.dtype == 'O':
                     arr = arr.astype(str)
+                if arr.dtype.kind == 'U':
+                    arr = arr.astype('|S')
                 extra_attrs["light_ray_solution_%s" % key] = arr
 
         field_types = dict([(field, "grid") for field in data.keys()])

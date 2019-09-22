@@ -11,7 +11,6 @@ Tests for ion balance code
 # The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
-from __future__ import absolute_import
 from trident.ion_balance import \
     add_ion_fraction_field, \
     add_ion_number_density_field, \
@@ -46,10 +45,9 @@ def test_add_ion_fraction_field_to_grid_ds():
                                    "velocity_z", "temperature", "metallicity"),
                            units= ('g/cm**3', 'cm/s', 'cm/s',
                                    'cm/s', 'K', ''))
-    ftype = 'stream'
     ad = ds.all_data()
-    add_ion_fraction_field('O', 6, ds, ftype=ftype)
-    field = ('stream', 'O_p5_ion_fraction')
+    add_ion_fraction_field('O', 6, ds)
+    field = ('gas', 'O_p5_ion_fraction')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
 
@@ -65,10 +63,9 @@ def test_add_ion_number_density_field_to_grid_ds():
                                    "velocity_z", "temperature", "metallicity"),
                            units= ('g/cm**3', 'cm/s', 'cm/s',
                                    'cm/s', 'K', ''))
-    ftype = 'stream'
     ad = ds.all_data()
-    add_ion_mass_field('O', 6, ds, ftype=ftype)
-    field = ('stream', 'O_p5_number_density')
+    add_ion_mass_field('O', 6, ds)
+    field = ('gas', 'O_p5_number_density')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
 
@@ -84,10 +81,9 @@ def test_add_ion_density_field_to_grid_ds():
                                    "velocity_z", "temperature", "metallicity"),
                            units= ('g/cm**3', 'cm/s', 'cm/s',
                                    'cm/s', 'K', ''))
-    ftype = 'stream'
     ad = ds.all_data()
-    add_ion_mass_field('O', 6, ds, ftype=ftype)
-    field = ('stream', 'O_p5_density')
+    add_ion_mass_field('O', 6, ds)
+    field = ('gas', 'O_p5_density')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
 
@@ -103,10 +99,9 @@ def test_add_ion_mass_field_to_grid_ds():
                                    "velocity_z", "temperature", "metallicity"),
                            units= ('g/cm**3', 'cm/s', 'cm/s',
                                    'cm/s', 'K', ''))
-    ftype = 'stream'
     ad = ds.all_data()
-    add_ion_mass_field('O', 6, ds, ftype=ftype)
-    field = ('stream', 'O_p5_mass')
+    add_ion_mass_field('O', 6, ds, ftype='gas')
+    field = ('gas', 'O_p5_mass')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
 
@@ -120,10 +115,9 @@ def test_add_ion_fraction_fields_to_amr_ds():
     """
     ds = fake_amr_ds(fields=("density", "velocity_x", "velocity_y",
                              "velocity_z", "temperature", "metallicity"))
-    ftype = 'stream'
     ad = ds.all_data()
-    add_ion_fraction_field('O', 6, ds, ftype=ftype)
-    field = ('stream', 'O_p5_ion_fraction')
+    add_ion_fraction_field('O', 6, ds)
+    field = ('gas', 'O_p5_ion_fraction')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
 
@@ -137,10 +131,9 @@ def test_add_ion_number_density_fields_to_amr_ds():
     """
     ds = fake_amr_ds(fields=("density", "velocity_x", "velocity_y",
                              "velocity_z", "temperature", "metallicity"))
-    ftype = 'stream'
     ad = ds.all_data()
-    add_ion_number_density_field('O', 6, ds, ftype=ftype)
-    field = ('stream', 'O_p5_number_density')
+    add_ion_number_density_field('O', 6, ds)
+    field = ('gas', 'O_p5_number_density')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
 
@@ -154,10 +147,9 @@ def test_add_ion_density_fields_to_amr_ds():
     """
     ds = fake_amr_ds(fields=("density", "velocity_x", "velocity_y",
                              "velocity_z", "temperature", "metallicity"))
-    ftype = 'stream'
     ad = ds.all_data()
-    add_ion_density_field('O', 6, ds, ftype=ftype)
-    field = ('stream', 'O_p5_density')
+    add_ion_density_field('O', 6, ds)
+    field = ('gas', 'O_p5_density')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
 
@@ -171,10 +163,9 @@ def test_add_ion_mass_fields_to_amr_ds():
     """
     ds = fake_amr_ds(fields=("density", "velocity_x", "velocity_y",
                              "velocity_z", "temperature", "metallicity"))
-    ftype = 'stream'
     ad = ds.all_data()
-    add_ion_mass_field('O', 6, ds, ftype=ftype)
-    field = ('stream', 'O_p5_mass')
+    add_ion_mass_field('O', 6, ds)
+    field = ('gas', 'O_p5_mass')
     assert field in ds.derived_field_list
     assert isinstance(ad[field], np.ndarray)
 
@@ -190,10 +181,10 @@ def test_add_ion_fields_to_grid_ds():
                                    "velocity_z", "temperature", "metallicity"),
                            units= ('g/cm**3', 'cm/s', 'cm/s',
                                    'cm/s', 'K', ''))
-    ftype = 'stream'
+    ftype = 'gas'
     ad = ds.all_data()
     ions = ['H', 'O', 'N V']
-    add_ion_fields(ds, ions, ftype=ftype)
+    add_ion_fields(ds, ions)
     fields = ['H_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
     # Assure that a sampling of fields are added and can be sliced
     dirpath = tempfile.mkdtemp()
@@ -212,9 +203,9 @@ def test_add_all_ion_fields_to_grid_ds():
                                    "velocity_z", "temperature", "metallicity"),
                            units= ('g/cm**3', 'cm/s', 'cm/s',
                                    'cm/s', 'K', ''))
-    ftype = 'stream'
+    ftype = 'gas'
     ad = ds.all_data()
-    add_ion_fields(ds, 'all', ftype=ftype)
+    add_ion_fields(ds, 'all')
     fields = ['H_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
     # Assure that a sampling of fields are added and can be sliced
     dirpath = tempfile.mkdtemp()
@@ -233,7 +224,7 @@ def test_add_all_ion_fields_to_grid_ds_from_file():
                                    "velocity_z", "temperature", "metallicity"),
                            units= ('g/cm**3', 'cm/s', 'cm/s',
                                    'cm/s', 'K', ''))
-    ftype = 'stream'
+    ftype = 'gas'
     ad = ds.all_data()
     add_ion_fields(ds, 'all', ftype=ftype, line_database='lines.txt')
     fields = ['H_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
@@ -252,7 +243,7 @@ def test_add_all_ion_fields_to_amr_ds():
     """
     ds = fake_amr_ds(fields=("density", "velocity_x", "velocity_y",
                              "velocity_z", "temperature", "metallicity"))
-    ftype = 'stream'
+    ftype = 'gas'
     ad = ds.all_data()
     ions = ['H', 'O', 'N V']
     add_ion_fields(ds, ions, ftype=ftype)
@@ -317,7 +308,9 @@ def test_to_not_overwrite_fields_for_grid():
     Test to not overwrite an existing ion field
     """
     ds = load(ISO_GALAXY)
-    val_before = ds.r['H_p0_number_density'][0]
+    # temporary fix until p0 fields are fixed in yt
+    # val_before = ds.r['H_p0_number_density'][0]
+    val_before = ds.r['H_number_density'][0]
     add_ion_fields(ds, ['H'], ftype='gas')
     val_after = ds.r['H_p0_number_density'][0]
     assert val_before == val_after
