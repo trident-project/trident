@@ -18,6 +18,9 @@ import matplotlib.figure
 from matplotlib.backends.backend_agg import \
     FigureCanvasAgg
 
+_xlabels = {'angstrom': 'Wavelength [$\\rm\\AA$]',
+            'km/s': 'Velocity Offset [km/s]'}
+
 def plot_spectrum(wavelength, flux, filename="spectrum.png",
                   lambda_limits=None, flux_limits=None,
                   title=None, label=None, figsize=None, step=False,
@@ -184,28 +187,36 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
     my_axes = figure.add_axes((left_side, bottom_side, panel_width, panel_height))
 
     # Are we overplotting several spectra?  or just one?
-    if not (isinstance(wavelength, list) and isinstance(flux, list)):
-        wavelengths = [wavelength]
-        fluxs = [flux]
-        labels = [label]
-        steps = [step]
-    else:
-        wavelengths = wavelength
+    if isinstance(flux, list):
         fluxs = flux
-        if label is not None:
-            labels = label
-        else:
-            labels = [None]*len(fluxs)
-        if step is not None:
-            steps = step
-        else:
-            steps = [None]*len(fluxs)
+    else:
+        fluxs = [flux]
+
+    if isinstance(wavelength, list):
+        wavelengths = wavelength
+    else:
+        wavelengths = [wavelength]*len(fluxs)
+
+    if isinstance(step, list):
+        steps = step
+    else:
+        steps = [step]*len(fluxs)
+
+    if isinstance(label, list):
+        labels = label
+    else:
+        labels = [label]*len(fluxs)
 
     # A running maximum of flux for use in ylim scaling in final plot
     max_flux = 0.
 
-    for i, (wavelength, flux) in enumerate(zip(wavelengths, fluxs)):
+    if isinstance(wavelength, list):
+        key = wavelength[0]
+    else:
+        key = wavelength
+    xlabel = _xlabels.get(str(key.units))
 
+    for i, (wavelength, flux) in enumerate(zip(wavelengths, fluxs)):
         # Do we stagger the fluxes?
         if stagger is not None:
             flux -= stagger * i
@@ -237,7 +248,7 @@ def plot_spectrum(wavelength, flux, filename="spectrum.png",
         flux_limits = (0, 1.1*max_flux)
     my_axes.set_ylim(flux_limits[0], flux_limits[1])
     if axis_labels is None:
-        axis_labels = ('Wavelength [$\\rm\\AA$]', 'Relative Flux')
+        axis_labels = (xlabel, 'Relative Flux')
     my_axes.xaxis.set_label_text(axis_labels[0])
     my_axes.yaxis.set_label_text(axis_labels[1])
 

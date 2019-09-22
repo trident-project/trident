@@ -417,7 +417,7 @@ class LightRay(CosmologySplice):
             Default: None.
 
         :field_parameters: optional, dict
-            Used to set field parameters in light rays. For example, 
+            Used to set field parameters in light rays. For example,
             if the 'bulk_velocity' field parameter is set, the relative
             velocities used to calculate peculiar velocity will be adjusted
             accordingly.

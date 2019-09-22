@@ -59,6 +59,8 @@ install:
 
 before_script:
   - |
+    # tag the tip so we can get back to it
+    git tag tip
     # download config file and ion data
     if [ ! -f $TRIDENT_ION_DATA/hm2012_lr.h5 ]; then
       wget http://trident-project.org/data/ion_table/hm2012_lr.h5.gz
@@ -89,7 +91,7 @@ script:
   - |
     # gold-standard yt + trident tip
     export TRIDENT_GENERATE_TEST_RESULTS=0
-    git checkout HEAD
+    git checkout tip
     pip install -e .
     # relevant yt version
     pushd $YT_DIR
@@ -145,6 +147,7 @@ jobs:
 
     - stage: deploy
       name: "deploy to pypi"
+      if: tag =~ ^v
       python: 3.6
       before_script: skip
       before_install: skip

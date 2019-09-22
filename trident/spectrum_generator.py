@@ -18,6 +18,10 @@ from trident.absorption_spectrum.absorption_spectrum import \
     AbsorptionSpectrum
 from yt.convenience import \
     load
+from yt.data_objects.data_containers import \
+    YTDataContainer
+from yt.data_objects.static_output import \
+    Dataset
 from yt.funcs import \
     mylog, \
     YTArray
@@ -95,26 +99,40 @@ class SpectrumGenerator(AbsorptionSpectrum):
         leave this set to None.
         Default: None
 
-    :lambda_min: int
+    :lambda_min: float, YTQuantity, or 'auto'
 
-        The wavelength extrema of the spectra in angstroms
-        Defaults: None
+       lower wavelength bound in angstroms or velocity bound in km/s
+       (if bin_space set to 'velocity'). If set to 'auto', the lower
+       bound will be automatically adjusted to encompass all absorption
+       lines. The window will not be expanded for continuum features,
+       only absorption lines.
 
-    :lambda_max: int
+    :lambda_max: float, YTQuantity, or 'auto'
 
-        The wavelength extrema of the spectra in angstroms
-        Defaults: None
+       upper wavelength bound in angstroms or velocity bound in km/s
+       (if bin_space set to 'velocity'). If set to 'auto', the upper
+       bound will be automatically adjusted to encompass all absorption
+       lines. The window will not be expanded for continuum features,
+       only absorption lines.
 
     :n_lambda: int
 
-        The number of wavelength bins in the spectrum (inclusive), so if
+        The number of bins in the spectrum (inclusive), so if
         extrema = 10 and 20, and dlambda (binsize) = 1, then n_lambda = 11.
         Default: None
 
     :dlambda: float
 
-        The desired wavelength bin width of the spectrum (in angstroms).
+        size of the wavelength bins in angstroms or velocity bins in km/s.
         Default: None
+
+    :bin_space: 'wavelength' or 'velocity'
+
+        Sets the dimension in which spectra are created. If set to
+        wavelength, the resulting spectra are flux (or tau) vs. observed
+        wavelength. If set to velocity, the spectra are flux vs.
+        velocity offset from the rest wavelength of the absorption line.
+        Default: wavelength
 
     :lsf_kernel: string, optional
 
@@ -171,8 +189,11 @@ class SpectrumGenerator(AbsorptionSpectrum):
     """
     def __init__(self, instrument=None, lambda_min=None, lambda_max=None,
                  n_lambda=None, dlambda=None, lsf_kernel=None,
-                 line_database='lines.txt', ionization_table=None):
-        if instrument is None and lambda_min is None:
+                 line_database='lines.txt', ionization_table=None,
+                 bin_space='wavelength'):
+        if instrument is None and \
+          ((lambda_min is None or lambda_max is None) or \
+           (dlambda is None and n_lambda is None)):
             instrument = 'COS'
             mylog.info("No parameters specified, defaulting to COS instrument.")
         elif instrument is None:
@@ -180,7 +201,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                     lambda_max=lambda_max,
                                     n_lambda=n_lambda,
                                     dlambda=dlambda,
-                                    lsf_kernel=lsf_kernel, name="Custom")
+                                    lsf_kernel=lsf_kernel, name="Custom",
+                                    bin_space=bin_space)
         self.observing_redshift = 0.
         self._set_instrument(instrument)
         mylog.info("Setting instrument to %s" % self.instrument.name)
@@ -189,7 +211,9 @@ class SpectrumGenerator(AbsorptionSpectrum):
         AbsorptionSpectrum.__init__(self,
                                     self.instrument.lambda_min,
                                     self.instrument.lambda_max,
-                                    self.instrument.n_lambda)
+                                    n_lambda=self.instrument.n_lambda,
+                                    dlambda=self.instrument.dlambda,
+                                    bin_space=bin_space)
 
         if isinstance(line_database, LineDatabase):
             self.line_database = line_database
@@ -232,9 +256,12 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
         **Parameters**
 
-        :ray: string or dataset
+        :ray: string, dataset, or data container
 
-            Ray dataset filename or a loaded ray dataset
+            If a string, the path to the ray dataset. As a dataset,
+            this is the ray dataset loaded by yt. As a data container,
+            this is a data object created from a ray dataset, such as
+            a cut region.
 
         :lines: list of strings
 
@@ -334,7 +361,13 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
         if isinstance(ray, str):
             ray = load(ray)
-        ad = ray.all_data()
+        if isinstance(ray, Dataset):
+            ad = ray.all_data()
+        elif isinstance(ray, YTDataContainer):
+            ad = ray
+            ray = ad.ds
+        else:
+            raise RuntimeError("Unrecognized ray type.")
 
         # Clear out any previous spectrum that existed first
         self.clear_spectrum()
@@ -396,7 +429,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         if len(H_lines) > 0 and ly_continuum:
             self.add_continuum('Ly C', H_lines[0].field, 912.32336, 1.6e17, 3.0)
 
-        AbsorptionSpectrum.make_spectrum(self, ray,
+        AbsorptionSpectrum.make_spectrum(self, ad,
                                          output_file=None,
                                          line_list_file=None,
                                          output_absorbers_file=output_absorbers_file,
@@ -787,9 +820,13 @@ class SpectrumGenerator(AbsorptionSpectrum):
         the AbsorptionSpectrum object as well.  Also clear the line_subset
         stored by the LineDatabase.
         """
-        # Set flux and tau to ones and zeros
-        self.flux_field = np.ones(self.lambda_field.size)
-        self.tau_field = np.zeros(self.lambda_field.size)
+        if self.lambda_field is not None:
+            # Set flux and tau to ones and zeros
+            self.flux_field = np.ones(self.lambda_field.size)
+            self.tau_field = np.zeros(self.lambda_field.size)
+        else:
+            self.flux_field = None
+            self.tau_field = None
 
         # Clear out the line list that is stored in AbsorptionSpectrum
         self.line_list = []
@@ -917,7 +954,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         elif format == 'ASCII':
             self._write_spectrum_ascii(filename)
         else:
-            mylog.warn("Invalid format.  Must be 'HDF5', 'FITS', 'ASCII'. Defaulting to ASCII.")
+            mylog.warning("Invalid format.  Must be 'HDF5', 'FITS', 'ASCII'. Defaulting to ASCII.")
             self._write_spectrum_ascii(filename)
 
     def plot_spectrum(self, filename="spectrum.png",
@@ -997,6 +1034,11 @@ class SpectrumGenerator(AbsorptionSpectrum):
         >>> sg.make_spectrum(ray)
         >>> sg.plot_spectrum('spec_raw.png', features={'Ly a' : 1216})
         """
+
+        if self.tau_field is None:
+            mylog.warning('Spectrum is totally empty, no plotting to be done.')
+            return
+
         plot_spectrum(self.lambda_field, self.flux_field, filename=filename,
                       lambda_limits=lambda_limits, flux_limits=flux_limits,
                       title=title, label=label, figsize=figsize, step=step,

@@ -480,13 +480,21 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
         if ion == 1:
             alias_field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
 
+    ### temporary fix until p0 fields are fixed in yt
+    if ion == 1 and ('gas', alias_field) in ds.derived_field_list:
+        mylog.info('("gas", "%s") already exists, aliasing ("gas", "%s") to that.' %
+                   (alias_field, field))
+        _alias_field(ds, ("gas", field), ("gas", alias_field))
+
     add_ion_fraction_field(atom, ion, ds, ftype, ionization_table,
                            field_suffix=field_suffix,
                            sampling_type=sampling_type)
-    _add_field(ds, ("gas", field),function=_ion_number_density,
-               units="cm**-3", sampling_type=sampling_type)
-    if ion == 1: # add aliased field too
-        _alias_field(ds, ("gas", alias_field), ("gas", field))
+
+    if not (ion == 1 and ('gas', alias_field) in ds.derived_field_list):
+        _add_field(ds, ("gas", field),function=_ion_number_density,
+                   units="cm**-3", sampling_type=sampling_type)
+        if ion == 1: # add aliased field too
+            _alias_field(ds, ("gas", alias_field), ("gas", field))
 
 def add_ion_density_field(atom, ion, ds, ftype="gas",
                           ionization_table=None,
@@ -579,10 +587,17 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
 
     add_ion_number_density_field(atom, ion, ds, ftype, ionization_table,
                                  sampling_type=sampling_type)
-    _add_field(ds, ("gas", field), function=_ion_density,
-               units="g/cm**3", sampling_type=sampling_type)
-    if ion == 1: # add aliased field too
-        _alias_field(ds, ("gas", alias_field), ("gas", field))
+
+    ### temporary fix until p0 fields are fixed in yt
+    if ion == 1 and ('gas', alias_field) in ds.derived_field_list:
+        mylog.info('("gas", "%s") already exists, aliasing ("gas", "%s") to that.' %
+                   (alias_field, field))
+        _alias_field(ds, ("gas", field), ("gas", alias_field))
+    else:
+        _add_field(ds, ("gas", field), function=_ion_density,
+                   units="g/cm**3", sampling_type=sampling_type)
+        if ion == 1: # add aliased field too
+            _alias_field(ds, ("gas", alias_field), ("gas", field))
 
 def add_ion_mass_field(atom, ion, ds, ftype="gas",
                        ionization_table=None,
@@ -677,11 +692,18 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
     add_ion_density_field(atom, ion, ds, ftype, ionization_table,
                           field_suffix=field_suffix,
                           sampling_type=sampling_type)
-    _add_field(ds, ("gas", field), function=_ion_mass, units=r"g",
-               sampling_type=sampling_type)
-    if ion == 1: # add aliased field too
-        _alias_field(ds, ("gas", alias_field), ("gas", field))
-        
+
+    ### temporary fix until p0 fields are fixed in yt
+    if ion == 1 and ('gas', alias_field) in ds.derived_field_list:
+        mylog.info('("gas", "%s") already exists, aliasing ("gas", "%s") to that.' %
+                   (alias_field, field))
+        _alias_field(ds, ("gas", field), ("gas", alias_field))
+    else:
+        _add_field(ds, ("gas", field), function=_ion_mass, units=r"g",
+                   sampling_type=sampling_type)
+        if ion == 1: # add aliased field too
+            _alias_field(ds, ("gas", alias_field), ("gas", field))
+
 def _ion_mass(field, data):
     """
     Creates the function for a derived field for following the mass
