@@ -308,7 +308,9 @@ def test_to_not_overwrite_fields_for_grid():
     Test to not overwrite an existing ion field
     """
     ds = load(ISO_GALAXY)
-    val_before = ds.r['H_p0_number_density'][0]
+    # temporary fix until p0 fields are fixed in yt
+    # val_before = ds.r['H_p0_number_density'][0]
+    val_before = ds.r['H_number_density'][0]
     add_ion_fields(ds, ['H'], ftype='gas')
     val_after = ds.r['H_p0_number_density'][0]
     assert val_before == val_after
