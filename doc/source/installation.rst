@@ -10,7 +10,7 @@ Follow these steps to successfully install Trident and its dependencies.
 Versions of Trident
 -------------------
 
-Currently, there are three versions of Trident: the `stable version
+Previously, there were three versions of Trident: the `stable version
 <http://trident.readthedocs.io/en/stable>`_, the `developent version
 <http://trident.readthedocs.io/en/latest>`_, and the `demeshening version
 <https://nbviewer.jupyter.org/url/trident-project.org/notebooks/trident_demesh_install.ipynb>`_.
@@ -20,18 +20,24 @@ features, and it is also tied to the development version of yt, so occasionally
 unforseen bugs can crop up as these new features are added.  The demeshening
 version is currently in beta and active development and is used for better
 results on particle-based datasets.
-The installation steps are slightly different between the three versions,
+
+After Trident 1.2 was released on September 19, 2019, the demeshening version
+was merged with the main development branch. Now, there are only the stable
+version and the development version. 
+
+The installation steps are slightly different between the two versions,
 so pay attention in the steps below.  Don't worry if you want to change later,
 you can always switch between the two versions easily enough by following the
 directions in :ref:`uninstallation`.
 
 .. note::
-    The demeshening version is a variant of Trident for treating particle-based
+    The demeshening (development) version treats particle-based
     datasets more natively.  The demeshening version will give faster and more 
     accurate results with less memory overhead for particle-based datasets.  
-    For more information about the demeshening and full installation 
-    instructions, please see our `demeshening notebook
-    <https://nbviewer.jupyter.org/url/trident-project.org/notebooks/trident_demesh_install.ipynb>`_.
+    For more information about the demeshening version, please see our
+    `demeshening notebook
+    <https://nbviewer.jupyter.org/url/trident-project.org/notebooks/trident_demesh_install.ipynb>`_. **Note, the installation instructions in the notebook should be ignored.**
+    Instead, follow the instructions for :ref:`install-dev`.
 
 .. _step-1:
 
@@ -81,9 +87,16 @@ Installing the Development Version
 To get the development version, you'll pull the source code from its 
 repository using git, which should be installed as part of your yt 
 installation.  If it isn't try: ``conda install git``.  After that, you'll 
-use pip to install the source directly.  Go to your desired source code 
-installation directory and run::
+use pip to install the source directly. The development version of Trident
+requires the yt-4.0 development version of yt as well. Go to your desired
+source code installation directory and run::
 
+    $ # install yt
+    $ git clone https://github.com/yt-project/yt --branch=yt-4.0
+    $ cd yt
+    $ pip install -e .
+    $ cd ..
+    $ # install trident
     $ git clone https://github.com/trident-project/trident
     $ cd trident
     $ pip install -e .
