@@ -60,13 +60,13 @@ class AbsorptionSpectrumTest(TempDirTest):
         lr = LightRay(COSMO_PLUS, 'Enzo', 0.0, 0.03)
 
         lr.make_light_ray(seed=1234567,
-                          fields=['temperature', 'density', 'H_number_density'],
+                          fields=['temperature', 'density', 'H_p0_number_density'],
                           data_filename='lightray.h5')
 
         sp = AbsorptionSpectrum(900.0, 1800.0, 10000)
 
         my_label = 'HI Lya'
-        field = 'H_number_density'
+        field = 'H_p0_number_density'
         wavelength = 1215.6700  # Angstromss
         f_value = 4.164E-01
         gamma = 6.265e+08
@@ -76,7 +76,7 @@ class AbsorptionSpectrumTest(TempDirTest):
                     gamma, mass, label_threshold=1.e10)
 
         my_label = 'HI Lya'
-        field = 'H_number_density'
+        field = 'H_p0_number_density'
         wavelength = 912.323660  # Angstroms
         normalization = 1.6e17
         index = 3.0
@@ -102,13 +102,13 @@ class AbsorptionSpectrumTest(TempDirTest):
         ray_start = [0,0,0]
         ray_end = [1,1,1]
         lr.make_light_ray(start_position=ray_start, end_position=ray_end,
-                          fields=['temperature', 'density', 'H_number_density'],
+                          fields=['temperature', 'density', 'H_p0_number_density'],
                           data_filename='lightray.h5')
 
         sp = AbsorptionSpectrum(1200.0, 1300.0, 10001)
 
         my_label = 'HI Lya'
-        field = 'H_number_density'
+        field = 'H_p0_number_density'
         wavelength = 1215.6700  # Angstromss
         f_value = 4.164E-01
         gamma = 6.265e+08
@@ -136,13 +136,13 @@ class AbsorptionSpectrumTest(TempDirTest):
         ray_start = [0,0,0]
         ray_end = [1,1,1]
         lr.make_light_ray(start_position=ray_start, end_position=ray_end,
-                          fields=['temperature', 'density', 'H_number_density'],
+                          fields=['temperature', 'density', 'H_p0_number_density'],
                           data_filename='lightray.h5', use_peculiar_velocity=False)
 
         sp = AbsorptionSpectrum(1200.0, 1300.0, 10001)
 
         my_label = 'HI Lya'
-        field = 'H_number_density'
+        field = 'H_p0_number_density'
         wavelength = 1215.6700  # Angstromss
         f_value = 4.164E-01
         gamma = 6.265e+08
@@ -170,11 +170,11 @@ class AbsorptionSpectrumTest(TempDirTest):
         ray_start = [0,0,0]
         ray_end = [1,1,1]
         lr.make_light_ray(start_position=ray_start, end_position=ray_end,
-                          fields=['temperature', 'density', 'H_number_density'],
+                          fields=['temperature', 'density', 'H_p0_number_density'],
                           data_filename='lightray.h5')
 
         my_label = 'HI Lya'
-        field = 'H_number_density'
+        field = 'H_p0_number_density'
         wave = 1215.6700  # Angstromss
         f_value = 4.164E-01
         gamma = 6.265e+08
@@ -207,13 +207,13 @@ class AbsorptionSpectrumTest(TempDirTest):
         ray_start = [0,0,0]
         ray_end = [1,1,1]
         lr.make_light_ray(start_position=ray_start, end_position=ray_end,
-                          fields=['temperature', 'density', 'H_number_density'],
+                          fields=['temperature', 'density', 'H_p0_number_density'],
                           data_filename='lightray.h5')
 
         sp = AbsorptionSpectrum(900.0, 1800.0, 10000)
 
         my_label = 'HI Lya'
-        field = 'H_number_density'
+        field = 'H_p0_number_density'
         wavelength = 1215.6700  # Angstromss
         f_value = 4.164E-01
         gamma = 6.265e+08
@@ -223,7 +223,7 @@ class AbsorptionSpectrumTest(TempDirTest):
                     gamma, mass, label_threshold=1.e10)
 
         my_label = 'HI Lya'
-        field = 'H_number_density'
+        field = 'H_p0_number_density'
         wavelength = 912.323660  # Angstroms
         normalization = 1.6e17
         index = 3.0
@@ -246,13 +246,13 @@ class AbsorptionSpectrumTest(TempDirTest):
 
         lr.make_light_ray(seed=1234567,
                           fields=[('gas', 'temperature'),
-                                  ('gas', 'H_number_density')],
+                                  ('gas', 'H_p0_number_density')],
                           data_filename='lightray.h5')
 
         sp = AbsorptionSpectrum(900.0, 1800.0, 10000)
 
         my_label = 'HI Lya'
-        field = ('gas', 'H_number_density')
+        field = ('gas', 'H_p0_number_density')
         wavelength = 1215.6700  # Angstromss
         f_value = 4.164E-01
         gamma = 6.265e+08
@@ -262,7 +262,7 @@ class AbsorptionSpectrumTest(TempDirTest):
                     gamma, mass, label_threshold=1.e10)
 
         my_label = 'HI Lya'
-        field = ('gas', 'H_number_density')
+        field = ('gas', 'H_p0_number_density')
         wavelength = 912.323660  # Angstroms
         normalization = 1.6e17
         index = 3.0
@@ -289,13 +289,13 @@ class AbsorptionSpectrumTest(TempDirTest):
         ray_end = ds.domain_right_edge
         lr.make_light_ray(start_position=ray_start, end_position=ray_end,
                           fields=[('gas', 'temperature'),
-                                  ('gas', 'H_number_density')],
+                                  ('gas', 'H_p0_number_density')],
                           data_filename='lightray.h5')
 
         sp = AbsorptionSpectrum(1200.0, 1300.0, 10001)
 
         my_label = 'HI Lya'
-        field = ('gas', 'H_number_density')
+        field = ('gas', 'H_p0_number_density')
         wavelength = 1215.6700  # Angstromss
         f_value = 4.164E-01
         gamma = 6.265e+08
@@ -324,13 +324,13 @@ class AbsorptionSpectrumTest(TempDirTest):
         ray_start = ds.domain_left_edge
         ray_end = ds.domain_right_edge
         lr.make_light_ray(start_position=ray_start, end_position=ray_end,
-                          fields=['temperature', 'density', 'H_number_density'],
+                          fields=['temperature', 'density', 'H_p0_number_density'],
                           data_filename='lightray.h5')
 
         sp = AbsorptionSpectrum(800.0, 1300.0, 5001)
 
         my_label = 'HI Lya'
-        field = 'H_number_density'
+        field = 'H_p0_number_density'
         wavelength = 1215.6700  # Angstromss
         f_value = 4.164E-01
         gamma = 6.265e+08
@@ -340,7 +340,7 @@ class AbsorptionSpectrumTest(TempDirTest):
                     gamma, mass, label_threshold=1.e10)
 
         my_label = 'Ly C'
-        field = 'H_number_density'
+        field = 'H_p0_number_density'
         wavelength = 912.323660  # Angstroms
         normalization = 1.6e17
         index = 3.0
@@ -372,7 +372,7 @@ class AbsorptionSpectrumTest(TempDirTest):
 
         HI_parameters = {
             'name': 'HI',
-            'field': 'H_number_density',
+            'field': 'H_p0_number_density',
             'f': [.4164],
             'Gamma': [6.265E8],
             'wavelength': [1215.67],
