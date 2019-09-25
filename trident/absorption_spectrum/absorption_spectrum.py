@@ -781,7 +781,7 @@ class AbsorptionSpectrum(object):
             if (my_width < self.bin_width).any():
                 mylog.info("%d out of %d line components will be " +
                             "deposited as unresolved lines.",
-                            (thermal_width < self.bin_width).sum(),
+                            (my_width < self.bin_width).sum(),
                             n_absorbers)
 
             # Keep track of the lambda field before depositing a new line
