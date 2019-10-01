@@ -11,6 +11,17 @@ Contributors
 The `CREDITS file <https://github.com/trident-project/trident/blob/master/CREDITS>`_
 has an updated list of contributors to the codebase.
 
+Version 1.2.1 (October 1, 2019)
+-------------------------------
+
+This is a bug fix release.
+
+Bug Fixes
+^^^^^^^^^
+
+- Logging info doesn't use correct units
+  (`PR 99 <https://github.com/trident-project/trident/pull/99>`__)
+
 Version 1.2 (September 19, 2019)
 --------------------------------
 
