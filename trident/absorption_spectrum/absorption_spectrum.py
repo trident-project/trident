@@ -468,11 +468,7 @@ class AbsorptionSpectrum(object):
             field_data = input_object
 
         if self.bin_space == 'velocity':
-            if hasattr(input_ds, 'light_ray_solution'):
-                redshift = input_ds.light_ray_solution[-1].get('redshift', 0)
-            else:
-                redshift = 0
-            self.zero_redshift = redshift
+            self.zero_redshift = getattr(input_ds, 'current_redshift', 0)
 
         # temperature field required to calculate voigt profile widths
         if ('temperature' not in input_ds.derived_field_list) and \
