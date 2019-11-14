@@ -11,6 +11,17 @@ Contributors
 The `CREDITS file <https://github.com/trident-project/trident/blob/master/CREDITS>`_
 has an updated list of contributors to the codebase.
 
+Version 1.2.2 (November 14, 2019)
+---------------------------------
+
+This is a bug fix release.
+
+Bug Fixes
+^^^^^^^^^
+
+- Shift wavelength of velocity center to redshift from light ray solution
+  (`PR 102 <https://github.com/trident-project/trident/pull/102>`__)
+
 Version 1.2.1 (October 1, 2019)
 -------------------------------
 
