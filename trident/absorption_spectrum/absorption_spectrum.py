@@ -464,6 +464,9 @@ class AbsorptionSpectrum(object):
             input_ds = input_object.ds
             field_data = input_object
 
+        if self.bin_space == 'velocity':
+            self.zero_redshift = getattr(input_ds, 'current_redshift', 0)
+
         # temperature field required to calculate voigt profile widths
         if ('temperature' not in input_ds.derived_field_list) and \
            (('gas', 'temperature') not in input_ds.derived_field_list):
@@ -682,7 +685,13 @@ class AbsorptionSpectrum(object):
             return
 
         if self.bin_space == 'velocity':
-            wavelength_zero_point = self.line_list[0]['wavelength']
+            wavelength_zero_point = (1 + self.zero_redshift) * \
+              self.line_list[0]['wavelength']
+            mylog.info(
+                ('Setting wavelength of velocity center to %s ' +
+                 'line at z = %.3f: %s.') %
+                 (self.line_list[0]['label'], self.zero_redshift,
+                  wavelength_zero_point))
 
         # Change the redshifts of individual absorbers to account for the
         # redshift at which the observer sits
