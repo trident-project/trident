@@ -134,7 +134,7 @@ class VelocitySpaceTest(TempDirTest):
                               ly_continuum=False)
 
         sg_comp = SpectrumGenerator(
-            lambda_min=0., lambda_max='auto',
+            lambda_min=-10000., lambda_max='auto',
             dlambda=1.0, bin_space='velocity')
         sg_comp.make_spectrum("ray.h5", lines=self.line_list,
                               ly_continuum=False)
@@ -157,7 +157,7 @@ class VelocitySpaceTest(TempDirTest):
                               ly_continuum=False)
 
         sg_comp = SpectrumGenerator(
-            lambda_min='auto', lambda_max=0.,
+            lambda_min='auto', lambda_max=-10000.,
             dlambda=1.0, bin_space='velocity')
         sg_comp.make_spectrum("ray.h5", lines=self.line_list,
                               ly_continuum=False)
