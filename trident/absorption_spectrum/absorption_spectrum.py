@@ -852,7 +852,9 @@ class AbsorptionSpectrum(object):
                       self._get_bin_indices(
                           my_lambda, self.bin_width,
                           my_obs[i], window_width_in_bins)
-                    n_vbins = window_width_in_bins * n_vbins_per_bin[i]
+
+                    window_size = right_index - left_index
+                    n_vbins = window_size * n_vbins_per_bin[i]
 
                     # the array of virtual bins in lambda space
                     vbins = \
@@ -868,6 +870,12 @@ class AbsorptionSpectrum(object):
                           wavelength_zero_point.d
                     else:
                         raise RuntimeError('What bin_space is this?')
+
+                    if my_vbins.size > 1e6:
+                        mylog.warn(
+                            ('About to deposit a line with %d bins.' +
+                             'This may take a while. You might want to consider ' +
+                             'increasing the bin size.') % my_vbins.size)
 
                     # the virtual bins and their corresponding opacities
                     my_vbins, vtau = \
@@ -889,6 +897,16 @@ class AbsorptionSpectrum(object):
                                   my_obs[i], window_width_in_bins)
 
                         break
+
+                    # If we have fixed bins, call it done when the
+                    # spectrum takes up the entire range.
+                    if not self._auto_lambda:
+                        left_ok = vtau[0] < min_tau or left_index <= 0
+                        right_ok = vtau[-1] < min_tau or \
+                          right_index >= self.lambda_field.size
+                        if left_ok and right_ok:
+                            break
+
                     window_width_in_bins *= 2
 
                 if center_index is None:
@@ -1040,6 +1058,18 @@ class AbsorptionSpectrum(object):
         center_index = int(np.ceil(center_index))
         left_index = (center_index - window_width_in_bins//2)
         right_index = (center_index + window_width_in_bins//2)
+
+        # if fixed size, make some sensible bounds on size of virtual spectrum
+        if not self._auto_lambda:
+            if left_index <= 0 and right_index >= lambda_field.size:
+                left_index = 0
+                right_index = lambda_field.size
+            elif center_index < 0:
+                left_index = max(left_index, center_index)
+                right_index = min(right_index, lambda_field.size)
+            elif center_index > lambda_field.size:
+                left_index = max(left_index, 0)
+                right_index = min(right_index, center_index)
 
         return left_index, center_index, right_index
 
