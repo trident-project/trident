@@ -872,7 +872,7 @@ class AbsorptionSpectrum(object):
                         raise RuntimeError('What bin_space is this?')
 
                     if my_vbins.size > 1e6:
-                        mylog.warn(
+                        mylog.warning(
                             ('About to deposit a line with %d bins.' +
                              'This may take a while. You might want to consider ' +
                              'increasing the bin size.') % my_vbins.size)
