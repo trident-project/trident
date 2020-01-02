@@ -369,6 +369,10 @@ class SpectrumGenerator(AbsorptionSpectrum):
         else:
             raise RuntimeError("Unrecognized ray type.")
 
+        # temporary fix for yt-4.0 ytdata selection issue
+        ray.domain_left_edge = ray.domain_left_edge.to('code_length')
+        ray.domain_right_edge = ray.domain_right_edge.to('code_length')
+
         # Clear out any previous spectrum that existed first
         self.clear_spectrum()
 

@@ -464,6 +464,10 @@ class AbsorptionSpectrum(object):
             input_ds = input_object.ds
             field_data = input_object
 
+        # temporary fix for yt-4.0 ytdata selection issue
+        input_ds.domain_left_edge = input_ds.domain_left_edge.to('code_length')
+        input_ds.domain_right_edge = input_ds.domain_right_edge.to('code_length')
+
         if self.bin_space == 'velocity':
             self.zero_redshift = getattr(input_ds, 'current_redshift', 0)
 
