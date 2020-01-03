@@ -444,6 +444,11 @@ def make_onezone_ray(density=1e-26, temperature=1000, metallicity=0.3,
 
     # load dataset and make spectrum
     ray = load(filename)
+
+    # temporary fix for yt-4.0 ytdata selection issue
+    ray.domain_left_edge = ray.domain_left_edge.to('code_length')
+    ray.domain_right_edge = ray.domain_right_edge.to('code_length')
+
     return ray
 
 def import_check():

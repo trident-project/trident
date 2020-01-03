@@ -712,6 +712,11 @@ class LightRay(CosmologySplice):
         if data_filename is not None:
             self._write_light_ray(data_filename, all_data)
             ray_ds = load(data_filename)
+
+            # temporary fix for yt-4.0 ytdata selection issue
+            ray_ds.domain_left_edge = ray_ds.domain_left_edge.to('code_length')
+            ray_ds.domain_right_edge = ray_ds.domain_right_edge.to('code_length')
+
             return ray_ds
         else:
             return None
