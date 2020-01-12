@@ -1,0 +1,312 @@
+version: 2.1
+
+commands:
+  set-env:
+    description: "Set environment variables."
+    steps:
+      - run: |
+          echo 'export YT_DIR=$HOME/yt-git' >> $BASH_ENV
+          echo 'TRIDENT_ION_DATA=$HOME/.trident' >> $BASH_ENV
+          echo 'TRIDENT_ANSWER_DATA=$HOME/answer_test_data' >> $BASH_ENV
+          echo 'TRIDENT_CONFIG=$HOME/.trident/config.tri' >> $BASH_ENV
+          echo 'YT_GOLD=3b7ad0cf0e0c4002137100ac22557027d4811273' >> $BASH_ENV
+          echo 'YT_HEAD=yt-4.0' >> $BASH_ENV
+          echo 'TRIDENT_GOLD=test-standard-sph-viz-v4' >> $BASH_ENV
+          echo 'TRIDENT_HEAD=tip' >> $BASH_ENV
+
+  install-dependencies:
+    description: "Install dependencies."
+    parameters:
+      yttag:
+        type: string
+        default: YT_HEAD
+    steps:
+      - run: |
+          # tag the tip so we can get back to it
+          git tag tip
+          sudo apt-get update
+          sudo apt-get install -y texlive-latex-extra dvipng
+          if [ ! -d $HOME/venv ]; then
+              python3 -m venv $HOME/venv
+          fi
+          source $BASH_ENV
+          source $HOME/venv/bin/activate
+          pip install --upgrade pip
+          pip install --upgrade wheel
+          pip install --upgrade setuptools
+          pip install Cython numpy
+          if [ ! -f $YT_DIR/README.md ]; then
+              git clone --branch=yt-4.0 https://github.com/yt-project/yt $YT_DIR
+          fi
+          pushd $YT_DIR
+          git pull origin yt-4.0
+          git checkout ${<< parameters.yttag >>}
+          pip install -e .
+          popd
+          pip install -e .[dev]
+
+  install-yt:
+    description: "Install yt."
+    parameters:
+      yttag:
+        type: string
+        default: YT_GOLD
+    steps:
+      - run: |
+          source $BASH_ENV
+          source $HOME/venv/bin/activate
+          if [ ! -f $YT_DIR/README.md ]; then
+              git clone --branch=yt-4.0 https://github.com/yt-project/yt $YT_DIR
+          fi
+          pushd $YT_DIR
+          git pull origin yt-4.0
+          git checkout ${<< parameters.yttag >>}
+          pip install -e .
+          popd
+
+  install-trident:
+    description: "Install trident."
+    parameters:
+      tridenttag:
+        type: string
+        default: TRIDENT_HEAD
+    steps:
+      - run: |
+          source $BASH_ENV
+          source $HOME/venv/bin/activate
+          git checkout ${<< parameters.tridenttag >>}
+          pip install -e .[dev]
+
+  configure-trident:
+    description: "Configure trident."
+    steps:
+      - run: |
+          source $BASH_ENV
+          # configure trident
+          mkdir -p $TRIDENT_ION_DATA
+          echo "[Trident]" > $TRIDENT_CONFIG
+          echo "ion_table_dir = $TRIDENT_ION_DATA" >> $TRIDENT_CONFIG
+          echo "ion_table_file = hm2012_lr.h5" >> $TRIDENT_CONFIG
+          echo "answer_test_data_dir = $TRIDENT_ANSWER_DATA" >> $TRIDENT_CONFIG
+
+  download-test-data:
+    description: "Download test data."
+    steps:
+      - run: |
+          source $BASH_ENV
+          source $HOME/venv/bin/activate
+          # download ion balance data
+          if [ ! -f $TRIDENT_ION_DATA/hm2012_lr.h5 ]; then
+             wget http://trident-project.org/data/ion_table/hm2012_lr.h5.gz
+             gunzip hm2012_lr.h5.gz
+             mv hm2012_lr.h5 $TRIDENT_ION_DATA
+          fi
+          # download answer test data
+          if [ ! -f $TRIDENT_ANSWER_DATA/enzo_small/AMRCosmology.enzo ]; then
+             pushd tests
+             export RUN_DOWNLOAD_TEST=1
+             pytest test_download.py
+             popd
+          fi
+
+  run-tests:
+    description: "Build trident and run tests."
+    parameters:
+      coverage:
+        type: integer
+        default: 0
+      generate:
+        type: integer
+        default: 0
+
+    steps:
+      - run: |
+          source $BASH_ENV
+          source $HOME/venv/bin/activate
+          export TRIDENT_GENERATE_TEST_RESULTS=<< parameters.generate >>
+          if [[ << parameters.generate >> == 0 || ! -f $TRIDENT_ANSWER_DATA/test_results/TRIDENT_VERSION ]]; then
+              pushd tests
+              pytest --cov=trident
+          fi
+          if [ << parameters.coverage >> == 1 ]; then
+              # code coverage report
+              codecov
+          fi
+
+  build-docs:
+    description: "Test the docs build."
+    steps:
+      - run: |
+          source $BASH_ENV
+          source $HOME/venv/bin/activate
+          touch $HOME/.trident/hm2012_lr.h5
+          cd doc/source
+          python -m sphinx -M html "." "_build" -W
+
+executors:
+  python:
+    parameters:
+      tag:
+        type: string
+        default: latest
+    docker:
+      - image: circleci/python:<< parameters.tag >>
+
+jobs:
+  tests:
+    parameters:
+      tag:
+        type: string
+        default: latest
+      coverage:
+        type: integer
+        default: 0
+      yttag:
+        type: string
+        default: YT_HEAD
+    executor:
+      name: python
+      tag: << parameters.tag >>
+
+    working_directory: ~/trident
+
+    steps:
+      - checkout
+      - set-env
+
+      - restore_cache:
+          name: "Restore dependencies cache."
+          key: python-<< parameters.tag >>-dependencies-v2
+
+      - install-dependencies:
+          yttag: << parameters.yttag >>
+      - configure-trident
+
+      - save_cache:
+          name: "Save dependencies cache."
+          key: python-<< parameters.tag >>-dependencies-v2
+          paths:
+            - ~/.cache/pip
+            - ~/venv
+            - ~/yt-git
+
+      - restore_cache:
+          name: "Restore test data cache."
+          key: test-data-v1
+
+      - download-test-data
+
+      - save_cache:
+          name: "Save test data cache."
+          key: test-data-v1
+          paths:
+            - ~/.trident
+            - ~/answer_test_data
+
+      - install-yt:
+          yttag: << parameters.yttag >>
+
+      - install-trident:
+          tridenttag: "TRIDENT_GOLD"
+
+      - restore_cache:
+          name: "Restore answer tests cache."
+          key: test-results-<< parameters.tag >>-<< parameters.yttag >>-v1
+
+      - run-tests:
+          generate: 1
+
+      - save_cache:
+          name: "Save answer tests cache."
+          key: test-results-<< parameters.tag >>-<< parameters.yttag >>-v1
+          paths:
+            - ~/answer_test_data/test_results
+
+      - install-trident:
+          tridenttag: "TRIDENT_HEAD"
+
+      - run-tests:
+          coverage: << parameters.coverage >>
+          generate: 0
+
+  docs-test:
+    parameters:
+      tag:
+        type: string
+        default: latest
+    executor:
+      name: python
+      tag: << parameters.tag >>
+
+    working_directory: ~/trident
+
+    steps:
+      - checkout
+      - set-env
+
+      - restore_cache:
+          name: "Restore dependencies cache."
+          key: python-<< parameters.tag >>-dependencies-v1
+
+      - install-dependencies
+      - configure-trident
+
+      - save_cache:
+          name: "Save dependencies cache."
+          key: python-<< parameters.tag >>-dependencies-v1
+          paths:
+            - ~/.cache/pip
+            - ~/venv
+            - ~/yt-git
+
+      - build-docs
+
+workflows:
+   version: 2
+
+   normal-tests:
+     jobs:
+       - tests:
+           name: "Python 3.5 tests with yt gold"
+           tag: "3.5.9"
+
+       - tests:
+           name: "Python 3.6 tests with yt gold"
+           tag: "3.6.9"
+
+       - tests:
+           name: "Python 3.7 tests with yt gold"
+           tag: "3.7.6"
+
+       - tests:
+           name: "Python 3.8 tests with yt gold"
+           tag: "3.8.1"
+
+       - tests:
+           name: "Python 3.8 tests with yt tip"
+           tag: "3.8.1"
+           yttag: "YT_HEAD"
+           coverage: 1
+
+       - docs-test:
+           name: "Test docs build"
+           tag: "3.8.1"
+
+   daily:
+     triggers:
+       - schedule:
+           cron: "0 0 * * *"
+           filters:
+            branches:
+              only:
+                - master
+     jobs:
+       - tests:
+           name: "Python 3.8 tests with yt tip"
+           tag: "3.8.1"
+           yttag: "YT_HEAD"
+           coverage: 0
+
+       - docs-test:
+           name: "Test docs build"
+           tag: "3.8.1"
