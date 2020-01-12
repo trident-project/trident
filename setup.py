@@ -21,7 +21,7 @@ with open('README.md') as f:
     long_description = f.read()
 
 dev_requirements = [
-    'coveralls', 'flake8', 'pytest>=3.6', 'pytest-cov', 'twine', 'wheel',
+    'codecov', 'flake8', 'pytest>=3.6', 'pytest-cov', 'twine', 'wheel',
     'sphinx', 'scipy', 'sphinx_rtd_theme', 'gitpython']
 
 setup(
