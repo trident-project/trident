@@ -1,7 +1,7 @@
 # Trident
 
-[![Build Status](https://travis-ci.org/trident-project/trident.svg?branch=master)](https://travis-ci.org/trident-project/trident)
-[![Coverage Status](https://coveralls.io/repos/github/trident-project/trident/badge.svg?branch=master)](https://coveralls.io/github/trident-project/trident?branch=master)
+[![CircleCI](https://circleci.com/gh/trident-project/trident/tree/legacy.svg?style=svg)](https://circleci.com/gh/trident-project/trident/tree/legacy)
+[![Coverage Status](https://coveralls.io/repos/github/trident-project/trident/badge.svg?branch=legacy)](https://coveralls.io/github/trident-project/trident?branch=legacy)
 [![Documentation Status](https://readthedocs.org/projects/trident/badge/?version=latest)](http://trident.readthedocs.io/en/latest/?badge=latest)
 [![PyPI version](https://badge.fury.io/py/trident.svg)](https://badge.fury.io/py/trident)
 
