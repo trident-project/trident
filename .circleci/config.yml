@@ -130,7 +130,8 @@ commands:
           fi
           if [ << parameters.coverage >> == 1 ]; then
               # code coverage report
-              codecov
+              export COVERALLS_REPO_TOKEN="yUoFnf5H5uC9MJ9kLqzKaoSxkPf5dHc7F"
+              coveralls
           fi
 
   build-docs:
@@ -176,7 +177,7 @@ jobs:
 
       - restore_cache:
           name: "Restore dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v2
+          key: python-<< parameters.tag >>-dependencies-v3
 
       - install-dependencies:
           yttag: << parameters.yttag >>
@@ -184,7 +185,7 @@ jobs:
 
       - save_cache:
           name: "Save dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v2
+          key: python-<< parameters.tag >>-dependencies-v3
           paths:
             - ~/.cache/pip
             - ~/venv
