@@ -45,11 +45,11 @@ setup(
         "Topic :: Scientific/Engineering :: Visualization",
         "License :: OSI Approved :: BSD License",
         "Natural Language :: English",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Topic :: Scientific/Engineering :: Astronomy",
         "Topic :: Scientific/Engineering :: Physics",
         "Topic :: Scientific/Engineering :: Visualization",
@@ -66,5 +66,5 @@ setup(
         'requests',
         'yt>=3.4.0',
         'yt_astro_analysis'],
-      python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*'
+      python_requires='>=3.5'
 )
