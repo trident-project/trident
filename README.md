@@ -1,6 +1,6 @@
 # Trident
 
-[![Build Status](https://travis-ci.org/trident-project/trident.svg?branch=master)](https://travis-ci.org/trident-project/trident)
+[![CircleCI](https://circleci.com/gh/trident-project/trident/tree/master.svg?style=svg)](https://circleci.com/gh/trident-project/trident/tree/master)
 [![Coverage Status](https://coveralls.io/repos/github/trident-project/trident/badge.svg?branch=master)](https://coveralls.io/github/trident-project/trident?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/trident/badge/?version=latest)](http://trident.readthedocs.io/en/latest/?badge=latest)
 [![PyPI version](https://badge.fury.io/py/trident.svg)](https://badge.fury.io/py/trident)
@@ -34,4 +34,3 @@ pip install -e .
  * Trident documentation: http://trident.readthedocs.org
 
  * For questions, comments, and announcements, please join our low-volume mailing list: https://groups.google.com/forum/#!forum/trident-project-users
-
