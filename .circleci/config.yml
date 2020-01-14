@@ -300,7 +300,7 @@ workflows:
            filters:
             branches:
               only:
-                - master
+                - legacy
      jobs:
        - tests:
            name: "Python 3.8 tests with yt tip"
