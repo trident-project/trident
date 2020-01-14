@@ -250,14 +250,14 @@ jobs:
 
       - restore_cache:
           name: "Restore dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v1
+          key: python-<< parameters.tag >>-dependencies-v3
 
       - install-dependencies
       - configure-trident
 
       - save_cache:
           name: "Save dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v1
+          key: python-<< parameters.tag >>-dependencies-v3
           paths:
             - ~/.cache/pip
             - ~/venv
