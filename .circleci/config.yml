@@ -22,6 +22,9 @@ commands:
         default: YT_HEAD
     steps:
       - run: |
+          # add git user info so we can commit
+          git config --global user.email "fake@nothing.nothing"
+          git config --global user.name "C.I. Circle"
           # tag the tip so we can get back to it
           git tag tip
           sudo apt-get update
