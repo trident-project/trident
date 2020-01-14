@@ -167,7 +167,7 @@ jobs:
         default: 0
       yttag:
         type: string
-        default: YT_HEAD
+        default: YT_GOLD
     executor:
       name: python
       tag: << parameters.tag >>
