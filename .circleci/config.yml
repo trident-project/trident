@@ -19,7 +19,7 @@ commands:
     parameters:
       yttag:
         type: string
-        default: YT_HEAD
+        default: YT_GOLD
     steps:
       - run: |
           # add git user info so we can commit
@@ -42,30 +42,14 @@ commands:
               git clone --branch=yt-4.0 https://github.com/yt-project/yt $YT_DIR
           fi
           pushd $YT_DIR
-          git pull origin yt-4.0
+          # return to yt tip before pulling
+          git checkout ${YT_HEAD}
+          git pull origin ${YT_HEAD}
+          # checkout changeset we're actually testing
           git checkout ${<< parameters.yttag >>}
           pip install -e .
           popd
           pip install -e .[dev]
-
-  install-yt:
-    description: "Install yt."
-    parameters:
-      yttag:
-        type: string
-        default: YT_GOLD
-    steps:
-      - run: |
-          source $BASH_ENV
-          source $HOME/venv/bin/activate
-          if [ ! -f $YT_DIR/README.md ]; then
-              git clone --branch=yt-4.0 https://github.com/yt-project/yt $YT_DIR
-          fi
-          pushd $YT_DIR
-          git pull origin yt-4.0
-          git checkout ${<< parameters.yttag >>}
-          pip install -e .
-          popd
 
   install-trident:
     description: "Install trident."
@@ -206,9 +190,6 @@ jobs:
           paths:
             - ~/.trident
             - ~/answer_test_data
-
-      - install-yt:
-          yttag: << parameters.yttag >>
 
       - install-trident:
           tridenttag: "TRIDENT_GOLD"
