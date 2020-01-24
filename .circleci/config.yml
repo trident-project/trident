@@ -38,17 +38,19 @@ commands:
           pip install --upgrade wheel
           pip install --upgrade setuptools
           pip install Cython numpy
-          if [ ! -f $YT_DIR/README.md ]; then
-              git clone --branch=yt-4.0 https://github.com/yt-project/yt $YT_DIR
+          if [ << parameters.yttag >> != "None" ]; then
+              if [ ! -f $YT_DIR/README.md ]; then
+                  git clone --branch=yt-4.0 https://github.com/yt-project/yt $YT_DIR
+              fi
+              pushd $YT_DIR
+              # return to yt tip before pulling
+              git checkout ${YT_HEAD}
+              git pull origin ${YT_HEAD}
+              # checkout changeset we're actually testing
+              git checkout ${<< parameters.yttag >>}
+              pip install -e .
+              popd
           fi
-          pushd $YT_DIR
-          # return to yt tip before pulling
-          git checkout ${YT_HEAD}
-          git pull origin ${YT_HEAD}
-          # checkout changeset we're actually testing
-          git checkout ${<< parameters.yttag >>}
-          pip install -e .
-          popd
           pip install -e .[dev]
 
   install-trident:
@@ -228,22 +230,9 @@ jobs:
     steps:
       - checkout
       - set-env
-
-      - restore_cache:
-          name: "Restore dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v4
-
-      - install-dependencies
+      - install-dependencies:
+          yttag: "None"
       - configure-trident
-
-      - save_cache:
-          name: "Save dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v4
-          paths:
-            - ~/.cache/pip
-            - ~/venv
-            - ~/yt-git
-
       - build-docs
 
 workflows:
