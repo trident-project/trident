@@ -9,9 +9,9 @@ commands:
           echo 'TRIDENT_ION_DATA=$HOME/.trident' >> $BASH_ENV
           echo 'TRIDENT_ANSWER_DATA=$HOME/answer_test_data' >> $BASH_ENV
           echo 'TRIDENT_CONFIG=$HOME/.trident/config.tri' >> $BASH_ENV
-          echo 'YT_GOLD=3b7ad0cf0e0c4002137100ac22557027d4811273' >> $BASH_ENV
+          echo 'YT_GOLD=8dcc2fa135dfe7a62438507066527caf5cb379c1' >> $BASH_ENV
           echo 'YT_HEAD=yt-4.0' >> $BASH_ENV
-          echo 'TRIDENT_GOLD=test-standard-sph-viz-v4' >> $BASH_ENV
+          echo 'TRIDENT_GOLD=test-standard-sph-viz-v5' >> $BASH_ENV
           echo 'TRIDENT_HEAD=tip' >> $BASH_ENV
 
   install-dependencies:
@@ -164,7 +164,7 @@ jobs:
 
       - restore_cache:
           name: "Restore dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v3
+          key: python-<< parameters.tag >>-dependencies-v4
 
       - install-dependencies:
           yttag: << parameters.yttag >>
@@ -172,7 +172,7 @@ jobs:
 
       - save_cache:
           name: "Save dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v3
+          key: python-<< parameters.tag >>-dependencies-v4
           paths:
             - ~/.cache/pip
             - ~/venv
@@ -196,14 +196,14 @@ jobs:
 
       - restore_cache:
           name: "Restore answer tests cache."
-          key: test-results-<< parameters.tag >>-<< parameters.yttag >>-v1
+          key: test-results-<< parameters.tag >>-<< parameters.yttag >>-v2
 
       - run-tests:
           generate: 1
 
       - save_cache:
           name: "Save answer tests cache."
-          key: test-results-<< parameters.tag >>-<< parameters.yttag >>-v1
+          key: test-results-<< parameters.tag >>-<< parameters.yttag >>-v2
           paths:
             - ~/answer_test_data/test_results
 
@@ -231,14 +231,14 @@ jobs:
 
       - restore_cache:
           name: "Restore dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v3
+          key: python-<< parameters.tag >>-dependencies-v4
 
       - install-dependencies
       - configure-trident
 
       - save_cache:
           name: "Save dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v3
+          key: python-<< parameters.tag >>-dependencies-v4
           paths:
             - ~/.cache/pip
             - ~/venv
