@@ -40,7 +40,7 @@ commands:
           pip install Cython numpy
           if [ << parameters.yttag >> != "None" ]; then
               if [ ! -f $YT_DIR/README.md ]; then
-                  git clone --branch=yt-4.0 https://github.com/yt-project/yt $YT_DIR
+                  git clone --branch=${YT_HEAD} https://github.com/yt-project/yt $YT_DIR
               fi
               pushd $YT_DIR
               # return to yt tip before pulling
