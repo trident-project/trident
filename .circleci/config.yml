@@ -19,9 +19,12 @@ commands:
     parameters:
       yttag:
         type: string
-        default: YT_HEAD
+        default: YT_GOLD
     steps:
       - run: |
+          # add git user info so we can commit
+          git config --global user.email "fake@nothing.nothing"
+          git config --global user.name "C.I. Circle"
           # tag the tip so we can get back to it
           git tag tip
           sudo apt-get update
@@ -35,34 +38,20 @@ commands:
           pip install --upgrade wheel
           pip install --upgrade setuptools
           pip install Cython numpy
-          if [ ! -f $YT_DIR/README.md ]; then
-              git clone --branch=master https://github.com/yt-project/yt $YT_DIR
+          if [ << parameters.yttag >> != "None" ]; then
+              if [ ! -f $YT_DIR/README.md ]; then
+                  git clone --branch=${YT_HEAD} https://github.com/yt-project/yt $YT_DIR
+              fi
+              pushd $YT_DIR
+              # return to yt tip before pulling
+              git checkout ${YT_HEAD}
+              git pull origin ${YT_HEAD}
+              # checkout changeset we're actually testing
+              git checkout ${<< parameters.yttag >>}
+              pip install -e .
+              popd
           fi
-          pushd $YT_DIR
-          git pull origin master
-          git checkout ${<< parameters.yttag >>}
-          pip install -e .
-          popd
           pip install -e .[dev]
-
-  install-yt:
-    description: "Install yt."
-    parameters:
-      yttag:
-        type: string
-        default: YT_GOLD
-    steps:
-      - run: |
-          source $BASH_ENV
-          source $HOME/venv/bin/activate
-          if [ ! -f $YT_DIR/README.md ]; then
-              git clone --branch=master https://github.com/yt-project/yt $YT_DIR
-          fi
-          pushd $YT_DIR
-          git pull origin master
-          git checkout ${<< parameters.yttag >>}
-          pip install -e .
-          popd
 
   install-trident:
     description: "Install trident."
@@ -164,7 +153,7 @@ jobs:
         default: 0
       yttag:
         type: string
-        default: YT_HEAD
+        default: YT_GOLD
     executor:
       name: python
       tag: << parameters.tag >>
@@ -204,9 +193,6 @@ jobs:
             - ~/.trident
             - ~/answer_test_data
 
-      - install-yt:
-          yttag: << parameters.yttag >>
-
       - install-trident:
           tridenttag: "TRIDENT_GOLD"
 
@@ -244,22 +230,9 @@ jobs:
     steps:
       - checkout
       - set-env
-
-      - restore_cache:
-          name: "Restore dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v1-legacy
-
-      - install-dependencies
+      - install-dependencies:
+          yttag: "None"
       - configure-trident
-
-      - save_cache:
-          name: "Save dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v1-legacy
-          paths:
-            - ~/.cache/pip
-            - ~/venv
-            - ~/yt-git
-
       - build-docs
 
 workflows:
@@ -288,6 +261,25 @@ workflows:
            tag: "3.8.1"
            yttag: "YT_HEAD"
            coverage: 1
+
+       - docs-test:
+           name: "Test docs build"
+           tag: "3.8.1"
+
+   daily:
+     triggers:
+       - schedule:
+           cron: "0 0 * * *"
+           filters:
+            branches:
+              only:
+                - master
+     jobs:
+       - tests:
+           name: "Python 3.8 tests with yt tip"
+           tag: "3.8.1"
+           yttag: "YT_HEAD"
+           coverage: 0
 
        - docs-test:
            name: "Test docs build"
