@@ -284,3 +284,22 @@ workflows:
        - docs-test:
            name: "Test docs build"
            tag: "3.8.1"
+
+   weekly:
+     triggers:
+       - schedule:
+           cron: "0 0 * * 1"
+           filters:
+            branches:
+              only:
+                - legacy
+     jobs:
+       - tests:
+           name: "Python 3.8 tests with yt tip"
+           tag: "3.8.1"
+           yttag: "YT_HEAD"
+           coverage: 0
+
+       - docs-test:
+           name: "Test docs build"
+           tag: "3.8.1"
