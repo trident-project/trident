@@ -478,13 +478,12 @@ def make_compound_ray(parameter_filename, simulation_type,
     if ionization_table is None:
         ionization_table = ion_table_filepath
 
-    # We use the final dataset from the simulation in order to test it for
+    # We use the final dataset from the light ray solution in order to test it for
     # what fields are present, etc.  This all assumes that the fields present
     # in this output will be present in ALL outputs.  Hopefully this is true,
     # because testing each dataset is going to be slow and a pain.
 
-    sim = simulation(parameter_filename, simulation_type)
-    ds = load(sim.all_outputs[-1]['filename'])
+    ds = load(lr.light_ray_solution[-1]['filename'])
 
     # Include some default fields in the ray to assure it's processed correctly.
 
