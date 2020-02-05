@@ -166,7 +166,7 @@ jobs:
 
       - restore_cache:
           name: "Restore dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v2-legacy
+          key: legacy-<< parameters.tag >>-dependencies-v2
 
       - install-dependencies:
           yttag: << parameters.yttag >>
@@ -174,7 +174,7 @@ jobs:
 
       - save_cache:
           name: "Save dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v2-legacy
+          key: legacy-<< parameters.tag >>-dependencies-v2
           paths:
             - ~/.cache/pip
             - ~/venv
@@ -198,14 +198,14 @@ jobs:
 
       - restore_cache:
           name: "Restore answer tests cache."
-          key: test-results-<< parameters.tag >>-<< parameters.yttag >>-v3-legacy
+          key: legacy-results-<< parameters.tag >>-<< parameters.yttag >>-v3
 
       - run-tests:
           generate: 1
 
       - save_cache:
           name: "Save answer tests cache."
-          key: test-results-<< parameters.tag >>-<< parameters.yttag >>-v3-legacy
+          key: legacy-results-<< parameters.tag >>-<< parameters.yttag >>-v3
           paths:
             - ~/answer_test_data/test_results
 
