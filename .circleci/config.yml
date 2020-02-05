@@ -198,14 +198,14 @@ jobs:
 
       - restore_cache:
           name: "Restore answer tests cache."
-          key: test-results-<< parameters.tag >>-<< parameters.yttag >>-v3
+          key: test-results-<< parameters.tag >>-<< parameters.yttag >>-v5
 
       - run-tests:
           generate: 1
 
       - save_cache:
           name: "Save answer tests cache."
-          key: test-results-<< parameters.tag >>-<< parameters.yttag >>-v3
+          key: test-results-<< parameters.tag >>-<< parameters.yttag >>-v5
           paths:
             - ~/answer_test_data/test_results
 
