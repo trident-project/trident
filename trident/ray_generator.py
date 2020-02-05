@@ -272,7 +272,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
                              redshift=redshift)
 
 def make_compound_ray(parameter_filename, simulation_type,
-                      near_redshift, far_redshift,
+                      near_redshift, far_redshift, find_outputs=False,
                       lines=None, ftype='gas', fields=None,
                       solution_filename=None, data_filename=None,
                       use_minimum_datasets=True, max_box_fraction=1.0,
@@ -357,6 +357,13 @@ def make_compound_ray(parameter_filename, simulation_type,
 
         The near and far redshift bounds of the LightRay through the
         simulation datasets.
+
+    :find_outputs: optional, bool
+
+        Whether or not to search for datasets in the current
+        directory. This is useful if the number of existing datasets is
+        different than what would be predicted by the simulation parameter file.
+        Default: False.
 
     :lines: list of strings, optional
 
@@ -518,6 +525,7 @@ def make_compound_ray(parameter_filename, simulation_type,
                   simulation_type=simulation_type,
                   near_redshift=near_redshift,
                   far_redshift=far_redshift,
+                  find_outputs=find_outputs,
                   use_minimum_datasets=use_minimum_datasets,
                   max_box_fraction=max_box_fraction,
                   deltaz_min=deltaz_min,
