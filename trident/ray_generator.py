@@ -14,8 +14,7 @@ SpectrumGenerator class and member functions.
 from trident.light_ray import \
     LightRay
 from yt.convenience import \
-    load, \
-    simulation
+    load
 from trident.config import \
     ion_table_filepath
 from trident.line_database import \
