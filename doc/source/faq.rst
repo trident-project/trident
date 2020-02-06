@@ -95,4 +95,4 @@ Check out our :ref:`citation <citation>` page.
 How do I get an invite to the Trident slack channel?
 ----------------------------------------------------
 
-Click on this `link <https://join.slack.com/t/trident-project/shared_invite/enQtMzE4ODM5NTg1Nzk0LTA2OTBmMGZmZTVmY2JhMmYwNjMwMjdhZWEyZGQ1YzNiY2EzOGY2MzVhNDY3YzMwZWI5YTY3NmU5YWQ4NjU5YTQ>`_.
+Click on this `link <https://join.slack.com/t/trident-project/shared_invite/enQtMzE4ODM5NTg1Nzk0LTdjMTgyMDY1YjdiMjlhN2FiNjcwMWY2MmJlZDVhNWEwNWZmYmVhY2MyYjFiYjJkOTg3OWI2NjZkZjUxZGQ3NGU>`_.
