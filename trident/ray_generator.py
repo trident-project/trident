@@ -14,8 +14,7 @@ SpectrumGenerator class and member functions.
 from trident.light_ray import \
     LightRay
 from yt.convenience import \
-    load, \
-    simulation
+    load
 from trident.config import \
     ion_table_filepath
 from trident.line_database import \
@@ -240,7 +239,8 @@ def make_compound_ray(parameter_filename, simulation_type,
                       solution_filename=None, data_filename=None,
                       use_minimum_datasets=True, max_box_fraction=1.0,
                       deltaz_min=0.0, minimum_coherent_box_fraction=0.0,
-                      seed=None, setup_function=None, load_kwargs=None,
+                      find_outputs=False, seed=None,
+                      setup_function=None, load_kwargs=None,
                       line_database=None, ionization_table=None,
                       field_parameters = None):
     """
@@ -384,6 +384,13 @@ def make_compound_ray(parameter_filename, simulation_type,
         rerandomizing the ray location and trajectory.
         Default: 0.0
 
+    :find_outputs: optional, bool
+
+        Whether or not to search for datasets in the current
+        directory. This is useful if the number of existing datasets is
+        different than what would be predicted by the simulation parameter file.
+        Default: False.
+
     :seed: int, optional
 
         Sets the seed for the random number generator used to determine the
@@ -461,6 +468,7 @@ def make_compound_ray(parameter_filename, simulation_type,
                   simulation_type=simulation_type,
                   near_redshift=near_redshift,
                   far_redshift=far_redshift,
+                  find_outputs=find_outputs,
                   use_minimum_datasets=use_minimum_datasets,
                   max_box_fraction=max_box_fraction,
                   deltaz_min=deltaz_min,
@@ -470,13 +478,12 @@ def make_compound_ray(parameter_filename, simulation_type,
     if ionization_table is None:
         ionization_table = ion_table_filepath
 
-    # We use the final dataset from the simulation in order to test it for
+    # We use the final dataset from the light ray solution in order to test it for
     # what fields are present, etc.  This all assumes that the fields present
     # in this output will be present in ALL outputs.  Hopefully this is true,
     # because testing each dataset is going to be slow and a pain.
 
-    sim = simulation(parameter_filename, simulation_type)
-    ds = load(sim.all_outputs[-1]['filename'])
+    ds = load(lr.light_ray_solution[-1]['filename'])
 
     # Include some default fields in the ray to assure it's processed correctly.
 
