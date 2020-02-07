@@ -35,7 +35,7 @@ from yt.utilities.physical_constants import speed_of_light_cgs
 from yt.data_objects.static_output import Dataset
 
 class LightRay(CosmologySplice):
-    """
+    r"""
     A 1D object representing the path of a light ray passing through a
     simulation.  LightRays can be either simple, where they pass through a
     single dataset, or compound, where they pass through consecutive
