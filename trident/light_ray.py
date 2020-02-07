@@ -600,9 +600,6 @@ class LightRay(CosmologySplice):
                 for key, val in field_parameters.items():
                     sub_ray.set_field_parameter(key, val)
                 asort = np.argsort(sub_ray["t"])
-                sub_data['l'].extend(sub_ray['t'][asort] *
-                                     vector_length(sub_ray.start_point,
-                                                   sub_ray.end_point))
                 sub_data['dl'].extend(sub_ray['dts'][asort] *
                                       vector_length(sub_ray.start_point,
                                                     sub_ray.end_point))
@@ -658,6 +655,9 @@ class LightRay(CosmologySplice):
                 if key == "extra_data":
                     continue
                 sub_data[key] = ds.arr(sub_data[key]).in_cgs()
+
+            # Calculate length along line of sight.
+            sub_data['l'] = sub_data['dl'].cumsum() - sub_data['dl']
 
             # Get redshift for each lixel.  Assume linear relation between l
             # and z.  so z = z_start - (l * (z_range / l_range))
