@@ -234,12 +234,13 @@ def make_simple_ray(dataset_file, start_position, end_position,
                              redshift=redshift)
 
 def make_compound_ray(parameter_filename, simulation_type,
-                      near_redshift, far_redshift, find_outputs=False,
+                      near_redshift, far_redshift,
                       lines=None, ftype='gas', fields=None,
                       solution_filename=None, data_filename=None,
                       use_minimum_datasets=True, max_box_fraction=1.0,
                       deltaz_min=0.0, minimum_coherent_box_fraction=0.0,
-                      seed=None, setup_function=None, load_kwargs=None,
+                      find_outputs=False, seed=None,
+                      setup_function=None, load_kwargs=None,
                       line_database=None, ionization_table=None,
                       field_parameters = None):
     """
@@ -313,13 +314,6 @@ def make_compound_ray(parameter_filename, simulation_type,
         The near and far redshift bounds of the LightRay through the
         simulation datasets.
 
-    :find_outputs: optional, bool
-
-        Whether or not to search for datasets in the current
-        directory. This is useful if the number of existing datasets is
-        different than what would be predicted by the simulation parameter file.
-        Default: False.
-
     :lines: list of strings, optional
 
         List of strings that determine which fields will be added to the ray
@@ -389,6 +383,13 @@ def make_compound_ray(parameter_filename, simulation_type,
         the fraction of the total box width to be traversed before
         rerandomizing the ray location and trajectory.
         Default: 0.0
+
+    :find_outputs: optional, bool
+
+        Whether or not to search for datasets in the current
+        directory. This is useful if the number of existing datasets is
+        different than what would be predicted by the simulation parameter file.
+        Default: False.
 
     :seed: int, optional
 
