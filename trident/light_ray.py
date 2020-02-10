@@ -657,14 +657,14 @@ class LightRay(CosmologySplice):
                 sub_data[key] = ds.arr(sub_data[key]).in_cgs()
 
             # Calculate length along line of sight.
+            sub_data['dl'].convert_to_units('unitary')
             sub_data['l'] = sub_data['dl'].cumsum() - sub_data['dl']
 
             # Get redshift for each lixel.  Assume linear relation between l
             # and z.  so z = z_start - (l * (z_range / l_range))
             sub_data['redshift'] = my_segment['redshift'] - \
-              (sub_data['l'] * \
-              (my_segment['redshift'] - next_redshift) / \
-              vector_length(my_start, my_end).in_cgs())
+              (sub_data['l'] / sub_data['l'][-1]) * \
+              (my_segment['redshift'] - next_redshift)
 
             # When using the peculiar velocity, create effective redshift
             # (redshift_eff) field combining cosmological redshift and
