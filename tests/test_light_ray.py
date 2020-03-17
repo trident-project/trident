@@ -135,10 +135,10 @@ class LightRayTest(TempDirTest):
         Tests to assure a light ray covers the full redshift range appropriate
         for that comoving line of sight distance.  Was not always so!
         """
-        ds = load(GIZMO_COSMO_SINGLE)
+        ds = load(COSMO_PLUS_SINGLE)
         ray = make_simple_ray(ds, start_position=ds.domain_left_edge, end_position=ds.domain_right_edge, lines=['H'])
-        assert_almost_equal(ray.r['redshift'][0], 0.00489571, decimal=8)
-        assert_almost_equal(ray.r['redshift'][-1], -0.00416831, decimal=8)
+        assert_almost_equal(ray.r['redshift'][0], 0.00699901, decimal=8)
+        assert_almost_equal(ray.r['redshift'][-1], -0.01147344, decimal=8)
 
     def test_light_ray_redshift_monotonic(self):
         """
