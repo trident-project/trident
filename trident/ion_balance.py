@@ -16,7 +16,6 @@ from yt.fields.field_detector import \
 from yt.utilities.linear_interpolators import \
     TrilinearFieldInterpolator, \
     UnilinearFieldInterpolator
-import six
 from yt.utilities.physical_constants import mh
 from yt.funcs import mylog
 import numpy as np
@@ -306,7 +305,7 @@ def add_ion_fields(ds, ions, ftype='gas',
     # Otherwise, any ion can be selected (not just ones in the line list).
     else:
         if ions == 'all' or ions == ['all']:
-            for k, v in six.iteritems(atomic_number):
+            for k, v in atomic_number.items():
                 for j in range(v+1):
                     ion_list.append((k, j+1))
         else:

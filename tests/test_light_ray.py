@@ -129,3 +129,13 @@ class LightRayTest(TempDirTest):
 
         ds = load('lightray.h5')
         compare_light_ray_solutions(lr, ds)
+
+    def test_light_ray_redshift_monotonic(self):
+        """
+        Tests to assure a light ray redshift decreases monotonically
+        when ray extends outside the domain.
+        """
+        ds = load(COSMO_PLUS_SINGLE)
+        ray = make_simple_ray(ds, start_position=ds.domain_center,
+                              end_position=ds.domain_center+ds.domain_width)
+        assert((np.diff(ray.data['redshift']) < 0).all())

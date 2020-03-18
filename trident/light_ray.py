@@ -35,7 +35,7 @@ from yt.utilities.physical_constants import speed_of_light_cgs
 from yt.data_objects.static_output import Dataset
 
 class LightRay(CosmologySplice):
-    """
+    r"""
     A 1D object representing the path of a light ray passing through a
     simulation.  LightRays can be either simple, where they pass through a
     single dataset, or compound, where they pass through consecutive
@@ -599,9 +599,6 @@ class LightRay(CosmologySplice):
                 for key, val in field_parameters.items():
                     sub_ray.set_field_parameter(key, val)
                 asort = np.argsort(sub_ray["t"])
-                sub_data['l'].extend(sub_ray['t'][asort] *
-                                     vector_length(sub_ray.start_point,
-                                                   sub_ray.end_point))
                 sub_data['dl'].extend(sub_ray['dts'][asort] *
                                       vector_length(sub_ray.start_point,
                                                     sub_ray.end_point))
@@ -658,12 +655,18 @@ class LightRay(CosmologySplice):
                     continue
                 sub_data[key] = ds.arr(sub_data[key]).in_cgs()
 
+            # Calculate length along line of sight.
+            sub_data['dl'].convert_to_units('unitary')
+            # l_ray is ray length entering the cell
+            # sub_data['l'] is ray length leaving the cell
+            l_ray = sub_data['dl'].cumsum()
+            sub_data['l'] = l_ray - sub_data['dl']
+
             # Get redshift for each lixel.  Assume linear relation between l
             # and z.  so z = z_start - (l * (z_range / l_range))
             sub_data['redshift'] = my_segment['redshift'] - \
-              (sub_data['l'] * \
-              (my_segment['redshift'] - next_redshift) / \
-              vector_length(my_start, my_end).in_cgs())
+              (sub_data['l'] / l_ray[-1]) * \
+              (my_segment['redshift'] - next_redshift)
 
             # When using the peculiar velocity, create effective redshift
             # (redshift_eff) field combining cosmological redshift and
