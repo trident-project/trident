@@ -35,7 +35,7 @@ from yt.utilities.physical_constants import speed_of_light_cgs
 from yt.data_objects.static_output import Dataset
 
 class LightRay(CosmologySplice):
-    """
+    r"""
     A 1D object representing the path of a light ray passing through a
     simulation.  LightRays can be either simple, where they pass through a
     single dataset, or compound, where they pass through consecutive
@@ -592,6 +592,9 @@ class LightRay(CosmologySplice):
             for field in all_fields:
                 sub_data[field] = []
 
+            # Keep track of length along full ray.
+            ray_length = ds.quan(0, 'code_length')
+
             # Get data for all subsegments in segment.
             for sub_segment in sub_segments:
                 mylog.info("Getting subsegment: %s to %s." %
@@ -600,12 +603,17 @@ class LightRay(CosmologySplice):
                 for key, val in field_parameters.items():
                     sub_ray.set_field_parameter(key, val)
                 asort = np.argsort(sub_ray["t"])
-                sub_data['l'].extend(sub_ray['t'][asort] *
-                                     vector_length(sub_ray.start_point,
-                                                   sub_ray.end_point))
-                sub_data['dl'].extend(sub_ray['dts'][asort] *
-                                      vector_length(sub_ray.start_point,
-                                                    sub_ray.end_point))
+                sub_length = vector_length(
+                    sub_ray.start_point,
+                    sub_ray.end_point)
+
+                # redshifts derived from l values
+                sub_data['l'].extend(
+                    sub_ray['t'][asort] * sub_length + ray_length)
+                ray_length += sub_length
+
+                # column densities derived from dl values
+                sub_data['dl'].extend(sub_ray['dts'][asort] * sub_length)
 
                 for field in data_fields:
                     sub_data[field].extend(sub_ray[field][asort])
@@ -660,11 +668,10 @@ class LightRay(CosmologySplice):
                 sub_data[key] = ds.arr(sub_data[key]).in_cgs()
 
             # Get redshift for each lixel.  Assume linear relation between l
-            # and z.  so z = z_start - (l * (z_range / l_range))
+            # and z.  so z = z_start - z_range * (l / l_range)
             sub_data['redshift'] = my_segment['redshift'] - \
-              (sub_data['l'] * \
-              (my_segment['redshift'] - next_redshift) / \
-              vector_length(my_start, my_end).in_cgs())
+              (sub_data['l'] / ray_length) * \
+              (my_segment['redshift'] - next_redshift)
 
             # When using the peculiar velocity, create effective redshift
             # (redshift_eff) field combining cosmological redshift and
