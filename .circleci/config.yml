@@ -11,7 +11,7 @@ commands:
           echo 'TRIDENT_CONFIG=$HOME/.trident/config.tri' >> $BASH_ENV
           echo 'YT_GOLD=8dcc2fa135dfe7a62438507066527caf5cb379c1' >> $BASH_ENV
           echo 'YT_HEAD=yt-4.0' >> $BASH_ENV
-          echo 'TRIDENT_GOLD=tip' >> $BASH_ENV
+          echo 'TRIDENT_GOLD=test-standard-sph-viz-v6' >> $BASH_ENV
           echo 'TRIDENT_HEAD=tip' >> $BASH_ENV
 
   install-dependencies:
