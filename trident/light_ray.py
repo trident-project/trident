@@ -668,9 +668,9 @@ class LightRay(CosmologySplice):
                 sub_data[key] = ds.arr(sub_data[key]).in_cgs()
 
             # Get redshift for each lixel.  Assume linear relation between l
-            # and z.  so z = z_start - (l * (z_range / l_range))
+            # and z.  so z = z_start - z_range * (l / l_range)
             sub_data['redshift'] = my_segment['redshift'] - \
-              (sub_data['l'] / sub_data['l'][-1]) * \
+              (sub_data['l'] / ray_length) * \
               (my_segment['redshift'] - next_redshift)
 
             # When using the peculiar velocity, create effective redshift
