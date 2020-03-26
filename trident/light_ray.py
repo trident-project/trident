@@ -592,6 +592,9 @@ class LightRay(CosmologySplice):
             for field in all_fields:
                 sub_data[field] = []
 
+            # Keep track of length along full ray.
+            ray_length = ds.quan(0, 'code_length')
+
             # Get data for all subsegments in segment.
             for sub_segment in sub_segments:
                 mylog.info("Getting subsegment: %s to %s." %
@@ -600,9 +603,17 @@ class LightRay(CosmologySplice):
                 for key, val in field_parameters.items():
                     sub_ray.set_field_parameter(key, val)
                 asort = np.argsort(sub_ray["t"])
-                sub_data['dl'].extend(sub_ray['dts'][asort] *
-                                      vector_length(sub_ray.start_point,
-                                                    sub_ray.end_point))
+                sub_length = vector_length(
+                    sub_ray.start_point,
+                    sub_ray.end_point)
+
+                # redshifts derived from l values
+                sub_data['l'].extend(
+                    sub_ray['t'][asort] * sub_length + ray_length)
+                ray_length += sub_length
+
+                # column densities derived from dl values
+                sub_data['dl'].extend(sub_ray['dts'][asort] * sub_length)
 
                 for field in data_fields:
                     sub_data[field].extend(sub_ray[field][asort])
@@ -655,10 +666,6 @@ class LightRay(CosmologySplice):
                 if key == "extra_data":
                     continue
                 sub_data[key] = ds.arr(sub_data[key]).in_cgs()
-
-            # Calculate length along line of sight.
-            sub_data['dl'].convert_to_units('unitary')
-            sub_data['l'] = sub_data['dl'].cumsum() - sub_data['dl']
 
             # Get redshift for each lixel.  Assume linear relation between l
             # and z.  so z = z_start - (l * (z_range / l_range))
