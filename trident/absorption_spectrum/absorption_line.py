@@ -18,10 +18,14 @@ import numpy as np
 from yt.utilities.physical_constants import \
     charge_proton_cgs, \
     mass_electron_cgs, \
-    speed_of_light_cgs
+    speed_of_light_cgs, \
+    planck_constant_cgs, \
+    boltzmann_constant_cgs
 from yt.utilities.on_demand_imports import _scipy, NotAModule
+from yt.units.yt_array import YTArray, YTQuantity
 
 special = _scipy.special
+signal = _scipy.signal
 tau_factor = None
 _cs = None
 
@@ -143,7 +147,6 @@ def voigt_old(a, u):
     k1 = k1.astype(np.float64).clip(0)
     return k1
 
-
 def tau_profile(lambda_0, f_value, gamma, v_doppler, column_density,
                 delta_v=None, delta_lambda=None,
                 lambda_bins=None, n_lambda=12000, dlambda=0.01):
@@ -159,7 +162,7 @@ def tau_profile(lambda_0, f_value, gamma, v_doppler, column_density,
     f_value : float
        absorption line f-value.
     gamma : float
-       absorption line gamma value.
+       absorption line gamma value
     v_doppler : float in cm/s
        doppler b-parameter.
     column_density : float in cm^-2
@@ -213,11 +216,88 @@ def tau_profile(lambda_0, f_value, gamma, v_doppler, column_density,
     # tau_0
     tau_X = tau_factor * column_density * f_value / v_doppler
     tau0 = tau_X * lambda_0 * 1e-8
-
+    
     # dimensionless frequency offset in units of doppler freq
     x = _cs / v_doppler * (lam1 / lambda_bins - 1.0)
     a = gamma / (4.0 * np.pi * nudop)               # damping parameter
     phi = voigt(a, x)                               # line profile
+    tauphi = tau0 * phi              # profile scaled with tau0
+
+    return (lambda_bins, tauphi)
+
+def tau_profile_21cm(lambda_0, f_value, gamma, temperature, number_density,
+                h_now, delta_v=None, delta_lambda=None,
+                lambda_bins=None, n_lambda=12000, dlambda=0.01):
+    r"""
+    Create an optical depth vs. wavelength profile for the
+    21 cm forest. The optical depth is calculated using eq. 1 in https://arxiv.org/abs/1510.02296. At this point in the implementation, we make a very reasonable assumption that (1+ 1/H(z) dv/dr) ~ 1. 
+
+    Parameters
+    ----------
+
+    lambda_0 : float in angstroms
+       central wavelength.
+    f_value : float
+       absorption line f-value.
+    gamma : float
+       absorption line gamma value. For this case, represents the einstein coefficient A_10
+    temperature : Gas temperature in K
+       Gas temperature. Assumption that T_K = T_S is made here. 
+    number_density : float in cm^-2
+       neutral hydrogen number density.
+    h_now ; hubble constant at redshift z 
+        H(z)
+    delta_v : float in cm/s
+       velocity offset from lambda_0.
+       Default: None (no shift).
+    delta_lambda : float in angstroms
+        wavelength offset.
+        Default: None (no shift).
+    lambda_bins : array in angstroms
+        wavelength array for line deposition.  If None, one will be
+        created using n_lambda and dlambda.
+        Default: None.
+    n_lambda : int
+        size of lambda bins to create if lambda_bins is None.
+        Default: 12000.
+    dlambda : float in angstroms
+        lambda bin width in angstroms if lambda_bins is None.
+        Default: 0.01.
+
+    """
+    global tau_factor
+    if tau_factor is None:
+        lam0 = YTQuantity(lambda_0,'angstrom')
+        gam = YTQuantity(gamma,'1/s')
+        tau_factor = ((3 / 32 / np.pi) * planck_constant_cgs * gam *
+                speed_of_light_cgs * lam0**2 / boltzmann_constant_cgs
+                ).in_cgs().d
+
+    global _cs
+    if _cs is None:
+        _cs = speed_of_light_cgs.d[()]
+
+    # shift lambda_0 by delta_v
+    if delta_v is not None:
+        lam1 = lambda_0 * (1 + delta_v / _cs)
+    elif delta_lambda is not None:
+        lam1 = lambda_0 + delta_lambda
+    else:
+        lam1 = lambda_0
+
+    # create wavelength
+    if lambda_bins is None:
+        lambda_bins = lam1 + \
+            np.arange(n_lambda, dtype=np.float) * dlambda - \
+            n_lambda * dlambda / 2  # wavelength vector (angstroms)
+
+    # tau_0
+    tau0 = (tau_factor * number_density) / (temperature * h_now)
+    idx = np.digitize(lam1,lambda_bins,right=True)
+    if idx == len(lambda_bins):
+        phi = np.zeros_like(lambda_bins)
+    else:    
+        phi =  signal.unit_impulse(lambda_bins.size,idx)
     tauphi = tau0 * phi              # profile scaled with tau0
 
     return (lambda_bins, tauphi)
