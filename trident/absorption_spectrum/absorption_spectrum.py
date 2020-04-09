@@ -485,9 +485,7 @@ class AbsorptionSpectrum(object):
         self.hubble_constant = getattr(input_ds,'hubble_constant')
         self.omega_matter = getattr(input_ds,'omega_matter')
         self.omega_lambda = getattr(input_ds,'omega_lambda')
-
-        if self.bin_space == 'velocity':
-            self.zero_redshift = getattr(input_ds, 'current_redshift', 0)
+        self.zero_redshift = getattr(input_ds, 'current_redshift', 0)
 
         # temperature field required to calculate voigt profile widths
         if ('temperature' not in input_ds.derived_field_list) and \
