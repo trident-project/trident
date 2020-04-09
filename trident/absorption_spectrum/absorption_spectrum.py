@@ -91,16 +91,27 @@ class AbsorptionSpectrum(object):
         wavelength. If set to velocity, the spectra are flux vs.
         velocity offset from the rest wavelength of the absorption line.
         Default: wavelength
+
+    :deposition_method: 'voigt' or 'delta'
+
+        Sets the line profile in which spectra are deposited. If set to
+        voigt, the resulting line profiles are deposited as voigt profiles
+        . If set to delta, the line profiles are set to delta. This is 
+        useful for modelling the 21 cm Forest of neutral hydrogen and in cases
+        where thermal broadening is to be ignored. 
+        Default: voigt
+
     """
 
     def __init__(self, lambda_min, lambda_max, n_lambda=None, dlambda=None,
-                 bin_space='wavelength'):
+                 bin_space='wavelength',deposition_method='voigt'):
 
         if bin_space not in _bin_space_units:
             raise RuntimeError(
                 'Invalid bin_space value: "%s". Valid values are: "%s".' %
                 (bin_space, '", "'.join(list(_bin_space_units))))
         self.bin_space = bin_space
+        self.deposition_method = deposition_method
         lunits = _bin_space_units[self.bin_space]
 
         if dlambda is not None:
@@ -471,7 +482,7 @@ class AbsorptionSpectrum(object):
         input_ds.domain_left_edge = input_ds.domain_left_edge.to('code_length')
         input_ds.domain_right_edge = input_ds.domain_right_edge.to('code_length')
 
-        self.h0 = getattr(input_ds,'hubble_constant')
+        self.hubble_constant = getattr(input_ds,'hubble_constant')
         self.omega_matter = getattr(input_ds,'omega_matter')
         self.omega_lambda = getattr(input_ds,'omega_lambda')
 
@@ -748,20 +759,17 @@ class AbsorptionSpectrum(object):
             n_absorbers = len(lambda_obs)
             temperature = field_data['temperature'].d
 
-            # the actual thermal width of the lines
-            if line['wavelength'].d == 2.1e9:
-                thermal_b = YTArray(np.ones(redshift.size),'km/s') 
-            else:    
-                thermal_b =  np.sqrt((2 * boltzmann_constant_cgs *
-                                          field_data['temperature']) /
-                                          line['atomic_mass'])
+            # thermal broadening b parameter
+            thermal_b =  np.sqrt((2 * boltzmann_constant_cgs *
+                                      field_data['temperature']) /
+                                      line['atomic_mass'])
             # the actual thermal width of the lines
             thermal_width = (lambda_obs * thermal_b /
                              c_kms).to('angstrom')
 
 
-            co = Cosmology(self.h0,self.omega_matter,self.omega_lambda,0.0)
-            h_now = co.hubble_parameter(np.max(redshift)).d #H(z)
+            co = Cosmology(self.hubble_constant,self.omega_matter,self.omega_lambda,0.0)
+            h_now = co.hubble_parameter(self.zero_redshift).d #H(z) s^-1
             # Sanitize units for faster runtime of the tau_profile machinery.
             lambda_0 = line['wavelength'].d  # line's rest frame; angstroms
             cdens = column_density.in_units("cm**-2").d # cm**-2
@@ -792,7 +800,6 @@ class AbsorptionSpectrum(object):
             # 3) a bin width will be divisible by vbin_width times a power of
             #    10; this will assure we don't get spikes in the deposited
             #    spectra from uneven numbers of vbins per bin
-
             if self.bin_space == 'wavelength':
                 my_width = thermal_width
             elif self.bin_space == 'velocity':
@@ -865,7 +872,6 @@ class AbsorptionSpectrum(object):
                     # may be <0 or >the size of the array.  In the end, we deposit
                     # the bins that actually overlap with the AbsorptionSpectrum's
                     # range in lambda.
-
                     left_index, center_index, right_index = \
                       self._get_bin_indices(
                           my_lambda, self.bin_width,
@@ -897,18 +903,20 @@ class AbsorptionSpectrum(object):
                              'increasing the bin size.') % my_vbins.size)
 
                     # the virtual bins and their corresponding opacities
-                    if (line['wavelength'].d == 2.1e9): 
+                    if (line['label'] == '21 cm'): 
                         my_vbins, vtau = \
                             tau_profile_21cm(
                                 lambda_0, line['f_value'], line['gamma'],
                                 temperature[i], ndens[i], h_now,
-                                delta_lambda=dlambda[i], lambda_bins=my_vbins)
+                                delta_lambda=dlambda[i], lambda_bins=my_vbins,
+                                deposition_method=self.deposition_method)
                     else:
                         my_vbins, vtau = \
                             tau_profile(
                                 lambda_0, line['f_value'], line['gamma'],
                                 thermb[i], cdens[i],
-                                delta_lambda=dlambda[i], lambda_bins=my_vbins)
+                                delta_lambda=dlambda[i], lambda_bins=my_vbins,
+                                deposition_method=self.deposition_method)
 
                     # If tau has not dropped below min tau threshold by the
                     # edges (ie the wings), then widen the wavelength
@@ -947,16 +955,26 @@ class AbsorptionSpectrum(object):
                 # normal use of the word by observers.  It is an equivalent
                 # with in tau, not in flux, and is only used internally in
                 # this subgrid deposition as EW_tau.
-                if lambda_0 == 2.1e9:
+                # The different behavior for the 21 cm line here stems from
+                # the fact that line profiles are treated as deltas instead 
+                # of voigt profiles. 
+                if self.deposition_method == 'voigt':
+                    vEW_tau = vtau * vbin_width[i]
+                elif self.deposition_method == 'delta': 
                     vEW_tau = vtau
                 else: 
-                    vEW_tau = vtau * vbin_width[i]
+                    raise RuntimeError('Unknown line deposition method')
                 EW_tau = np.zeros(right_index - left_index)
                 EW_tau_indices = np.arange(left_index, right_index)
                 for k, val in enumerate(EW_tau_indices):
                     EW_tau[k] = vEW_tau[n_vbins_per_bin[i] * k:
                                         n_vbins_per_bin[i] * (k + 1)].sum()
-                EW_tau = EW_tau/self.bin_width.d
+                if self.deposition_method == 'voigt':
+                    EW_tau = EW_tau/self.bin_width.d
+                elif self.deposition_method == 'delta': 
+                    EW_tau = EW_tau
+                else: 
+                    raise RuntimeError('Unknown line deposition method')
 
                 # only deposit EW_tau bins that actually intersect the original
                 # spectral wavelength range (i.e. lambda_field)

@@ -29,6 +29,13 @@ signal = _scipy.signal
 tau_factor = None
 _cs = None
 
+def delta(lam1,lambda_bins):
+    idx = np.digitize(lam1,lambda_bins,right=True)
+    if idx == len(lambda_bins):
+        phi = np.zeros_like(lambda_bins)
+    else:    
+        phi =  signal.unit_impulse(lambda_bins.size,idx)
+    return phi
 
 def voigt_scipy(a, u):
     x = np.asarray(u).astype(np.float64)
@@ -149,7 +156,8 @@ def voigt_old(a, u):
 
 def tau_profile(lambda_0, f_value, gamma, v_doppler, column_density,
                 delta_v=None, delta_lambda=None,
-                lambda_bins=None, n_lambda=12000, dlambda=0.01):
+                lambda_bins=None, n_lambda=12000, dlambda=0.01,
+                deposition_method='voigt'):
     r"""
     Create an optical depth vs. wavelength profile for an
     absorption line using a voigt profile.
@@ -183,6 +191,13 @@ def tau_profile(lambda_0, f_value, gamma, v_doppler, column_density,
     dlambda : float in angstroms
         lambda bin width in angstroms if lambda_bins is None.
         Default: 0.01.
+    :deposition_method: 'voigt' or 'delta'
+        Sets the line profile in which spectra are deposited. If set to
+        voigt, the resulting line profiles are deposited as voigt profiles
+        . If set to delta, the line profiles are set to delta. This is 
+        useful for modelling the 21 cm Forest of neutral hydrogen and in cases
+        where thermal broadening is to be ignored. 
+        Default: voigt
 
     """
     global tau_factor
@@ -220,17 +235,24 @@ def tau_profile(lambda_0, f_value, gamma, v_doppler, column_density,
     # dimensionless frequency offset in units of doppler freq
     x = _cs / v_doppler * (lam1 / lambda_bins - 1.0)
     a = gamma / (4.0 * np.pi * nudop)               # damping parameter
-    phi = voigt(a, x)                               # line profile
+    if deposition_method == 'voigt':
+        phi = voigt(a, x)                               # line profile
+    else:
+        phi = delta(lam1,lambda_bins)
     tauphi = tau0 * phi              # profile scaled with tau0
 
     return (lambda_bins, tauphi)
 
 def tau_profile_21cm(lambda_0, f_value, gamma, temperature, number_density,
                 h_now, delta_v=None, delta_lambda=None,
-                lambda_bins=None, n_lambda=12000, dlambda=0.01):
+                lambda_bins=None, n_lambda=12000, dlambda=0.01,
+                deposition_method='voigt'):
     r"""
-    Create an optical depth vs. wavelength profile for the
-    21 cm forest. The optical depth is calculated using eq. 1 in https://arxiv.org/abs/1510.02296. At this point in the implementation, we make a very reasonable assumption that (1+ 1/H(z) dv/dr) ~ 1. 
+    Create an optical depth vs. wavelength profile for the 
+    21 cm forest. The optical depth is calculated using eq. 1 
+    in https://arxiv.org/abs/1510.02296. 
+    At the moment in the implementation, we make a very reasonable
+    assumption that (1+ 1/H(z) dv/dr) ~ 1. 
 
     Parameters
     ----------
@@ -241,12 +263,12 @@ def tau_profile_21cm(lambda_0, f_value, gamma, temperature, number_density,
        absorption line f-value.
     gamma : float
        absorption line gamma value. For this case, represents the einstein coefficient A_10
-    temperature : Gas temperature in K
+    temperature : float in Kelvin
        Gas temperature. Assumption that T_K = T_S is made here. 
-    number_density : float in cm^-2
-       neutral hydrogen number density.
-    h_now ; hubble constant at redshift z 
-        H(z)
+    number_density : float in cm^-3
+       neutral hydrogen number density
+    h_now ; float in s^-1 
+        Hhubble constant at redshift z. H(z)
     delta_v : float in cm/s
        velocity offset from lambda_0.
        Default: None (no shift).
@@ -263,6 +285,13 @@ def tau_profile_21cm(lambda_0, f_value, gamma, temperature, number_density,
     dlambda : float in angstroms
         lambda bin width in angstroms if lambda_bins is None.
         Default: 0.01.
+    :deposition_method: 'voigt' or 'delta'
+        Sets the line profile in which spectra are deposited. If set to
+        voigt, the resulting line profiles are deposited as voigt profiles
+        . If set to delta, the line profiles are set to delta. This is 
+        useful for modelling the 21 cm Forest of neutral hydrogen and in cases
+        where thermal broadening is to be ignored. 
+        Default: voigt
 
     """
     global tau_factor
@@ -293,11 +322,10 @@ def tau_profile_21cm(lambda_0, f_value, gamma, temperature, number_density,
 
     # tau_0
     tau0 = (tau_factor * number_density) / (temperature * h_now)
-    idx = np.digitize(lam1,lambda_bins,right=True)
-    if idx == len(lambda_bins):
-        phi = np.zeros_like(lambda_bins)
-    else:    
-        phi =  signal.unit_impulse(lambda_bins.size,idx)
+    if deposition_method == 'voigt':
+        raise RuntimeError('21 cm currently only supports delta profile deposition')
+    else:
+        phi = delta(lam1,lambda_bins)    #line profile as a delta
     tauphi = tau0 * phi              # profile scaled with tau0
 
     return (lambda_bins, tauphi)
