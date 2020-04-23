@@ -20,7 +20,6 @@ from trident.config import \
 import numpy as np
 from shutil import copyfile
 import os.path
-from six.moves import range
 
 def test_uniquify():
     """
