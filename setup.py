@@ -59,12 +59,11 @@ setup(
       },
     install_requires=[
         'astropy',
-        'future',
         'h5py',
         'matplotlib',
         'numpy!=1.14.0',
         'requests',
-        'yt>=3.4.0',
+        'yt>=3.6.0,<4.0',
         'yt_astro_analysis'],
       python_requires='>=3.5'
 )

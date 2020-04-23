@@ -11,12 +11,11 @@ Testing utilities for Trident
 # The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
-from __future__ import print_function
 from trident import path as trident_path
 import os
 
 def get_gold_standard_version():
-    f = open(os.path.join(trident_path, '../.travis.yml'), 'r')
+    f = open(os.path.join(trident_path, '../.circleci/config.yml'), 'r')
     for line in f:
         line = line.lstrip()
         if line.startswith('YT_GOLD'):
