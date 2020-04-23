@@ -59,7 +59,6 @@ setup(
       },
     install_requires=[
         'astropy',
-        'future',
         'h5py',
         'matplotlib',
         'numpy!=1.14.0',

@@ -5,8 +5,6 @@ AbsorptionSpectrum class and member functions.
 
 """
 
-from __future__ import absolute_import
-
 #-----------------------------------------------------------------------------
 # Copyright (c) 2013-2017, yt Development Team.
 # Copyright (c) 2017, Trident Development Team.

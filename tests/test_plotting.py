@@ -11,7 +11,6 @@ Tests for Plotting functionality
 # The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
-from __future__ import absolute_import
 from trident.plotting import plot_spectrum
 from trident.utilities import make_onezone_ray
 from trident.spectrum_generator import \
