@@ -9,7 +9,7 @@ commands:
           echo 'TRIDENT_ION_DATA=$HOME/.trident' >> $BASH_ENV
           echo 'TRIDENT_ANSWER_DATA=$HOME/answer_test_data' >> $BASH_ENV
           echo 'TRIDENT_CONFIG=$HOME/.trident/config.tri' >> $BASH_ENV
-          echo 'YT_GOLD=6692802ea1bf7b4fbb6b0bc207aaea14730eec84' >> $BASH_ENV
+          echo 'YT_GOLD=yt-3.6.0' >> $BASH_ENV
           echo 'YT_HEAD=master' >> $BASH_ENV
           echo 'TRIDENT_GOLD=test-standard-v6' >> $BASH_ENV
           echo 'TRIDENT_HEAD=tip' >> $BASH_ENV
@@ -45,7 +45,7 @@ commands:
               pushd $YT_DIR
               # return to yt tip before pulling
               git checkout ${YT_HEAD}
-              git pull origin ${YT_HEAD}
+              git pull origin ${YT_HEAD} --tag
               # checkout changeset we're actually testing
               git checkout ${<< parameters.yttag >>}
               pip install -e .
@@ -166,7 +166,7 @@ jobs:
 
       - restore_cache:
           name: "Restore dependencies cache."
-          key: legacy-<< parameters.tag >>-dependencies-v2
+          key: legacy-<< parameters.tag >>-dependencies-v3
 
       - install-dependencies:
           yttag: << parameters.yttag >>
@@ -174,7 +174,7 @@ jobs:
 
       - save_cache:
           name: "Save dependencies cache."
-          key: legacy-<< parameters.tag >>-dependencies-v2
+          key: legacy-<< parameters.tag >>-dependencies-v3
           paths:
             - ~/.cache/pip
             - ~/venv
@@ -198,14 +198,14 @@ jobs:
 
       - restore_cache:
           name: "Restore answer tests cache."
-          key: legacy-results-<< parameters.tag >>-<< parameters.yttag >>-v4
+          key: legacy-results-<< parameters.tag >>-<< parameters.yttag >>-v5
 
       - run-tests:
           generate: 1
 
       - save_cache:
           name: "Save answer tests cache."
-          key: legacy-results-<< parameters.tag >>-<< parameters.yttag >>-v4
+          key: legacy-results-<< parameters.tag >>-<< parameters.yttag >>-v5
           paths:
             - ~/answer_test_data/test_results
 
@@ -259,7 +259,7 @@ workflows:
        - tests:
            name: "Python 3.8 tests with yt tip"
            tag: "3.8.1"
-           yttag: "YT_HEAD"
+           yttag: "YT_GOLD"
            coverage: 1
 
        - docs-test:
@@ -278,7 +278,7 @@ workflows:
        - tests:
            name: "Python 3.8 tests with yt tip"
            tag: "3.8.1"
-           yttag: "YT_HEAD"
+           yttag: "YT_GOLD"
            coverage: 0
 
        - docs-test:
@@ -297,7 +297,7 @@ workflows:
        - tests:
            name: "Python 3.8 tests with yt tip"
            tag: "3.8.1"
-           yttag: "YT_HEAD"
+           yttag: "YT_GOLD"
            coverage: 0
 
        - docs-test:
