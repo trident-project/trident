@@ -21,37 +21,40 @@ commands:
         type: string
         default: YT_GOLD
     steps:
-      - run: |
-          # add git user info so we can commit
-          git config --global user.email "fake@nothing.nothing"
-          git config --global user.name "C.I. Circle"
-          # tag the tip so we can get back to it
-          git tag tip
-          sudo apt-get update
-          sudo apt-get install -y texlive-latex-extra dvipng
-          if [ ! -d $HOME/venv ]; then
-              python3 -m venv $HOME/venv
-          fi
-          source $BASH_ENV
-          source $HOME/venv/bin/activate
-          pip install --upgrade pip
-          pip install --upgrade wheel
-          pip install --upgrade setuptools
-          pip install Cython numpy
-          if [ << parameters.yttag >> != "None" ]; then
-              if [ ! -f $YT_DIR/README.md ]; then
-                  git clone --branch=${YT_HEAD} https://github.com/yt-project/yt $YT_DIR
-              fi
-              pushd $YT_DIR
-              # return to yt tip before pulling
-              git checkout ${YT_HEAD}
-              git pull origin ${YT_HEAD}
-              # checkout changeset we're actually testing
-              git checkout ${<< parameters.yttag >>}
-              pip install -e .
-              popd
-          fi
-          pip install -e .[dev]
+      - run:
+          name: "Install dependencies."
+          no_output_timeout: 20m
+          command: |
+            # add git user info so we can commit
+            git config --global user.email "fake@nothing.nothing"
+            git config --global user.name "C.I. Circle"
+            # tag the tip so we can get back to it
+            git tag tip
+            sudo apt-get update
+            sudo apt-get install -y texlive-latex-extra dvipng
+            if [ ! -d $HOME/venv ]; then
+                python3 -m venv $HOME/venv
+            fi
+            source $BASH_ENV
+            source $HOME/venv/bin/activate
+            pip install --upgrade pip
+            pip install --upgrade wheel
+            pip install --upgrade setuptools
+            pip install Cython numpy
+            if [ << parameters.yttag >> != "None" ]; then
+                if [ ! -f $YT_DIR/README.md ]; then
+                    git clone --branch=${YT_HEAD} https://github.com/yt-project/yt $YT_DIR
+                fi
+                pushd $YT_DIR
+                # return to yt tip before pulling
+                git checkout ${YT_HEAD}
+                git pull origin ${YT_HEAD}
+                # checkout changeset we're actually testing
+                git checkout ${<< parameters.yttag >>}
+                pip install -e .
+                popd
+            fi
+            pip install -e .[dev]
 
   install-trident:
     description: "Install trident."
