@@ -166,7 +166,7 @@ jobs:
 
       - restore_cache:
           name: "Restore dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v5
+          key: python-<< parameters.tag >>-dependencies-v6
 
       - install-dependencies:
           yttag: << parameters.yttag >>
@@ -174,7 +174,7 @@ jobs:
 
       - save_cache:
           name: "Save dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v5
+          key: python-<< parameters.tag >>-dependencies-v6
           paths:
             - ~/.cache/pip
             - ~/venv
@@ -198,14 +198,14 @@ jobs:
 
       - restore_cache:
           name: "Restore answer tests cache."
-          key: test-results-<< parameters.tag >>-<< parameters.yttag >>-v6
+          key: test-results-<< parameters.tag >>-<< parameters.yttag >>-v7
 
       - run-tests:
           generate: 1
 
       - save_cache:
           name: "Save answer tests cache."
-          key: test-results-<< parameters.tag >>-<< parameters.yttag >>-v6
+          key: test-results-<< parameters.tag >>-<< parameters.yttag >>-v7
           paths:
             - ~/answer_test_data/test_results
 
@@ -246,25 +246,25 @@ workflows:
 
        - tests:
            name: "Python 3.6 tests with yt gold"
-           tag: "3.6.9"
+           tag: "3.6.10"
 
        - tests:
            name: "Python 3.7 tests with yt gold"
-           tag: "3.7.6"
+           tag: "3.7.7"
 
        - tests:
            name: "Python 3.8 tests with yt gold"
-           tag: "3.8.1"
+           tag: "3.8.2"
 
        - tests:
            name: "Python 3.8 tests with yt tip"
-           tag: "3.8.1"
+           tag: "3.8.2"
            yttag: "YT_HEAD"
            coverage: 1
 
        - docs-test:
            name: "Test docs build"
-           tag: "3.8.1"
+           tag: "3.8.2"
 
    daily:
      triggers:
@@ -277,29 +277,10 @@ workflows:
      jobs:
        - tests:
            name: "Python 3.8 tests with yt tip"
-           tag: "3.8.1"
+           tag: "3.8.2"
            yttag: "YT_HEAD"
            coverage: 0
 
        - docs-test:
            name: "Test docs build"
-           tag: "3.8.1"
-
-   weekly:
-     triggers:
-       - schedule:
-           cron: "0 0 * * 1"
-           filters:
-            branches:
-              only:
-                - legacy
-     jobs:
-       - tests:
-           name: "Python 3.8 tests with yt tip"
-           tag: "3.8.1"
-           yttag: "YT_HEAD"
-           coverage: 0
-
-       - docs-test:
-           name: "Test docs build"
-           tag: "3.8.1"
+           tag: "3.8.2"
