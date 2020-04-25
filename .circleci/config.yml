@@ -2,17 +2,19 @@ version: 2.1
 
 commands:
   set-env:
-    description: "Set environment variables."
+    description:
     steps:
-      - run: |
-          echo 'export YT_DIR=$HOME/yt-git' >> $BASH_ENV
-          echo 'TRIDENT_ION_DATA=$HOME/.trident' >> $BASH_ENV
-          echo 'TRIDENT_ANSWER_DATA=$HOME/answer_test_data' >> $BASH_ENV
-          echo 'TRIDENT_CONFIG=$HOME/.trident/config.tri' >> $BASH_ENV
-          echo 'YT_GOLD=8dcc2fa135dfe7a62438507066527caf5cb379c1' >> $BASH_ENV
-          echo 'YT_HEAD=yt-4.0' >> $BASH_ENV
-          echo 'TRIDENT_GOLD=test-standard-sph-viz-v6' >> $BASH_ENV
-          echo 'TRIDENT_HEAD=tip' >> $BASH_ENV
+      - run:
+          name: "Set environment variables."
+          command: |
+            echo 'export YT_DIR=$HOME/yt-git' >> $BASH_ENV
+            echo 'TRIDENT_ION_DATA=$HOME/.trident' >> $BASH_ENV
+            echo 'TRIDENT_ANSWER_DATA=$HOME/answer_test_data' >> $BASH_ENV
+            echo 'TRIDENT_CONFIG=$HOME/.trident/config.tri' >> $BASH_ENV
+            echo 'YT_GOLD=8dcc2fa135dfe7a62438507066527caf5cb379c1' >> $BASH_ENV
+            echo 'YT_HEAD=yt-4.0' >> $BASH_ENV
+            echo 'TRIDENT_GOLD=test-standard-sph-viz-v6' >> $BASH_ENV
+            echo 'TRIDENT_HEAD=tip' >> $BASH_ENV
 
   install-dependencies:
     description: "Install dependencies."
@@ -63,43 +65,49 @@ commands:
         type: string
         default: TRIDENT_HEAD
     steps:
-      - run: |
-          source $BASH_ENV
-          source $HOME/venv/bin/activate
-          git checkout ${<< parameters.tridenttag >>}
-          pip install -e .[dev]
+      - run:
+          name: "Install trident."
+          command: |
+            source $BASH_ENV
+            source $HOME/venv/bin/activate
+            git checkout ${<< parameters.tridenttag >>}
+            pip install -e .[dev]
 
   configure-trident:
     description: "Configure trident."
     steps:
-      - run: |
-          source $BASH_ENV
-          # configure trident
-          mkdir -p $TRIDENT_ION_DATA
-          echo "[Trident]" > $TRIDENT_CONFIG
-          echo "ion_table_dir = $TRIDENT_ION_DATA" >> $TRIDENT_CONFIG
-          echo "ion_table_file = hm2012_lr.h5" >> $TRIDENT_CONFIG
-          echo "answer_test_data_dir = $TRIDENT_ANSWER_DATA" >> $TRIDENT_CONFIG
+      - run:
+          name: "Configure trident."
+          command: |
+            source $BASH_ENV
+            # configure trident
+            mkdir -p $TRIDENT_ION_DATA
+            echo "[Trident]" > $TRIDENT_CONFIG
+            echo "ion_table_dir = $TRIDENT_ION_DATA" >> $TRIDENT_CONFIG
+            echo "ion_table_file = hm2012_lr.h5" >> $TRIDENT_CONFIG
+            echo "answer_test_data_dir = $TRIDENT_ANSWER_DATA" >> $TRIDENT_CONFIG
 
   download-test-data:
     description: "Download test data."
     steps:
-      - run: |
-          source $BASH_ENV
-          source $HOME/venv/bin/activate
-          # download ion balance data
-          if [ ! -f $TRIDENT_ION_DATA/hm2012_lr.h5 ]; then
-             wget http://trident-project.org/data/ion_table/hm2012_lr.h5.gz
-             gunzip hm2012_lr.h5.gz
-             mv hm2012_lr.h5 $TRIDENT_ION_DATA
-          fi
-          # download answer test data
-          if [ ! -f $TRIDENT_ANSWER_DATA/enzo_small/AMRCosmology.enzo ]; then
-             pushd tests
-             export RUN_DOWNLOAD_TEST=1
-             pytest test_download.py
-             popd
-          fi
+      - run:
+          name: "Download test data."
+          command: |
+            source $BASH_ENV
+            source $HOME/venv/bin/activate
+            # download ion balance data
+            if [ ! -f $TRIDENT_ION_DATA/hm2012_lr.h5 ]; then
+               wget http://trident-project.org/data/ion_table/hm2012_lr.h5.gz
+               gunzip hm2012_lr.h5.gz
+               mv hm2012_lr.h5 $TRIDENT_ION_DATA
+            fi
+            # download answer test data
+            if [ ! -f $TRIDENT_ANSWER_DATA/enzo_small/AMRCosmology.enzo ]; then
+               pushd tests
+               export RUN_DOWNLOAD_TEST=1
+               pytest test_download.py
+               popd
+            fi
 
   run-tests:
     description: "Build trident and run tests."
@@ -112,29 +120,33 @@ commands:
         default: 0
 
     steps:
-      - run: |
-          source $BASH_ENV
-          source $HOME/venv/bin/activate
-          export TRIDENT_GENERATE_TEST_RESULTS=<< parameters.generate >>
-          if [[ << parameters.generate >> == 0 || ! -f $TRIDENT_ANSWER_DATA/test_results/TRIDENT_VERSION ]]; then
-              pushd tests
-              pytest --cov=trident
-          fi
-          if [ << parameters.coverage >> == 1 ]; then
-              # code coverage report
-              export COVERALLS_REPO_TOKEN="yUoFnf5H5uC9MJ9kLqzKaoSxkPf5dHc7F"
-              coveralls
-          fi
+      - run:
+          name: "Build trident and run tests."
+          command: |
+            source $BASH_ENV
+            source $HOME/venv/bin/activate
+            export TRIDENT_GENERATE_TEST_RESULTS=<< parameters.generate >>
+            if [[ << parameters.generate >> == 0 || ! -f $TRIDENT_ANSWER_DATA/test_results/TRIDENT_VERSION ]]; then
+                pushd tests
+                pytest --cov=trident
+            fi
+            if [ << parameters.coverage >> == 1 ]; then
+                # code coverage report
+                export COVERALLS_REPO_TOKEN="yUoFnf5H5uC9MJ9kLqzKaoSxkPf5dHc7F"
+                coveralls
+            fi
 
   build-docs:
     description: "Test the docs build."
     steps:
-      - run: |
-          source $BASH_ENV
-          source $HOME/venv/bin/activate
-          touch $HOME/.trident/hm2012_lr.h5
-          cd doc/source
-          python -m sphinx -M html "." "_build" -W
+      - run:
+          name: "Test the docs build."
+          command: |
+            source $BASH_ENV
+            source $HOME/venv/bin/activate
+            touch $HOME/.trident/hm2012_lr.h5
+            cd doc/source
+            python -m sphinx -M html "." "_build" -W
 
 executors:
   python:
