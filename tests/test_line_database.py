@@ -41,7 +41,7 @@ def test_uniquify():
 
 def test_line():
     HI = Line('H', 'I', 1216, 1.5, 2.3, identifier='Ly a')
-    assert HI.field == "H_number_density"
+    assert HI.field == "H_p0_number_density"
     print(HI)
 
 def test_line_database_from_stored_file():
