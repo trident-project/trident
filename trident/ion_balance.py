@@ -826,14 +826,9 @@ def _internal_ion_fraction_field(field, data):
         ftype = "gas"
         field_name = field.name
 
-    # is this a neutral ion?
     field_array = field_name.split('_')
-    if len(field_array) == 3:
-        ion = field_array[0]
-    else:
-        ion = '_'.join(field_array[:2])
+    ion = '_'.join(field_array[:2])
     atom = field_array[0]
-
     return data[(ftype, "%s_number_density" % ion)] / data[(ftype, "%s_nuclei_density" % atom)]
 
 
