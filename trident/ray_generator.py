@@ -560,32 +560,24 @@ def _determine_fields_from_ions(ds, ion_list, fields):
         ion_state = ion[1]
         nuclei_field = "%s_nuclei_mass_density" % atom
         metallicity_field = "%s_metallicity" % atom
-        if ion_state == 1:
-            field = "%s_number_density" % atom
-            alias_field = "%s_p0_number_density" % atom
-        else:
-            field = "%s_p%d_number_density" % (atom, ion_state-1)
-            alias_field = "%s_p%d_number_density" % (atom, ion_state-1)
+        field = "%s_p%d_number_density" % (atom, ion_state-1)
 
-        # Check to see if the ion field (or its alias) exists.  If so, add
+        # Check to see if the ion field exists.  If so, add
         # it to the ray.  If not, then append the density and the appropriate
         # metal field so one can create the ion field on the fly on the
         # ray itself.
         if ("gas", field) not in ds.derived_field_list:
-            if ("gas", alias_field) not in ds.derived_field_list:
-                fields.append(('gas', 'density'))
-                if ('gas', metallicity_field) in ds.derived_field_list:
-                    fields.append(('gas', metallicity_field))
-                elif ('gas', nuclei_field) in ds.derived_field_list:
-                    fields.append(('gas', nuclei_field))
-                elif atom != 'H':
-                    fields.append(('gas', 'metallicity'))
-                else:
-                    # Don't need metallicity field if we're just looking
-                    # at hydrogen
-                    pass
+            fields.append(('gas', 'density'))
+            if ('gas', metallicity_field) in ds.derived_field_list:
+                fields.append(('gas', metallicity_field))
+            elif ('gas', nuclei_field) in ds.derived_field_list:
+                fields.append(('gas', nuclei_field))
+            elif atom != 'H':
+                fields.append(('gas', 'metallicity'))
             else:
-                fields.append(("gas", alias_field))
+                # Don't need metallicity field if we're just looking
+                # at hydrogen
+                pass
         else:
             fields.append(("gas", field))
 
