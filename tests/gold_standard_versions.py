@@ -13,22 +13,25 @@ Testing utilities for Trident
 
 from trident import path as trident_path
 import os
+import re
 
 def get_gold_standard_version():
-    f = open(os.path.join(trident_path, '../.travis.yml'), 'r')
+    f = open(os.path.join(trident_path, '../.circleci/config.yml'), 'r')
     for line in f:
         line = line.lstrip()
-        if line.startswith('YT_GOLD'):
-            line_list = line.split('=')
-            yt_gold = line_list[1]
-        if line.startswith('TRIDENT_GOLD'):
-            line_list = line.split('=')
-            trident_gold = line_list[1]
+        pattern_YT = "echo 'YT_GOLD=(\S+)'"
+        pattern_trident = "echo 'TRIDENT_GOLD=(\S+)'"
+        match_YT = re.search(pattern_YT, line)
+        match_trident = re.search(pattern_trident, line)
+        if match_YT:
+            yt_gold = match_YT.group(1)
+        if match_trident:
+            trident_gold = match_trident.group(1)
     f.close()
     print()
     print('Latest Gold Standard Commit Tags\n')
-    print('yt = %s' % yt_gold, end='')
-    print('Trident = %s' % trident_gold)
+    print('yt = %s' % yt_gold)
+    print('Trident = %s\n' % trident_gold)
     print('To update to them, `git checkout <tag>` in appropriate repository')
 
 
