@@ -21,8 +21,8 @@ def get_gold_standard_version():
     trident_gold = None
     for line in f:
         line = line.lstrip()
-        pattern_YT = "echo 'YT_GOLD=(\S+)'"
-        pattern_trident = "echo 'TRIDENT_GOLD=(\S+)'"
+        pattern_YT = r"echo 'YT_GOLD=(\S+)'"
+        pattern_trident = r"echo 'TRIDENT_GOLD=(\S+)'"
         match_YT = re.search(pattern_YT, line)
         match_trident = re.search(pattern_trident, line)
         if match_YT:
