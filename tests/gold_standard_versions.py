@@ -17,6 +17,8 @@ import re
 
 def get_gold_standard_version():
     f = open(os.path.join(trident_path, '../.circleci/config.yml'), 'r')
+    yt_gold = None
+    trident_gold = None
     for line in f:
         line = line.lstrip()
         pattern_YT = "echo 'YT_GOLD=(\S+)'"
@@ -33,7 +35,8 @@ def get_gold_standard_version():
     print('yt = %s' % yt_gold)
     print('Trident = %s\n' % trident_gold)
     print('To update to them, `git checkout <tag>` in appropriate repository')
-
+    assert(yt_gold is not None)
+    assert(trident_gold is not None)
 
 if __name__ == "__main__":
     get_gold_standard_version()
