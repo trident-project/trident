@@ -1,5 +1,5 @@
 """
-Unit test for download_file function
+Unit test for get_gold_standard_version function
 """
 
 #-----------------------------------------------------------------------------
