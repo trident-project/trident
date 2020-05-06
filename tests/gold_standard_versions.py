@@ -38,5 +38,6 @@ def get_gold_standard_version():
     assert(yt_gold is not None)
     assert(trident_gold is not None)
 
+
 if __name__ == "__main__":
     get_gold_standard_version()

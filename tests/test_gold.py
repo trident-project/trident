@@ -10,8 +10,6 @@ Unit test for get_gold_standard_version function
 # The full license is in the file LICENSE, distributed with this software.
 #-----------------------------------------------------------------------------
 
-import os
-
 from gold_standard_versions import \
     get_gold_standard_version
 
