@@ -114,7 +114,10 @@ commands:
     steps:
       - run:
           name: "Lint."
-          command: flake8 trident
+          command: |
+            source $BASH_ENV
+            source $HOME/venv/bin/activate
+            flake8 trident
 
   run-tests:
     description: "Build trident and run tests."
