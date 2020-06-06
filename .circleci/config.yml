@@ -109,6 +109,13 @@ commands:
                popd
             fi
 
+  lint:
+    description: "Lint."
+    steps:
+      - run:
+          name: "Lint."
+          command: flake8 trident
+
   run-tests:
     description: "Build trident and run tests."
     parameters:
@@ -185,6 +192,7 @@ jobs:
 
       - install-dependencies:
           yttag: << parameters.yttag >>
+
       - configure-trident
 
       - save_cache:
@@ -194,6 +202,8 @@ jobs:
             - ~/.cache/pip
             - ~/venv
             - ~/yt-git
+
+      - lint
 
       - restore_cache:
           name: "Restore test data cache."
