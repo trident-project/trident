@@ -64,7 +64,7 @@ def create_config():
     datafile from the web.  It does this using user interaction from the
     python prompt.
     """
-    default_dir = os.path.expanduser('~/.trident')
+    default_dir = os.path.expanduser(os.path.join('~', '.trident'))
     trident()
     print("It appears that this is your first time using Trident.  To finalize your")
     print("Trident installation, you must:")
@@ -110,7 +110,7 @@ def create_config():
     config.add_section('Trident')
     config.set('Trident', 'ion_table_dir', datadir)
     config.set('Trident', 'ion_table_file', datafile)
-    config_filename = os.path.expanduser('~/.trident/config.tri')
+    config_filename = os.path.expanduser(os.path.join('~', '.trident', 'config.tri'))
     with open(config_filename, 'w') as configfile:
         config.write(configfile)
 
