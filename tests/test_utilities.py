@@ -20,6 +20,10 @@ from trident.utilities import \
     gzip_file, \
     make_onezone_dataset, \
     make_onezone_ray
+from trident.spectrum_generator import \
+    SpectrumGenerator
+from trident.ray_generator import \
+    make_simple_ray
 
 def test_ensure_directory():
     """
@@ -37,6 +41,11 @@ def test_ensure_directory():
     assert os.path.exists(subdir)
 
 def test_gzip_unzip_file():
+    """
+    Adds a test to ensure gzip and gunzip code is functionity properly by
+    creating a random file, zipping it, unzipping it, and checking if the
+    output is the same as the original file.
+    """
     # Create a temporary directory
     tmpdir = tempfile.mkdtemp()
 
@@ -57,3 +66,33 @@ def test_gzip_unzip_file():
     # Ensure contents of gunzipped file are the same as original
     filecmp.cmp(filepath, gunzip_filename)
 
+def test_make_onezone_ray():
+    """
+    Tests the make_onezone_ray infrastructure by creating a ray and making a
+    spectrum from it.
+    """
+    dirpath = tempfile.mkdtemp()
+    ray_filename = os.path.join(dirpath, 'ray.h5')
+    image_filename = os.path.join(dirpath, 'spec.png')
+    ray = make_onezone_ray(column_densities={'H_p0_number_density':1e21},
+                                   filename=ray_filename)    
+    sg_final = SpectrumGenerator(lambda_min=1200, lambda_max=1300, dlambda=0.5)
+    sg_final.make_spectrum(ray, lines=['Ly a'])
+    sg_final.plot_spectrum(image_filename)
+
+def test_make_onezone_dataset():
+    """
+    Tests the make_onezone_dataset infrastructure by generating a one_zone 
+    dataset and then creating a ray and spectrum from it.
+    """
+    dirpath = tempfile.mkdtemp()
+    ray_filename = os.path.join(dirpath, 'ray.h5')
+    image_filename = os.path.join(dirpath, 'spec.png')
+    ds = make_onezone_dataset()
+    ray = make_simple_ray(ds, start_position=ds.domain_left_edge, 
+                          end_position=ds.domain_right_edge, 
+                          fields=['density', 'temperature', 'metallicity'],
+                          data_filename=ray_filename)
+    sg = SpectrumGenerator('COS') 
+    sg.make_spectrum(ray)
+    sg.plot_spectrum(image_filename)
