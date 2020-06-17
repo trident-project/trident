@@ -13,7 +13,8 @@ Trident config
 
 import os
 from configparser import \
-    ConfigParser
+    ConfigParser, \
+    NoSectionError
 import shutil
 import tempfile
 import sys
@@ -154,7 +155,7 @@ def parse_config(variable=None):
         parser.read(config_filename)
         ion_table_dir = parser.get('Trident', 'ion_table_dir')
         ion_table_file = parser.get('Trident', 'ion_table_file')
-    except BaseException:
+    except NoSectionError:
         config_filename = create_config()
         parser = ConfigParser()
         parser.read(config_filename)
