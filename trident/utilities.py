@@ -86,7 +86,7 @@ def download_file(url, progress_bar=True, local_directory=None,
 
     # Set defaults
     if local_filename is None:
-        local_filename = url.split(os.sep)[-1]
+        local_filename = url.split('/')[-1]
     if local_directory is None:
         local_directory = '.'
     ensure_directory(local_directory)
