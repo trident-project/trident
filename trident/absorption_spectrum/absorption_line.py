@@ -258,9 +258,9 @@ def tau_profile(lambda_0, f_value, gamma, v_doppler, column_density,
     tau0 = tau_X * lambda_0 * 1e-8
 
     # dimensionless frequency offset in units of doppler freq
-    x = _cs / v_doppler * (lam1 / lambda_bins - 1.0)
+    u = _cs / v_doppler * (lam1 / lambda_bins - 1.0)
     a = gamma / (4.0 * np.pi * nudop)               # damping parameter
-    phi = voigt(a, x)                               # line profile
+    phi = voigt(a, u)                               # line profile
     tauphi = tau0 * phi              # profile scaled with tau0
 
     return (lambda_bins, tauphi)
