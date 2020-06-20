@@ -78,37 +78,58 @@ def tau_profile(lambda_0, f_value, gamma, v_doppler, column_density,
                 delta_v=None, delta_lambda=None,
                 lambda_bins=None, n_lambda=12000, dlambda=0.01):
     r"""
-    Create an optical depth vs. wavelength profile for an
-    absorption line using a voigt profile.
+    Make optical depth vs. wavelength profile for an absorption line.
 
-    Parameters
-    ----------
+    This method uses the numerical Voigt Profile integrator in the voigt()
+    function to deposit optical depth values for absorption lines into the
+    wavelength space surrounding an absorption feature.
 
-    lambda_0 : float in angstroms
-       central wavelength.
-    f_value : float
-       absorption line f-value.
-    gamma : float
-       absorption line gamma value.
-    v_doppler : float in cm/s
-       doppler b-parameter.
-    column_density : float in cm^-2
-       column density.
-    delta_v : float in cm/s
-       velocity offset from lambda_0.
+    **Parameters**
+
+    :lambda_0: float
+
+       Central wavelength of absorber in angstroms.
+
+    :f_value: float
+
+       The oscillator strength of the absorption line.
+
+    :gamma: float
+
+       Absorption line gamma value.
+
+    :v_doppler: float
+
+       Doppler b-parameter in cm/s.
+
+    :column_density: float
+
+       Column density in cm^-2.
+
+    :delta_v: float
+
+       Velocity offset from central wavelength (lambda_0) in cm/s.
        Default: None (no shift).
-    delta_lambda : float in angstroms
-        wavelength offset.
+
+    :delta_lambda: float
+
+        Wavelength offset from central wavelength (lambda_0) in angstroms.
         Default: None (no shift).
-    lambda_bins : array in angstroms
-        wavelength array for line deposition.  If None, one will be
+
+    :lambda_bins: array
+
+        Wavelength array for line deposition in anstroms.  If None, one will be
         created using n_lambda and dlambda.
         Default: None.
-    n_lambda : int
-        size of lambda bins to create if lambda_bins is None.
+
+    :n_lambda: int
+
+        Number of lambda bins to create if lambda_bins is None.
         Default: 12000.
-    dlambda : float in angstroms
-        lambda bin width in angstroms if lambda_bins is None.
+
+    :dlambda: float in angstroms
+
+        Width of lambda bins in angstroms if lambda_bins is None.
         Default: 0.01.
 
     """
