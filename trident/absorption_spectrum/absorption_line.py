@@ -26,7 +26,7 @@ tau_factor = None
 _cs = None
 
 
-def voigt_scipy(a, u):
+def voigt(a, u):
     """
     Calculate the numerical Voigt line profile for absorption features.
 
@@ -264,9 +264,3 @@ def tau_profile(lambda_0, f_value, gamma, v_doppler, column_density,
     tauphi = tau0 * phi              # profile scaled with tau0
 
     return (lambda_bins, tauphi)
-
-
-if isinstance(special, NotAModule):
-    voigt = voigt_old
-else:
-    voigt = voigt_scipy
