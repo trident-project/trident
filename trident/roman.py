@@ -100,7 +100,7 @@ def from_roman(s):
     if not s:
         raise InvalidRomanNumeralError('Input can not be blank')
     if not romanNumeralPattern.search(s):
-        raise InvalidRomanNumeralError('Invalid Roman numeral: {0}'.format(s))
+        raise InvalidRomanNumeralError('Invalid Roman numeral: {}'.format(s))
 
     result = 0
     index = 0
