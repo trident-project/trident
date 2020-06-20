@@ -15,13 +15,12 @@ Absorption line generating functions.
 #-----------------------------------------------------------------------------
 
 import numpy as np
+import scipy
 from yt.utilities.physical_constants import \
     charge_proton_cgs, \
     mass_electron_cgs, \
     speed_of_light_cgs
-from yt.utilities.on_demand_imports import _scipy, NotAModule
 
-special = _scipy.special
 tau_factor = None
 _cs = None
 
@@ -72,7 +71,7 @@ def voigt(a, u):
     """
     x = np.asarray(u).astype(np.float64)
     y = np.asarray(a).astype(np.float64)
-    return special.wofz(x + 1j * y).real
+    return scipy.special.wofz(x + 1j * y).real
 
 def tau_profile(lambda_0, f_value, gamma, v_doppler, column_density,
                 delta_v=None, delta_lambda=None,
