@@ -19,7 +19,7 @@ from yt.testing import \
     assert_almost_equal
 
 from trident.absorption_spectrum.absorption_line import \
-    voigt_old, voigt_scipy
+    voigt
 from trident.absorption_spectrum.absorption_spectrum import \
     AbsorptionSpectrum
 from trident.light_ray import \
@@ -46,7 +46,7 @@ FIRE = os.path.join(answer_test_data_dir,
 def test_voigt_profiles():
     a = 1.7e-4
     x = np.linspace(5.0, -3.6, 60)
-    assert_allclose_units, voigt_old(a, x), voigt_scipy(a, x), 1e-8
+    voigt(a, x), 1e-8
 
 class AbsorptionSpectrumTest(TempDirTest):
 
