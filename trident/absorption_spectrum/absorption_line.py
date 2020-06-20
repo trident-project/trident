@@ -27,6 +27,49 @@ _cs = None
 
 
 def voigt_scipy(a, u):
+    """
+    Calculate the numerical Voigt line profile for absorption features.
+
+    This code uses a SciPy routine to numerically calculate the Voigt Profile
+    for deposition as absorption features into spectra.
+
+    This method employs the real part of the Fadeeva function, w(z),
+    shown here as special.wofz.  It operates on a and u, unitless variables
+    representing the frequency/wavelength range and the damping parameter for
+    the line.
+
+    Included are notes from a previous implementation:
+    a = Voigt "A" parameter.
+    u = Frequency in units of the Doppler frequency.
+
+    The line profile "Phi(v)", the doppler width
+    "Delv", the voigt parameter "a", and the frequency "u"
+    are given by:
+
+    Phi(v) =  Voigt(a,u)/[ Delv * sqrt(pi) ]
+    Delv   =  Vo/c * sqrt[ 2kT/m ]
+    u      =  V - Vo / Delv
+    a      =  GAMMA / [ Delv * 4pi ]
+    Gamma  =  Gu + Gl + 2*Vcol
+    "Gu" and "Gl" are the widths of the upper and lower states
+    "Vcol" is the collisions per unit time
+    "Vo" is the line center frequency
+
+    **Parameters**
+
+    :a: float
+
+        Damping parameter or Voigt "A" parameter describing the width of the
+        profile. This is the gamma value divided by the b parameter (thermal
+        broadening) in the unitless frame of the u array.
+
+    :u: array
+
+        The region over which the voigt profile will be calculated. This too
+        is unitless and represents the normalized frequency space over which
+        to calculate the Voigt profile.
+
+    """
     x = np.asarray(u).astype(np.float64)
     y = np.asarray(a).astype(np.float64)
     return special.wofz(x + 1j * y).real
