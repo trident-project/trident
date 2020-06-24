@@ -16,7 +16,6 @@ from configparser import \
     ConfigParser
 import shutil
 import tempfile
-import sys
 
 from trident.utilities import \
     ensure_directory, \
@@ -63,8 +62,8 @@ def auto_config():
     """
     Create a Trident configuration file using interaction with the user.
     If it appears that the configuration has not yet been set up for the user,
-    Trident suggests running this function.  It will attempt to create a 
-    configuration file and download an ion table datafile from the web.  It 
+    Trident suggests running this function.  It will attempt to create a
+    configuration file and download an ion table datafile from the web.  It
     does this using user interaction from the python prompt.
     """
     default_dir = os.path.expanduser('~/.trident')
@@ -110,7 +109,7 @@ def auto_config():
 def config_warning():
     """
     Print warning to STDOUT about the configuration being incorrect if first
-    time.  
+    time.
     """
     trident()
     print("It appears that this is your first time using Trident.  To finalize your")
@@ -126,7 +125,7 @@ def config_warning():
     print("To proceed automatically, please run: trident.auto_config()")
     print("")
     return
- 
+
 def parse_config(variable=None, first_parse=False):
     """
     Parse the Trident local configuration file.  This function is called
@@ -135,7 +134,7 @@ def parse_config(variable=None, first_parse=False):
     exist in ``$HOME/.trident`` or in the current working directory, then
     Trident will launch the request the user run the
     :class:`~trident.auto_config` function to automatically generate one for the
-    user.  For more information on this process, see the installation 
+    user.  For more information on this process, see the installation
     documentation.
 
     **Parameters**
@@ -148,7 +147,7 @@ def parse_config(variable=None, first_parse=False):
         Default: None
 
     :first_parse: boolean, optional
-        
+
         If this is the first time parsing the configuration and it isn't
         correct, then give a verbose error message.
         Default: False
