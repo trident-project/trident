@@ -55,32 +55,16 @@ def trident_path():
     # Here, __file__ refers to this file (config.py)
     return os.path.split(__file__)[0]
 
-def create_config():
+def configure():
     """
     Create a Trident configuration file using interaction with the user.
-    This function is called by :class:`~trident.parse_config` if it appears
-    that the configuration has not yet been set up for the user.  It will
-    attempt to create a configuration file and download an ion table
-    datafile from the web.  It does this using user interaction from the
-    python prompt.
+    If it appears that the configuration has not yet been set up for the user,
+    Trident suggests running this function.  It will attempt to create a 
+    configuration file and download an ion table datafile from the web.  It 
+    does this using user interaction from the python prompt.
     """
     default_dir = os.path.expanduser('~/.trident')
-    trident()
-    print("It appears that this is your first time using Trident.  To finalize your")
-    print("Trident installation, you must:")
-    print(" * create a `~/.trident` directory")
-    print(" * create a config.tri file in your `~/.trident` directory")
-    print(" * download an ion table file for calculating ionization fractions")
-    print("")
-    print("You can do this manually by following the installation docs, or we can")
-    print("do it automatically now if you have web access.")
-    print("")
-    print("Would you like to do this automatically? ([y]/n)")
-    value = input().rstrip()
-    if not value == '' and not value == 'y':
-        sys.exit('Instructions at http://trident.readthedocs.org/en/latest/installation.html')
 
-    print("")
     print("Where would you like Trident to store the ion table file?")
     print("[%s]" % default_dir)
 
@@ -124,12 +108,13 @@ def create_config():
 def parse_config(variable=None):
     """
     Parse the Trident local configuration file.  This function is called
-    whenever Trident is imported, and it assures that Trident knows where
+    whenever Trident is imported, and it ensure that Trident knows where
     the default ion table datafiles exist.  If a ``config.tri`` file doesn't
     exist in ``$HOME/.trident`` or in the current working directory, then
-    Trident will launch the :class:`~trident.create_config` function to
-    try to automatically generate one for the user.  For more information
-    on this process, see the installation documentation.
+    Trident will launch the request the user run the
+    :class:`~trident.configure` function to automatically generate one for the
+    user.  For more information on this process, see the installation 
+    documentation.
 
     **Parameters**
 
@@ -137,7 +122,8 @@ def parse_config(variable=None):
 
         If you wish to get the value a variable is set to in the config
         file, specify that variable name here.  Will return the result
-        value of that variable. Default: None
+        value of that variable. If None set, returns ion balance filepath.
+        Default: None
     """
     # Assure the ~/.trident directory exists, and read in the config file.
     home = os.path.expanduser("~")
@@ -154,26 +140,30 @@ def parse_config(variable=None):
         parser.read(config_filename)
         ion_table_dir = parser.get('Trident', 'ion_table_dir')
         ion_table_file = parser.get('Trident', 'ion_table_file')
+        ion_table_dir = os.path.abspath(os.path.expanduser(ion_table_dir))
+        ion_table_filepath = os.path.join(ion_table_dir, ion_table_file)
+        if not os.path.exists(ion_table_filepath):
+            print("")
+            print("No ion table data file found in %s" % ion_table_dir)
+            print("")
     except BaseException:
-        config_filename = create_config()
-        parser = ConfigParser()
-        parser.read(config_filename)
-        ion_table_dir = parser.get('Trident', 'ion_table_dir')
-        ion_table_file = parser.get('Trident', 'ion_table_file')
-
-    ion_table_dir = os.path.abspath(os.path.expanduser(ion_table_dir))
-    if not os.path.exists(os.path.join(ion_table_dir,
-                                       ion_table_file)):
+        trident()
+        print("It appears that this is your first time using Trident.  To finalize your")
+        print("Trident installation, you must:")
+        print(" * create a `~/.trident` directory")
+        print(" * create a config.tri file in your `~/.trident` directory")
+        print(" * download an ion table file for calculating ionization fractions")
         print("")
-        print("No ion table data file found in %s" % ion_table_dir)
-        ion_table_file = get_datafiles(ion_table_dir)
-        parser.set('Trident', 'ion_table_file', ion_table_file)
-        with open(config_filename, 'w') as configfile:
-            parser.write(configfile)
+        print("You can do this manually by following the installation docs, or we can")
+        print("do it automatically now if you have web access.  Most functionality")
+        print("will fail until you accomplish this configuration step.")
+        print("")
+        print("To proceed automatically, please run: trident.configure()")
+        return
 
     # value to return depends on what was set for "variable"
     if variable is None:
-        return ion_table_dir, ion_table_file
+        return ion_table_filepath
     else:
         return parser.get('Trident', variable)
 
@@ -274,5 +264,4 @@ if on_rtd:
     ion_table_file = '__init__.py'
     ion_table_filepath = os.path.join(ion_table_dir, ion_table_file)
 else:
-    ion_table_dir, ion_table_file = parse_config()
-    ion_table_filepath = os.path.join(ion_table_dir, ion_table_file)
+    ion_table_filepath = parse_config()
