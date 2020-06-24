@@ -15,8 +15,6 @@ from trident.light_ray import \
     LightRay
 from yt.convenience import \
     load
-from trident.config import \
-    parse_config
 from trident.line_database import \
     LineDatabase, \
     uniquify
