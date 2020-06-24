@@ -29,6 +29,8 @@ from yt.funcs import \
 from trident.config import \
     parse_config, \
     trident_path
+from trident.exceptions import \
+    NoIonBalanceTableError
 from trident.instrument import \
     Instrument
 from trident.ion_balance import \
@@ -232,9 +234,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
             elif os.path.isfile(config_dir_filepath):
                 self.ionization_table = config_dir_filepath
             else:
-                raise RuntimeError("ionization_table %s is not found in local "
-                                   "directory or in %s" %
-                                   (ionization_table, config_dir))
+                raise NoIonBalanceTableError("No ion balance file %s found in "
+                              "CWD or in %s" % (ionization_table, config_dir))
 
             mylog.info("Using ionization table %s" % self.ionization_table)
         else:

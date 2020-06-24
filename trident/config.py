@@ -17,8 +17,6 @@ from configparser import \
 import shutil
 import tempfile
 import sys
-from yt.funcs import \
-    mylog
 
 from trident.utilities import \
     ensure_directory, \
@@ -179,7 +177,7 @@ def parse_config(variable=None, first_parse=False):
         else:
             raise NotConfiguredError("Trident not configured.  Try: trident.auto_config()")
     if not os.path.exists(ion_table_filepath):
-        raise NoIonBalanceTableError("No Ion Balance File found in %s" % ion_table_dir)
+        raise NoIonBalanceTableError("No ion balance file found in %s" % ion_table_dir)
 
     # value to return depends on what was set for "variable"
     if variable is None:
