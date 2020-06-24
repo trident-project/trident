@@ -24,7 +24,7 @@ import_check()
 
 from trident.config import \
     parse_config, \
-    create_config, \
+    configure, \
     trident, \
     trident_path, \
     verify
