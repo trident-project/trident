@@ -68,7 +68,7 @@ def configure():
     print("Where would you like Trident to store the ion table file?")
     print("[%s]" % default_dir)
 
-    # First assure that the .trident directory is created for storing
+    # First ensure that the .trident directory is created for storing
     # the config file.
     ensure_directory(default_dir)
 
@@ -100,12 +100,36 @@ def configure():
 
     print("")
     print("Installation complete.  I recommend verifying your installation")
-    print("to assure that everything is working.  Try: trident.verify()")
+    print("to ensure that everything is working.  Try: trident.verify()")
 
     # Return the config file path so we can load it and get parameters.
     return config_filename
 
-def parse_config(variable=None):
+def config_error(verbose=False):
+    """
+    Print an error to STDOUT about the configuration being incorrect.
+    """
+    if verbose:
+        trident()
+        print("It appears that this is your first time using Trident.  To finalize your")
+        print("Trident installation, you must:")
+        print(" * create a `~/.trident` directory")
+        print(" * create a config.tri file in your `~/.trident` directory")
+        print(" * download an ion table file for calculating ionization fractions")
+        print("")
+        print("You can do this manually by following the installation docs, or we can")
+        print("do it automatically now if you have web access.  Most functionality")
+        print("will fail until you accomplish this configuration step.")
+        print("")
+        print("To proceed automatically, please run: trident.configure()")
+    else:
+        print("")
+        print("Something is wrong with your configuration and ion_balance file.")
+        print("Most functionality will fail until you run: trident.configure()")
+        print("")
+    return
+ 
+def parse_config(variable=None, first_parse=False):
     """
     Parse the Trident local configuration file.  This function is called
     whenever Trident is imported, and it ensure that Trident knows where
@@ -124,8 +148,14 @@ def parse_config(variable=None):
         file, specify that variable name here.  Will return the result
         value of that variable. If None set, returns ion balance filepath.
         Default: None
+
+    :first_parse: boolean, optional
+        
+        If this is the first time parsing the configuration and it isn't
+        correct, then give a verbose error message.
+        Default: False
     """
-    # Assure the ~/.trident directory exists, and read in the config file.
+    # Ensure the ~/.trident directory exists, and read in the config file.
     home = os.path.expanduser("~")
     directory = os.path.join(home, '.trident')
     config_filename = os.path.join(directory, 'config.tri')
@@ -145,21 +175,11 @@ def parse_config(variable=None):
         if not os.path.exists(ion_table_filepath):
             print("")
             print("No ion table data file found in %s" % ion_table_dir)
+            print("Most functionality will fail until you fix this problem.")
             print("")
     except BaseException:
-        trident()
-        print("It appears that this is your first time using Trident.  To finalize your")
-        print("Trident installation, you must:")
-        print(" * create a `~/.trident` directory")
-        print(" * create a config.tri file in your `~/.trident` directory")
-        print(" * download an ion table file for calculating ionization fractions")
-        print("")
-        print("You can do this manually by following the installation docs, or we can")
-        print("do it automatically now if you have web access.  Most functionality")
-        print("will fail until you accomplish this configuration step.")
-        print("")
-        print("To proceed automatically, please run: trident.configure()")
-        return
+       config_error(verbose=first_parse) 
+       return
 
     # value to return depends on what was set for "variable"
     if variable is None:

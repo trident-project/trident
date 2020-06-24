@@ -68,3 +68,6 @@ from trident.light_ray import \
 
 # Making installation path global
 path = trident_path()
+
+# Check that configuration is correct
+parse_config(first_parse=True)
