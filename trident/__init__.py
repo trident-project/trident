@@ -19,7 +19,7 @@ __version__ = "1.3.dev1"
 
 from trident.config import \
     parse_config, \
-    configure, \
+    auto_config, \
     trident, \
     trident_path, \
     verify

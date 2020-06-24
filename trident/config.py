@@ -57,7 +57,7 @@ def trident_path():
     # Here, __file__ refers to this file (config.py)
     return os.path.split(__file__)[0]
 
-def configure():
+def auto_config():
     """
     Create a Trident configuration file using interaction with the user.
     If it appears that the configuration has not yet been set up for the user,
@@ -123,10 +123,10 @@ def config_error(verbose=False):
         print("do it automatically now if you have web access.  Most functionality")
         print("will fail until you accomplish this configuration step.")
         print("")
-        print("To proceed automatically, please run: trident.configure()")
+        print("To proceed automatically, please run: trident.auto_config()")
     else:
         mylog.error("SOMETHING IS WRONG WITH YOUR CONFIGURATION AND ION_BALANCE FILE.")
-        mylog.error("MOST FUNCTIONALITY WILL FAIL UNTIL YOU RUN: trident.configure()")
+        mylog.error("MOST FUNCTIONALITY WILL FAIL UNTIL YOU RUN: trident.auto_config()")
     return
  
 def parse_config(variable=None, first_parse=False):
@@ -136,7 +136,7 @@ def parse_config(variable=None, first_parse=False):
     the default ion table datafiles exist.  If a ``config.tri`` file doesn't
     exist in ``$HOME/.trident`` or in the current working directory, then
     Trident will launch the request the user run the
-    :class:`~trident.configure` function to automatically generate one for the
+    :class:`~trident.auto_config` function to automatically generate one for the
     user.  For more information on this process, see the installation 
     documentation.
 
