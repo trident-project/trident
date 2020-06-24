@@ -18,26 +18,19 @@ The stable version is tried and tested, and it normally operates on a stable
 version of yt.  The development version is actively being updated with new
 features, and it is also tied to the development version of yt, so occasionally
 unforseen bugs can crop up as these new features are added.  The demeshening
-version is currently in beta and active development and is used for better
-results on particle-based datasets.
+version is an ongoing effort to treat particle-based datasets natively, which
+has been merged into the development version of Trident.  Now, there are only
+the stable and development versions.
 
-After Trident 1.2 was released on September 19, 2019, the demeshening version
-was merged with the main development branch. Now, there are only the stable
-version and the development version. 
+If you are dealing with an SPH or Voronoi Tesselation code like Gadget, Gizmo,
+AREPO, Gasoline, or Changa, you will get best and fastest results from using the
+development version of Trident and yt.
 
-The installation steps are slightly different between the two versions,
-so pay attention in the steps below.  Don't worry if you want to change later,
-you can always switch between the two versions easily enough by following the
-directions in :ref:`uninstallation`.
-
-.. note::
-    The demeshening (development) version treats particle-based
-    datasets more natively.  The demeshening version will give faster and more 
-    accurate results with less memory overhead for particle-based datasets.  
-    For more information about the demeshening version, please see our
-    `demeshening notebook
-    <https://nbviewer.jupyter.org/url/trident-project.org/notebooks/trident_demesh_install.ipynb>`_. **Note, the installation instructions in the notebook should be ignored.**
-    Instead, follow the instructions for :ref:`install-dev`.
+The installation steps are slightly different between the two versions, in that
+the stable version of Trident requires a stable release of yt, whereas
+the development version of Trident requires the development version of yt.
+Don't worry if you want to change later, you can always switch between the two
+versions easily enough by following the directions in :ref:`uninstallation`.
 
 .. _step-1:
 
