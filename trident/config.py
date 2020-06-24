@@ -251,17 +251,3 @@ def verify(save=False):
     print("Congratulations, you have verified that Trident is installed correctly.")
     print("Now let's science!")
     print("")
-
-# Each time Trident is imported, we determine the settings from the config
-# file or try to create a config file.  But don't do this on readthedocs, or
-# it will fail in the build. In readthedocs environment, just set a dummy
-# filepath so readthedocs can parse the docstrings OK.
-
-
-on_rtd = os.environ.get('READTHEDOCS') == 'True'
-if on_rtd:
-    ion_table_dir = trident_path()
-    ion_table_file = '__init__.py'
-    ion_table_filepath = os.path.join(ion_table_dir, ion_table_file)
-else:
-    ion_table_filepath = parse_config()
