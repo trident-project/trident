@@ -17,6 +17,8 @@ from configparser import \
 import shutil
 import tempfile
 import sys
+from yt.funcs import \
+    mylog
 
 from trident.utilities import \
     ensure_directory, \
@@ -123,10 +125,8 @@ def config_error(verbose=False):
         print("")
         print("To proceed automatically, please run: trident.configure()")
     else:
-        print("")
-        print("Something is wrong with your configuration and ion_balance file.")
-        print("Most functionality will fail until you run: trident.configure()")
-        print("")
+        mylog.error("SOMETHING IS WRONG WITH YOUR CONFIGURATION AND ION_BALANCE FILE.")
+        mylog.error("MOST FUNCTIONALITY WILL FAIL UNTIL YOU RUN: trident.configure()")
     return
  
 def parse_config(variable=None, first_parse=False):
@@ -173,10 +173,8 @@ def parse_config(variable=None, first_parse=False):
         ion_table_dir = os.path.abspath(os.path.expanduser(ion_table_dir))
         ion_table_filepath = os.path.join(ion_table_dir, ion_table_file)
         if not os.path.exists(ion_table_filepath):
-            print("")
-            print("No ion table data file found in %s" % ion_table_dir)
-            print("Most functionality will fail until you fix this problem.")
-            print("")
+            mylog.error("NO ION TABLE DATA FILE FOUND IN %s" % ion_table_dir)
+            mylog.error("MOST FUNCTIONALITY WILL FAIL UNTIL YOU FIX THIS PROBLEM.")
     except BaseException:
        config_error(verbose=first_parse) 
        return
