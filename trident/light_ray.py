@@ -667,13 +667,6 @@ class LightRay(CosmologySplice):
                     continue
                 sub_data[key] = ds.arr(sub_data[key]).in_cgs()
 
-            # Calculate length along line of sight.
-            sub_data['dl'].convert_to_units('unitary')
-            # l_ray is ray length entering the cell
-            # sub_data['l'] is ray length leaving the cell
-            l_ray = sub_data['dl'].cumsum()
-            sub_data['l'] = l_ray - sub_data['dl']
-
             # Get redshift for each lixel.  Assume linear relation between l
             # and z.  so z = z_start - z_range * (l / l_range)
             sub_data['redshift'] = my_segment['redshift'] - \
