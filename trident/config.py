@@ -25,6 +25,10 @@ from trident.utilities import \
     get_datafiles, \
     make_onezone_dataset
 
+from trident.exceptions import \
+    NotConfiguredError, \
+    NoIonBalanceTableError
+
 def trident():
     """
     Print a Trident ASCII logo to the screen.
@@ -67,6 +71,7 @@ def auto_config():
     """
     default_dir = os.path.expanduser('~/.trident')
 
+    print("")
     print("Where would you like Trident to store the ion table file?")
     print("[%s]" % default_dir)
 
@@ -104,29 +109,24 @@ def auto_config():
     print("Installation complete.  I recommend verifying your installation")
     print("to ensure that everything is working.  Try: trident.verify()")
 
-    # Return the config file path so we can load it and get parameters.
-    return config_filename
-
-def config_error(verbose=False):
+def config_warning():
     """
-    Print an error to STDOUT about the configuration being incorrect.
+    Print warning to STDOUT about the configuration being incorrect if first
+    time.  
     """
-    if verbose:
-        trident()
-        print("It appears that this is your first time using Trident.  To finalize your")
-        print("Trident installation, you must:")
-        print(" * create a `~/.trident` directory")
-        print(" * create a config.tri file in your `~/.trident` directory")
-        print(" * download an ion table file for calculating ionization fractions")
-        print("")
-        print("You can do this manually by following the installation docs, or we can")
-        print("do it automatically now if you have web access.  Most functionality")
-        print("will fail until you accomplish this configuration step.")
-        print("")
-        print("To proceed automatically, please run: trident.auto_config()")
-    else:
-        mylog.error("SOMETHING IS WRONG WITH YOUR CONFIGURATION AND ION_BALANCE FILE.")
-        mylog.error("MOST FUNCTIONALITY WILL FAIL UNTIL YOU RUN: trident.auto_config()")
+    trident()
+    print("It appears that this is your first time using Trident.  To finalize your")
+    print("Trident installation, you must:")
+    print(" * create a `~/.trident` directory")
+    print(" * create a config.tri file in your `~/.trident` directory")
+    print(" * download an ion table file for calculating ionization fractions")
+    print("")
+    print("You can do this manually by following the installation docs, or we can")
+    print("do it automatically now if you have web access.  Most functionality")
+    print("will fail until you accomplish this configuration step.")
+    print("")
+    print("To proceed automatically, please run: trident.auto_config()")
+    print("")
     return
  
 def parse_config(variable=None, first_parse=False):
@@ -172,12 +172,14 @@ def parse_config(variable=None, first_parse=False):
         ion_table_file = parser.get('Trident', 'ion_table_file')
         ion_table_dir = os.path.abspath(os.path.expanduser(ion_table_dir))
         ion_table_filepath = os.path.join(ion_table_dir, ion_table_file)
-        if not os.path.exists(ion_table_filepath):
-            mylog.error("NO ION TABLE DATA FILE FOUND IN %s" % ion_table_dir)
-            mylog.error("MOST FUNCTIONALITY WILL FAIL UNTIL YOU FIX THIS PROBLEM.")
     except BaseException:
-       config_error(verbose=first_parse) 
-       return
+        if first_parse:
+            config_warning()
+            return
+        else:
+            raise NotConfiguredError("Trident not configured.  Try: trident.auto_config()")
+    if not os.path.exists(ion_table_filepath):
+        raise NoIonBalanceTableError("No Ion Balance File found in %s" % ion_table_dir)
 
     # value to return depends on what was set for "variable"
     if variable is None:

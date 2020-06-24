@@ -56,7 +56,7 @@ class IonBalanceTable(object):
 
             Name of the HDF5 file that contains the ionization table data.
 
-            Default: it uses the table specified in ~/.trident/config
+            Default: it uses the table specified in ~/.trident/config.tri
 
         :atom: string, optional
 
