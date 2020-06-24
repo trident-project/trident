@@ -32,7 +32,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
                     solution_filename=None, data_filename=None,
                     trajectory=None, redshift=None, field_parameters=None,
                     setup_function=None, load_kwargs=None,
-                    line_database=None, ionization_table=None):
+                    line_database=None):
     """
     Create a yt LightRay object for a single dataset (eg CGM).  This is a
     wrapper function around yt's LightRay interface to reduce some of the
@@ -161,14 +161,6 @@ def make_simple_ray(dataset_file, start_position, end_position,
         and :lines:='all', it will add every ion of every element up to Zinc.
         Default: None
 
-    :ionization_table: string, optional
-
-        For use with the :lines: keyword.  Path to an appropriately formatted
-        HDF5 table that can be used to compute the ion fraction as a function
-        of density, temperature, metallicity, and redshift.  When set to None,
-        it uses the table specified in ~/.trident/config.tri
-        Default: None
-
     **Example**
 
     Generate a simple ray passing from the lower left corner to the upper
@@ -194,9 +186,6 @@ def make_simple_ray(dataset_file, start_position, end_position,
         ds = dataset_file
 
     lr = LightRay(ds, load_kwargs=load_kwargs)
-
-    if ionization_table is None:
-        ionization_table = parse_config()
 
     # Include some default fields in the ray to assure it's processed correctly.
 
@@ -241,8 +230,7 @@ def make_compound_ray(parameter_filename, simulation_type,
                       deltaz_min=0.0, minimum_coherent_box_fraction=0.0,
                       find_outputs=False, seed=None,
                       setup_function=None, load_kwargs=None,
-                      line_database=None, ionization_table=None,
-                      field_parameters = None):
+                      line_database=None, field_parameters = None):
     """
     Create a yt LightRay object for multiple consecutive datasets (eg IGM).
     This is a wrapper function around yt's LightRay interface to reduce some
@@ -424,14 +412,6 @@ def make_compound_ray(parameter_filename, simulation_type,
         and :lines:='all', it will add every ion of every element up to Zinc.
         Default: None
 
-    :ionization_table: string, optional
-
-        For use with the :lines: keyword.  Path to an appropriately formatted
-        HDF5 table that can be used to compute the ion fraction as a function
-        of density, temperature, metallicity, and redshift.  When set to None,
-        it uses the table specified in ~/.trident/config.tri
-        Default: None
-
     :field_parameters: optional, dict
         Used to set field parameters in light rays. For example,
         if the 'bulk_velocity' field parameter is set, the relative
@@ -474,9 +454,6 @@ def make_compound_ray(parameter_filename, simulation_type,
                   deltaz_min=deltaz_min,
                   minimum_coherent_box_fraction=minimum_coherent_box_fraction,
                   load_kwargs=load_kwargs)
-
-    if ionization_table is None:
-        ionization_table = parse_config()
 
     # We use the final dataset from the light ray solution in order to test it for
     # what fields are present, etc.  This all assumes that the fields present
