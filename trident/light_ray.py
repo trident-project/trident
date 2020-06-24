@@ -493,8 +493,8 @@ class LightRay(CosmologySplice):
 
         if get_los_velocity is not None:
             use_peculiar_velocity = get_los_velocity
-            mylog.warn("'get_los_velocity' kwarg is deprecated. " + \
-                       "Use 'use_peculiar_velocity' instead.")
+            mylog.warning("'get_los_velocity' kwarg is deprecated. " + \
+                          "Use 'use_peculiar_velocity' instead.")
 
         # Calculate solution.
         self._calculate_light_ray_solution(seed=seed,
@@ -542,8 +542,8 @@ class LightRay(CosmologySplice):
 
             if redshift is not None:
                 if ds.cosmological_simulation and redshift != ds.current_redshift:
-                    mylog.warn("Generating light ray with different redshift than " +
-                               "the dataset itself.")
+                    mylog.warning("Generating light ray with different redshift than " +
+                                  "the dataset itself.")
                 my_segment["redshift"] = redshift
 
             if setup_function is not None:
@@ -666,6 +666,13 @@ class LightRay(CosmologySplice):
                 if key == "extra_data":
                     continue
                 sub_data[key] = ds.arr(sub_data[key]).in_cgs()
+
+            # Calculate length along line of sight.
+            sub_data['dl'].convert_to_units('unitary')
+            # l_ray is ray length entering the cell
+            # sub_data['l'] is ray length leaving the cell
+            l_ray = sub_data['dl'].cumsum()
+            sub_data['l'] = l_ray - sub_data['dl']
 
             # Get redshift for each lixel.  Assume linear relation between l
             # and z.  so z = z_start - z_range * (l / l_range)
