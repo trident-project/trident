@@ -17,11 +17,6 @@ http://yt-project.org
 
 __version__ = "1.3.dev1"
 
-# Must run import_check() before anything else is imported to avoid
-# astropy error when importing trident in trident package directory
-from trident.utilities import import_check
-import_check()
-
 from trident.config import \
     parse_config, \
     configure, \
