@@ -16,7 +16,7 @@ from trident.light_ray import \
 from yt.convenience import \
     load
 from trident.config import \
-    ion_table_filepath
+    parse_config
 from trident.line_database import \
     LineDatabase, \
     uniquify
@@ -166,7 +166,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
         For use with the :lines: keyword.  Path to an appropriately formatted
         HDF5 table that can be used to compute the ion fraction as a function
         of density, temperature, metallicity, and redshift.  When set to None,
-        it uses the table specified in ~/.trident/config
+        it uses the table specified in ~/.trident/config.tri
         Default: None
 
     **Example**
@@ -196,7 +196,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
     lr = LightRay(ds, load_kwargs=load_kwargs)
 
     if ionization_table is None:
-        ionization_table = ion_table_filepath
+        ionization_table = parse_config()
 
     # Include some default fields in the ray to assure it's processed correctly.
 
@@ -429,7 +429,7 @@ def make_compound_ray(parameter_filename, simulation_type,
         For use with the :lines: keyword.  Path to an appropriately formatted
         HDF5 table that can be used to compute the ion fraction as a function
         of density, temperature, metallicity, and redshift.  When set to None,
-        it uses the table specified in ~/.trident/config
+        it uses the table specified in ~/.trident/config.tri
         Default: None
 
     :field_parameters: optional, dict
@@ -476,7 +476,7 @@ def make_compound_ray(parameter_filename, simulation_type,
                   load_kwargs=load_kwargs)
 
     if ionization_table is None:
-        ionization_table = ion_table_filepath
+        ionization_table = parse_config()
 
     # We use the final dataset from the light ray solution in order to test it for
     # what fields are present, etc.  This all assumes that the fields present
