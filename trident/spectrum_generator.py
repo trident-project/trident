@@ -381,39 +381,21 @@ class SpectrumGenerator(AbsorptionSpectrum):
         # Make sure we've produced all the necessary
         # derived fields if they aren't native to the data
         for line in active_lines:
+            # try to determine if field for line is present in dataset
             # if successful, means line.field is in ds.derived_field_list
+            # otherwise we probably need to add the field to the dataset
             try:
                 ad._determine_fields(line.field)[0]
-            # otherwise we probably need to add the field to the dataset
             except BaseException:
                 my_ion = \
                   line.field[:line.field.find("number_density")]
                 on_ion = my_ion.split("_")
-                # Add the field if greater than level 1 ionization
-                # because there is only one naming convention for these fields:
-                # X_pY_number_density
-                if on_ion[1]:
-                    my_lev = int(on_ion[1][1:]) + 1
-                    mylog.info("Creating %s from ray's density, "
-                               "temperature, metallicity." % (line.field))
-                    add_ion_number_density_field(on_ion[0], my_lev, ray,
-                                     ionization_table=self.ionization_table)
-                # If level 1 ionization, check to see if other name for
-                # field is present in dataset
-                else:
-                    my_lev = 1
-                    alias_field = ('gas', "".join([my_ion, 'p0_number_density']))
-                    # Don't add the X_number_density if X_p0_number_density is
-                    # in dataset already
-                    if alias_field in ray.derived_field_list:
-                        line.field = alias_field
-                    # But add the field if neither X_number_density nor
-                    # X_p0_number_density is in the dataset
-                    else:
-                        mylog.info("Creating %s from ray's density, "
-                                   "temperature, metallicity." % (line.field))
-                        add_ion_number_density_field(on_ion[0], my_lev, ray,
-                                     ionization_table=self.ionization_table)
+                # Add the field using ray's density, temperature, & metallicity
+                my_lev = int(on_ion[1][1:]) + 1
+                mylog.info("Creating %s from ray's density, "
+                           "temperature, metallicity." % (line.field))
+                add_ion_number_density_field(on_ion[0], my_lev, ray,
+                                 ionization_table=self.ionization_table)
 
             self.add_line(line.identifier, line.field,
                           float(line.wavelength),
