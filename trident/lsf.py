@@ -86,7 +86,7 @@ class LSF(object):
         elif function is not None and width is not None:
             if function == 'boxcar':
                 if width % 2 == 0:
-                    mylog.warn("LSF kernel must have an odd length. Reducing kernel size by 1.")
+                    mylog.warning("LSF kernel must have an odd length. Reducing kernel size by 1.")
                     width -= 1
                 self.kernel = np.ones(width)/width
             elif function == 'gaussian':

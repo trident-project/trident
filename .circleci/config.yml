@@ -12,8 +12,8 @@ commands:
             echo 'TRIDENT_ANSWER_DATA=$HOME/answer_test_data' >> $BASH_ENV
             echo 'TRIDENT_CONFIG=$HOME/.trident/config.tri' >> $BASH_ENV
             echo 'YT_GOLD=8dcc2fa135dfe7a62438507066527caf5cb379c1' >> $BASH_ENV
-            echo 'YT_HEAD=yt-4.0' >> $BASH_ENV
-            echo 'TRIDENT_GOLD=test-standard-sph-viz-v7' >> $BASH_ENV
+            echo 'YT_HEAD=master' >> $BASH_ENV
+            echo 'TRIDENT_GOLD=test-standard-sph-viz-v6' >> $BASH_ENV
             echo 'TRIDENT_HEAD=tip' >> $BASH_ENV
 
   install-dependencies:
@@ -43,6 +43,7 @@ commands:
             pip install --upgrade wheel
             pip install --upgrade setuptools
             pip install Cython numpy
+            export MAX_BUILD_CORES=2
             if [ << parameters.yttag >> != "None" ]; then
                 if [ ! -f $YT_DIR/README.md ]; then
                     git clone --branch=${YT_HEAD} https://github.com/yt-project/yt $YT_DIR
@@ -108,6 +109,16 @@ commands:
                pytest test_download.py
                popd
             fi
+
+  lint:
+    description: "Lint."
+    steps:
+      - run:
+          name: "Lint."
+          command: |
+            source $BASH_ENV
+            source $HOME/venv/bin/activate
+            flake8 trident
 
   run-tests:
     description: "Build trident and run tests."
@@ -185,6 +196,7 @@ jobs:
 
       - install-dependencies:
           yttag: << parameters.yttag >>
+
       - configure-trident
 
       - save_cache:
@@ -194,6 +206,8 @@ jobs:
             - ~/.cache/pip
             - ~/venv
             - ~/yt-git
+
+      - lint
 
       - restore_cache:
           name: "Restore test data cache."
