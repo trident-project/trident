@@ -64,7 +64,7 @@ setup(
         'numpy!=1.14.0',
         'requests',
         'scipy',
-        'yt>=3.4.0',
+        'yt>=3.6.0',
         'yt_astro_analysis'],
       python_requires='>=3.5'
 )
