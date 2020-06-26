@@ -13,8 +13,6 @@ Miscellaneous Utilities for Trident
 
 import gzip
 import os
-from os.path import \
-    expanduser
 import requests
 import tempfile
 import shutil
@@ -88,7 +86,7 @@ def download_file(url, progress_bar=True, local_directory=None,
 
     # Set defaults
     if local_filename is None:
-        local_filename = url.split(os.sep)[-1]
+        local_filename = os.path.basename(url)
     if local_directory is None:
         local_directory = '.'
     ensure_directory(local_directory)
@@ -210,7 +208,7 @@ def get_datafiles(datadir=None, url=None):
     >>> get_datafiles()
     """
     if datadir is None:
-        datadir = expanduser('~/.trident')
+        datadir = os.path.expanduser(os.path.join('~','.trident'))
     ensure_directory(datadir)
 
     # ion table datafiles are stored here

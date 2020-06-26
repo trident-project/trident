@@ -13,7 +13,8 @@ Trident config
 
 import os
 from configparser import \
-    ConfigParser
+    ConfigParser, \
+    NoSectionError
 import shutil
 import tempfile
 
@@ -66,7 +67,7 @@ def auto_config():
     configuration file and download an ion table datafile from the web.  It
     does this using user interaction from the python prompt.
     """
-    default_dir = os.path.expanduser('~/.trident')
+    default_dir = os.path.expanduser(os.path.join('~', '.trident'))
 
     print("")
     print("Where would you like Trident to store the ion table file?")
@@ -98,7 +99,7 @@ def auto_config():
     config.add_section('Trident')
     config.set('Trident', 'ion_table_dir', datadir)
     config.set('Trident', 'ion_table_file', datafile)
-    config_filename = os.path.expanduser('~/.trident/config.tri')
+    config_filename = os.path.expanduser(os.path.join('~', '.trident', 'config.tri'))
     with open(config_filename, 'w') as configfile:
         config.write(configfile)
 
@@ -169,7 +170,7 @@ def parse_config(variable=None, first_parse=False):
         ion_table_file = parser.get('Trident', 'ion_table_file')
         ion_table_dir = os.path.abspath(os.path.expanduser(ion_table_dir))
         ion_table_filepath = os.path.join(ion_table_dir, ion_table_file)
-    except BaseException:
+    except NoSectionError:
         if first_parse:
             config_warning()
             return
