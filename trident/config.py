@@ -69,6 +69,7 @@ def auto_config():
     """
     default_dir = os.path.expanduser(os.path.join('~', '.trident'))
 
+    print("")
     print("Let's try to set up your Trident configuration automatically.")
     print("We will attempt to:")
     print(" * create a `~/.trident` directory")
