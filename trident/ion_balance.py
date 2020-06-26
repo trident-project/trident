@@ -364,15 +364,10 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
 
     atom = atom.capitalize()
 
-    # if neutral ion field, alias X_number_density to X_p0_number_density field
     field = "%s_p%d_ion_fraction" % (atom, ion-1)
-    if ion == 1:
-        alias_field = "%s_ion_fraction" % atom
 
     if field_suffix:
         field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
-        if ion == 1:
-            alias_field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
 
     if field not in table_store:
         ionTable = IonBalanceTable(ionization_table, atom)
@@ -389,8 +384,6 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
     else:
         _add_field(ds, ("gas", field), function=_ion_fraction_field, units="",
                    sampling_type=sampling_type)
-    if ion == 1: # add aliased field too
-        _alias_field(ds, ("gas", alias_field), ("gas", field))
 
 def add_ion_number_density_field(atom, ion, ds, ftype="gas",
                                  ionization_table=None,
@@ -470,15 +463,11 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
     if ionization_table is None:
         ionization_table = ion_table_filepath
     atom = atom.capitalize()
-    # if neutral ion field, alias X_number_density to X_p0_number_density field
+
     field = "%s_p%d_number_density" % (atom, ion-1)
-    if ion == 1:
-        alias_field = "%s_number_density" % atom
 
     if field_suffix:
         field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
-        if ion == 1:
-            alias_field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
 
     add_ion_fraction_field(atom, ion, ds, ftype, ionization_table,
                            field_suffix=field_suffix,
@@ -486,8 +475,6 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
 
     _add_field(ds, ("gas", field),function=_ion_number_density,
                units="cm**-3", sampling_type=sampling_type)
-    if ion == 1: # add aliased field too
-        _alias_field(ds, ("gas", alias_field), ("gas", field))
 
 def add_ion_density_field(atom, ion, ds, ftype="gas",
                           ionization_table=None,
@@ -568,23 +555,16 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
         ionization_table = ion_table_filepath
     atom = atom.capitalize()
 
-    # if neutral ion field, alias X_number_density to X_p0_number_density field
     field = "%s_p%d_density" % (atom, ion-1)
-    if ion == 1:
-        alias_field = "%s_density" % atom
 
     if field_suffix:
         field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
-        if ion == 1:
-            alias_field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
 
     add_ion_number_density_field(atom, ion, ds, ftype, ionization_table,
                                  sampling_type=sampling_type)
 
     _add_field(ds, ("gas", field), function=_ion_density,
                units="g/cm**3", sampling_type=sampling_type)
-    if ion == 1: # add aliased field too
-        _alias_field(ds, ("gas", alias_field), ("gas", field))
 
 def add_ion_mass_field(atom, ion, ds, ftype="gas",
                        ionization_table=None,
@@ -666,15 +646,10 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
         ionization_table = ion_table_filepath
     atom = atom.capitalize()
 
-    # if neutral ion field, alias X_number_density to X_p0_number_density field
     field = "%s_p%s_mass" % (atom, ion-1)
-    if ion == 1:
-        alias_field = "%s_mass" % atom
 
     if field_suffix:
         field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
-        if ion == 1:
-            alias_field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
 
     add_ion_density_field(atom, ion, ds, ftype, ionization_table,
                           field_suffix=field_suffix,
@@ -682,8 +657,6 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
 
     _add_field(ds, ("gas", field), function=_ion_mass, units=r"g",
                sampling_type=sampling_type)
-    if ion == 1: # add aliased field too
-        _alias_field(ds, ("gas", alias_field), ("gas", field))
 
 def _ion_mass(field, data):
     """
@@ -853,14 +826,9 @@ def _internal_ion_fraction_field(field, data):
         ftype = "gas"
         field_name = field.name
 
-    # is this a neutral ion?
     field_array = field_name.split('_')
-    if len(field_array) == 3:
-        ion = field_array[0]
-    else:
-        ion = '_'.join(field_array[:2])
+    ion = '_'.join(field_array[:2])
     atom = field_array[0]
-
     return data[(ftype, "%s_number_density" % ion)] / data[(ftype, "%s_nuclei_density" % atom)]
 
 

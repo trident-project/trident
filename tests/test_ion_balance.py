@@ -185,7 +185,7 @@ def test_add_ion_fields_to_grid_ds():
     ad = ds.all_data()
     ions = ['H', 'O', 'N V']
     add_ion_fields(ds, ions)
-    fields = ['H_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
+    fields = ['H_p0_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
     # Assure that a sampling of fields are added and can be sliced
     dirpath = tempfile.mkdtemp()
     for field in fields:
@@ -206,7 +206,7 @@ def test_add_all_ion_fields_to_grid_ds():
     ftype = 'gas'
     ad = ds.all_data()
     add_ion_fields(ds, 'all')
-    fields = ['H_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
+    fields = ['H_p0_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
     # Assure that a sampling of fields are added and can be sliced
     dirpath = tempfile.mkdtemp()
     for field in fields:
@@ -227,7 +227,7 @@ def test_add_all_ion_fields_to_grid_ds_from_file():
     ftype = 'gas'
     ad = ds.all_data()
     add_ion_fields(ds, 'all', ftype=ftype, line_database='lines.txt')
-    fields = ['H_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
+    fields = ['H_p0_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
     # Assure that a sampling of fields are added and can be sliced
     dirpath = tempfile.mkdtemp()
     for field in fields:
@@ -247,7 +247,7 @@ def test_add_all_ion_fields_to_amr_ds():
     ad = ds.all_data()
     ions = ['H', 'O', 'N V']
     add_ion_fields(ds, ions, ftype=ftype)
-    fields = ['H_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
+    fields = ['H_p0_ion_fraction', 'H_p0_number_density', 'O_p5_mass', 'N_p4_density']
     # Assure that a sampling of fields are added and can be sliced
     dirpath = tempfile.mkdtemp()
     for field in fields:
@@ -281,7 +281,7 @@ def test_add_ion_fields_to_gizmo():
     ds = load(FIRE_SIM)
     add_ion_fields(ds, ['H', 'O VI'], ftype='PartType0')
     ad = ds.all_data()
-    fields = ['H_ion_fraction', 'O_p5_mass']
+    fields = ['H_p0_ion_fraction', 'O_p5_mass']
     # Assure that a sampling of fields are added and can be sliced
     dirpath = tempfile.mkdtemp()
     for field in fields:

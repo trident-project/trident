@@ -75,12 +75,12 @@ f-value, gamma value, and the atomic mass in amu of the atom.  That line must
 be tied in some way to a field in the dataset you are loading, and this field
 must be added to the LightRay object when it is created.  Below, we will
 add the H Lyman-alpha line, which is tied to the neutral hydrogen field
-('H_number_density').
+('H_p0_number_density').
 
 .. code-block:: python
 
   my_label = 'HI Lya'
-  field = 'H_number_density'
+  field = 'H_p0_number_density'
   wavelength = 1215.6700 # Angstroms
   f_value = 4.164E-01
   gamma = 6.265e+08
@@ -112,7 +112,7 @@ Lyman continuum.
 .. code-block:: python
 
   my_label = 'HI Lya'
-  field = 'H_number_density'
+  field = 'H_p0_number_density'
   wavelength = 912.323660 # Angstroms
   normalization = 1.6e17
   index = 3.0

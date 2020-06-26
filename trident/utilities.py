@@ -401,7 +401,7 @@ def make_onezone_ray(density=1e-26, temperature=1000, metallicity=0.3,
     a COS spectrum from that ray for just the Lyman alpha line.
 
     >>> import trident
-    >>> ds = trident.make_onezone_ray(column_densities={'H_number_density': 1e21})
+    >>> ds = trident.make_onezone_ray(column_densities={'H_p0_number_density': 1e21})
     >>> sg = trident.SpectrumGenerator('COS')
     >>> sg.make_spectrum(ray, lines=['Ly a'])
     >>> sg.plot_spectrum('spec_raw.png')
