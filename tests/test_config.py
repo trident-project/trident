@@ -13,9 +13,7 @@ Tests for Config Code
 
 from trident.config import \
     trident, \
-    trident_path, \
-    auto_config, \
-    parse_config
+    trident_path
 
 def test_banner():
     """
@@ -28,7 +26,3 @@ def test_path():
     Tests that the trident path is working ok.
     """
     trident_path()
-
-# Need to make a test_config but this necessitates changing the config
-# code around a bunch.
-
