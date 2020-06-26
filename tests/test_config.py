@@ -14,7 +14,7 @@ Tests for Config Code
 from trident.config import \
     trident, \
     trident_path, \
-    create_config, \
+    auto_config, \
     parse_config
 
 def test_banner():
