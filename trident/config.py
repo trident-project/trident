@@ -69,6 +69,14 @@ def auto_config():
     """
     default_dir = os.path.expanduser(os.path.join('~', '.trident'))
 
+    print("Let's try to set up your Trident configuration automatically.")
+    print("We will attempt to:")
+    print(" * create a `~/.trident` directory")
+    print(" * create a config.tri file in your `~/.trident` directory")
+    print(" * download an ion table file for calculating ionization fractions")
+    print("")
+    print("If this fails, please follow the installation documents to do this")
+    print("manually.")
     print("")
     print("Where would you like Trident to store the ion table file?")
     print("[%s]" % default_dir)
