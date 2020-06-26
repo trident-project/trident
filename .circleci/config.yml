@@ -11,9 +11,9 @@ commands:
             echo 'TRIDENT_ION_DATA=$HOME/.trident' >> $BASH_ENV
             echo 'TRIDENT_ANSWER_DATA=$HOME/answer_test_data' >> $BASH_ENV
             echo 'TRIDENT_CONFIG=$HOME/.trident/config.tri' >> $BASH_ENV
-            echo 'YT_GOLD=8dcc2fa135dfe7a62438507066527caf5cb379c1' >> $BASH_ENV
+            echo 'YT_GOLD=d218647162201673e8d0bc513a16b1b3add02a47' >> $BASH_ENV
             echo 'YT_HEAD=master' >> $BASH_ENV
-            echo 'TRIDENT_GOLD=test-standard-sph-viz-v6' >> $BASH_ENV
+            echo 'TRIDENT_GOLD=test-standard-v7' >> $BASH_ENV
             echo 'TRIDENT_HEAD=tip' >> $BASH_ENV
 
   install-dependencies:
