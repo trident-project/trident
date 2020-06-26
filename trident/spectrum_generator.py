@@ -134,6 +134,15 @@ class SpectrumGenerator(AbsorptionSpectrum):
         velocity offset from the rest wavelength of the absorption line.
         Default: wavelength
 
+    :deposition_method: 'voigt' or 'delta'
+
+        Sets the line profile in which spectra are deposited. If set to
+        voigt, the resulting line profiles are deposited as voigt profiles
+        . If set to delta, the line profiles are set to delta. This is 
+        useful for modelling the 21 cm Forest of neutral hydrogen and in cases
+        where thermal broadening is to be ignored. 
+        Default: voigt
+
     :lsf_kernel: string, optional
 
         The filename for the LSF kernel. Files are found in
@@ -190,7 +199,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
     def __init__(self, instrument=None, lambda_min=None, lambda_max=None,
                  n_lambda=None, dlambda=None, lsf_kernel=None,
                  line_database='lines.txt', ionization_table=None,
-                 bin_space='wavelength'):
+                 bin_space='wavelength',deposition_method='voigt'):
         if instrument is None and \
           ((lambda_min is None or lambda_max is None) or \
            (dlambda is None and n_lambda is None)):
@@ -213,7 +222,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                     self.instrument.lambda_max,
                                     n_lambda=self.instrument.n_lambda,
                                     dlambda=self.instrument.dlambda,
-                                    bin_space=bin_space)
+                                    bin_space=bin_space,
+                                    deposition_method=deposition_method)
 
         if isinstance(line_database, LineDatabase):
             self.line_database = line_database
