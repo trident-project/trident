@@ -103,10 +103,10 @@ Step 3: Get Ionization Table and Verify Installation
 In order to calculate the ionization fractions for various ions from
 density, temperature, metallicity fields, you will need an ionization table
 datafile and a configuration file.  Because this datafile can be large, it is
-not packaged with the main source code.  The first time you try to do anything
-that requires it, Trident will attempt to automatically set this all up for
-you with a series of interactive prompts.  **This step requires an internet
-connection the first time you run it.**
+not packaged with the main source code.  The first time that you import
+Trident, you will be prompted to download these files through a series of
+interactive prompts.  **This step requires an internet connection the first
+time you run it.** To initiate this directly, run the ``trident.auto_config()``.
 
 In addition, Trident provides a simple test function to verify that your
 install is functioning correctly.  This function not only tries to set up
@@ -118,8 +118,9 @@ successful::
 
     $ python
     >>> import trident
-    >>> trident.verify()
+    >>> trident.auto_config()
     ...Series of Interactive Prompts...
+    >>> trident.verify()
 
 If you cannot directly access the internet on this computer, or you lack write
 access to your ``$HOME`` directory, or this step fails for any reason, please
