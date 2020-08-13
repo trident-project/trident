@@ -1,0 +1,3 @@
+[submodule "doc/source/trident-docs-images"]
+	path = doc/source/trident-docs-images
+	url = https://github.com/trident-project/trident-docs-images
