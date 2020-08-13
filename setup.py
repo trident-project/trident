@@ -65,5 +65,5 @@ setup(
         'requests',
         'yt>=3.6.0',
         'yt_astro_analysis'],
-      python_requires='>=3.5'
+      python_requires='>=3.6'
 )
