@@ -18,7 +18,7 @@ import numpy as np
 
 from yt_astro_analysis.cosmological_observation.cosmology_splice import \
     CosmologySplice
-from yt.convenience import \
+from yt.loaders import \
     load
 from yt.frontends.ytdata.utilities import \
     save_as_dataset

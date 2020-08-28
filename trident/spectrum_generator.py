@@ -16,7 +16,7 @@ import os
 
 from trident.absorption_spectrum.absorption_spectrum import \
     AbsorptionSpectrum
-from yt.convenience import \
+from yt.loaders import \
     load
 from yt.data_objects.data_containers import \
     YTDataContainer
