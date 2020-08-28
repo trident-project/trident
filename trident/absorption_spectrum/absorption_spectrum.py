@@ -21,7 +21,7 @@ from yt.data_objects.data_containers import \
     YTDataContainer
 from yt.data_objects.static_output import \
     Dataset
-from yt.convenience import load
+from yt.loaders import load
 from yt.funcs import get_pbar, mylog
 from yt.units.yt_array import YTArray, YTQuantity
 from yt.utilities.on_demand_imports import _astropy
