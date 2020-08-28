@@ -270,30 +270,26 @@ workflows:
    normal-tests:
      jobs:
        - tests:
-           name: "Python 3.5 tests with yt gold"
-           tag: "3.5.9"
-
-       - tests:
            name: "Python 3.6 tests with yt gold"
-           tag: "3.6.10"
+           tag: "3.6.11"
 
        - tests:
            name: "Python 3.7 tests with yt gold"
-           tag: "3.7.7"
+           tag: "3.7.8"
 
        - tests:
            name: "Python 3.8 tests with yt gold"
-           tag: "3.8.2"
+           tag: "3.8.5"
 
        - tests:
            name: "Python 3.8 tests with yt tip"
-           tag: "3.8.2"
+           tag: "3.8.5"
            yttag: "YT_HEAD"
            coverage: 1
 
        - docs-test:
            name: "Test docs build"
-           tag: "3.8.2"
+           tag: "3.8.5"
 
    daily:
      triggers:
@@ -306,10 +302,10 @@ workflows:
      jobs:
        - tests:
            name: "Python 3.8 tests with yt tip"
-           tag: "3.8.2"
+           tag: "3.8.5"
            yttag: "YT_HEAD"
            coverage: 0
 
        - docs-test:
            name: "Test docs build"
-           tag: "3.8.2"
+           tag: "3.8.5"

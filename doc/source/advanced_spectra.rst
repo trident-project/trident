@@ -87,7 +87,7 @@ by hydrogen::
 
 The resulting spectrum contains a nice, big Lyman-alpha feature.
 
-.. image:: http://trident-project.org/data/doc_images/spectra/spec_H.png
+.. image:: trident-docs-images/spectra/spec_H.png
 
 If, instead, we want to shows the lines that would be in our spectral range 
 due to carbon, nitrogen, and oxygen, we can do the following::
@@ -97,7 +97,7 @@ due to carbon, nitrogen, and oxygen, we can do the following::
 
 And now we have:
 
-.. image:: http://trident-project.org/data/doc_images/spectra/spec_CNO.png
+.. image:: trident-docs-images/spectra/spec_CNO.png
 
 We can see how these two spectra combined when we include all of the same 
 lines::
@@ -107,7 +107,7 @@ lines::
 
 which gives:
 
-.. image:: http://trident-project.org/data/doc_images/spectra/spec_HCNO.png
+.. image:: trident-docs-images/spectra/spec_HCNO.png
 
 We can get even more specific, by generating a spectrum that only contains 
 lines due to a single ion species.  For example, we might just want the 
@@ -118,7 +118,7 @@ lines from four-times-ionized nitrogen, N V::
 
 This spectrum only shows a couple of small lines on the right hand side.
 
-.. image:: http://trident-project.org/data/doc_images/spectra/spec_NV.png
+.. image:: trident-docs-images/spectra/spec_NV.png
 
 But if that level of specificity isn't enough, we can request individual lines::
 
@@ -127,7 +127,7 @@ But if that level of specificity isn't enough, we can request individual lines::
 
 And we end up with:
 
-.. image:: http://trident-project.org/data/doc_images/spectra/spec_CI_1193_1194.png
+.. image:: trident-docs-images/spectra/spec_CI_1193_1194.png
 
 Or we can just include all of the available lines in our 
 :class:`~trident.LineDatabase` with::
@@ -137,7 +137,7 @@ Or we can just include all of the available lines in our
 
 Giving us:
 
-.. image:: http://trident-project.org/data/doc_images/spectra/spec_all.png
+.. image:: trident-docs-images/spectra/spec_all.png
 
 To understand how to further customize your spectra, look at the documentation 
 for the :class:`~trident.SpectrumGenerator` and :class:`~trident.LineDatabase`
@@ -158,7 +158,7 @@ and specifying a bin size with the ``dlambda`` keyword::
     sg.make_spectrum("ray.h5", lines=['H I 1216'])
     sg.plot_spectrum('spec_auto.png')
 
-.. image:: https://raw.githubusercontent.com/trident-project/trident-docs-images/master/spec_auto.png
+.. image:: trident-docs-images/spectra/spec_auto.png
 
 Note, the above example is for a different ray than is used in the
 previous examples. The resulting spectrum will minimally contain all
@@ -178,7 +178,7 @@ keyword ``bin_space='velocity'`` to the :class:`~trident.SpectrumGenerator`::
     sg.make_spectrum("ray.h5", lines=['H I 1216'])
     sg.plot_spectrum('spec_velocity.png')
 
-.. image:: https://raw.githubusercontent.com/trident-project/trident-docs-images/master/spec_velocity.png
+.. image:: trident-docs-images/spectra/spec_velocity.png
 
 When working in velocity space, limits and bin sizes should be provided in km/s.
 If more than one transition is added to the spectrum (e.g., Ly-a and Ly-b), the
@@ -214,4 +214,4 @@ dataset::
     trident.plot_spectrum(sg.lambda_field, [all_spectrum, cold_spectrum],
                           label=['all gas', 'cold gas'], stagger=None)
 
-.. image:: https://raw.githubusercontent.com/trident-project/trident-docs-images/master/spec_cutregion.png
+.. image:: trident-docs-images/spectra/spec_cutregion.png
