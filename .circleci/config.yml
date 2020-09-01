@@ -13,7 +13,7 @@ commands:
             echo 'TRIDENT_CONFIG=$HOME/.trident/config.tri' >> $BASH_ENV
             echo 'YT_GOLD=master' >> $BASH_ENV
             echo 'YT_HEAD=master' >> $BASH_ENV
-            echo 'TRIDENT_GOLD=test-standard-v7' >> $BASH_ENV
+            echo 'TRIDENT_GOLD=tip' >> $BASH_ENV
             echo 'TRIDENT_HEAD=tip' >> $BASH_ENV
 
   install-dependencies:
