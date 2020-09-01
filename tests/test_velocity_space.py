@@ -11,7 +11,7 @@ tests for velocity bin space
 #-----------------------------------------------------------------------------
 
 import os
-from yt.convenience import load
+from yt.loaders import load
 from yt.testing import \
     assert_allclose
 

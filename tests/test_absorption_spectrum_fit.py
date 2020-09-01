@@ -11,7 +11,7 @@ Unit test for the AbsorptionSpectrum analysis module
 #-----------------------------------------------------------------------------
 
 import os
-from yt.convenience import load
+from yt.loaders import load
 
 from trident import \
     make_simple_ray, \
