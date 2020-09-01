@@ -274,10 +274,6 @@ workflows:
            tag: "3.6.11"
 
        - tests:
-           name: "Python 3.7 tests with yt gold"
-           tag: "3.7.8"
-
-       - tests:
            name: "Python 3.8 tests with yt gold"
            tag: "3.8.5"
 
@@ -291,15 +287,19 @@ workflows:
            name: "Test docs build"
            tag: "3.8.5"
 
-   daily:
+   weekly:
      triggers:
        - schedule:
-           cron: "0 0 * * *"
+           cron: "0 0 * * 1"
            filters:
             branches:
               only:
                 - master
      jobs:
+       - tests:
+           name: "Python 3.7 tests with yt gold"
+           tag: "3.7.8"
+
        - tests:
            name: "Python 3.8 tests with yt tip"
            tag: "3.8.5"
