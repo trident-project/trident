@@ -203,7 +203,7 @@ jobs:
 
       - restore_cache:
           name: "Restore dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v7
+          key: python-<< parameters.tag >>-dependencies-v8
 
       - install-dependencies:
           yttag: << parameters.yttag >>
@@ -212,7 +212,7 @@ jobs:
 
       - save_cache:
           name: "Save dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v7
+          key: python-<< parameters.tag >>-dependencies-v8
           paths:
             - ~/.cache/pip
             - ~/venv
@@ -272,14 +272,14 @@ jobs:
       - checkout
       - restore_cache:
           name: "Restore dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v7
+          key: python-<< parameters.tag >>-dependencies-v8
       - set-env
       - install-dependencies:
           yttag: "YT_HEAD"
       - configure-trident
       - save_cache:
           name: "Save dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v7
+          key: python-<< parameters.tag >>-dependencies-v8
           paths:
             - ~/.cache/pip
             - ~/venv
