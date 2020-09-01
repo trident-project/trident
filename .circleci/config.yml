@@ -166,6 +166,7 @@ commands:
             source $BASH_ENV
             source $HOME/venv/bin/activate
             touch $HOME/.trident/hm2012_lr.h5
+            git submodule update --init
             cd doc/source
             python -m sphinx -M html "." "_build" -W
 
