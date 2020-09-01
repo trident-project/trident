@@ -202,7 +202,7 @@ jobs:
 
       - restore_cache:
           name: "Restore dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v6
+          key: python-<< parameters.tag >>-dependencies-v7
 
       - install-dependencies:
           yttag: << parameters.yttag >>
@@ -211,11 +211,12 @@ jobs:
 
       - save_cache:
           name: "Save dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v6
+          key: python-<< parameters.tag >>-dependencies-v7
           paths:
             - ~/.cache/pip
             - ~/venv
             - ~/yt-git
+            - ~/yt_astro_analysis
 
       - lint
 
