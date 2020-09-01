@@ -271,7 +271,7 @@ jobs:
       - checkout
       - set-env
       - install-dependencies:
-          yttag: "None"
+          yttag: "YT_HEAD"
       - configure-trident
       - build-docs
 
