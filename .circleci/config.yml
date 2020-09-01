@@ -269,10 +269,21 @@ jobs:
 
     steps:
       - checkout
+      - restore_cache:
+          name: "Restore dependencies cache."
+          key: python-<< parameters.tag >>-dependencies-v7
       - set-env
       - install-dependencies:
           yttag: "YT_HEAD"
       - configure-trident
+      - save_cache:
+          name: "Save dependencies cache."
+          key: python-<< parameters.tag >>-dependencies-v7
+          paths:
+            - ~/.cache/pip
+            - ~/venv
+            - ~/yt-git
+            - ~/yt_astro_analysis
       - build-docs
 
 workflows:
