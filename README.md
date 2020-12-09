@@ -5,32 +5,20 @@
 [![Documentation Status](https://readthedocs.org/projects/trident/badge/?version=latest)](http://trident.readthedocs.io/en/latest/?badge=latest)
 [![PyPI version](https://badge.fury.io/py/trident.svg)](https://badge.fury.io/py/trident)
 
-Trident is a Python package for creating synthetic absorption-line spectra
-from astrophysical hydrodynamics simulations.  It utilizes the yt package
-to read in simulation datasets and extends it to provide realistic
-synthetic observations appropriate for studies of the interstellar,
-circumgalactic, and intergalactic media.
+Trident is an open-source Python package for analyzing astrophysical
+hydrodynamics simulations of the interstellar, circumgalactic, and
+intergalactic media.  It can generate ionic abundances for all relevant ions
+to these studies based on collisional and photoionizational equilibrium.
+It also possesses infrastructure to create synthetic absorption-line spectra
+for making direct comparisons with observations.
 
-## Installation (after yt installed)
-
-Trident can be installed with pip:
-
-```
-pip install trident
-```
-
-To get the development version, clone this repository and install like this:
-
-```
-git clone https://github.com/trident-project/trident
-cd trident
-pip install -e .
-```
+For detailed installation directions and examples of how to use the Trident,
+please see the documentation.
 
 ## Resources
 
- * The Trident project homepage: http://trident-project.org
-
  * Trident documentation: http://trident.readthedocs.org
+
+ * The Trident project homepage: http://trident-project.org
 
  * For questions, comments, and announcements, please join our low-volume mailing list: https://groups.google.com/forum/#!forum/trident-project-users
