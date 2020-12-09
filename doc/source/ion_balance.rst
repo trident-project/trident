@@ -83,7 +83,7 @@ of the O VI number density field to show its column density map::
 
 which produces:
 
-.. image:: http://trident-project.org/data/doc_images/ions/RD0009_Projection_z_O_p5_number_density.png
+.. image:: trident-docs-images/ions/RD0009_Projection_z_O_p5_number_density.png
 
 We can similarly create a phase plot to show where the O VI mass lives as a 
 function of density and temperature::
@@ -96,4 +96,4 @@ function of density and temperature::
 
 resulting in:
 
-.. image:: http://trident-project.org/data/doc_images/ions/RD0009_2d-Profile_density_temperature_O_p5_mass.png
+.. image:: trident-docs-images/ions/RD0009_2d-Profile_density_temperature_O_p5_mass.png

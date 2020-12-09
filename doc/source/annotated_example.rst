@@ -98,7 +98,7 @@ any volumentric plot, including slices, and off-axis plots::
     p.annotate_ray(ray, arrow=True)
     p.save('projection.png')
 
-.. image:: http://trident-project.org/data/doc_images/annotated_example/projection.png
+.. image:: trident-docs-images/annotated_example/projection.png
 
 .. _spectrum-generation:
 
@@ -124,7 +124,7 @@ plot it::
     sg.save_spectrum('spec_raw.txt')
     sg.plot_spectrum('spec_raw.png')
 
-.. image:: http://trident-project.org/data/doc_images/annotated_example/spec_raw.png
+.. image:: trident-docs-images/annotated_example/spec_raw.png
    :width: 700
 
 From here we can do some post-processing to the spectrum to include 
@@ -144,7 +144,7 @@ Finally, we use plot and save the resulting spectrum to disk::
 
 which produces:
 
-.. image:: http://trident-project.org/data/doc_images/annotated_example/spec_final.png
+.. image:: trident-docs-images/annotated_example/spec_final.png
    :width: 700
 
 To create more complex or ion-specific spectra, refer to :ref:`advanced-spectra`.
