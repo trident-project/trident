@@ -46,20 +46,16 @@ reliable.
 Installing the Stable Version of yt and Trident
 -----------------------------------------------
 
-Installation of the stable versions of yt and Trident is quite simple:
+Installation of the stable versions of yt and Trident is quite simple::
 
-```
-$ pip install yt
-$ pip install trident
-```
+    $ pip install yt
+    $ pip install trident
 
 Now, you can try to run Trident for the first time, where it will download
-some additional files.  See :ref:`step-3`, for more information.
+some additional files.  See :ref:`step-3`, for more information::
 
-```
-$ python
->>> import trident
-```
+    $ python
+    >>> import trident
 
 Follow the instructions to download the ion_balance table and then verify that
 everything is working correctly.  You should now be ready to do some 
@@ -76,11 +72,9 @@ python that is self-contained in its installation directory.  yt & trident
 require a modern installation of python to work.  conda provides that
 installation.
 
-You can see if conda is already installed by running:
+You can see if conda is already installed by running::
 
-```
-$ conda -h
-```
+    $ conda -h
 
 If conda is installed, move to the next step.  Otherwise install Mini-conda.
 
@@ -88,19 +82,15 @@ Use the appropriate conda install script for your architecture.  We recommend
 getting the latest version of conda for Python3 for your architecture here:
 https://repo.continuum.io/miniconda/
 
-For modern macs:
+For modern macs::
 
-```
-$ curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
-$ bash Miniconda3-latest-MacOSX-x86_64.sh
-```
+    $ curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
+    $ bash Miniconda3-latest-MacOSX-x86_64.sh
 
-For modern linux machines:
+For modern linux machines::
 
-```
-$ wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-$ bash Miniconda3-latest-Linux-x86_64.sh
-```
+    $ wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+    $ bash Miniconda3-latest-Linux-x86_64.sh
 
 At the end of the installation step, allow conda to add its installation
 directory to the $PATH.
@@ -110,31 +100,25 @@ directory to the $PATH.
 Step 1: Install yt
 ^^^^^^^^^^^^^^^^^^
 
-First you need yt's major dependencies:
+First you need yt's major dependencies::
 
-```
-$ conda install numpy cython mpi4py git
-```
+    $ conda install numpy cython mpi4py git
 
 Now you pull directly from the yt github repository to access
-the up-to-date version of the source code and build it.
+the up-to-date version of the source code and build it::
 
-```
-$ git clone https://github.com/yt-project/yt.git yt
-$ cd yt
-$ pip install -e .
-$ cd ..
-```
+    $ git clone https://github.com/yt-project/yt.git yt
+    $ cd yt
+    $ pip install -e .
+    $ cd ..
 
 Note, you'll also need a separate library, yt_astro_analysis in order to
-have Trident work directly with yt.
+have Trident work directly with yt:
 
-```
-$ git clone https://github.com/yt-project/yt_astro_analysis.git yt_astro_analysis
-$ cd yt_astro_analysis
-$ pip install -e .
-$ cd ..
-```
+    $ git clone https://github.com/yt-project/yt_astro_analysis.git yt_astro_analysis
+    $ cd yt_astro_analysis
+    $ pip install -e .
+    $ cd ..
 
 .. _install-trident:
 .. _step-2:
@@ -144,14 +128,12 @@ Step 2: Install Trident
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 Like yt, in order to get the development version of Trident, you must clone
-and build the up-to-date source code from its repository.
+and build the up-to-date source code from its repository::
 
-```
-$ git clone https://github.com/trident-project/trident.git trident
-$ cd trident
-$ pip install -e .
-$ cd ..
-```
+    $ git clone https://github.com/trident-project/trident.git trident
+    $ cd trident
+    $ pip install -e .
+    $ cd ..
 
 .. _step-3:
 
@@ -212,7 +194,7 @@ directory (for users lacking write access to their ``$HOME`` directories).
 This configuration file is simple in that it tells Trident a few things about
 your install including the location and filename of your desired ionization
 table.  Manually create a text file called ``config.tri`` with contents
-following the form:
+following the form::
 
     [Trident]
     ion_table_dir = ~/.trident
