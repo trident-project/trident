@@ -92,6 +92,8 @@ How do I cite Trident in my research?
 
 Check out our :ref:`citation <citation>` page.
 
+.. _slack-channel:
+
 How do I get an invite to the Trident slack channel?
 ----------------------------------------------------
 
