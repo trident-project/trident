@@ -23,7 +23,7 @@ import h5py
 import copy
 import os
 from trident.config import \
-    ion_table_filepath
+    parse_config
 from trident.line_database import \
     LineDatabase, \
     uniquify
@@ -56,7 +56,7 @@ class IonBalanceTable(object):
 
             Name of the HDF5 file that contains the ionization table data.
 
-            Default: it uses the table specified in ~/.trident/config
+            Default: it uses the table specified in ~/.trident/config.tri
 
         :atom: string, optional
 
@@ -65,7 +65,7 @@ class IonBalanceTable(object):
             Default: None
         """
         if filename is None:
-            filename = ion_table_filepath
+            filename = parse_config()
         self.filename = filename
         self.parameters = []
         self.ion_fraction = []
@@ -194,7 +194,7 @@ def add_ion_fields(ds, ions, ftype='gas',
         Path to an appropriately formatted HDF5 table that can be used to
         compute the ion fraction as a function of density, temperature,
         metallicity, and redshift.  When set to None, it uses the table
-        specified in ~/.trident/config
+        specified in ~/.trident/config.tri
         Default: None
 
     :field_suffix: boolean, optional
@@ -238,7 +238,7 @@ def add_ion_fields(ds, ions, ftype='gas',
     ion_list = []
 
     if ionization_table is None:
-        ionization_table = ion_table_filepath
+        ionization_table = parse_config()
 
     # Parse the ions given following the LineDatabase syntax
 
@@ -320,7 +320,7 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
         Path to an appropriately formatted HDF5 table that can be used to
         compute the ion fraction as a function of density, temperature,
         metallicity, and redshift.  By default, it uses the table specified in
-        ~/.trident/config
+        ~/.trident/config.tri
 
     :field_suffix: boolean, optional
         Determines whether or not to append a suffix to the field name that
@@ -348,7 +348,7 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
     """
 
     if ionization_table is None:
-        ionization_table = ion_table_filepath
+        ionization_table = parse_config()
 
     if ("gas", "log_nH") not in ds.derived_field_list:
         _add_field(ds, ("gas", "log_nH"), function=_log_nH, units="",
@@ -432,7 +432,7 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
         Path to an appropriately formatted HDF5 table that can be used to
         compute the ion fraction as a function of density, temperature,
         metallicity, and redshift.  By default, it uses the table specified in
-        ~/.trident/config
+        ~/.trident/config.tri
 
     :field_suffix: boolean, optional
 
@@ -461,7 +461,8 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
     """
 
     if ionization_table is None:
-        ionization_table = ion_table_filepath
+        ionization_table = parse_config()
+
     atom = atom.capitalize()
 
     field = "%s_p%d_number_density" % (atom, ion-1)
@@ -523,7 +524,7 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
         Path to an appropriately formatted HDF5 table that can be used to
         compute the ion fraction as a function of density, temperature,
         metallicity, and redshift.  By default, it uses the table specified in
-        ~/.trident/config
+        ~/.trident/config.tri
 
     :field_suffix: boolean, optional
 
@@ -552,7 +553,8 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
     """
 
     if ionization_table is None:
-        ionization_table = ion_table_filepath
+        ionization_table = parse_config()
+
     atom = atom.capitalize()
 
     field = "%s_p%d_density" % (atom, ion-1)
@@ -614,7 +616,7 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
         Path to an appropriately formatted HDF5 table that can be used to
         compute the ion fraction as a function of density, temperature,
         metallicity, and redshift.  By default, it uses the table specified in
-        ~/.trident/config
+        ~/.trident/config.tri
 
     :field_suffix: boolean, optional
 
@@ -643,7 +645,8 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
     """
 
     if ionization_table is None:
-        ionization_table = ion_table_filepath
+        ionization_table = parse_config()
+
     atom = atom.capitalize()
 
     field = "%s_p%s_mass" % (atom, ion-1)

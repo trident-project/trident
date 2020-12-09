@@ -448,16 +448,3 @@ def make_onezone_ray(density=1e-26, temperature=1000, metallicity=0.3,
     ray.domain_right_edge = ray.domain_right_edge.to('code_length')
 
     return ray
-
-def import_check():
-    """
-    """
-    # Avoid astropy error when importing from trident package directory.
-    plist = os.path.dirname(os.path.abspath(__file__)).split(os.sep)
-    package_path = os.sep.join(plist[:-1])
-    if os.getcwd() == package_path:
-        raise RuntimeError(
-            """
-
-The Trident package does not work correctly when imported from its
-installation directory.  Please try moving to another directory.""")

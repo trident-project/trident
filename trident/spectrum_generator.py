@@ -27,9 +27,10 @@ from yt.funcs import \
     YTArray
 
 from trident.config import \
-    ion_table_dir, \
-    ion_table_file, \
-    ion_table_filepath
+    parse_config, \
+    trident_path
+from trident.exceptions import \
+    NoIonBalanceTableError
 from trident.instrument import \
     Instrument
 from trident.ion_balance import \
@@ -41,8 +42,6 @@ from trident.lsf import \
     LSF
 from trident.plotting import \
     plot_spectrum
-from trident.config import \
-    trident_path
 from yt.utilities.on_demand_imports import \
     _h5py, \
     _astropy
@@ -227,15 +226,18 @@ class SpectrumGenerator(AbsorptionSpectrum):
 
         if ionization_table is not None:
             # figure out where the user-specified files lives
-            if os.path.isfile(ion_table_file):
-                self.ionization_table = ion_table_file
-            elif os.path.isfile(ion_table_filepath):
-                self.ionization_table = ion_table_filepath
+            local_filepath = os.path.join(os.getcwd(), ionization_table)
+            config_dir = parse_config('ion_table_dir')
+            config_dir_filepath = os.path.join(config_dir, ionization_table)
+            if os.path.isfile(local_filepath):
+                self.ionization_table = local_filepath
+            elif os.path.isfile(config_dir_filepath):
+                self.ionization_table = config_dir_filepath
             else:
-                raise RuntimeError("ionization_table %s is not found in local "
-                                   "directory or in %s" %
-                                   (ion_table_file.split(os.sep)[-1],
-                                    ion_table_dir))
+                raise NoIonBalanceTableError("No ion balance file %s found in "
+                              "CWD or in %s" % (ionization_table, config_dir))
+
+            mylog.info("Using ionization table %s" % self.ionization_table)
         else:
             self.ionization_table = None
 

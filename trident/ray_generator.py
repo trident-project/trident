@@ -15,8 +15,6 @@ from trident.light_ray import \
     LightRay
 from yt.loaders import \
     load
-from trident.config import \
-    ion_table_filepath
 from trident.line_database import \
     LineDatabase, \
     uniquify
@@ -68,7 +66,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
     **Parameters**
 
     :dataset_file: string or yt Dataset object
-    
+
         Either a yt dataset or the filename of a dataset on disk.  If you are
         passing it a filename, consider usage of the ``load_kwargs`` and
         ``setup_function`` kwargs.
@@ -110,7 +108,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
         Default: None
 
     :data_filename: string, optional
-    
+
         Output filename for ray data stored as an HDF5 file.  Note that
         at present, you *must* save a ray to disk in order for it to be
         returned by this function.  If set to None, defaults to 'ray.h5'.
@@ -163,10 +161,8 @@ def make_simple_ray(dataset_file, start_position, end_position,
 
     :ionization_table: string, optional
 
-        For use with the :lines: keyword.  Path to an appropriately formatted
-        HDF5 table that can be used to compute the ion fraction as a function
-        of density, temperature, metallicity, and redshift.  When set to None,
-        it uses the table specified in ~/.trident/config
+        The keyword is deprecated.  To explicitly set an ionization table,
+        set it using add_ion_fields().
         Default: None
 
     **Example**
@@ -194,9 +190,6 @@ def make_simple_ray(dataset_file, start_position, end_position,
         ds = dataset_file
 
     lr = LightRay(ds, load_kwargs=load_kwargs)
-
-    if ionization_table is None:
-        ionization_table = ion_table_filepath
 
     # Include some default fields in the ray to assure it's processed correctly.
 
@@ -241,8 +234,7 @@ def make_compound_ray(parameter_filename, simulation_type,
                       deltaz_min=0.0, minimum_coherent_box_fraction=0.0,
                       find_outputs=False, seed=None,
                       setup_function=None, load_kwargs=None,
-                      line_database=None, ionization_table=None,
-                      field_parameters = None):
+                      line_database=None, field_parameters = None):
     """
     Create a yt LightRay object for multiple consecutive datasets (eg IGM).
     This is a wrapper function around yt's LightRay interface to reduce some
@@ -284,7 +276,7 @@ def make_compound_ray(parameter_filename, simulation_type,
     in the dataset volume, the compound ray requires the near_redshift and
     far_redshift to determine which datasets to use to get full coverage
     in redshift space as the ray propagates from near_redshift to far_redshift.
-    
+
     Like the simple ray produced by :class:`~trident.make_simple_ray`,
     each gas cell intersected by the LightRay is sampled for the desired
     fields and stored.  Several additional fields are created and stored
@@ -424,14 +416,6 @@ def make_compound_ray(parameter_filename, simulation_type,
         and :lines:='all', it will add every ion of every element up to Zinc.
         Default: None
 
-    :ionization_table: string, optional
-
-        For use with the :lines: keyword.  Path to an appropriately formatted
-        HDF5 table that can be used to compute the ion fraction as a function
-        of density, temperature, metallicity, and redshift.  When set to None,
-        it uses the table specified in ~/.trident/config
-        Default: None
-
     :field_parameters: optional, dict
         Used to set field parameters in light rays. For example,
         if the 'bulk_velocity' field parameter is set, the relative
@@ -474,9 +458,6 @@ def make_compound_ray(parameter_filename, simulation_type,
                   deltaz_min=deltaz_min,
                   minimum_coherent_box_fraction=minimum_coherent_box_fraction,
                   load_kwargs=load_kwargs)
-
-    if ionization_table is None:
-        ionization_table = ion_table_filepath
 
     # We use the final dataset from the light ray solution in order to test it for
     # what fields are present, etc.  This all assumes that the fields present
