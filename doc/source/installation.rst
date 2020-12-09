@@ -112,8 +112,9 @@ the up-to-date version of the source code and build it::
     $ pip install -e .
     $ cd ..
 
-Note, you'll also need a separate library, yt_astro_analysis in order to
-have Trident work directly with yt:
+Note, you'll also need a separate library,
+`yt_astro_analysis <https://github.com/yt-project/yt_astro_analysis.git>`_,
+to get some of the functianality necessary for Trident to work correctly::
 
     $ git clone https://github.com/yt-project/yt_astro_analysis.git yt_astro_analysis
     $ cd yt_astro_analysis
