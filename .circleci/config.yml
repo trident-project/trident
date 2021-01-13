@@ -11,9 +11,9 @@ commands:
             echo 'TRIDENT_ION_DATA=$HOME/.trident' >> $BASH_ENV
             echo 'TRIDENT_ANSWER_DATA=$HOME/answer_test_data' >> $BASH_ENV
             echo 'TRIDENT_CONFIG=$HOME/.trident/config.tri' >> $BASH_ENV
-            echo 'YT_GOLD=d218647162201673e8d0bc513a16b1b3add02a47' >> $BASH_ENV
+            echo 'YT_GOLD=master' >> $BASH_ENV
             echo 'YT_HEAD=master' >> $BASH_ENV
-            echo 'TRIDENT_GOLD=test-standard-v7' >> $BASH_ENV
+            echo 'TRIDENT_GOLD=tip' >> $BASH_ENV
             echo 'TRIDENT_HEAD=tip' >> $BASH_ENV
 
   install-dependencies:
@@ -57,6 +57,16 @@ commands:
                 pip install -e .
                 popd
             fi
+            # install yt-astro-analysis from source
+            if [ ! -f $HOME/yt_astro_analysis/README.md ]; then
+                git clone --branch=master https://github.com/yt-project/yt_astro_analysis $HOME/yt_astro_analysis
+            fi
+            pushd $HOME/yt_astro_analysis
+            # return to tip before pulling
+            git checkout master
+            git pull origin master
+            pip install -e .
+            popd
             pip install -e .[dev]
 
   install-trident:
@@ -156,6 +166,7 @@ commands:
             source $BASH_ENV
             source $HOME/venv/bin/activate
             touch $HOME/.trident/hm2012_lr.h5
+            git submodule update --init
             cd doc/source
             python -m sphinx -M html "." "_build" -W
 
@@ -192,7 +203,7 @@ jobs:
 
       - restore_cache:
           name: "Restore dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v6
+          key: python-<< parameters.tag >>-dependencies-v8
 
       - install-dependencies:
           yttag: << parameters.yttag >>
@@ -201,11 +212,12 @@ jobs:
 
       - save_cache:
           name: "Save dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v6
+          key: python-<< parameters.tag >>-dependencies-v8
           paths:
             - ~/.cache/pip
             - ~/venv
             - ~/yt-git
+            - ~/yt_astro_analysis
 
       - lint
 
@@ -258,10 +270,21 @@ jobs:
 
     steps:
       - checkout
+      - restore_cache:
+          name: "Restore dependencies cache."
+          key: python-<< parameters.tag >>-dependencies-v8
       - set-env
       - install-dependencies:
-          yttag: "None"
+          yttag: "YT_HEAD"
       - configure-trident
+      - save_cache:
+          name: "Save dependencies cache."
+          key: python-<< parameters.tag >>-dependencies-v8
+          paths:
+            - ~/.cache/pip
+            - ~/venv
+            - ~/yt-git
+            - ~/yt_astro_analysis
       - build-docs
 
 workflows:
@@ -272,10 +295,6 @@ workflows:
        - tests:
            name: "Python 3.6 tests with yt gold"
            tag: "3.6.11"
-
-       - tests:
-           name: "Python 3.7 tests with yt gold"
-           tag: "3.7.8"
 
        - tests:
            name: "Python 3.8 tests with yt gold"
@@ -291,15 +310,19 @@ workflows:
            name: "Test docs build"
            tag: "3.8.5"
 
-   daily:
+   weekly:
      triggers:
        - schedule:
-           cron: "0 0 * * *"
+           cron: "0 0 * * 1"
            filters:
             branches:
               only:
                 - master
      jobs:
+       - tests:
+           name: "Python 3.7 tests with yt gold"
+           tag: "3.7.8"
+
        - tests:
            name: "Python 3.8 tests with yt tip"
            tag: "3.8.5"

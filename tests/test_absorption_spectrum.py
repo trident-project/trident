@@ -13,7 +13,7 @@ Unit test for the AbsorptionSpectrum analysis module
 
 import numpy as np
 import os
-from yt.convenience import load
+from yt.loaders import load
 from yt.testing import \
     assert_allclose_units, \
     assert_almost_equal

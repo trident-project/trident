@@ -13,7 +13,7 @@ Unit test for the light_ray analysis module
 
 import numpy as np
 
-from yt.convenience import \
+from yt.loaders import \
     load
 from yt.testing import \
     assert_array_equal, \
