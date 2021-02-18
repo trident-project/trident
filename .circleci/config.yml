@@ -12,7 +12,7 @@ commands:
             echo 'TRIDENT_ANSWER_DATA=$HOME/answer_test_data' >> $BASH_ENV
             echo 'TRIDENT_CONFIG=$HOME/.trident/config.tri' >> $BASH_ENV
             echo 'YT_GOLD=2438fd1166d5ef0bf0aaefc73b40104bb074898f' >> $BASH_ENV
-            echo 'YT_HEAD=master' >> $BASH_ENV
+            echo 'YT_HEAD=main' >> $BASH_ENV
             echo 'TRIDENT_GOLD=test-standard-v8' >> $BASH_ENV
             echo 'TRIDENT_HEAD=tip' >> $BASH_ENV
 
