@@ -63,8 +63,8 @@ commands:
             fi
             pushd $HOME/yt_astro_analysis
             # return to tip before pulling
-            git checkout master
-            git pull origin master
+            git checkout main
+            git pull origin main
             pip install -e .
             popd
             pip install -e .[dev]
