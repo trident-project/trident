@@ -59,12 +59,12 @@ commands:
             fi
             # install yt-astro-analysis from source
             if [ ! -f $HOME/yt_astro_analysis/README.md ]; then
-                git clone --branch=master https://github.com/yt-project/yt_astro_analysis $HOME/yt_astro_analysis
+                git clone --branch=main https://github.com/yt-project/yt_astro_analysis $HOME/yt_astro_analysis
             fi
             pushd $HOME/yt_astro_analysis
             # return to tip before pulling
-            git checkout master
-            git pull origin master
+            git checkout main
+            git pull origin main
             pip install -e .
             popd
             pip install -e .[dev]
