@@ -34,6 +34,37 @@ spectrum, but we'll cover a few of the basic explanations here.
     to have any appreciable absorption.  Try sending a sightline through a
     denser region in your simulation that might have more of that ion.
 
+I don't have a metallicity field in my dataset--What can I do?
+--------------------------------------------------------------
+
+In order to estimate the density of ions throughout your dataset, Trident
+needs a metallicity field.  But some datasets may not have one generated
+by default.  I highly recommend re-running the dataset with metals present,
+as this will lead to the best estimate of ions from Trident, but if you just
+want to create a "dummy" metallicity field, include the following code at the
+top of your script to automatically add a uniform metallicity field to any
+datasets loaded lacking one (in this case it's 0.3 solar metallicity).  For more
+information on creating derived fields like this one, see the `yt documentation
+on derived fields 
+<https://yt-project.org/docs/dev/developing/creating_derived_fields.html>`_
+::
+
+        import yt
+        import numpy as np
+
+        def _metallicity(field, data):
+            factor = 0.3 # 0.3 solar metallicity
+            return (
+                data.ds.arr(np.ones_like(data["gas", "density"]), 'Zsun') * factor
+            )
+
+        yt.add_field(
+            ("gas", "metallicity"),
+            function=_metallicity,
+            sampling_type="local",
+            units="Zsun",
+        )
+
 What version of Trident am I running?
 -------------------------------------
 
