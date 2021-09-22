@@ -18,7 +18,10 @@ from yt.funcs import \
 from trident.config import \
     trident_path
 from trident.roman import \
-    from_roman
+    from_roman, to_roman
+from trident.constants import \
+    atomic_number
+import astropy.units as u
 
 
 def uniquify(list):
@@ -145,7 +148,7 @@ class LineDatabase:
         if input_file is not None:
             self.load_line_list_from_file(input_file)
         else:
-            self.input_file = 'Manually Entered'
+            self.load_line_list_from_linetools()
 
     def add_line(self, element, ion_state, wavelength, gamma=None,
                  f_value=None, field=None, identifier=None, use_linetools=False):
@@ -231,6 +234,34 @@ class LineDatabase:
 
         self.lines_all.append(Line(element, ion_state, wavelength, gamma,
                                    f_value, field, identifier))
+
+    def add_line_from_linetools(self, name):
+        """
+        name is the linetools name for a feature: "ion wrest"
+        e.g., HI 1215
+        """
+        line = self.linetools_linelist[name]
+        reversed_atomic_number = {value : key for (key, value) in atomic_number.items()}
+        if line['Z'] not in reversed_atomic_number.keys():
+            # Not a line < Zn so not a line we care about.
+            return
+        element = reversed_atomic_number[line['Z']]
+        ion_state = to_roman(line['ion'])
+        wavelength = line['wrest'].value
+        gamma = line['gamma'].value
+        f_value = line['f']
+        identifier = line['name']
+        self.add_line(element, ion_state, wavelength, gamma, f_value, identifier)
+
+    def load_line_list_from_linetools(self):
+        """
+        Create a line list that incorporates all of the "ISM" lines between 100 and
+        5000 angstroms from the external linetools code.
+        """
+        bounds = [100, 5000] * u.AA
+        name_list = self.linetools_linelist.available_transitions(bounds)['name']
+        for name in name_list:
+            self.add_line_from_linetools(name)
 
     def load_line_list_from_file(self, filename):
         """
