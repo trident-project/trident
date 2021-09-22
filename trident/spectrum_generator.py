@@ -33,7 +33,8 @@ from trident.config import \
 from trident.instrument import \
     Instrument
 from trident.ion_balance import \
-    add_ion_number_density_field, \
+    add_ion_number_density_field
+from trident.constants import \
     atomic_mass
 from trident.line_database import \
     LineDatabase
