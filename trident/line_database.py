@@ -251,7 +251,7 @@ class LineDatabase:
         gamma = line['gamma'].value
         f_value = line['f']
         identifier = line['name']
-        self.add_line(element, ion_state, wavelength, gamma, f_value, identifier)
+        self.add_line(element, ion_state, wavelength, gamma, f_value)
 
     def load_line_list_from_linetools(self):
         """
