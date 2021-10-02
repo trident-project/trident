@@ -256,12 +256,14 @@ class LineDatabase:
     def load_line_list_from_linetools(self):
         """
         Create a line list that incorporates all of the "ISM" lines between 100 and
-        5000 angstroms from the external linetools code.
+        1 micron angstroms from the external linetools code.
         """
-        bounds = [100, 5000] * u.AA
+        bounds = [100, 10000] * u.AA
         name_list = self.linetools_linelist.available_transitions(bounds)['name']
         for name in name_list:
-            self.add_line_from_linetools(name)
+            # Don't include fine structure lines
+            if "*" not in name:
+                self.add_line_from_linetools(name)
 
     def load_line_list_from_file(self, filename):
         """
