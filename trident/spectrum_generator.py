@@ -395,8 +395,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
                 on_ion = my_ion.split("_")
                 # Add the field using ray's density, temperature, & metallicity
                 my_lev = int(on_ion[1][1:]) + 1
-                mylog.info("Creating %s from ray's density, "
-                           "temperature, metallicity." % (line.field[1]))
+                mylog.info("Creating %s from ray's fields." % (line.field[1]))
                 add_ion_number_density_field(on_ion[0], my_lev, ray,
                                  ionization_table=self.ionization_table)
 
