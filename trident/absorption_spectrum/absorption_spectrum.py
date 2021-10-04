@@ -556,7 +556,7 @@ class AbsorptionSpectrum(object):
         """
         if observing_redshift == 0.:
             # This is already assumed in the generation of the LightRay
-            redshift = field_data['redshift']
+            redshift = field_data[('gas', 'redshift')]
             if use_peculiar_velocity:
                 redshift_eff = field_data[('gas', 'redshift_eff')]
         else:
@@ -613,7 +613,7 @@ class AbsorptionSpectrum(object):
         # significantly to a continuum (see below).  because lots of
         # low column density absorbers can add up to a significant
         # continuum effect, we normalize min_tau by the n_absorbers.
-        n_absorbers = field_data['dl'].size
+        n_absorbers = field_data[('gas', 'dl')].size
 
         if n_absorbers == 0:
             mylog.info("No absorbers in path of LightRay.")
@@ -625,7 +625,7 @@ class AbsorptionSpectrum(object):
 
             # Normalization is in cm**-2, so column density must be as well
             column_density = (field_data[continuum['field_name']] *
-                              field_data['dl']).in_units('cm**-2')
+                              field_data[('gas', 'dl')]).in_units('cm**-2')
             if (column_density == 0).all():
                 mylog.info("Not adding continuum %s: insufficient column density" % continuum['label'])
                 continue
@@ -709,7 +709,7 @@ class AbsorptionSpectrum(object):
         # and deposit the lines into the spectrum
         for store, line in parallel_objects(self.line_list, njobs=njobs,
                                             storage=self.line_observables_dict):
-            column_density = field_data[line['field_name']] * field_data['dl']
+            column_density = field_data[line['field_name']] * field_data[('gas', 'dl')]
             if (column_density < 0).any():
                 mylog.warning(
                     "Setting negative densities for field %s to 0! Bad!" % line['field_name'])
@@ -744,7 +744,7 @@ class AbsorptionSpectrum(object):
 
             # thermal broadening b parameter
             thermal_b =  np.sqrt((2 * boltzmann_constant_cgs *
-                                  field_data['temperature']) /
+                                  field_data[('gas', 'temperature')]) /
                                   line['atomic_mass'])
 
             # the actual thermal width of the lines
