@@ -513,8 +513,7 @@ class LightRay(CosmologySplice):
         self._data = {}
         # temperature field is automatically added to fields
         if fields is None: fields = []
-        if (('gas', 'temperature') not in fields) and \
-           ('temperature' not in fields):
+        if ('gas', 'temperature') not in fields:
            fields.append(('gas', 'temperature'))
         data_fields = fields[:]
         all_fields = fields[:]
@@ -527,6 +526,10 @@ class LightRay(CosmologySplice):
                                'velocity_los', 'redshift_eff',
                                'redshift_dopp'])
             data_fields.extend(['relative_velocity_x', 'relative_velocity_y', 'relative_velocity_z'])
+
+        # Ensure all_fields and data_fields are all field tuples ('gas', field)
+        all_fields = [('gas', a) if not isinstance(a, tuple) else a for a in all_fields]
+        data_fields = [('gas', a) if not isinstance(a, tuple) else a for a in data_fields]
 
         all_ray_storage = {}
         for my_storage, my_segment in parallel_objects(self.light_ray_solution,
@@ -584,10 +587,10 @@ class LightRay(CosmologySplice):
             sub_data = {}
             # Put supplementary data that we want communicated across
             # processors in here.
-            sub_data['extra_data'] = {}
-            sub_data['extra_data']['segment_redshift'] = \
+            sub_data[('gas', 'extra_data')] = {}
+            sub_data[('gas', 'extra_data')]['segment_redshift'] = \
               my_segment['redshift']
-            sub_data['extra_data']['unique_identifier'] = \
+            sub_data[('gas', 'extra_data')]['unique_identifier'] = \
               ds.unique_identifier
             for field in all_fields:
                 sub_data[field] = []
@@ -608,12 +611,12 @@ class LightRay(CosmologySplice):
                     sub_ray.end_point)
 
                 # redshifts derived from l values
-                sub_data['l'].extend(
+                sub_data[('gas', 'l')].extend(
                     sub_ray['t'][asort] * sub_length + ray_length)
                 ray_length += sub_length
 
                 # column densities derived from dl values
-                sub_data['dl'].extend(sub_ray['dts'][asort] * sub_length)
+                sub_data[('gas', 'dl')].extend(sub_ray['dts'][asort] * sub_length)
 
                 for field in data_fields:
                     sub_data[field].extend(sub_ray[field][asort])
@@ -621,13 +624,13 @@ class LightRay(CosmologySplice):
                 if use_peculiar_velocity:
                     line_of_sight = sub_segment[0] - sub_segment[1]
                     line_of_sight /= ((line_of_sight**2).sum())**0.5
-                    sub_vel = ds.arr([sub_ray['relative_velocity_x'],
-                                      sub_ray['relative_velocity_y'],
-                                      sub_ray['relative_velocity_z']])
+                    sub_vel = ds.arr([sub_ray[('gas', 'relative_velocity_x')],
+                                      sub_ray[('gas', 'relative_velocity_y')],
+                                      sub_ray[('gas', 'relative_velocity_z')]])
                     # Line of sight velocity = vel_los
                     sub_vel_los = (np.rollaxis(sub_vel, 1) * \
                                    line_of_sight).sum(axis=1)
-                    sub_data['velocity_los'].extend(sub_vel_los[asort])
+                    sub_data[('gas', 'velocity_los')].extend(sub_vel_los[asort])
 
                     # doppler redshift:
                     # See https://en.wikipedia.org/wiki/Redshift and
@@ -647,7 +650,7 @@ class LightRay(CosmologySplice):
                     # theta is the angle between the ray vector (i.e. line of
                     # sight) and the velocity vectors: a dot b = ab cos(theta)
 
-                    sub_vel_mag = sub_ray['velocity_magnitude']
+                    sub_vel_mag = sub_ray[('gas', 'velocity_magnitude')]
                     cos_theta = line_of_sight.dot(sub_vel) / sub_vel_mag
                     # Protect against stituations where velocity mag is exactly
                     # zero, in which case zero / zero = NaN.
@@ -655,7 +658,7 @@ class LightRay(CosmologySplice):
                     redshift_dopp = \
                         (1 + sub_vel_mag * cos_theta / speed_of_light_cgs) / \
                          np.sqrt(1 - sub_vel_mag**2 / speed_of_light_cgs**2) - 1
-                    sub_data['redshift_dopp'].extend(redshift_dopp[asort])
+                    sub_data[('gas', 'redshift_dopp')].extend(redshift_dopp[asort])
                     del sub_vel, sub_vel_los, sub_vel_mag, cos_theta, \
                         redshift_dopp
 
@@ -663,14 +666,14 @@ class LightRay(CosmologySplice):
                 del sub_ray, asort
 
             for key in sub_data:
-                if key == "extra_data":
+                if key == ('gas', "extra_data"):
                     continue
                 sub_data[key] = ds.arr(sub_data[key]).in_cgs()
 
             # Get redshift for each lixel.  Assume linear relation between l
             # and z.  so z = z_start - z_range * (l / l_range)
-            sub_data['redshift'] = my_segment['redshift'] - \
-              (sub_data['l'] / ray_length) * \
+            sub_data[('gas', 'redshift')] = my_segment['redshift'] - \
+              (sub_data[('gas', 'l')] / ray_length) * \
               (my_segment['redshift'] - next_redshift)
 
             # When using the peculiar velocity, create effective redshift
@@ -682,11 +685,12 @@ class LightRay(CosmologySplice):
             # 1 + z_eff = (1 + z_cosmo) * (1 + z_doppler)
 
             if use_peculiar_velocity:
-               sub_data['redshift_eff'] = ((1 + sub_data['redshift_dopp']) * \
-                                            (1 + sub_data['redshift'])) - 1
+               sub_data[('gas', 'redshift_eff')] = \
+                   ((1 + sub_data[('gas', 'redshift_dopp')]) * \
+                    (1 + sub_data[('gas', 'redshift')])) - 1
 
             # Remove empty lixels.
-            sub_dl_nonzero = sub_data['dl'].nonzero()
+            sub_dl_nonzero = sub_data[('gas', 'dl')].nonzero()
             for field in all_fields:
                 sub_data[field] = sub_data[field][sub_dl_nonzero]
             del sub_dl_nonzero
@@ -700,19 +704,19 @@ class LightRay(CosmologySplice):
         all_data = [my_data for my_data in all_ray_storage.values()]
         # This is now a list of segments where each one is a dictionary
         # with all the fields.
-        all_data.sort(key=lambda a:a['extra_data']['segment_redshift'],
+        all_data.sort(key=lambda a:a[('gas', 'extra_data')]['segment_redshift'],
                       reverse=True)
 
         # Gather segment data to add to the light ray solution.
         for segment_data, my_segment in \
           zip(all_data, self.light_ray_solution):
             my_segment["unique_identifier"] = \
-              segment_data["extra_data"]["unique_identifier"]
+              segment_data[('gas', "extra_data")]["unique_identifier"]
 
         # Flatten the list into a single dictionary containing fields
         # for the whole ray.
         all_data = _flatten_dict_list(
-            all_data, exceptions=['extra_data'])
+            all_data, exceptions=[('gas', 'extra_data')])
 
         self._data = all_data
 
