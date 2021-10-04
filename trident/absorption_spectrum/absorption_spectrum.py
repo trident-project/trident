@@ -795,8 +795,7 @@ class AbsorptionSpectrum(object):
 
             # a note to the user about which lines components are unresolved
             if (my_width < self.bin_width).any():
-                mylog.info("%d out of %d line components will be " +
-                            "deposited as unresolved lines.",
+                mylog.info("%d out of %d line components are unresolved.",
                             (my_width < self.bin_width).sum(),
                             n_absorbers)
 
