@@ -879,9 +879,8 @@ class AbsorptionSpectrum(object):
 
                     if my_vbins.size > 1e6:
                         mylog.warning(
-                            ('About to deposit a line with %d bins.' +
-                             'This may take a while. You might want to consider ' +
-                             'increasing the bin size.') % my_vbins.size)
+                            ('Depositing line with %d bins may be slow. ' +
+                             'Increase bin size?') % my_vbins.size)
 
                     # the virtual bins and their corresponding opacities
                     my_vbins, vtau = \
