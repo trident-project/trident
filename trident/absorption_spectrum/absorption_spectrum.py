@@ -439,16 +439,20 @@ class AbsorptionSpectrum(object):
                        "'output_absorbers_file'.")
             output_absorbers_file = line_list_file
 
-        input_fields = ['dl', 'redshift', 'temperature']
-        field_units = {"dl": "cm", "redshift": "", "temperature": "K"}
+        input_fields = [('gas', 'dl'),
+                        ('gas', 'redshift'),
+                        ('gas', 'temperature')]
+        field_units = {('gas', 'dl'): "cm",
+                       ('gas', 'redshift'): "",
+                       ('gas', 'temperature'): "K"}
         if use_peculiar_velocity:
-            input_fields.append('velocity_los')
-            input_fields.append('redshift_eff')
-            field_units["velocity_los"] = "cm/s"
-            field_units["redshift_eff"] = ""
+            input_fields.append(('gas', 'velocity_los'))
+            input_fields.append(('gas', 'redshift_eff'))
+            field_units[('gas', 'velocity_los')] = "cm/s"
+            field_units[('redshift_eff')] = ""
         if observing_redshift != 0.:
-            input_fields.append('redshift_dopp')
-            field_units["redshift_dopp"] = ""
+            input_fields.append(('gas', 'redshift_dopp'))
+            field_units[('gas', 'redshift_dopp')] = ""
         for feature in self.line_list + self.continuum_list:
             if not feature['field_name'] in input_fields:
                 input_fields.append(feature['field_name'])
@@ -472,8 +476,7 @@ class AbsorptionSpectrum(object):
             self.zero_redshift = getattr(input_ds, 'current_redshift', 0)
 
         # temperature field required to calculate voigt profile widths
-        if ('temperature' not in input_ds.derived_field_list) and \
-           (('gas', 'temperature') not in input_ds.derived_field_list):
+        if ('gas', 'temperature') not in input_ds.derived_field_list:
             raise RuntimeError(
                 "('gas', 'temperature') field required to be present in %s "
                 "for AbsorptionSpectrum to function." % str(input_object))
@@ -555,14 +558,14 @@ class AbsorptionSpectrum(object):
             # This is already assumed in the generation of the LightRay
             redshift = field_data['redshift']
             if use_peculiar_velocity:
-                redshift_eff = field_data['redshift_eff']
+                redshift_eff = field_data[('gas', 'redshift_eff')]
         else:
             # The intermediate redshift that is seen by an observer
             # at a redshift other than z=0 is z12, where z1 is the
             # observing redshift and z2 is the emitted photon's redshift
             # Hogg (2000) eq. 13:
             # 1 + z12 = (1 + z2) / (1 + z1)
-            redshift = ((1 + field_data['redshift']) / \
+            redshift = ((1 + field_data[('gas', 'redshift')]) / \
                         (1 + observing_redshift)) - 1.
             # Combining cosmological redshift and doppler redshift
             # into an effective redshift is found in Peacock's
@@ -570,7 +573,7 @@ class AbsorptionSpectrum(object):
             # 1 + z_eff = (1 + z_cosmo) * (1 + z_doppler)
             if use_peculiar_velocity:
                 redshift_eff = ((1 + redshift) * \
-                                (1 + field_data['redshift_dopp'])) - 1.
+                                (1 + field_data[('gas', 'redshift_dopp')])) - 1.
 
         if not use_peculiar_velocity:
             redshift_eff = redshift
@@ -758,9 +761,9 @@ class AbsorptionSpectrum(object):
             if store_observables:
                 tau_ray = np.zeros(cdens.size)
             if use_peculiar_velocity:
-                vlos = field_data['velocity_los'].in_units("km/s").d # km/s
+                vlos = field_data[('gas', 'velocity_los')].in_units("km/s").d # km/s
             else:
-                vlos = np.zeros(field_data['temperature'].size)
+                vlos = np.zeros(field_data[('gas', 'temperature')].size)
 
             # When we actually deposit the voigt profile, sometimes we will
             # have underresolved lines (ie lines with smaller widths than
