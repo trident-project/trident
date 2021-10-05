@@ -352,7 +352,7 @@ class AbsorptionSpectrumTest(TempDirTest):
                     gamma, mass, label_threshold=1.e10)
 
         my_label = 'Ly C'
-        field = ('gas', 'H_p0_number_density'),
+        field = ('gas', 'H_p0_number_density')
         wavelength = 912.323660  # Angstroms
         normalization = 1.6e17
         index = 3.0
