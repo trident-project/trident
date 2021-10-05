@@ -601,7 +601,7 @@ class LightRay(CosmologySplice):
             # Get data for all subsegments in segment.
             for sub_segment in sub_segments:
                 mylog.info("Getting subsegment: %s to %s." %
-                           (list(sub_segment[0]), list(sub_segment[1])))
+                           (sub_segment[0], sub_segment[1]))
                 sub_ray = ds.ray(sub_segment[0], sub_segment[1])
                 for key, val in field_parameters.items():
                     sub_ray.set_field_parameter(key, val)
