@@ -286,7 +286,7 @@ class AbsorptionSpectrumTest(TempDirTest):
                                             use_peculiar_velocity=True)
         return filename
 
-    @h5_answer_test(assert_array_rel_equal, decimals=16)
+    @h5_answer_test(assert_array_rel_equal, decimals=15)
     def test_absorption_spectrum_non_cosmo_sph(self):
         """
         This test generates an absorption spectrum from a simple light ray on a
