@@ -352,7 +352,7 @@ class AbsorptionSpectrumTest(TempDirTest):
                     gamma, mass, label_threshold=1.e10)
 
         my_label = 'Ly C'
-        field = ('gas', 'H_p0_number_density')
+        field = ('gas', 'H_p0_number_density'),
         wavelength = 912.323660  # Angstroms
         normalization = 1.6e17
         index = 3.0
@@ -362,7 +362,7 @@ class AbsorptionSpectrumTest(TempDirTest):
         filename = "spectrum.h5"
         wavelength, flux = sp.make_spectrum('lightray.h5',
                                             output_file=filename,
-                                            output_absorbers_file=None,
+                                            output_absorbers_file='lines.txt',
                                             use_peculiar_velocity=True)
         return filename
 
@@ -384,7 +384,7 @@ class AbsorptionSpectrumTest(TempDirTest):
 
         HI_parameters = {
             'name': 'HI',
-            'field': ('gas', 'H_p0_number_density')
+            'field': ('gas', 'H_p0_number_density'),
             'f': [.4164],
             'Gamma': [6.265E8],
             'wavelength': [1215.67],
