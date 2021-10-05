@@ -61,8 +61,8 @@ class AbsorptionSpectrumTest(TempDirTest):
 
         lr.make_light_ray(seed=1234567,
                           fields=[('gas', 'temperature'),
-                                  ('gas', 'density',),
-                                  ('gas', 'H_p0_number_density'],
+                                  ('gas', 'density'),
+                                  ('gas', 'H_p0_number_density')],
                           data_filename='lightray.h5')
 
         sp = AbsorptionSpectrum(900.0, 1800.0, 10000)
@@ -105,8 +105,8 @@ class AbsorptionSpectrumTest(TempDirTest):
         ray_end = [1,1,1]
         lr.make_light_ray(start_position=ray_start, end_position=ray_end,
                           fields=[('gas', 'temperature'),
-                                  ('gas', 'density',),
-                                  ('gas', 'H_p0_number_density'],
+                                  ('gas', 'density'),
+                                  ('gas', 'H_p0_number_density')],
                           data_filename='lightray.h5')
 
         sp = AbsorptionSpectrum(1200.0, 1300.0, 10001)
@@ -141,8 +141,8 @@ class AbsorptionSpectrumTest(TempDirTest):
         ray_end = [1,1,1]
         lr.make_light_ray(start_position=ray_start, end_position=ray_end,
                           fields=[('gas', 'temperature'),
-                                  ('gas', 'density',),
-                                  ('gas', 'H_p0_number_density'],
+                                  ('gas', 'density'),
+                                  ('gas', 'H_p0_number_density')],
                           data_filename='lightray.h5', use_peculiar_velocity=False)
 
         sp = AbsorptionSpectrum(1200.0, 1300.0, 10001)
@@ -177,8 +177,8 @@ class AbsorptionSpectrumTest(TempDirTest):
         ray_end = [1,1,1]
         lr.make_light_ray(start_position=ray_start, end_position=ray_end,
                           fields=[('gas', 'temperature'),
-                                  ('gas', 'density',),
-                                  ('gas', 'H_p0_number_density'],
+                                  ('gas', 'density'),
+                                  ('gas', 'H_p0_number_density')],
                           data_filename='lightray.h5')
 
         my_label = 'HI Lya'
@@ -216,8 +216,8 @@ class AbsorptionSpectrumTest(TempDirTest):
         ray_end = [1,1,1]
         lr.make_light_ray(start_position=ray_start, end_position=ray_end,
                           fields=[('gas', 'temperature'),
-                                  ('gas', 'density',),
-                                  ('gas', 'H_p0_number_density'],
+                                  ('gas', 'density'),
+                                  ('gas', 'H_p0_number_density')],
                           data_filename='lightray.h5')
 
         sp = AbsorptionSpectrum(900.0, 1800.0, 10000)
@@ -335,8 +335,8 @@ class AbsorptionSpectrumTest(TempDirTest):
         ray_end = ds.domain_right_edge
         lr.make_light_ray(start_position=ray_start, end_position=ray_end,
                           fields=[('gas', 'temperature'),
-                                  ('gas', 'density',),
-                                  ('gas', 'H_p0_number_density'],
+                                  ('gas', 'density'),
+                                  ('gas', 'H_p0_number_density')],
                           data_filename='lightray.h5')
 
         sp = AbsorptionSpectrum(800.0, 1300.0, 5001)
