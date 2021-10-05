@@ -25,6 +25,8 @@ from yt.data_objects.static_output import \
 from yt.funcs import \
     mylog, \
     YTArray
+from yt.utilities.exceptions import \
+    YTFieldNotFound
 
 from trident.config import \
     ion_table_dir, \
@@ -386,14 +388,14 @@ class SpectrumGenerator(AbsorptionSpectrum):
             # otherwise we probably need to add the field to the dataset
             try:
                 ad._determine_fields(line.field)[0]
-            except BaseException:
+            except YTFieldNotFound:
+                fname = line.field[1] # grab field string from field name tuple
                 my_ion = \
-                  line.field[:line.field.find("number_density")]
+                  fname[:fname.find("number_density")]
                 on_ion = my_ion.split("_")
                 # Add the field using ray's density, temperature, & metallicity
                 my_lev = int(on_ion[1][1:]) + 1
-                mylog.info("Creating %s from ray's density, "
-                           "temperature, metallicity." % (line.field))
+                mylog.info("Creating %s from ray's fields." % (line.field[1]))
                 add_ion_number_density_field(on_ion[0], my_lev, ray,
                                  ionization_table=self.ionization_table)
 
