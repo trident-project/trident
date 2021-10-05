@@ -204,7 +204,7 @@ jobs:
 
       - restore_cache:
           name: "Restore dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v8
+          key: python-<< parameters.tag >>-dependencies-v9
 
       - install-dependencies:
           yttag: << parameters.yttag >>
@@ -213,7 +213,7 @@ jobs:
 
       - save_cache:
           name: "Save dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v8
+          key: python-<< parameters.tag >>-dependencies-v9
           paths:
             - ~/.cache/pip
             - ~/venv
@@ -224,13 +224,13 @@ jobs:
 
       - restore_cache:
           name: "Restore test data cache."
-          key: test-data-v1
+          key: test-data-v2
 
       - download-test-data
 
       - save_cache:
           name: "Save test data cache."
-          key: test-data-v1
+          key: test-data-v2
           paths:
             - ~/.trident
             - ~/answer_test_data
@@ -240,14 +240,14 @@ jobs:
 
       - restore_cache:
           name: "Restore answer tests cache."
-          key: test-results-<< parameters.tag >>-<< parameters.yttag >>-v9
+          key: test-results-<< parameters.tag >>-<< parameters.yttag >>-v10
 
       - run-tests:
           generate: 1
 
       - save_cache:
           name: "Save answer tests cache."
-          key: test-results-<< parameters.tag >>-<< parameters.yttag >>-v9
+          key: test-results-<< parameters.tag >>-<< parameters.yttag >>-v10
           paths:
             - ~/answer_test_data/test_results
 
@@ -273,14 +273,14 @@ jobs:
       - checkout
       - restore_cache:
           name: "Restore dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v8
+          key: python-<< parameters.tag >>-dependencies-v9
       - set-env
       - install-dependencies:
           yttag: "YT_HEAD"
       - configure-trident
       - save_cache:
           name: "Save dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v8
+          key: python-<< parameters.tag >>-dependencies-v9
           paths:
             - ~/.cache/pip
             - ~/venv
