@@ -32,7 +32,7 @@ commands:
             git config --global user.name "C.I. Circle"
             # tag the tip so we can get back to it
             git tag tip
-            sudo apt-get update
+            sudo apt-get --allow-releaseinfo-change update
             sudo apt-get install -y texlive-latex-extra dvipng
             if [ ! -d $HOME/venv ]; then
                 python3 -m venv $HOME/venv
