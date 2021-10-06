@@ -30,10 +30,10 @@ dependencies:
     - python-dateutil==2.8.0
     - requests==2.22.0
     - scipy==1.0.1
-    - sphinx==3.2.1
+    - sphinx==4.2.0
     - sympy==1.4
     - traitlets==4.3.2
     - urllib3==1.25.3
     - wcwidth==0.1.7
-    - yt==3.5.1
+    - yt==4.0.1
     - yt-astro-analysis==1.0.0
