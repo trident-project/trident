@@ -65,26 +65,13 @@ We can now generate the light ray using the :class:`~trident.make_simple_ray`
 function by passing the dataset and the trajectory endpoints to it as well
 as telling trident to save the resulting ray dataset to an HDF5 file. We
 explicitly instruct trident to pull all necessary fields from the dataset
-in order to be able to add the lines from our ``line_list``.
-Lastly, we set the ``ftype`` keyword as the field type of the fields
-where Trident will look to find density, temperature, and metallicity for
-building the required ion fields::
+in order to be able to add the lines from our ``line_list``::
 
     ray = trident.make_simple_ray(ds,
                                   start_position=ray_start,
                                   end_position=ray_end,
                                   data_filename="ray.h5",
-                                  lines=line_list,
-                                  ftype='gas')
-
-.. warning::
-    It is imperative that you set the ``ftype`` keyword properly for your dataset.
-    An ``ftype`` of 'gas' is adequate for grid-based codes, but not particle.
-    Particle-based datasets must set ``ftype`` to the field type
-    of their gas particles (e.g. 'PartType0') to assure that Trident builds 
-    the ion fields on the particles themselves before smoothing these fields 
-    to the grid.  By not setting this correctly, you risk bad ion values by
-    building from smoothed gas fields.
+                                  lines=line_list)
 
 Overplotting a LightRay's Trajectory on a Projection
 ----------------------------------------------------
@@ -172,7 +159,6 @@ allowing the user to specify the same sort of line list as before:::
   fn = 'enzo_cosmology_plus/AMRCosmology.enzo'
   ray = trident.make_compound_ray(fn, simulation_type='Enzo',
                                   near_redshift=0.0, far_redshift=0.1,
-				  ftype='gas',
                                   lines=line_list)
 
 In this example, we've created a ray from an Enzo simulation (the same
