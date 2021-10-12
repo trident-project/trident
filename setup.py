@@ -49,6 +49,7 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Topic :: Scientific/Engineering :: Astronomy",
         "Topic :: Scientific/Engineering :: Physics",
         "Topic :: Scientific/Engineering :: Visualization",
@@ -60,10 +61,10 @@ setup(
         'astropy',
         'h5py',
         'matplotlib<3.3.0',
-        'numpy!=1.14.0',
+        'numpy',
         'requests',
         'scipy',
-        'yt>=3.6.0',
+        'yt>=4.0.1',
         'yt_astro_analysis'],
       python_requires='>=3.6'
 )

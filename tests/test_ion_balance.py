@@ -114,7 +114,8 @@ def test_add_ion_fraction_fields_to_amr_ds():
     Test to add various ion fields
     """
     ds = fake_amr_ds(fields=("density", "velocity_x", "velocity_y",
-                             "velocity_z", "temperature", "metallicity"))
+                             "velocity_z", "temperature", "metallicity"),
+                     units=('g/cm**3', 'cm/s', 'cm/s', 'cm/s', 'K', ''))
     ad = ds.all_data()
     add_ion_fraction_field('O', 6, ds)
     field = ('gas', 'O_p5_ion_fraction')
@@ -130,7 +131,8 @@ def test_add_ion_number_density_fields_to_amr_ds():
     Test to add various ion fields
     """
     ds = fake_amr_ds(fields=("density", "velocity_x", "velocity_y",
-                             "velocity_z", "temperature", "metallicity"))
+                             "velocity_z", "temperature", "metallicity"),
+                     units=('g/cm**3', 'cm/s', 'cm/s', 'cm/s', 'K', ''))
     ad = ds.all_data()
     add_ion_number_density_field('O', 6, ds)
     field = ('gas', 'O_p5_number_density')
@@ -146,7 +148,8 @@ def test_add_ion_density_fields_to_amr_ds():
     Test to add various ion fields
     """
     ds = fake_amr_ds(fields=("density", "velocity_x", "velocity_y",
-                             "velocity_z", "temperature", "metallicity"))
+                             "velocity_z", "temperature", "metallicity"),
+                     units=('g/cm**3', 'cm/s', 'cm/s', 'cm/s', 'K', ''))
     ad = ds.all_data()
     add_ion_density_field('O', 6, ds)
     field = ('gas', 'O_p5_density')
@@ -162,7 +165,8 @@ def test_add_ion_mass_fields_to_amr_ds():
     Test to add various ion fields
     """
     ds = fake_amr_ds(fields=("density", "velocity_x", "velocity_y",
-                             "velocity_z", "temperature", "metallicity"))
+                             "velocity_z", "temperature", "metallicity"),
+                     units=('g/cm**3', 'cm/s', 'cm/s', 'cm/s', 'K', ''))
     ad = ds.all_data()
     add_ion_mass_field('O', 6, ds)
     field = ('gas', 'O_p5_mass')
@@ -242,7 +246,8 @@ def test_add_all_ion_fields_to_amr_ds():
     Test to add various ion fields
     """
     ds = fake_amr_ds(fields=("density", "velocity_x", "velocity_y",
-                             "velocity_z", "temperature", "metallicity"))
+                             "velocity_z", "temperature", "metallicity"),
+                     units=('g/cm**3', 'cm/s', 'cm/s', 'cm/s', 'K', ''))
     ftype = 'gas'
     ad = ds.all_data()
     ions = ['H', 'O', 'N V']

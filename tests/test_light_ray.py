@@ -55,7 +55,9 @@ class LightRayTest(TempDirTest):
         lr = LightRay(COSMO_PLUS, 'Enzo', 0.0, 0.03)
 
         lr.make_light_ray(seed=1234567,
-                          fields=['temperature', 'density', 'H_p0_number_density'],
+                          fields=[('gas', 'temperature'),
+                                  ('gas', 'density'),
+                                  ('gas', 'H_p0_number_density')],
                           data_filename='lightray.h5')
 
         ds = load('lightray.h5')
@@ -71,7 +73,9 @@ class LightRayTest(TempDirTest):
         lr = LightRay(COSMO_PLUS, 'Enzo', 0.0, 0.03)
 
         lr.make_light_ray(seed=1234567, left_edge=left, right_edge=right,
-                          fields=['temperature', 'density', 'H_p0_number_density'],
+                          fields=[('gas', 'temperature'),
+                                  ('gas', 'density'),
+                                  ('gas', 'H_p0_number_density')],
                           data_filename='lightray.h5')
 
         ds = load('lightray.h5')
@@ -84,7 +88,9 @@ class LightRayTest(TempDirTest):
         lr = LightRay(COSMO_PLUS, 'Enzo', 0.0, 0.03)
 
         lr.make_light_ray(seed=1234567, periodic=False,
-                          fields=['temperature', 'density', 'H_p0_number_density'],
+                          fields=[('gas', 'temperature'),
+                                  ('gas', 'density'),
+                                  ('gas', 'H_p0_number_density')],
                           data_filename='lightray.h5')
 
         ds = load('lightray.h5')
@@ -99,7 +105,9 @@ class LightRayTest(TempDirTest):
         ray_start = [0,0,0]
         ray_end = [1,1,1]
         lr.make_light_ray(start_position=ray_start, end_position=ray_end,
-                          fields=['temperature', 'density', 'H_p0_number_density'],
+                          fields=[('gas', 'temperature'),
+                                  ('gas', 'density'),
+                                  ('gas', 'H_p0_number_density')],
                           data_filename='lightray.h5')
 
         ds = load('lightray.h5')
@@ -112,8 +120,8 @@ class LightRayTest(TempDirTest):
         """
         ds = load(COSMO_PLUS_SINGLE)
         ray = make_simple_ray(ds, start_position=ds.domain_left_edge, end_position=ds.domain_right_edge, lines=['H'])
-        assert_almost_equal(ray.r['redshift'][0], 6.99900695e-03, decimal=8)
-        assert_almost_equal(ray.r['redshift'][-1], -1.08961751e-02, decimal=8)
+        assert_almost_equal(ray.r[('gas', 'redshift')][0], 6.99900695e-03, decimal=8)
+        assert_almost_equal(ray.r[('gas', 'redshift')][-1], -1.08961751e-02, decimal=8)
 
     def test_light_ray_non_cosmo_from_dataset(self):
         """
@@ -126,7 +134,9 @@ class LightRayTest(TempDirTest):
         ray_start = [0,0,0]
         ray_end = [1,1,1]
         lr.make_light_ray(start_position=ray_start, end_position=ray_end,
-                          fields=['temperature', 'density', 'H_p0_number_density'],
+                          fields=[('gas', 'temperature'),
+                                  ('gas', 'density'),
+                                  ('gas', 'H_p0_number_density')],
                           data_filename='lightray.h5')
 
         ds = load('lightray.h5')
@@ -139,8 +149,8 @@ class LightRayTest(TempDirTest):
         """
         ds = load(GIZMO_COSMO_SINGLE)
         ray = make_simple_ray(ds, start_position=ds.domain_left_edge, end_position=ds.domain_right_edge, lines=['H'])
-        assert_almost_equal(ray.r['redshift'][0], 0.00489571, decimal=8)
-        assert_almost_equal(ray.r['redshift'][-1], -0.00416831, decimal=8)
+        assert_almost_equal(ray.r[('gas', 'redshift')][0], 0.00489571, decimal=8)
+        assert_almost_equal(ray.r[('gas', 'redshift')][-1], -0.00416831, decimal=8)
 
     def test_light_ray_redshift_monotonic(self):
         """
@@ -150,4 +160,4 @@ class LightRayTest(TempDirTest):
         ds = load(COSMO_PLUS_SINGLE)
         ray = make_simple_ray(ds, start_position=ds.domain_center,
                               end_position=ds.domain_center+ds.domain_width)
-        assert((np.diff(ray.data['redshift']) < 0).all())
+        assert((np.diff(ray.data[('gas', 'redshift')]) < 0).all())
