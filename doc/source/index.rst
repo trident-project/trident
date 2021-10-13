@@ -20,6 +20,7 @@ information, see :ref:`versions`.
    annotated_example.rst
    advanced_spectra.rst
    ion_balance.rst
+   absorption_spectrum_fit.rst
    internals.rst
    testing.rst
    faq.rst
