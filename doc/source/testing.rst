@@ -44,16 +44,16 @@ before continuing with running the tests, otherwise your answer tests will
 fail.
 
 Make sure you're on the desired version of yt and trident that you want to 
-test and use (usually the tip of the development branch i.e., ``master``).  
+test and use (usually the tip of the development branch i.e., ``main``).  
 
 .. code-block:: bash
 
    $ export TRIDENT_GENERATE_TEST_RESULTS=0
    $ cd /path/to/yt/
-   $ git checkout master
+   $ git checkout main
    $ pip install -e .
    $ cd /path/to/trident
-   $ git checkout master
+   $ git checkout main
    $ pip install -e .
 
 The test suite is run by calling ``py.test`` from within the ``tests`` 
