@@ -8,7 +8,7 @@ This document summarizes changes to the codebase with time for Trident.
 Contributors
 ------------
 
-The `CREDITS file <https://github.com/trident-project/trident/blob/master/CREDITS>`_
+The `CREDITS file <https://github.com/trident-project/trident/blob/main/CREDITS>`_
 has an updated list of contributors to the codebase.
 
 

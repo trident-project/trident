@@ -5,10 +5,10 @@ Testing
 
 We maintain a series of tests in Trident to make sure the code gives consistent
 results and to catch accidental breakages in our source code and dependencies.
-These tests are run by `Travis <https://travis-ci.org/>`_ automatically and 
+These tests are run by `Travis <https://travis-ci.org/>`_ automatically and
 regularly to assure consistency in functionality, but you can run them locally
-too (see below).  The tests consist of a mix of unit tests (tests to assure Trident 
-functions don't actively fail) and answer tests (tests comparing newly 
+too (see below).  The tests consist of a mix of unit tests (tests to assure Trident
+functions don't actively fail) and answer tests (tests comparing newly
 generated results against some old established results to assure consistency).
 
 .. _running-the-tests:
@@ -27,10 +27,10 @@ installed with ``conda`` or ``pip``.
    $ conda install pytest
 
 The test suite requires a number of datasets for testing functionality.
-Trident comes with a helper script that will download all the datasets and 
-untar them.  Before running this, make sure you have the 
-``answer_test_data_dir`` variable set in your config file (see :ref:`step-3`).  
-This variable should point to a directory where these datasets will be stored.  
+Trident comes with a helper script that will download all the datasets and
+untar them.  Before running this, make sure you have the
+``answer_test_data_dir`` variable set in your config file (see :ref:`step-3`).
+This variable should point to a directory where these datasets will be stored.
 The helper script is located in the ``tests`` directory of the Trident source.
 
 .. code-block:: bash
@@ -39,24 +39,24 @@ The helper script is located in the ``tests`` directory of the Trident source.
    $ python download_test_data.py
 
 If this is your first time running the tests, then you need to generate a
-"gold standard" for the answer tests. Follow :ref:`generating-answer-tests` 
-before continuing with running the tests, otherwise your answer tests will 
+"gold standard" for the answer tests. Follow :ref:`generating-answer-tests`
+before continuing with running the tests, otherwise your answer tests will
 fail.
 
-Make sure you're on the desired version of yt and trident that you want to 
-test and use (usually the tip of the development branch i.e., ``master``).  
+Make sure you're on the desired version of yt and trident that you want to
+test and use (usually the tip of the development branch i.e., ``main``).
 
 .. code-block:: bash
 
    $ export TRIDENT_GENERATE_TEST_RESULTS=0
    $ cd /path/to/yt/
-   $ git checkout master
+   $ git checkout main
    $ pip install -e .
    $ cd /path/to/trident
-   $ git checkout master
+   $ git checkout main
    $ pip install -e .
 
-The test suite is run by calling ``py.test`` from within the ``tests`` 
+The test suite is run by calling ``py.test`` from within the ``tests``
 directory.
 
 .. code-block:: bash
@@ -93,21 +93,21 @@ take around ten minutes to run.
 Generating Gold Standard Answer Test Results for Comparison
 -----------------------------------------------------------
 
-In order to assure the Trident codebase gives consistent results over time, 
-we compare the outputs of tests of new versions of Trident against an older, 
+In order to assure the Trident codebase gives consistent results over time,
+we compare the outputs of tests of new versions of Trident against an older,
 vetted version of the code we think gives accurate results.  To create this
-"gold standard" result from the older version of the code, you must roll back 
-the Trident and yt source back to the older "trusted" versions of the code.  
-You can find the tags for the most recent trusted versions of the code by 
-running ``gold_standard_versions.py`` and then rebuilding yt and Trident 
-with these versions of the code.  Lastly, set the 
+"gold standard" result from the older version of the code, you must roll back
+the Trident and yt source back to the older "trusted" versions of the code.
+You can find the tags for the most recent trusted versions of the code by
+running ``gold_standard_versions.py`` and then rebuilding yt and Trident
+with these versions of the code.  Lastly, set the
 ``TRIDENT_GENERATE_TEST_RESULTS`` environment variable to 1 and run the tests:
 
 .. code-block:: bash
 
    $ cd tests
    $ python gold_standard_versions.py
-   
+
    Latest Gold Standard Commit Tags
    yt = 953248239966
    Trident = test-standard-v2
@@ -125,8 +125,8 @@ with these versions of the code.  Lastly, set the
    $ py.test
 
 The test results should now be stored in the ``answer_test_data_dir`` that
-you specified in your Trident configuration file. You may now run the actual 
-tests (see :ref:`running-the-tests`) with your current version of yt and 
+you specified in your Trident configuration file. You may now run the actual
+tests (see :ref:`running-the-tests`) with your current version of yt and
 Trident comparing against these gold standard results.
 
 .. _tests-broken:
@@ -157,10 +157,10 @@ the code, then you'll simply want to go about :ref:`updating-the-test-results`.
 Updating the Testing Gold Standard
 ----------------------------------
 
-Periodically, the gold standard for our answer tests must be updated as bugs 
+Periodically, the gold standard for our answer tests must be updated as bugs
 are caught or new more accurate behavior is enabled that causes the answer
 tests to fail.  The first thing to do
-is to identify the most accurate version of the code (e.g., changesets for 
+is to identify the most accurate version of the code (e.g., changesets for
 yt and trident that give the desired behavior).  Tag the Trident changeset with
 the next gold standard iteration.  You can see the current iteration by looking
 in the ``.travis.yml`` file at the ``TRIDENT_GOLD`` entry--increment this and
@@ -188,5 +188,5 @@ tag.
    $ git push upstream test-standard-v3
 
 Lastly, that person will have to also
-clear Travis' cache, so that it regenerates new answer test results.  This can 
+clear Travis' cache, so that it regenerates new answer test results.  This can
 be done manually here: https://travis-ci.org/trident-project/trident/caches .

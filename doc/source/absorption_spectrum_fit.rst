@@ -3,11 +3,8 @@
 Fitting Absorption Spectra
 ==========================
 
-.. sectionauthor:: Hilary Egan <hilary.egan@colorado.edu>
-
 This tool can be used to fit absorption spectra, particularly those
-generated using the
-:class:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum`.
+generated using Trident.
 For more details on its uses and implementation please see (`Egan et al. (2013)
 <http://arxiv.org/abs/1307.2244>`_). If you find this tool useful we
 encourage you to cite accordingly.
@@ -16,7 +13,7 @@ Loading an Absorption Spectrum
 ------------------------------
 
 To load an absorption spectrum created by
-:class:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum`,
+:class:`~trident.spectrum_generator.SpectrumGenerator`,
 specify the output file name. It is advisable to use either an .h5
 or .fits file, rather than an ascii file to save the spectrum as rounding
 errors produced in saving to a ascii file will negatively impact fit quality.
@@ -131,8 +128,6 @@ a group for the corresponding N, b, z, and group# values.
 
 Procedure for Generating Fits
 -----------------------------
-
-.. sectionauthor:: Hilary Egan <hilary.egan@colorado.edu>
 
 To generate a fit for a spectrum
 :func:`~trident.absorption_spectrum.absorption_spectrum_fit.generate_total_fit`
