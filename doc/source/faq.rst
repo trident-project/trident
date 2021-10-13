@@ -65,6 +65,12 @@ on derived fields
             units="Zsun",
         )
 
+What functions are available and what is their syntax?
+------------------------------------------------------
+
+Go see the full documentation for all of our available classes and functions in the
+:ref:`API Documentation <api-reference>`.
+
 What version of Trident am I running?
 -------------------------------------
 
