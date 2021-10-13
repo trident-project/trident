@@ -15,7 +15,7 @@ disk of gas, taken from the initial output from the AGORA isolated box
 simulation using ART-II in `Kim et al. (2016)
 <http://adsabs.harvard.edu/abs/2016ApJ...833..202K>`_.
 If you'd like to try to reproduce the spectra included below you can get
-the :class:`~trident.LightRay` file from the Trident sample data using the
+the :class:`~trident.light_ray.LightRay` file from the Trident sample data using the
 command:
 
 .. highlight:: none
@@ -45,7 +45,7 @@ Currently, we have `three settings for the Cosmic Origins Spectrograph
 <http://www.stsci.edu/hst/cos/design/gratings/>`_ available:
 ``COS-G130M``, ``COS-G140L``, and ``COS-G160M``, but we plan to add more
 instruments soon.  To use one of them, we just use the name string in the
-SpectrumGenerator class::
+:class:`~trident.spectrum_generator.SpectrumGenerator` class::
 
    sg = trident.SpectrumGenerator('COS-G130M')
 
@@ -54,18 +54,19 @@ from 1150 angstroms to 1250 angstroms with a resolution of 0.01 angstroms::
 
    sg = trident.SpectrumGenerator(lambda_min=1150, lambda_max=1250, dlambda=0.01)
 
-From here, we can pass the ray to the :class:`~trident.SpectrumGenerator` object
-to use in the construction of a spectrum.
+From here, we can pass the ray to the
+:class:`~trident.spectrum_generator.SpectrumGenerator` object to use in the
+construction of a spectrum.
 
 Choosing what absorption features to include
 --------------------------------------------
 
-There is a :class:`~trident.LineDatabase` class that controls which spectral
-lines you can add to your spectrum.  Trident provides you with a default
-:class:`~trident.LineDatabase` with 213 spectral lines commonly used in CGM
-and IGM studies, but you can create your own :class:`~trident.LineDatabase`
-with different lines.  To see a list of all the lines included in the default
-line list::
+There is a :class:`~trident.line_database.LineDatabase` class that controls which
+spectral lines you can add to your spectrum.  Trident provides you with a default
+:class:`~trident.line_database.LineDatabase` with 213 spectral lines commonly used
+in CGM and IGM studies, but you can create your own
+:class:`~trident.line_database.LineDatabase` with different lines.  To see a list of
+all the lines included in the default line list::
 
     ldb = trident.LineDatabase('lines.txt')
     print(ldb)
@@ -130,7 +131,7 @@ And we end up with:
 .. image:: trident-docs-images/spectra/spec_CI_1193_1194.png
 
 Or we can just include all of the available lines in our
-:class:`~trident.LineDatabase` with::
+:class:`~trident.line_database.LineDatabase` with::
 
     sg.make_spectrum(ray, lines='all')
     sg.plot_spectrum('spec_all.png')
@@ -140,16 +141,17 @@ Giving us:
 .. image:: trident-docs-images/spectra/spec_all.png
 
 To understand how to further customize your spectra, look at the documentation
-for the :class:`~trident.SpectrumGenerator` and :class:`~trident.LineDatabase`
-classes and other :ref:`API <api-reference>` documentation.
+for the :class:`~trident.spectrum_generator.SpectrumGenerator` and
+:class:`~trident.line_database.LineDatabase` classes and other
+:ref:`API <api-reference>` documentation.
 
 Setting Wavelength Bounds Automatically
 ---------------------------------------
 
 If you are interested in creating a spectrum that contains all possible
 absorption features for a given set of lines, the
-:class:`~trident.SpectrumGenerator` can be configured to automatically
-enlarge the wavelength window until all absorption is captured. This is
+:class:`~trident.spectrum_generator.SpectrumGenerator` can be configured to
+automatically enlarge the wavelength window until all absorption is captured. This is
 done by setting the ``lambda_min`` and ``lambda_max`` keywords to 'auto'
 and specifying a bin size with the ``dlambda`` keyword::
 
@@ -171,7 +173,8 @@ Making Spectra in Velocity Space
 Trident can be configured to create spectra in velocity space instead of
 wavelength space where velocity corresponds to the velocity offset from
 the rest wavelength of a given line. This can be done by providing the
-keyword ``bin_space='velocity'`` to the :class:`~trident.SpectrumGenerator`::
+keyword ``bin_space='velocity'`` to the
+:class:`~trident.spectrum_generator.SpectrumGenerator`::
 
     sg = trident.SpectrumGenerator(lambda_min='auto', lambda_max='auto',
                                    dlambda=1., bin_space='velocity')
