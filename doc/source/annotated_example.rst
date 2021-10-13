@@ -73,6 +73,24 @@ in order to be able to add the lines from our ``line_list``::
                                   data_filename="ray.h5",
                                   lines=line_list)
 
+The resulting ``ray`` is a :class:`~trident.LightRay` object, consisting of a series
+of arrays representing the different fields it probes in the original dataset along 
+its length.  Each element in the arrays represents a different resolution element
+along the path of the ray.  The ray also possesses some special fields not originally 
+present in the original dataset:
+
+    * ``('gas', l')`` Location along the LightRay length from 0 to 1.
+    * ``('gas', 'dl')`` Pathlength of resolution element (not a *true* pathlength for particle-based codes)
+    * ``('gas', 'redshift')`` Cosmological redshift of resolution element
+    * ``('gas', 'redshift_dopp')`` Doppler redshift of resolution element
+    * ``('gas', 'redshift_eff')`` Effective redshift (combined cosmological and Doppler)
+
+Like any dataset, you can see what fields are present on the ray by examining its
+``derived_field_list`` (``print(ds.derived_field_list``).
+
+This ``ray`` object is also saved to disk as an HDF5 file, which can later be loaded
+into ``yt`` as a stand-alone dataset (e.g., ``ds = yt.load('ray.h5')``).
+
 Overplotting a LightRay's Trajectory on a Projection
 ----------------------------------------------------
 
