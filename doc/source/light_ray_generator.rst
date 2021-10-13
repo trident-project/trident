@@ -10,95 +10,113 @@ larger than the simulation box.
 
 .. image:: _images/lightray.png
 
-A ray segment records the information of all grid cells intersected by the
-ray as well as the path length, ``dl``, of the ray through the cell.  Column
-densities can be calculated by multiplying physical densities by the path
-length.
+The preferred manner for generating rays uses the
+:func:`~trident.ray_generator.make_simple_ray` for
+:class:`~trident.light_ray.LightRay` 's spanning a single dataset
+and
+:func:`~trident.ray_generator.make_compound_ray` for
+:class:`~trident.light_ray.LightRay` 's spanning multiple datasets.
 
-.. _multi-ray:
+Simple Rays
+-----------
 
-Configuring the Light Ray Generator
------------------------------------
+For a simple ray, you specify the dataset to use, the start and end coordinates
+of your 1D line, and then optionally any additional fields you want stored on the
+:class:`~trident.light_ray.LightRay` or optionally any ionic species you will want to
+use with this ray::
 
-Below follows the creation of a light ray from multiple datasets stacked
-together.  The primary Trident interface to this is covered in
-:ref:`compound-ray`.  A light ray can also be made from a single dataset.
-For information on this, see :ref:`single-ray`.
+    import yt
+    import trident
+    ds = yt.load('FIRE_M12i_ref11/snapshot_600.hdf5')
+    ray = trident.make_simple_ray(ds,
+                                  start_position=[0, 0, 0],
+                                  end_position=[60000, 60000, 60000],
+                                  lines=['H', 'Mg', 'O'],
+                                  fields=[('gas', 'temperature'), ('gas', 'metallicity')])
 
-The arguments required to instantiate a :class:`~trident.light_ray.LightRay` are
-the simulation parameter file, the simulation type, the nearest redshift,
-and the furthest redshift.
+Compound Rays
+-------------
 
-.. code-block:: python
+For a compound ray, you specify the simulation parameter filename, the simulation code,
+the start and end redshifts of the :class:`~trident.light_ray.LightRay`, and optionally
+any additional fields you want stored or any ionic species you will want to use with
+this ray::
 
-  from trident import LightRay
-  lr = LightRay("enzo_tiny_cosmology/32Mpc_32.enzo",
-                simulation_type="Enzo",
-                near_redshift=0.0, far_redshift=0.1)
+    import trident
+    fn = 'enzo_cosmology_plus/AMRCosmology.enzo'
+    ray = trident.make_compound_ray(fn,
+                                    simulation_type='Enzo',
+                                    near_redshift=0.0,
+                                    far_redshift=0.1,
+                                    lines=['H', 'Mg', 'O'],
+                                    fields=[('gas', 'temperature'), ('gas', 'metallicity')])
 
-Making Light Ray Data
----------------------
+Ray Fields
+----------
 
-Once the LightRay object has been instantiated, the
-:func:`~trident.light_ray.LightRay.make_light_ray`
-function will trace out the rays in each dataset and collect information for all the
-fields requested.  The output file will be an yt-loadable dataset containing all the
-cell field values for all the cells that were intersected by the ray.  A
-single LightRay object can be used over and over to make multiple
-randomizations, simply by changing the value of the random seed with the
-``seed`` keyword.
+The resulting ``ray`` is a :class:`~trident.light_ray.LightRay` object, consisting of a series
+of arrays representing the different fields it probes in the original dataset along
+its length.  Each element in the arrays represents a different resolution element
+along the path of the ray.  The ray also possesses some special fields not originally
+present in the original dataset:
 
-.. code-block:: python
+    * ``('gas', 'l')`` Location along the LightRay length from 0 to 1.
+    * ``('gas', 'dl')`` Pathlength of resolution element (not a *true* pathlength for particle-based codes)
+    * ``('gas', 'redshift')`` Cosmological redshift of resolution element
+    * ``('gas', 'redshift_dopp')`` Doppler redshift of resolution element
+    * ``('gas', 'redshift_eff')`` Effective redshift (combined cosmological and Doppler)
 
-  lr.make_light_ray(seed=8675309,
-                    fields=['temperature', 'density'],
-                    use_peculiar_velocity=True)
+Like any dataset, you can see what fields are present on the ray by examining its
+``derived_field_list`` (e.g., ``print(ds.derived_field_list``).  If you want more ions
+present on this ray than are currently available, you can add them with
+:class:`~trident.ion_balance.add_ion_fields` (see: :ref:`ion-balance`).
 
-  # Optionally, we can now overplot the part of this ray that intersects
-  # one output from the source dataset in a ProjectionPlot
-  ds = yt.load('enzo_tiny_cosmology/RD0004/RD0004')
-  p = yt.ProjectionPlot(ds, 'z', 'density')
-  p.annotate_ray(lr)
-  p.save()
+This ``ray`` object is also saved to disk as an HDF5 file, which can later be loaded
+into ``yt`` as a stand-alone dataset.  By default it is saved as ``ray.h5``, but you
+can specify other filenames when you create it.  To later access this file and
+load it into yt, load it like any other dataset: ``ds = yt.load('ray.h5')``.
 
-.. _single-ray:
+Calculating Column Densities
+----------------------------
 
-Light Rays Through Single Datasets
-----------------------------------
+Perhaps we wish to know the total column density of a particular ion present along
+this :class:`~trident.light_ray.LightRay`. This can easily be done by multiplying the desired
+ion number density field by the pathlength field, ``dl``, to yield an array of
+column densities for each resolution element, and then summing them together::
 
-LightRays can also be configured for use with single datasets. In this case,
-one must specify the ray's trajectory explicitly.  The main Trident interface
-to this functionality is covered in :ref:`simple-ray`.
+    column_density_HI = ray.r[('gas', 'H_p0_number_density')] * ray.r[('gas', 'dl')]
+    print('HI Column Density = %g' % column_density_HI.sum())
 
-.. code-block:: python
-
-  from trident import LightRay
-  import yt
-
-  ds = yt.load("IsolatedGalaxy/galaxy0030/galaxy0030")
-  lr = LightRay(ds)
-
-  lr.make_light_ray(start_position=ds.domain_left_edge,
-                    end_position=ds.domain_right_edge,
-                    solution_filename='lightraysolution.txt',
-                    data_filename='lightray.h5',
-                    fields=['temperature', 'density'])
-
-  # Overplot the ray on a projection.
-  p = yt.ProjectionPlot(ds, 'z', 'density')
-  p.annotate_ray(lr)
-  p.save()
-
-Alternately, the ``trajectory`` keyword can be used in place of `end_position`
-to specify the (r, theta, phi) direction of the ray.
-
-Useful Tips for Making LightRays
+Examining LightRay Solution Data
 --------------------------------
 
-Below are some tips that may come in handy for creating proper LightRays.
+When a :class:`~trident.light_ray.LightRay` is created, it saves the source information
+from the dataset that produced it in a dictionary, including its filename, its start
+and end points in the original dataset, etc.  This is all accessible when
+you load up the :class:`~trident.light_ray.LightRay` again through the
+``light_ray_solution``::
 
-How many snapshots do I need?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    import yt
+    ds = yt.load('ray.h5')
+    print(ds.light_ray_solution)
+
+    [{'end': unyt_array([1., 1., 1.], 'unitary'),
+    'filename': 'snapshot_600.hdf5',
+    'redshift': 0.05,
+    'start': unyt_array([0.48810148, 0.51748806, 0.54316002], 'unitary'),
+    'traversal_box_fraction': unyt_quantity(0.83878521, 'unitary'),
+    'unique_identifier': '1436307563512020127'}]
+
+Useful Tips for Making Compound LightRays
+-----------------------------------------
+
+Below are some tips that may come in handy for creating proper LightRays.  For full
+use of these, you may have to create the :class:`~trident.light_ray.LightRay`
+by hand instead of using the :func:`~trident.ray_generator.make_compound_ray` helper
+function.
+
+How many snapshots do I need for a compound ray?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The number of snapshots required to traverse some redshift interval depends
 on the simulation box size and cosmological parameters.  Before running an
