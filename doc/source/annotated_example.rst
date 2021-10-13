@@ -86,7 +86,9 @@ present in the original dataset:
     * ``('gas', 'redshift_eff')`` Effective redshift (combined cosmological and Doppler)
 
 Like any dataset, you can see what fields are present on the ray by examining its
-``derived_field_list`` (``print(ds.derived_field_list``).
+``derived_field_list`` (e.g., ``print(ds.derived_field_list``).  If you want more ions
+present on this ray than are currently shown, you can add them with
+:class:`~trident.add_ion_fields` (see: :ref:`ion-balance`).
 
 This ``ray`` object is also saved to disk as an HDF5 file, which can later be loaded
 into ``yt`` as a stand-alone dataset (e.g., ``ds = yt.load('ray.h5')``).
@@ -104,6 +106,17 @@ any volumentric plot, including slices, and off-axis plots::
     p.save('projection.png')
 
 .. image:: trident-docs-images/annotated_example/projection.png
+
+Calculating Column Densities
+----------------------------
+
+Perhaps we wish to know the total column density of a particular ion present along
+this :class:`~trident.LightRay`. This can easily be done by multiplying the desired
+ion number density field by the pathlength field, ``dl``, to yield an array of 
+column densities for each resolution element, and then summing them together::
+
+    column_density_HI = ray.r[('gas', 'H_p0_number_density')] * ray.r[('gas', 'dl')]
+    print('HI Column Density = %g' % column_density_HI.sum())
 
 .. _spectrum-generation:
 
