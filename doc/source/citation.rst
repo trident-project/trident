@@ -3,8 +3,8 @@
 Citation
 ========
 
-If you use Trident for a research application, please cite the 
-`Trident method paper <http://adsabs.harvard.edu/abs/2017ApJ...847...59H>`_ 
+If you use Trident for a research application, please cite the
+`Trident method paper <http://adsabs.harvard.edu/abs/2017ApJ...847...59H>`_
 in your work with the bibtex entry below::
 
     @ARTICLE{2017ApJ...847...59H,

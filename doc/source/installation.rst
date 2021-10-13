@@ -58,7 +58,7 @@ some additional files.  See :ref:`step-3`, for more information::
     >>> import trident
 
 Follow the instructions to download the ion_balance table and then verify that
-everything is working correctly.  You should now be ready to do some 
+everything is working correctly.  You should now be ready to do some
 :ref:`step-4`
 
 Installing the Development Version of yt and Trident
@@ -217,7 +217,7 @@ please contact our mailing list.
 Uninstallation or Switching Code Versions
 -----------------------------------------
 
-Uninstallation of the Trident source code is easy.  If you installed the 
+Uninstallation of the Trident source code is easy.  If you installed the
 stable version of the code via pip, just run::
 
     $ pip uninstall trident

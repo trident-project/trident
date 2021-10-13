@@ -3,25 +3,25 @@
 Annotated Example
 =================
 
-The best way to get a feel for what Trident can do is to go through an 
-annotated example of its use.  
-This section will walk you through the steps necessary to 
+The best way to get a feel for what Trident can do is to go through an
+annotated example of its use.
+This section will walk you through the steps necessary to
 produce a synthetic spectrum based on simulation data and to view its path
 through the parent dataset.  The following example, `available in the source
-code itself 
+code itself
 <https://github.com/trident-project/trident/blob/main/examples/working_script.py>`_,
-can be applied to datasets from any of the different simulation codes that 
-`Trident and yt support <http://yt-project.org/docs/dev/reference/code_support.html#code-support>`_, 
-although it may require some tweaking of parameters for optimal performance. 
-If you want to recreate the following analysis with the 
+can be applied to datasets from any of the different simulation codes that
+`Trident and yt support <http://yt-project.org/docs/dev/reference/code_support.html#code-support>`_,
+although it may require some tweaking of parameters for optimal performance.
+If you want to recreate the following analysis with the
 exact dataset used, it can be downloaded `here <http://yt-project.org/data/>`_.
 
-The basic process for generating a spectrum and overplotting a sightline's 
+The basic process for generating a spectrum and overplotting a sightline's
 trajectory through the dataset goes in three steps:
 
-    1. Generate a :class:`~trident.LightRay` from the simulation data 
+    1. Generate a :class:`~trident.LightRay` from the simulation data
        representing a sightline through the data.
-    2. Define the desired spectrum features and use the :class:`~trident.LightRay` to 
+    2. Define the desired spectrum features and use the :class:`~trident.LightRay` to
        create a corresponding synthetic spectrum.
     3. Create a projected image and overplot the path of the :class:`~trident.LightRay`.
 
@@ -33,10 +33,10 @@ Simple LightRay Generation
 A :class:`~trident.LightRay` is a 1D object representing the path a ray of
 light takes through a simulation volume on its way from some bright background
 object to the observer.  It records all of the gas fields it intersects along
-the way for use in construction of a spectrum.  
+the way for use in construction of a spectrum.
 
-In order to generate a :class:`~trident.LightRay` from your data, you need to first make sure 
-that you've imported both the yt and Trident packages, and 
+In order to generate a :class:`~trident.LightRay` from your data, you need to first make sure
+that you've imported both the yt and Trident packages, and
 specify the filename of the dataset from which to extract the light ray::
 
    import yt
@@ -45,7 +45,7 @@ specify the filename of the dataset from which to extract the light ray::
 
 We need to decide the trajectory that the :class:`~trident.LightRay` will take
 through our simulation volume.  This arbitrary trajectory is specified with
-coordinates in code length units (e.g. [x_start, y_start, z_start] to 
+coordinates in code length units (e.g. [x_start, y_start, z_start] to
 [x_end, y_end, z_end]). Probably the simplest trajectory is cutting
 diagonally from the origin of the simulation volume to its outermost corner
 using the yt ``domain_left_edge`` and ``domain_right_edge`` attributes.  Here
@@ -74,9 +74,9 @@ in order to be able to add the lines from our ``line_list``::
                                   lines=line_list)
 
 The resulting ``ray`` is a :class:`~trident.LightRay` object, consisting of a series
-of arrays representing the different fields it probes in the original dataset along 
+of arrays representing the different fields it probes in the original dataset along
 its length.  Each element in the arrays represents a different resolution element
-along the path of the ray.  The ray also possesses some special fields not originally 
+along the path of the ray.  The ray also possesses some special fields not originally
 present in the original dataset:
 
     * ``('gas', l')`` Location along the LightRay length from 0 to 1.
@@ -96,7 +96,7 @@ into ``yt`` as a stand-alone dataset (e.g., ``ds = yt.load('ray.h5')``).
 Overplotting a LightRay's Trajectory on a Projection
 ----------------------------------------------------
 
-Here we create a projection of the density field along the x axis of the 
+Here we create a projection of the density field along the x axis of the
 dataset, and then overplot the path the :class:`~trident.LightRay` takes through the simulation,
 before saving it to disk.  The ``annotate_ray()`` operation should work for
 any volumentric plot, including slices, and off-axis plots::
@@ -112,7 +112,7 @@ Calculating Column Densities
 
 Perhaps we wish to know the total column density of a particular ion present along
 this :class:`~trident.LightRay`. This can easily be done by multiplying the desired
-ion number density field by the pathlength field, ``dl``, to yield an array of 
+ion number density field by the pathlength field, ``dl``, to yield an array of
 column densities for each resolution element, and then summing them together::
 
     column_density_HI = ray.r[('gas', 'H_p0_number_density')] * ray.r[('gas', 'dl')]
@@ -126,14 +126,14 @@ Spectrum Generation
 Now that we have our :class:`~trident.LightRay` we can use it to generate a spectrum.
 To create a spectrum, we need to make a :class:`~trident.SpectrumGenerator`
 object defining our desired wavelength range and bin size.  You can do this
-by manually setting these features, or just using one of the presets for 
+by manually setting these features, or just using one of the presets for
 an instrument.  Currently, we have three pre-defined instruments, the G130M,
 G160M, and G140L observing modes for the Cosmic Origins Spectrograph aboard
 the Hubble Space Telescope: ``COS-G130M``, ``COS-G160M``, and ``COS-G140L``.
 Notably, instrument ``COS`` aliases to ``COS-G130M``.
 
-We then use this :class:`~trident.SpectrumGenerator` object to make a *raw* 
-spectrum according to the intersecting fields it encountered in the 
+We then use this :class:`~trident.SpectrumGenerator` object to make a *raw*
+spectrum according to the intersecting fields it encountered in the
 corresponding :class:`~trident.LightRay`.  We save this spectrum to disk, and
 plot it::
 
@@ -145,7 +145,7 @@ plot it::
 .. image:: trident-docs-images/annotated_example/spec_raw.png
    :width: 700
 
-From here we can do some post-processing to the spectrum to include 
+From here we can do some post-processing to the spectrum to include
 additional features that would be present in an actual observed spectrum.
 We add a background quasar spectrum, a Milky Way foreground, apply the
 COS line spread function, and add gaussian noise with SNR=30::
@@ -194,7 +194,7 @@ allowing the user to specify the same sort of line list as before:::
 
 In this example, we've created a ray from an Enzo simulation (the same
 one used above) that goes from z = 0 to z = 0.1. This ray can now be
-used to generate spectra in the exact same ways as before. 
+used to generate spectra in the exact same ways as before.
 
 Obviously, there need to be sufficient simulation outputs over the desired
 redshift range of the compound ray in order to have continuous sampling.
@@ -211,6 +211,6 @@ from the available data.
 .. note::
 
         The compound ray functionality has only been implemented for the
-        Enzo and Gadget simulation codes.  If you would like to help us 
-        implement this functionality for your simulation code, please contact 
+        Enzo and Gadget simulation codes.  If you would like to help us
+        implement this functionality for your simulation code, please contact
         us about this on the mailing list.
