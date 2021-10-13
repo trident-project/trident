@@ -8,7 +8,7 @@ see :ref:`spectrum-generation`.
 
 The :class:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum`
 is the internal class for creating absorption spectra in Trident from
-:class:`~trident.LightRay` objects. The
+:class:`~trident.light_ray.LightRay` objects. The
 :class:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum`
 and its workhorse method
 :meth:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum.make_spectrum`
@@ -19,13 +19,13 @@ listing all important lines.
 Method for Creating Absorption Spectra
 --------------------------------------
 
-Once a :class:`~trident.LightRay`
+Once a :class:`~trident.light_ray.LightRay`
 has been created traversing a dataset using the :ref:`light-ray-generator`,
 a series of arrays store the various fields of the gas parcels (represented
 as cells) intersected along the ray.
 :class:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum`
 steps through each element of the
-:class:`~trident.LightRay`'s
+:class:`~trident.light_ray.LightRay`'s
 arrays and calculates the column density for desired ion by multiplying its
 number density with the path length through the cell.  Using these column
 densities along with temperatures to calculate thermal broadening, voigt
