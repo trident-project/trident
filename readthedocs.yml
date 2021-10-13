@@ -1,5 +1,3 @@
-conda:
-   file: environment.yml
 python:
    setup_py_install: false
    pip_install: true
