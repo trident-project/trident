@@ -41,7 +41,7 @@ dataset::
    fn = 'enzo_cosmology_plus/RD0009/RD0009'
    ds = yt.load(fn)
 
-To add ion fields we use the :class:`~trident.add_ion_fields` function.  This
+To add ion fields we use the :class:`~trident.ion_balance.add_ion_fields` function.  This
 will add fields for whatever ions we specify in the form of:
 
     * Ion fraction field. e.g. ``Mg_p1_ion_fraction``

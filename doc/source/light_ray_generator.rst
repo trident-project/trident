@@ -3,7 +3,7 @@
 Light Ray Generator
 ===================
 
-The :class:`~trident.LightRay` is the one-dimensional object representing
+The :class:`~trident.light_ray.LightRay` is the one-dimensional object representing
 the pencil beam of light traveling from the source to the observer. Light
 rays can stack multiple datasets together to span a redshift interval
 larger than the simulation box.
@@ -25,7 +25,7 @@ together.  The primary Trident interface to this is covered in
 :ref:`compound-ray`.  A light ray can also be made from a single dataset.
 For information on this, see :ref:`single-ray`.
 
-The arguments required to instantiate a :class:`~trident.LightRay` are
+The arguments required to instantiate a :class:`~trident.light_ray.LightRay` are
 the simulation parameter file, the simulation type, the nearest redshift,
 and the furthest redshift.
 
