@@ -211,6 +211,7 @@ from the available data.
 .. note::
 
         The compound ray functionality has only been implemented for the
-        Enzo and Gadget simulation codes.  If you would like to help us
+        Enzo and Gadget simulation codes (and Gadget's derivatives including
+        Gizmo and AREPO).  If you would like to help us
         implement this functionality for your simulation code, please contact
         us about this on the mailing list.
