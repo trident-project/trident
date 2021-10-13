@@ -18,8 +18,9 @@ information, see :ref:`versions`.
 
    installation.rst
    annotated_example.rst
-   advanced_spectra.rst
    ion_balance.rst
+   light_ray_generator.rst
+   advanced_spectra.rst
    absorption_spectrum_fit.rst
    internals.rst
    testing.rst

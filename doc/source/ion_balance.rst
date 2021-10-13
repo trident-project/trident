@@ -3,7 +3,7 @@
 Adding Ion Fields
 =================
 
-In addition to being able to create absorption spectra, Trident
+In addition to being able to create absorption spectra, 
 Trident can be used to postprocess datasets to add fields for ions not
 explicitly tracked in the simulation.  These can later be analyzed
 using the standard yt analysis packages.  This page provides some examples

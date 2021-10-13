@@ -33,7 +33,7 @@ Simple LightRay Generation
 A :class:`~trident.light_ray.LightRay` is a 1D object representing the path a ray of
 light takes through a simulation volume on its way from some bright background
 object to the observer.  It records all of the gas fields it intersects along
-the way for use in construction of a spectrum.
+the way for use in many tasks, including construction of a spectrum.
 
 In order to generate a :class:`~trident.light_ray.LightRay` from your data, you need to first make sure
 that you've imported both the yt and Trident packages, and
