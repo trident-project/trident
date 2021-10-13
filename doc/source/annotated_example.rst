@@ -61,7 +61,7 @@ and magnesium lines to the resulting spectrum from the dataset::
 
     line_list = ['H', 'C', 'N', 'O', 'Mg']
 
-We can now generate the light ray using the :class:`~trident.ray_generator.make_simple_ray`
+We can now generate the light ray using the :func:`~trident.ray_generator.make_simple_ray`
 function by passing the dataset and the trajectory endpoints to it as well
 as telling trident to save the resulting ray dataset to an HDF5 file. We
 explicitly instruct trident to pull all necessary fields from the dataset
@@ -180,8 +180,8 @@ inherently unphysical since large scale structure evolves with cosmic
 time, Trident allows the user to create a ray that samples multiple
 datasets from different redshifts to produce a much longer ray that is
 continuous in redshift space.  This is done by using the
-:class:`~trident.ray_generator.make_compound_ray` function.  This function is
-similar to the previously mentioned :class:`~trident.ray_generator.make_simple_ray`
+:func:`~trident.ray_generator.make_compound_ray` function.  This function is
+similar to the previously mentioned :func:`~trident.ray_generator.make_simple_ray`
 function, but instead of accepting an individual dataset, it takes a
 simulation parameter file, the associated simulation type, and the
 desired range in redshift to be probed by the ray, while still
@@ -204,7 +204,7 @@ the `yt_astro_analysis documentation
 <https://yt-astro-analysis.readthedocs.io/en/latest/planning_cosmology_simulations.html>`__.
 
 We encourage you to look at the detailed documentation for
-:class:`~trident.ray_generator.make_compound_ray` in the :ref:`api-reference`
+:func:`~trident.ray_generator.make_compound_ray` in the :ref:`api-reference`
 section to understand how to control how the ray itself is constructed
 from the available data.
 
