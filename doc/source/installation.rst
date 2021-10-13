@@ -176,7 +176,7 @@ documentation for how to use it with your data or with one of our sample
 datasets.  A good place to start is the
 :ref:`annotated example <annotated-example>`, and the `example scripts found
 in the source code
-<https://github.com/trident-project/trident/blob/master/examples>`_.
+<https://github.com/trident-project/trident/blob/main/examples>`_.
 
 Please join our :ref:`mailing list
 <mailing-list>` or :ref:`slack channel <slack-channel>` for announcements
@@ -261,7 +261,7 @@ If you installed the "development" version of the code, it's slightly more
 involved::
 
     $ cd <YOUR_PATH_TO_TRIDENT_REPO>
-    $ git pull origin master
+    $ git pull origin main
     $ pip install -e .
     $ yt update
 
