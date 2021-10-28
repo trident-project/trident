@@ -262,8 +262,9 @@ class LineDatabase:
         bounds = [100, 10000] * u.AA
         name_list = self.linetools_linelist.available_transitions(bounds)['name']
         for name in name_list:
-            # Don't include fine structure lines
-            if "*" not in name:
+            # Don't include fine structure lines or deuterium lines
+            if "*" not in name and \
+               "DI" not in name:
                 self.add_line_from_linetools(name)
 
     def load_line_list_from_file(self, filename):
