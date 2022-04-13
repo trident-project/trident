@@ -60,7 +60,7 @@ setup(
     install_requires=[
         'astropy',
         'h5py',
-        'matplotlib<3.3.0',
+        'matplotlib',
         'numpy',
         'requests',
         'scipy',
