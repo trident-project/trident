@@ -22,7 +22,7 @@ ray = trident.make_simple_ray(ds, start_position=ray_start,
 
 # Create a projection of the dataset in density along the x axis,
 # overplot the trajectory of the ray, and save it.
-p = yt.ProjectionPlot(ds, 'x', 'density')
+p = yt.ProjectionPlot(ds, 'x', ('gas', 'density'))
 p.annotate_ray(ray, arrow=True)
 p.save('projection.png')
 
