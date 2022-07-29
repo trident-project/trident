@@ -94,6 +94,7 @@ class Line:
             ion_number = from_roman(ion_state)
             keyword = "%s_p%d" %  (element, (ion_number-1))
             field = "%s_number_density" % keyword
+            field = ("gas", field)
         self.field = field
 
     def __repr__(self):

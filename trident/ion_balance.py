@@ -688,7 +688,7 @@ def _ion_mass(field, data):
         return data[ftype,fraction_field_name] * \
           data[ftype, "mass"] * \
           data[ftype, metallicity_field]
-    
+
     if atom == 'H' or atom == 'He':
         mass_fraction = solar_abundance[atom] * data[ftype,fraction_field_name]
     else:

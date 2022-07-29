@@ -11,9 +11,9 @@ commands:
             echo 'TRIDENT_ION_DATA=$HOME/.trident' >> $BASH_ENV
             echo 'TRIDENT_ANSWER_DATA=$HOME/answer_test_data' >> $BASH_ENV
             echo 'TRIDENT_CONFIG=$HOME/.trident/config.tri' >> $BASH_ENV
-            echo 'YT_GOLD=2438fd1166d5ef0bf0aaefc73b40104bb074898f' >> $BASH_ENV
+            echo 'YT_GOLD=785befaaf016c6ce5238366092b3942b8d8c6760' >> $BASH_ENV
             echo 'YT_HEAD=main' >> $BASH_ENV
-            echo 'TRIDENT_GOLD=test-standard-v8' >> $BASH_ENV
+            echo 'TRIDENT_GOLD=test-standard-v9' >> $BASH_ENV
             echo 'TRIDENT_HEAD=tip' >> $BASH_ENV
 
   install-dependencies:
@@ -32,8 +32,9 @@ commands:
             git config --global user.name "C.I. Circle"
             # tag the tip so we can get back to it
             git tag tip
-            sudo apt-get update
-            sudo apt-get install -y texlive-latex-extra dvipng
+            sudo apt update
+            sudo apt upgrade
+            sudo apt install -y dvipng texlive-latex-extra
             if [ ! -d $HOME/venv ]; then
                 python3 -m venv $HOME/venv
             fi
@@ -59,12 +60,12 @@ commands:
             fi
             # install yt-astro-analysis from source
             if [ ! -f $HOME/yt_astro_analysis/README.md ]; then
-                git clone --branch=master https://github.com/yt-project/yt_astro_analysis $HOME/yt_astro_analysis
+                git clone --branch=main https://github.com/yt-project/yt_astro_analysis $HOME/yt_astro_analysis
             fi
             pushd $HOME/yt_astro_analysis
             # return to tip before pulling
-            git checkout master
-            git pull origin master
+            git checkout main
+            git pull origin main
             pip install -e .
             popd
             pip install -e .[dev]
@@ -203,7 +204,7 @@ jobs:
 
       - restore_cache:
           name: "Restore dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v8
+          key: python-<< parameters.tag >>-dependencies-v9
 
       - install-dependencies:
           yttag: << parameters.yttag >>
@@ -212,7 +213,7 @@ jobs:
 
       - save_cache:
           name: "Save dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v8
+          key: python-<< parameters.tag >>-dependencies-v9
           paths:
             - ~/.cache/pip
             - ~/venv
@@ -223,13 +224,13 @@ jobs:
 
       - restore_cache:
           name: "Restore test data cache."
-          key: test-data-v1
+          key: test-data-v2
 
       - download-test-data
 
       - save_cache:
           name: "Save test data cache."
-          key: test-data-v1
+          key: test-data-v2
           paths:
             - ~/.trident
             - ~/answer_test_data
@@ -239,14 +240,14 @@ jobs:
 
       - restore_cache:
           name: "Restore answer tests cache."
-          key: test-results-<< parameters.tag >>-<< parameters.yttag >>-v9
+          key: test-results-<< parameters.tag >>-<< parameters.yttag >>-v10
 
       - run-tests:
           generate: 1
 
       - save_cache:
           name: "Save answer tests cache."
-          key: test-results-<< parameters.tag >>-<< parameters.yttag >>-v9
+          key: test-results-<< parameters.tag >>-<< parameters.yttag >>-v10
           paths:
             - ~/answer_test_data/test_results
 
@@ -272,14 +273,14 @@ jobs:
       - checkout
       - restore_cache:
           name: "Restore dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v8
+          key: python-<< parameters.tag >>-dependencies-v9
       - set-env
       - install-dependencies:
           yttag: "YT_HEAD"
       - configure-trident
       - save_cache:
           name: "Save dependencies cache."
-          key: python-<< parameters.tag >>-dependencies-v8
+          key: python-<< parameters.tag >>-dependencies-v9
           paths:
             - ~/.cache/pip
             - ~/venv
@@ -293,22 +294,22 @@ workflows:
    normal-tests:
      jobs:
        - tests:
-           name: "Python 3.6 tests with yt gold"
-           tag: "3.6.11"
+           name: "Python 3.7 tests with yt gold"
+           tag: "3.7.9"
 
        - tests:
-           name: "Python 3.8 tests with yt gold"
-           tag: "3.8.5"
+           name: "Python 3.9 tests with yt gold"
+           tag: "3.9.2"
 
        - tests:
-           name: "Python 3.8 tests with yt tip"
-           tag: "3.8.5"
+           name: "Python 3.9 tests with yt tip"
+           tag: "3.9.2"
            yttag: "YT_HEAD"
            coverage: 1
 
        - docs-test:
            name: "Test docs build"
-           tag: "3.8.5"
+           tag: "3.9.2"
 
    weekly:
      triggers:
@@ -321,14 +322,20 @@ workflows:
      jobs:
        - tests:
            name: "Python 3.7 tests with yt gold"
-           tag: "3.7.8"
+           tag: "3.7.9"
 
        - tests:
            name: "Python 3.8 tests with yt tip"
-           tag: "3.8.5"
+           tag: "3.8.8"
+           yttag: "YT_HEAD"
+           coverage: 0
+
+       - tests:
+           name: "Python 3.9 tests with yt tip"
+           tag: "3.9.2"
            yttag: "YT_HEAD"
            coverage: 0
 
        - docs-test:
            name: "Test docs build"
-           tag: "3.8.5"
+           tag: "3.9.2"
