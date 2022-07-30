@@ -208,8 +208,8 @@ class FireflyGenerator( object ):
             raise RuntimeError("Unrecognized ray type.")
 
         # temporary fix for yt-4.0 ytdata selection issue
-        ray.domain_left_edge = ray.domain_left_edge.to('code_length')
-        ray.domain_right_edge = ray.domain_right_edge.to('code_length')
+        # ray.domain_left_edge = ray.domain_left_edge.to('code_length')
+        # ray.domain_right_edge = ray.domain_right_edge.to('code_length')
 
         active_lines = self.line_database.parse_subset(lines)
 
@@ -237,8 +237,10 @@ class FireflyGenerator( object ):
         coordinates = np.array([
             ad['grid', x_i].in_units( coordinate_units ) for x_i in [ 'x', 'y', 'z' ]
         ]).transpose() * ray.quan( 1, coordinate_units )
+        mylog.info( 'Performing a temporary fix until we figure out why the coordinates are off-center!' )
+        coordinates -= coordinates[-1]
         if center is not None:
-            coordinates -= center
+            coordinates += center
         velocities = np.array([
             ad['grid', 'relative_velocity_' + x_i ].in_units( velocity_units ) for x_i in [ 'x', 'y', 'z' ]
         ]).transpose() * ray.quan( 1, velocity_units )
