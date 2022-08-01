@@ -186,16 +186,16 @@ class FireflyGenerator( object ):
             self.ionization_table = None
 
     def create_particle_group(self, ray,
+                    UIname = 'ray',
                     fields_to_include=None,
                     fields_units=None,
                     coordinate_units="kpc",
                     velocity_units="km/s",
+                    ion_density_units="cm**-3",
                     center = None,
-                    observing_redshift=0.0,
                     lines='all',
+                    size = 0.2,
                     ):
-
-        self.observing_redshift = observing_redshift
 
         if isinstance(ray, str):
             ray = load(ray)
@@ -208,42 +208,44 @@ class FireflyGenerator( object ):
             raise RuntimeError("Unrecognized ray type.")
 
         # temporary fix for yt-4.0 ytdata selection issue
-        # ray.domain_left_edge = ray.domain_left_edge.to('code_length')
-        # ray.domain_right_edge = ray.domain_right_edge.to('code_length')
-
-        active_lines = self.line_database.parse_subset(lines)
-
-        # Make sure we've produced all the necessary
-        # derived fields if they aren't native to the data
-        for line in active_lines:
-            # try to determine if field for line is present in dataset
-            # if successful, means line.field is in ds.derived_field_list
-            # otherwise we probably need to add the field to the dataset
-            try:
-                ad._determine_fields(line.field)[0]
-            except YTFieldNotFound:
-                fname = line.field[1] # grab field string from field name tuple
-                my_ion = \
-                  fname[:fname.find("number_density")]
-                on_ion = my_ion.split("_")
-                # Add the field using ray's density, temperature, & metallicity
-                my_lev = int(on_ion[1][1:]) + 1
-                mylog.info("Creating %s from ray's fields." % (line.field[1]))
-                add_ion_number_density_field(on_ion[0], my_lev, ray,
-                                 ionization_table=self.ionization_table)
-
+        ray.domain_left_edge = ray.domain_left_edge.to('code_length')
+        ray.domain_right_edge = ray.domain_right_edge.to('code_length')
 
         # Get coordinates and velocities
         coordinates = np.array([
             ad['grid', x_i].in_units( coordinate_units ) for x_i in [ 'x', 'y', 'z' ]
         ]).transpose() * ray.quan( 1, coordinate_units )
-        mylog.info( 'Performing a temporary fix until we figure out why the coordinates are off-center!' )
-        coordinates -= coordinates[-1]
         if center is not None:
-            coordinates += center
+            coordinates -= center
         velocities = np.array([
             ad['grid', 'relative_velocity_' + x_i ].in_units( velocity_units ) for x_i in [ 'x', 'y', 'z' ]
         ]).transpose() * ray.quan( 1, velocity_units )
+
+        active_ions = self.line_database.parse_subset_to_ions(lines)
+
+        # For storing fields
+        field_arrays = []
+        field_names = []
+
+        # Make sure we've produced all the necessary
+        # derived fields if they aren't native to the data
+        for i, ion in enumerate( active_ions ):
+            # try to determine if field for line is present in dataset
+            # if successful, means line.field is in ds.derived_field_list
+            # otherwise we probably need to add the field to the dataset
+            atom, my_lev = ion
+            fname = '{}_p{}_number_density'.format( atom, my_lev-1 )
+            try:
+                ad[fname]
+            except YTFieldNotFound:
+                mylog.info("Creating %s from ray's fields." % ( fname ))
+                add_ion_number_density_field(atom, my_lev, ray,
+                                 ionization_table=self.ionization_table)
+
+            field_arrays.append( np.log10( ad[fname].to( ion_density_units ) ) )
+
+            field_name = ( 'log{}density'.format( lines[i].replace( ' ', '' ) ) )
+            field_names.append( field_name )
 
         ## handle default arguments
         if fields_to_include is None:
@@ -256,8 +258,6 @@ class FireflyGenerator( object ):
             raise RuntimeError("Each requested field must have units.")
 
         ## explicitly go after the fields we want
-        field_arrays = []
-        field_names = []
         unavailable_fields = []
         for field, units in zip(fields_to_include, fields_units):
             ## determine if you want to take the log of the field for Firefly
@@ -304,10 +304,58 @@ class FireflyGenerator( object ):
         else:
             ParticleGroup_kwargs = {}
         pg = _firefly.data_reader.ParticleGroup(
-            UIname='ray',
+            UIname=UIname,
             coordinates=coordinates,
             velocities=velocities,
             **ParticleGroup_kwargs
         )
+
+        pg.settings_default['sizeMult'] = size
+
+        return pg
+
+    def create_particle_group_guideline(self, ray,
+                    coordinate_units="kpc",
+                    center = None,
+                    dx = 1.,
+                    UIname = 'guideline',
+                    size = 0.3,
+                    color = np.array([ 1., 1., 1., 1. ])
+                    ):
+
+        if isinstance(ray, str):
+            ray = load(ray)
+        if isinstance(ray, Dataset):
+            ad = ray.all_data()
+        elif isinstance(ray, YTDataContainer):
+            ad = ray
+            ray = ad.ds
+        else:
+            raise RuntimeError("Unrecognized ray type.")
+
+        start = ray.light_ray_solution[0]['start'].to( coordinate_units )
+        end = ray.light_ray_solution[0]['end'].to( coordinate_units )
+
+        if center is not None:
+            start -= center
+            end -= center
+
+        guidevec = end - start 
+        pathlength = np.linalg.norm( guidevec )
+        coordinates = (
+            np.arange( 0, pathlength + dx, dx )[:,np.newaxis] * ( guidevec / pathlength )
+        )
+        coordinates += start
+
+        pg = _firefly.data_reader.ParticleGroup(
+            UIname=UIname,
+            coordinates=coordinates,
+        )
+
+        pg.settings_default['sizeMult'] = size
+        pg.settings_default['color'] = color
+        pg.settings_default['color'] = color
+        pg.settings_default['blendingMode'] = 'none'
+        pg.settings_default['depthTest'] = True
 
         return pg
