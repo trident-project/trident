@@ -1,7 +1,7 @@
 # Trident
 
-[![CircleCI](https://circleci.com/gh/trident-project/trident/tree/master.svg?style=svg)](https://circleci.com/gh/trident-project/trident/tree/master)
-[![Coverage Status](https://coveralls.io/repos/github/trident-project/trident/badge.svg?branch=master)](https://coveralls.io/github/trident-project/trident?branch=master)
+[![CircleCI](https://circleci.com/gh/trident-project/trident/tree/main.svg?style=svg)](https://circleci.com/gh/trident-project/trident/tree/main)
+[![Coverage Status](https://coveralls.io/repos/github/trident-project/trident/badge.svg?branch=main)](https://coveralls.io/github/trident-project/trident?branch=main)
 [![Documentation Status](https://readthedocs.org/projects/trident/badge/?version=latest)](http://trident.readthedocs.io/en/latest/?badge=latest)
 [![PyPI version](https://badge.fury.io/py/trident.svg)](https://badge.fury.io/py/trident)
 
