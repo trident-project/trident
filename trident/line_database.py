@@ -252,7 +252,8 @@ class LineDatabase:
         gamma = line['gamma'].value
         f_value = line['f']
         identifier = line['name']
-        self.add_line(element, ion_state, wavelength, gamma, f_value)
+        self.add_line(element, ion_state, wavelength, gamma, f_value,
+                      identifier=identifier)
 
     def load_line_list_from_linetools(self):
         """
@@ -523,7 +524,7 @@ class LineDatabase:
 
         if not hasattr( self, '_linetools_linelist' ):
 
-            # Only doing the import here so rest of the class doesn't 
+            # Only doing the import here so rest of the class doesn't
             # break if the feature isn't enabled.
             from linetools.lists.linelist import LineList
 
