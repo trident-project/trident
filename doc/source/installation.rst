@@ -58,7 +58,7 @@ some additional files.  See :ref:`step-3`, for more information::
     >>> import trident
 
 Follow the instructions to download the ion_balance table and then verify that
-everything is working correctly.  You should now be ready to do some 
+everything is working correctly.  You should now be ready to do some
 :ref:`step-4`
 
 Installing the Development Version of yt and Trident
@@ -114,7 +114,7 @@ the up-to-date version of the source code and build it::
 
 Note, you'll also need a separate library,
 `yt_astro_analysis <https://github.com/yt-project/yt_astro_analysis.git>`_,
-to get some of the functianality necessary for Trident to work correctly::
+to get some of the functionality necessary for Trident to work correctly::
 
     $ git clone https://github.com/yt-project/yt_astro_analysis.git yt_astro_analysis
     $ cd yt_astro_analysis
@@ -176,7 +176,7 @@ documentation for how to use it with your data or with one of our sample
 datasets.  A good place to start is the
 :ref:`annotated example <annotated-example>`, and the `example scripts found
 in the source code
-<https://github.com/trident-project/trident/blob/master/examples>`_.
+<https://github.com/trident-project/trident/blob/main/examples>`_.
 
 Please join our :ref:`mailing list
 <mailing-list>` or :ref:`slack channel <slack-channel>` for announcements
@@ -217,7 +217,7 @@ please contact our mailing list.
 Uninstallation or Switching Code Versions
 -----------------------------------------
 
-Uninstallation of the Trident source code is easy.  If you installed the 
+Uninstallation of the Trident source code is easy.  If you installed the
 stable version of the code via pip, just run::
 
     $ pip uninstall trident
@@ -261,7 +261,7 @@ If you installed the "development" version of the code, it's slightly more
 involved::
 
     $ cd <YOUR_PATH_TO_TRIDENT_REPO>
-    $ git pull origin master
+    $ git pull origin main
     $ pip install -e .
     $ yt update
 

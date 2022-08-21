@@ -10,9 +10,9 @@ Generating Rays
    :toctree: generated/
    :nosignatures:
 
-   ~trident.make_simple_ray
-   ~trident.make_compound_ray
-   ~trident.LightRay
+   ~trident.ray_generator.make_simple_ray
+   ~trident.ray_generator.make_compound_ray
+   ~trident.light_ray.LightRay
 
 Generating Spectra
 ------------------
@@ -21,12 +21,12 @@ Generating Spectra
    :toctree: generated/
    :nosignatures:
 
-   ~trident.SpectrumGenerator
+   ~trident.spectrum_generator.SpectrumGenerator
    ~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum
-   ~trident.Instrument
-   ~trident.LSF
-   ~trident.Line
-   ~trident.LineDatabase
+   ~trident.instrument.Instrument
+   ~trident.lsf.LSF
+   ~trident.line_database.Line
+   ~trident.line_database.LineDatabase
 
 Plotting Spectra
 ----------------
@@ -35,8 +35,8 @@ Plotting Spectra
    :toctree: generated/
    :nosignatures:
 
-   ~trident.load_spectrum
-   ~trident.plot_spectrum
+   ~trident.spectrum_generator.load_spectrum
+   ~trident.spectrum_generator.plot_spectrum
 
 Adding Ion Fields
 -----------------
@@ -45,11 +45,11 @@ Adding Ion Fields
    :toctree: generated/
    :nosignatures:
 
-   ~trident.add_ion_fields
-   ~trident.add_ion_fraction_field
-   ~trident.add_ion_number_density_field
-   ~trident.add_ion_density_field
-   ~trident.add_ion_mass_field
+   ~trident.ion_balance.add_ion_fields
+   ~trident.ion_balance.add_ion_fraction_field
+   ~trident.ion_balance.add_ion_number_density_field
+   ~trident.ion_balance.add_ion_density_field
+   ~trident.ion_balance.add_ion_mass_field
 
 Miscellaneous Utilities
 -----------------------
@@ -58,11 +58,11 @@ Miscellaneous Utilities
    :toctree: generated/
    :nosignatures:
 
-   ~trident.make_onezone_dataset
-   ~trident.make_onezone_ray
-   ~trident.to_roman
-   ~trident.from_roman
-   ~trident.trident_path
-   ~trident.trident
-   ~trident.verify
+   ~trident.utilities.make_onezone_dataset
+   ~trident.utilities.make_onezone_ray
+   ~trident.roman.to_roman
+   ~trident.roman.from_roman
+   ~trident.config.trident_path
+   ~trident.config.trident
+   ~trident.config.verify
    ~trident.absorption_spectrum.absorption_spectrum_fit.generate_total_fit

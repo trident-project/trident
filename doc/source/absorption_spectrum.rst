@@ -8,7 +8,7 @@ see :ref:`spectrum-generation`.
 
 The :class:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum`
 is the internal class for creating absorption spectra in Trident from
-:class:`~trident.LightRay` objects. The
+:class:`~trident.light_ray.LightRay` objects. The
 :class:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum`
 and its workhorse method
 :meth:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum.make_spectrum`
@@ -19,13 +19,13 @@ listing all important lines.
 Method for Creating Absorption Spectra
 --------------------------------------
 
-Once a :class:`~trident.LightRay`
+Once a :class:`~trident.light_ray.LightRay`
 has been created traversing a dataset using the :ref:`light-ray-generator`,
 a series of arrays store the various fields of the gas parcels (represented
 as cells) intersected along the ray.
 :class:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum`
 steps through each element of the
-:class:`~trident.LightRay`'s
+:class:`~trident.light_ray.LightRay`'s
 arrays and calculates the column density for desired ion by multiplying its
 number density with the path length through the cell.  Using these column
 densities along with temperatures to calculate thermal broadening, voigt
@@ -102,11 +102,11 @@ with the
 :meth:`~trident.absorption_spectrum.absorption_spectrum.AbsorptionSpectrum.add_continuum`
 function.  Like adding lines, you must specify details like the wavelength
 and the field in the dataset and LightRay that is tied to this feature.
-The wavelength refers to the location at which the continuum begins to be 
-applied to the dataset, and as it moves to lower wavelength values, the 
-optical depth value decreases according to the defined power law.  The 
+The wavelength refers to the location at which the continuum begins to be
+applied to the dataset, and as it moves to lower wavelength values, the
+optical depth value decreases according to the defined power law.  The
 normalization value is the column density of the linked field which results
-in an optical depth of 1 at the defined wavelength.  Below, we add the hydrogen 
+in an optical depth of 1 at the defined wavelength.  Below, we add the hydrogen
 Lyman continuum.
 
 .. code-block:: python
