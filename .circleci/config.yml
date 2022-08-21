@@ -178,7 +178,7 @@ executors:
         type: string
         default: latest
     docker:
-      - image: circleci/python:<< parameters.tag >>
+      - image: cimg/python:<< parameters.tag >>
 
 jobs:
   tests:
