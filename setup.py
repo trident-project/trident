@@ -46,7 +46,6 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Natural Language :: English",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
@@ -66,5 +65,5 @@ setup(
         'scipy',
         'yt>=4.0.1',
         'yt_astro_analysis'],
-      python_requires='>=3.6'
+      python_requires='>=3.7'
 )
