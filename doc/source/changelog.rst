@@ -12,7 +12,7 @@ The `CREDITS file <https://github.com/trident-project/trident/blob/main/CREDITS>
 has an updated list of contributors to the codebase.
 
 
-Version 1.3 (August 22, 2022)
+Version 1.3 (August 23, 2022)
 ------------------------------
 
 This is a bug fix release and updates Trident to using yt-4, which has
