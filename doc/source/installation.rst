@@ -17,11 +17,9 @@ correct docs for the version you are using!
 
 The stable version is tried
 and tested and easy to install with pip.  The development version is actively
-being updated with new features including superior support for particle-based
-datasets (previously known as the demeshening).  Note that the stable version
+being updated with new features.  Note that the stable version
 of trident requires the stable version of yt, and the development version of
-trident requires the development version of yt, due to some
-backwards-incompatible changes regarding particle-support in yt/trident.
+trident requires the development version of yt.
 
 Thus, the installation steps are slightly different for stable and development,
 so pay attention in the steps below.  Don't worry if you want to change later,
@@ -34,12 +32,13 @@ Trident's Major Dependency: yt
 `yt <http://yt-project.org>`_ is a python-based software package for the
 analysis and visualization of a different numerical datasets, including
 astrophysical hydrodynamical data.  yt is the primary dependency of Trident,
-so you must install it before Trident will work.  There are several methods
+so it must be present for Trident to work.  There are several methods
 for installing yt, which are all discussed in detail in the `yt installation
 documentation <http://yt-project.org/doc/installing.html>`_.  Use the one
 that is appropriate for you.  We find that using
 `conda <https://docs.conda.io/en/latest/>`_ is the most streamlined and
-reliable.
+reliable for the development install, whereas pip does it automatically for
+stable install.
 
 .. _stable-trident:
 
@@ -48,7 +47,6 @@ Installing the Stable Version of yt and Trident
 
 Installation of the stable versions of yt and Trident is quite simple::
 
-    $ pip install yt
     $ pip install trident
 
 Now, you can try to run Trident for the first time, where it will download
