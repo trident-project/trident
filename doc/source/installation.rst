@@ -45,7 +45,7 @@ stable install.
 Installing the Stable Version of yt and Trident
 -----------------------------------------------
 
-Installation of the stable versions of yt and Trident are quite simple::
+Installation of the stable versions of yt and Trident is quite simple::
 
     $ pip install trident
 
