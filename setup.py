@@ -27,8 +27,6 @@ dev_requirements = [
 setup(
     name = "trident",
     version = VERSION,
-    author = "Cameron Hummels, Devin Silvia, Britton Smith",
-    author_email = "trident-project-users@googlegroups.com",
     description = ("Spectrum generator for astrophysical simulation data"),
     long_description=long_description,
     long_description_content_type='text/markdown',
