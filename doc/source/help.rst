@@ -46,4 +46,4 @@ Join our Slack Channel
 
 We have a slack channel for help and discussions amongst the users and
 developers of Trident.  You can generate an invite for yourself by clicking
-on this `link <https://join.slack.com/t/trident-project/shared_invite/enQtMzE4ODM5NTg1Nzk0LTA2OTBmMGZmZTVmY2JhMmYwNjMwMjdhZWEyZGQ1YzNiY2EzOGY2MzVhNDY3YzMwZWI5YTY3NmU5YWQ4NjU5YTQ>`_ and following the instructions.
+on this `link <https://join.slack.com/t/trident-project/shared_invite/zt-42h0uuwy-fBggZbeymnq2cB9ivtWloA>`_ and following the instructions.

@@ -3,7 +3,7 @@
 Changelog
 =========
 
-This document summarizes changes to the codebase with time for Trident.
+This document summarizes changes to the codebase from different releases.
 
 Contributors
 ------------
@@ -11,6 +11,26 @@ Contributors
 The `CREDITS file <https://github.com/trident-project/trident/blob/main/CREDITS>`_
 has an updated list of contributors to the codebase.
 
+
+Version 1.3 (August 23, 2022)
+------------------------------
+
+This is a bug fix release and updates Trident to using yt-4, which has
+a variety of improvements for Trident including full support for
+particle-based datasets.  See
+`yt 4 <https://yt-project.org/docs/dev/yt4differences.html>`__.
+
+Bug Fixes
+^^^^^^^^^
+
+- Enables trident to work on Windows.
+  (`PR 136 <https://github.com/trident-project/trident/pull/136>`__)
+- Fix API docs.
+  (`PR 160 <https://github.com/trident-project/trident/pull/160>`__)
+- Update docs.
+  (`PR 175 <https://github.com/trident-project/trident/pull/175>`__)
+- Fixes stable release of the code.
+  (`Issue 180 <https://github.com/trident-project/trident/issues/180>`__)
 
 Version 1.2.3 (March 18, 2020)
 ------------------------------

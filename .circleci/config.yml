@@ -178,7 +178,7 @@ executors:
         type: string
         default: latest
     docker:
-      - image: circleci/python:<< parameters.tag >>
+      - image: cimg/python:<< parameters.tag >>
 
 jobs:
   tests:
@@ -318,7 +318,7 @@ workflows:
            filters:
             branches:
               only:
-                - master
+                - main
      jobs:
        - tests:
            name: "Python 3.7 tests with yt gold"

@@ -22,6 +22,8 @@ from yt.loaders import \
     load
 from yt.frontends.ytdata.utilities import \
     save_as_dataset
+from yt.frontends.ytdata.data_structures import \
+    YTDataLightRayDataset
 from yt.units.yt_array import \
     YTArray
 from yt.utilities.cosmology import \
@@ -31,8 +33,10 @@ from yt.utilities.logger import \
 from yt.utilities.parallel_tools.parallel_analysis_interface import \
     parallel_objects, \
     parallel_root_only
-from yt.utilities.physical_constants import speed_of_light_cgs
-from yt.data_objects.static_output import Dataset
+from yt.utilities.physical_constants import \
+    speed_of_light_cgs
+from yt.data_objects.static_output import \
+    Dataset
 
 class LightRay(CosmologySplice):
     r"""
@@ -722,7 +726,7 @@ class LightRay(CosmologySplice):
 
         if data_filename is not None:
             self._write_light_ray(data_filename, all_data)
-            ray_ds = load(data_filename, hint='YTDataLightRayDataset')
+            ray_ds = YTDataLightRayDataset(data_filename)
 
             # temporary fix for yt-4.0 ytdata selection issue
             ray_ds.domain_left_edge = ray_ds.domain_left_edge.to('code_length')
