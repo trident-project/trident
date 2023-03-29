@@ -16,6 +16,7 @@ def generate_total_fit(x, fluxData, orderFits, speciesDicts,
         minError=1E-4, complexLim=.995,
         fitLim=.97, minLength=3,
         maxLength=1000, splitLim=.99,
+        maxNumComps=8,
         output_file=None):
 
     """
@@ -157,7 +158,7 @@ def generate_total_fit(x, fluxData, orderFits, speciesDicts,
 
             #Fit Using complex tools
             newLinesP,flag=_complex_fit(xBounded,yDatBounded,yFitBounded,
-                    z,fitLim,minError,speciesDict)
+                    z,fitLim,minError,speciesDict,maxNumComps=maxNumComps)
 
             #If flagged as a bad fit, species is lyman alpha,
             #   and it may be a saturated line, use special tools
@@ -201,7 +202,7 @@ def generate_total_fit(x, fluxData, orderFits, speciesDicts,
     return (allSpeciesLines,yFit)
 
 def _complex_fit(x, yDat, yFit, initz, minSize, errBound, speciesDict,
-        initP=None):
+        initP=None,maxNumComps=8):
     """
     Fit an absorption complex by iteratively adding and optimizing
     voigt profiles.
@@ -341,7 +342,7 @@ def _complex_fit(x, yDat, yFit, initz, minSize, errBound, speciesDict,
                 break
 
         #If too many lines
-        if np.shape(linesP)[0]>8 or np.size(linesP)+3>=len(x):
+        if np.shape(linesP)[0]>maxNumComps or np.size(linesP)+3>=len(x):
             #If its fitable by flag tools and still bad, use flag tools
             if errSq >1E2*errBound and speciesDict['name']=='HI lya':
                 return [],True
