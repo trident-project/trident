@@ -134,7 +134,13 @@ def add_ion_fields(ds, ions, ftype='gas',
                    field_suffix=False,
                    line_database=None,
                    sampling_type='local',
-                   particle_type=None):
+                   particle_type=None,
+                   metal_source = 'best',
+                   H_source = 'best',
+                   He_source = 'best',
+                   custom_metal_function = None,
+                   custom_H_function = None,
+                   custom_He_function = None):
     """
     Preferred method for adding ion fields to a yt dataset.
 
@@ -274,6 +280,17 @@ def add_ion_fields(ds, ions, ftype='gas',
     # - X_P#_number_density
     # - X_P#_density
     for (atom, ion) in ion_list:
+        add_nucleus_density_field(atom, ion, ds, 
+                       ftype = ftype,
+                       sampling_type = sampling_type,
+                       particle_type = particle_type,
+                       metal_source = metal_source,
+                       H_source = H_source,
+                       He_source = He_source,
+                       custom_metal_function = custom_metal_function,
+                       custom_H_function = custom_H_function,
+                       custom_He_function = custom_He_function)
+        
         add_ion_mass_field(atom, ion, ds, ftype, ionization_table,
             field_suffix=field_suffix, sampling_type=sampling_type)
 
@@ -657,6 +674,8 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
 
     _add_field(ds, ("gas", field), function=_ion_mass, units=r"g",
                sampling_type=sampling_type)
+    
+
 
 def _ion_mass(field, data):
     """
@@ -671,36 +690,14 @@ def _ion_mass(field, data):
         ftype = "gas"
         field_name = field.name
     atom = field_name.split("_")[0]
+    atom_mass = atomic_mass[atom]*mh
     prefix = field_name.split("_mass")[0]
     suffix = field_name.split("_mass")[-1]
     fraction_field_name = "%s_ion_fraction%s" % (prefix, suffix)
-
-    # try the atom-specific density field first
-    nuclei_field = "%s_nuclei_mass" % atom
-    if (ftype, nuclei_field) in data.ds.field_info:
-        return data[ftype,fraction_field_name] * \
-          data[ftype, nuclei_field]
-
-    # try the species metallicity
-    metallicity_field = "%s_metallicity" % atom
-    if (ftype, metallicity_field) in data.ds.field_info:
-        return data[ftype,fraction_field_name] * \
-          data[ftype, "mass"] * \
-          data[ftype, metallicity_field]
-
-    if atom == 'H' or atom == 'He':
-        mass_fraction = solar_abundance[atom] * data[ftype,fraction_field_name]
-    else:
-        mass_fraction = data.ds.quan(solar_abundance[atom], "1.0/Zsun") * \
-          data[ftype, fraction_field_name] * \
-          data[ftype, "metallicity"]
-    # convert to total mass
-    # use the on disk hydrogen mass if possible
-    if (ftype, "H_nuclei_mass") in data.ds.derived_field_list:
-        mass = mass_fraction * data[ftype, "H_nuclei_mass"]
-    else:
-        mass = mass_fraction * data[ftype, "mass"] * H_mass_fraction
-    return mass
+    fraction_field = data[ftype,fraction_field_name]
+    effective_volume = data[ftype,'mass']/data[ftype,'density']
+    nucleus_density_field = data[ftype, 'trident_%s_nuclei_density'%atom]
+    return fraction_field * nucleus_density_field * effective_volume * atom_mass
 
 def _ion_density(field, data):
     """
@@ -734,37 +731,13 @@ def _ion_number_density(field, data):
         ftype = "gas"
         field_name = field.name
     atom = field_name.split("_")[0]
+    atom_mass = atomic_mass[atom]*mh
     prefix = field_name.split("_number_density")[0]
     suffix = field_name.split("_number_density")[-1]
     fraction_field_name = "%s_ion_fraction%s" % (prefix, suffix)
-
-    # try the atom-specific density field first
-    nuclei_field = "%s_nuclei_mass_density" % atom
-    if (ftype, nuclei_field) in data.ds.field_info:
-        return data[ftype, fraction_field_name] * \
-          data[(ftype, nuclei_field)] / (atomic_mass[atom] * mh)
-
-    # try the species metallicity
-    metallicity_field = "%s_metallicity" % atom
-    if (ftype, metallicity_field) in data.ds.field_info:
-        return data[ftype, fraction_field_name] * \
-          data[ftype, "density"] * \
-          data[ftype, metallicity_field] / \
-          atomic_mass[atom] / mh
-
-    if atom == 'H' or atom == 'He':
-        number_density = solar_abundance[atom] * data[ftype, fraction_field_name]
-    else:
-        number_density = data.ds.quan(solar_abundance[atom], "1.0/Zsun") * \
-          data[ftype, fraction_field_name] * \
-          data[ftype, "metallicity"]
-    # convert to number density
-    # use the on disk hydrogen number density if possible
-    if (ftype, "H_nuclei_density") in data.ds.derived_field_list:
-        number_density = number_density * data[ftype, "H_nuclei_density"]
-    else:
-        number_density = number_density * data[ftype, "density"] * to_nH
-    return number_density
+    fraction_field = data[ftype,fraction_field_name]
+    nucleus_density_field = data[ftype, 'trident_%s_nuclei_density'%atom]
+    return fraction_field * nucleus_density_field 
 
 def _ion_fraction_field(field, data):
     """
@@ -863,7 +836,157 @@ def _alias_field(ds, alias_name, name):
     return
 
 
-# Taken from Cloudy documentation.
+def add_nucleus_density_field(atom, ion, ds, ftype="gas",
+                       sampling_type='local',
+                       particle_type=None,
+                       metal_source = 'best',
+                       H_source = 'best',
+                       He_source = 'best',
+                       custom_metal_function = None,
+                       custom_H_function = None,
+                       custom_He_function = None):
+    
+    if atom == 'H':
+        field = 'trident_H_nuclei_density'
+        field_function = create_H_number_density_function(ftype,
+                                     H_source,
+                                     custom_H_function)
+    elif atom == 'He':
+        field = 'trident_He_nuclei_density'
+        field_function = create_He_number_density_function(ftype,
+                                     He_source,
+                                     custom_He_function)
+    else:
+        field = 'trident_%s_nuclei_density'%atom
+        field_function = create_metal_number_density_function(atom,ftype,
+                                                              metal_source,
+                                                              custom_metal_function)
+    _add_field(ds, ("gas", field), 
+           function=field_function,
+           units=r"cm**-3",
+           sampling_type=sampling_type)
+    
+def create_metal_number_density_function(atom,ftype,
+                                         metal_source,
+                                         custom_metal_function):
+
+    def _metal_processing(field,data):
+        #returns metals in units of number density
+        #uses best (most specific) data available, unless forced otherwise
+        if isinstance(field.name, tuple):
+            ftype = field.name[0]
+            field_name = field.name[1]
+        else:
+            ftype = "gas"
+            field_name = field.name
+        atom = field_name.split("_")[1]
+        atom_mass = atomic_mass[atom]*mh
+        # try the atom-specific density field first
+        if metal_source == 'best' or metal_source == "nuclei_density":
+            nuclei_field = "%s_nuclei_density" % atom
+            if (ftype, nuclei_field) in data.ds.field_info\
+                    or metal_source == "nuclei_density":
+                return data[ftype, nuclei_field]
+        # try the atom-specific mass field
+        if metal_source == 'best' or metal_source == "nuclei_mass":
+            nuclei_mass_field = "%s_nuclei_mass" % atom
+            effective_volume = data[ftype, 'mass']/data[ftype, 'density']
+            if (ftype, nuclei_mass_field) in data.ds.field_info\
+                    or metal_source == "nuclei_mass":
+                return data[ftype, nuclei_mass_field]/effective_volume/atom_mass
+        # try the species metallicity
+        if metal_source == 'best' or metal_source == "species_metallicity":
+            species_metallicity_field = "%s_metallicity" % atom
+            if (ftype, species_metallicity_field) in data.ds.field_info \
+                    or metal_source == "species_metallicity":
+                return data[ftype, species_metallicity_field]*data[ftype, 'density']/atom_mass
+        # try regular metallicity
+        if metal_source == 'best' or metal_source == "metallicity":
+            if (ftype, "metallicity") in data.ds.field_info \
+                    or metal_source == "metallicity":
+                return data[ftype, "metallicity"]*\
+                        data[ftype, 'density']*data.ds.quan(solar_abundance[atom],'1/Zsun')*to_nH
+        # you've required something besides regular metallicity
+        # custom_function is how you explain it
+        if metal_source == 'custom':
+            assert custom_metal_function is not None, f'field {field} requires a custom function for atomic '\
+                                        'abundance. metal_source = custom but no custom_metal_function specified'
+            return custom_metal_function(field,data)
+        assert 0, f'field {field} could not be generated by any path. '\
+                    f'require_fname = {require_fname},require_type = {require_type}'
+        
+    return _metal_processing
+    
+def create_H_number_density_function(ftype,
+                                     H_source,
+                                     custom_H_function):
+    
+    def _H_processing(field,data):
+        #returns hydrogen density in units of number density
+        #uses best (most specific) data available, unless forced otherwise
+        atom = 'H'
+        atom_mass = atomic_mass[atom]*mh
+        # try the atom-specific density field first
+        if H_source == 'best' or H_source == "nuclei_density":
+            if (ftype,  "nuclei_density") in data.ds.field_info\
+                    or H_source == "nuclei_density":
+                return data[ftype, "H_nuclei_density"]
+        # try the atom-specific mass field
+        if H_source == 'best' or H_source == "nuclei_mass":
+            effective_volume = data[ftype, 'mass']/data[ftype, 'density']
+            if (ftype, "H_nuclei_mass") in data.ds.field_info\
+                    or H_source == "nuclei_mass":
+                return data[ftype, "H_nuclei_mass"]/effective_volume/atom_mass
+        if H_source == 'best' or H_source == "density":
+            if (ftype, 'density') in data.ds.field_info\
+                    or H_source == "density":
+                return data[ftype, 'density']*to_nH
+        # you've required something besides regular metallicity
+        # custom_function is how you explain it
+        if H_source == 'custom':
+            assert custom_H_function is not None, f'field {field} requires a custom function for atomic '\
+                                        'abundance. H_source = custom but no custom_H_function specified'
+            return custom_H_function(field,data)
+        assert 0, f'field {field} could not be generated by any path. '\
+                    f'require_fname = {require_fname},require_type = {require_type}'           
+    
+    return _H_processing
+    
+def create_He_number_density_function(ftype,
+                                     He_source,
+                                     custom_He_function):
+    
+    def _He_processing(field,data):
+        #returns hydrogen density in units of number density
+        #uses best (most specific) data available, unless forced otherwise
+        atom = 'He'
+        atom_mass = atomic_mass[atom]*mh
+        # try the atom-specific density field first
+        if He_source == 'best' or He_source == "nuclei_density":
+            if (ftype, "He_nuclei_density") in data.ds.field_info\
+                    or He_source == "nuclei_density":
+                return data[ftype, "He_nuclei_density"]
+        # try the atom-specific mass field
+        if He_source == 'best' or He_source == "nuclei_mass":
+            effective_volume = data[ftype, 'mass']/data[ftype, 'density']
+            if (ftype, "He_nuclei_mass") in data.ds.field_info\
+                    or He_source == "nuclei_mass":
+                return data[ftype, "He_nuclei_mass"]/effective_volume/atom_mass
+        if He_source == 'best' or He_source == "hydrogen":
+            if (ftype, "H_nuclei_mass") in data.ds.field_info\
+                    or He_source == "hydrogen":
+                return data[ftype, 'density']*to_nH*solar_abundance['He']
+        # you've required something besides regular metallicity
+        # custom_function is how you explain it
+        if He_source == 'custom':
+            assert custom_He_function is not None, f'field {field} requires a custom function for atomic '\
+                                        'abundance. He_source = custom but no custom_He_function specified'
+            return custom_He_function(field,data)
+        assert 0, f'field {field} could not be generated by any path. '\
+                    f'require_fname = {require_fname},require_type = {require_type}'           
+    
+    return _He_processing
+
 solar_abundance = {
     'H' : 1.00e+00, 'He': 1.00e-01, 'Li': 2.04e-09,
     'Be': 2.63e-11, 'B' : 6.17e-10, 'C' : 2.45e-04,
@@ -876,6 +999,7 @@ solar_abundance = {
     'Mn': 2.88e-07, 'Fe': 2.82e-05, 'Co': 8.32e-08,
     'Ni': 1.78e-06, 'Cu': 1.62e-08, 'Zn': 3.98e-08}
 
+# Taken from Cloudy documentation.
 atomic_mass = {
     'H' : 1.00794,   'He': 4.002602,  'Li': 6.941,
     'Be': 9.012182,  'B' : 10.811,    'C' : 12.0107,
