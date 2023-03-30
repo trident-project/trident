@@ -352,7 +352,7 @@ def _complex_fit(x, yDat, yFit, initz, minSize, errBound, speciesDict, maxNumCom
                 break
 
         #If too many lines
-        if np.shape(linesP)[0]>maxNumComps or np.size(linesP)+3>=len(x):
+        if np.shape(linesP)[0]>maxNumComps or np.size(linesP)*3>=len(x):
             #If its fitable by flag tools and still bad, use flag tools
             if errSq >1E2*errBound and speciesDict['name']=='HI lya':
                 return [],True
