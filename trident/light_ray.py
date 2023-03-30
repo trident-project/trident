@@ -568,8 +568,8 @@ class LightRay(CosmologySplice):
                     segment_length = my_segment["traversal_box_fraction"] * \
                       ds.domain_width[0].in_units("Mpccm / h")
                 next_redshift = my_segment["redshift"] - \
-                  self._deltaz_forward(my_segment["redshift"],
-                                       segment_length)
+                        self._deltaz_forward(my_segment["redshift"],
+                                                    segment_length)
             elif my_segment.get("next", None) is None:
                 next_redshift = self.near_redshift
             else:
@@ -683,10 +683,14 @@ class LightRay(CosmologySplice):
                   (my_segment['redshift'] - next_redshift)
             elif redshift_align == 'center':
                 sub_data['redshift'] = my_segment['redshift'] - \
-                  ((sub_data['l']-ray_length/2) / (ray_length/2)) * \
+                  ((sub_data['l']-ray_length/2) / ray_length) * \
                   (my_segment['redshift'] - next_redshift)
             elif redshift_align == 'everywhere':
-                sub_data['redshift'] = my_segment['redshift']
+                sub_data['redshift'] = np.ones(sub_data['l'].shape)*my_segment['redshift']
+            else:
+                mylog.warning('redshift_align not recognized. Using z = z_start for full length')
+                sub_data['redshift'] = np.ones(sub_data['l'].shape)*my_segment['redshift']
+
             # When using the peculiar velocity, create effective redshift
             # (redshift_eff) field combining cosmological redshift and
             # doppler redshift.
