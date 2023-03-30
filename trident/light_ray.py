@@ -311,11 +311,11 @@ class LightRay(CosmologySplice):
     def make_light_ray(self, seed=None, periodic=True,
                        left_edge=None, right_edge=None, min_level=None,
                        start_position=None, end_position=None,
-                       trajectory=None,
-                       fields=None, setup_function=None,
+                       trajectory=None,fields=None, setup_function=None,
                        solution_filename=None, data_filename=None,
                        get_los_velocity=None, use_peculiar_velocity=True,
-                       redshift=None, field_parameters=None, njobs=-1):
+                       redshift=None, field_parameters=None,
+                       redshift_align = 'start',njobs=-1):
         """
         Actually generate the LightRay by traversing the desired dataset.
 
@@ -517,13 +517,14 @@ class LightRay(CosmologySplice):
         self._data = {}
         # temperature field is automatically added to fields
         if fields is None: fields = []
-        if ('gas', 'temperature') not in fields:
-           fields.append(('gas', 'temperature'))
+        if (('gas', 'temperature') not in fields) and \
+           ('temperature' not in fields):
+            fields.append(('gas', 'temperature'))
         data_fields = fields[:]
         all_fields = fields[:]
         all_fields.extend(['l', 'dl', 'redshift'])
-        all_fields.extend(['x', 'y', 'z'])
-        data_fields.extend(['x', 'y', 'z'])
+        all_fields.extend([('gas','x'),('gas','y'),('gas','z')])
+        data_fields.extend([('gas','x'),('gas','y'),('gas','z')])
         if use_peculiar_velocity:
             all_fields.extend(['relative_velocity_x', 'relative_velocity_y',
                                'relative_velocity_z',
@@ -676,10 +677,16 @@ class LightRay(CosmologySplice):
 
             # Get redshift for each lixel.  Assume linear relation between l
             # and z.  so z = z_start - z_range * (l / l_range)
-            sub_data[('gas', 'redshift')] = my_segment['redshift'] - \
-              (sub_data[('gas', 'l')] / ray_length) * \
-              (my_segment['redshift'] - next_redshift)
-
+            if redshift_align == 'start':
+                sub_data['redshift'] = my_segment['redshift'] - \
+                  (sub_data['l'] / ray_length) * \
+                  (my_segment['redshift'] - next_redshift)
+            elif redshift_align == 'center':
+                sub_data['redshift'] = my_segment['redshift'] - \
+                  ((sub_data['l']-ray_length/2) / (ray_length/2)) * \
+                  (my_segment['redshift'] - next_redshift)
+            elif redshift_align == 'everywhere':
+                sub_data['redshift'] = my_segment['redshift']
             # When using the peculiar velocity, create effective redshift
             # (redshift_eff) field combining cosmological redshift and
             # doppler redshift.
