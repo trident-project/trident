@@ -256,7 +256,7 @@ def _complex_fit(x, yDat, yFit, initz, minSize, errBound, speciesDict, maxNumCom
     
     :maxNumComps: int
 
-        maximum number of voight profiles to fit at once. If the loop is
+        maximum number of voigt profiles to fit at once. If the loop is
         still going after reaching maxNumComps, end the loop and return what
         is done.
     
