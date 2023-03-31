@@ -311,7 +311,7 @@ class LightRay(CosmologySplice):
     def make_light_ray(self, seed=None, periodic=True,
                        left_edge=None, right_edge=None, min_level=None,
                        start_position=None, end_position=None,
-                       trajectory=None,fields=None, setup_function=None,
+                       trajectory=None, fields=None, setup_function=None,
                        solution_filename=None, data_filename=None,
                        get_los_velocity=None, use_peculiar_velocity=True,
                        redshift=None, redshift_align=None,
@@ -583,8 +583,8 @@ class LightRay(CosmologySplice):
                     segment_length = my_segment["traversal_box_fraction"] * \
                       ds.domain_width[0].in_units("Mpccm / h")
                 next_redshift = my_segment["redshift"] - \
-                        self._deltaz_forward(my_segment["redshift"],
-                                                    segment_length)
+                    self._deltaz_forward(my_segment["redshift"],
+                                                segment_length)
             elif my_segment.get("next", None) is None:
                 next_redshift = self.near_redshift
             else:
@@ -691,7 +691,10 @@ class LightRay(CosmologySplice):
                 sub_data[key] = ds.arr(sub_data[key]).in_cgs()
 
             # Get redshift for each lixel.  Assume linear relation between l
-            # and z.  so z = z_start - z_range * (l / l_range)
+            # and z, depending on where they should be "aligned".
+            # 'start':      z = z_dataset - z_range * (l / l_range)
+            # 'center':     z = z_dataset - z_range * ((l - l_range/2) / l_range)
+            # 'everywhere': z = z_dataset
             if redshift_align == 'start':
                 sub_data[('gas','redshift')] = my_segment['redshift'] - \
                   (sub_data[('gas','l')] / ray_length) * \
@@ -704,7 +707,8 @@ class LightRay(CosmologySplice):
                 sub_data[('gas','redshift')] = np.ones(sub_data[('gas','l')].shape)*\
                   my_segment['redshift']
             else:
-                mylog.warning('redshift_align not recognized. Using z = z_start for full length')
+                mylog.warning(f'redshift_align {redshift_aligh} not recognized. '+\
+                              'Using z = z_start for full length')
                 sub_data[('gas','redshift')] = np.ones(sub_data[('gas','l')].shape)*\
                   my_segment['redshift']
 
