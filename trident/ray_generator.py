@@ -30,7 +30,8 @@ from trident.ion_balance import \
 def make_simple_ray(dataset_file, start_position, end_position,
                     lines=None, ftype="gas", fields=None,
                     solution_filename=None, data_filename=None,
-                    trajectory=None, redshift=None, field_parameters=None,
+                    trajectory=None, redshift=None,
+                    redshift_align='start', field_parameters=None,
                     setup_function=None, load_kwargs=None,
                     line_database=None, ionization_table=None):
     """
@@ -124,10 +125,19 @@ def make_simple_ray(dataset_file, start_position, end_position,
 
     :redshift: float, optional
 
-        Sets the highest cosmological redshift of the ray.  By default, it will
+        Sets the base cosmological redshift of the ray.  By default, it will
         use the cosmological redshift of the dataset, if set, and if not set,
         it will use a redshift of 0.
         Default: None
+        
+    :redshift_align: optional, str
+
+        Sets the location where the cosmological redshift "aligns" with the base
+        cosmological redshift. Default is the start of the ray, other options are 
+        'center', so the start will be higher redshift and the end will be lower,
+        and 'everywhere', so the full length will be at the base cosmological 
+        redshift
+        Default: 'start'
 
     :field_parameters: optional, dict
         Used to set field parameters in light rays. For example,
@@ -231,7 +241,8 @@ def make_simple_ray(dataset_file, start_position, end_position,
                              solution_filename=solution_filename,
                              data_filename=data_filename,
                              field_parameters=field_parameters,
-                             redshift=redshift)
+                             redshift=redshift,
+                             redshift_align=redshift_align)
 
 def make_compound_ray(parameter_filename, simulation_type,
                       near_redshift, far_redshift,

@@ -314,8 +314,8 @@ class LightRay(CosmologySplice):
                        trajectory=None,fields=None, setup_function=None,
                        solution_filename=None, data_filename=None,
                        get_los_velocity=None, use_peculiar_velocity=True,
-                       redshift=None, field_parameters=None,
-                       redshift_align = 'start',njobs=-1):
+                       redshift=None, redshift_align=None,
+                       field_parameters=None, njobs=-1):
         """
         Actually generate the LightRay by traversing the desired dataset.
 
@@ -419,7 +419,19 @@ class LightRay(CosmologySplice):
             redshift will be 0 for a non-cosmological dataset and
             the dataset redshift for a cosmological dataset.
             Default: None.
-
+            
+        :redshift_align: optional, str
+        
+            Used with light rays with single datasets to specify where the 
+            redshift is "equal" to the redshift of the dataset, or "redshift"
+            if that was specified. If "start" or None, the line start will be 
+            at this redshift and the line end will be at a lower redshift. 
+            Other options are "center", so the line start will be greater than 
+            this redshift, the line end will be less, and they will align at the
+            midpoint, and "everywhere", so the line will be at this redshift
+            throughout.
+            Default: None.
+            
         :field_parameters: optional, dict
             Used to set field parameters in light rays. For example,
             if the 'bulk_velocity' field parameter is set, the relative
@@ -553,7 +565,10 @@ class LightRay(CosmologySplice):
                     mylog.warning("Generating light ray with different redshift than " +
                                   "the dataset itself.")
                 my_segment["redshift"] = redshift
-
+                
+            if redshift_align is None:
+                redshift_align = 'start'
+                
             if setup_function is not None:
                 setup_function(ds)
 
@@ -678,18 +693,20 @@ class LightRay(CosmologySplice):
             # Get redshift for each lixel.  Assume linear relation between l
             # and z.  so z = z_start - z_range * (l / l_range)
             if redshift_align == 'start':
-                sub_data['redshift'] = my_segment['redshift'] - \
-                  (sub_data['l'] / ray_length) * \
+                sub_data[('gas','redshift')] = my_segment['redshift'] - \
+                  (sub_data[('gas','l')] / ray_length) * \
                   (my_segment['redshift'] - next_redshift)
             elif redshift_align == 'center':
-                sub_data['redshift'] = my_segment['redshift'] - \
-                  ((sub_data['l']-ray_length/2) / ray_length) * \
+                sub_data[('gas','redshift')] = my_segment['redshift'] - \
+                  ((sub_data[('gas','l')]-ray_length/2) / ray_length) * \
                   (my_segment['redshift'] - next_redshift)
             elif redshift_align == 'everywhere':
-                sub_data['redshift'] = np.ones(sub_data['l'].shape)*my_segment['redshift']
+                sub_data[('gas','redshift')] = np.ones(sub_data[('gas','l')].shape)*\
+                  my_segment['redshift']
             else:
                 mylog.warning('redshift_align not recognized. Using z = z_start for full length')
-                sub_data['redshift'] = np.ones(sub_data['l'].shape)*my_segment['redshift']
+                sub_data[('gas','redshift')] = np.ones(sub_data[('gas','l')].shape)*\
+                  my_segment['redshift']
 
             # When using the peculiar velocity, create effective redshift
             # (redshift_eff) field combining cosmological redshift and
