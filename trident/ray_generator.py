@@ -133,9 +133,9 @@ def make_simple_ray(dataset_file, start_position, end_position,
     :redshift_align: optional, str
 
         Sets the location where the cosmological redshift "aligns" with the base
-        cosmological redshift. Default is the start of the ray, other options are 
+        cosmological redshift. Default is the start of the ray, other options are
         'center', so the start will be higher redshift and the end will be lower,
-        and 'everywhere', so the full length will be at the base cosmological 
+        and 'everywhere', so the full length will be at the base cosmological
         redshift
         Default: 'start'
 

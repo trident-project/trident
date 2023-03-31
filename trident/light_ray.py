@@ -422,11 +422,11 @@ class LightRay(CosmologySplice):
             
         :redshift_align: optional, str
         
-            Used with light rays with single datasets to specify where the 
+            Used with light rays with single datasets to specify where the
             redshift is "equal" to the redshift of the dataset, or "redshift"
-            if that was specified. If "start" or None, the line start will be 
-            at this redshift and the line end will be at a lower redshift. 
-            Other options are "center", so the line start will be greater than 
+            if that was specified. If "start" or None, the line start will be
+            at this redshift and the line end will be at a lower redshift.
+            Other options are "center", so the line start will be greater than
             this redshift, the line end will be less, and they will align at the
             midpoint, and "everywhere", so the line will be at this redshift
             throughout.
