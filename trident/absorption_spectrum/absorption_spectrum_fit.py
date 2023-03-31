@@ -84,7 +84,7 @@ def generate_total_fit(x, fluxData, orderFits, speciesDicts,
     
     :maxNumComps: int, optional
 
-        maximum number of voight profiles to fit at once. Default is 8 total components.
+        maximum number of voigt profiles to fit at once. Default is 8 total components.
     
     :output_file: string, optional
 
