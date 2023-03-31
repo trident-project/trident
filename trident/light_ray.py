@@ -707,7 +707,7 @@ class LightRay(CosmologySplice):
                 sub_data[('gas','redshift')] = np.ones(sub_data[('gas','l')].shape)*\
                   my_segment['redshift']
             else:
-                mylog.warning(f'redshift_align {redshift_aligh} not recognized. '+\
+                mylog.warning(f'redshift_align {redshift_align} not recognized. '+\
                               'Using z = z_start for full length')
                 sub_data[('gas','redshift')] = np.ones(sub_data[('gas','l')].shape)*\
                   my_segment['redshift']
