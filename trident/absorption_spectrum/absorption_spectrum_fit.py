@@ -16,6 +16,7 @@ def generate_total_fit(x, fluxData, orderFits, speciesDicts,
         minError=1E-4, complexLim=.995,
         fitLim=.97, minLength=3,
         maxLength=1000, splitLim=.99,
+        maxNumComps=8,
         output_file=None):
 
     """
@@ -80,7 +81,11 @@ def generate_total_fit(x, fluxData, orderFits, speciesDicts,
         if attempting to split a region for being larger than maxlength
         the point of the split must have a flux greater than splitLim
         (ie: absorption greater than splitLim). Default= .99.
+    
+    :maxNumComps: int, optional
 
+        maximum number of voigt profiles to fit at once. Default is 8 total components.
+    
     :output_file: string, optional
 
         location to save the results of the fit.
@@ -157,7 +162,7 @@ def generate_total_fit(x, fluxData, orderFits, speciesDicts,
 
             #Fit Using complex tools
             newLinesP,flag=_complex_fit(xBounded,yDatBounded,yFitBounded,
-                    z,fitLim,minError,speciesDict)
+                    z,fitLim,minError,speciesDict,maxNumComps)
 
             #If flagged as a bad fit, species is lyman alpha,
             #   and it may be a saturated line, use special tools
@@ -200,7 +205,7 @@ def generate_total_fit(x, fluxData, orderFits, speciesDicts,
 
     return (allSpeciesLines,yFit)
 
-def _complex_fit(x, yDat, yFit, initz, minSize, errBound, speciesDict,
+def _complex_fit(x, yDat, yFit, initz, minSize, errBound, speciesDict, maxNumComps,
         initP=None):
     """
     Fit an absorption complex by iteratively adding and optimizing
@@ -248,7 +253,13 @@ def _complex_fit(x, yDat, yFit, initz, minSize, errBound, speciesDict,
         dictionary containing all relevant parameters needed
         to create an absorption line of a given species (f,Gamma,lambda0)
         as well as max and min values for parameters to be fit
+    
+    :maxNumComps: int
 
+        maximum number of voigt profiles to fit at once. If the loop is
+        still going after reaching maxNumComps, end the loop and return what
+        is done.
+    
     :initP: (,3,) ndarray
 
         initial guess to try for line parameters to fit the region. Used
@@ -341,7 +352,7 @@ def _complex_fit(x, yDat, yFit, initz, minSize, errBound, speciesDict,
                 break
 
         #If too many lines
-        if np.shape(linesP)[0]>8 or np.size(linesP)+3>=len(x):
+        if np.shape(linesP)[0]>maxNumComps or np.size(linesP)*3>=len(x):
             #If its fitable by flag tools and still bad, use flag tools
             if errSq >1E2*errBound and speciesDict['name']=='HI lya':
                 return [],True
