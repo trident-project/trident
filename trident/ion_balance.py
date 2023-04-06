@@ -135,8 +135,8 @@ def add_ion_fields(ds, ions, ftype='gas',
                    line_database=None,
                    sampling_type='local',
                    particle_type=None,
-                   metal_source = 'best',
-                   custom_metal_function = None):
+                   metal_source='best',
+                   custom_metal_function=None):
     """
     Preferred method for adding ion fields to a yt dataset.
 
@@ -309,8 +309,8 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
                            field_suffix=False,
                            sampling_type='local',
                            particle_type=None,
-                           metal_source = 'best',
-                           custom_metal_function = None):
+                           metal_source='best',
+                           custom_metal_function=None):
     """
     Add ion fraction field to a yt dataset for the desired ion.
 
@@ -429,8 +429,8 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
                                  field_suffix=False,
                                  sampling_type='local',
                                  particle_type=None,
-                                 metal_source = 'best',
-                                 custom_metal_function = None):
+                                 metal_source='best',
+                                 custom_metal_function=None):
     """
     Add ion number density field to a yt dataset for the desired ion.
 
@@ -538,8 +538,8 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
                                  field_suffix=field_suffix,
                                  sampling_type=sampling_type,
                                  particle_type=particle_type,
-                                 metal_source = metal_source,
-                                 custom_metal_function = custom_metal_function)
+                                 metal_source=metal_source,
+                                 custom_metal_function=custom_metal_function)
     
     _ion_number_density = _ion_number_density_wrapper(atom, ftype, ds, 
                                                       metal_source,
@@ -552,8 +552,8 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
                           field_suffix=False,
                           sampling_type='local',
                           particle_type=None,
-                          metal_source = 'best',
-                          custom_metal_function = None):
+                          metal_source='best',
+                          custom_metal_function=None):
     """
     Add ion mass density field to a yt dataset for the desired ion.
 
@@ -652,8 +652,8 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
                                  field_suffix=field_suffix,
                                  sampling_type=sampling_type,
                                  particle_type=particle_type,
-                                 metal_source = metal_source,
-                                 custom_metal_function = custom_metal_function)
+                                 metal_source=metal_source,
+                                 custom_metal_function=custom_metal_function)
 
     _add_field(ds, ("gas", field), function=_ion_density,
                units="g/cm**3", sampling_type=sampling_type)
@@ -663,8 +663,8 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
                        field_suffix=False,
                        sampling_type='local',
                        particle_type=None,
-                       metal_source = 'best',
-                       custom_metal_function = None):
+                       metal_source='best',
+                       custom_metal_function=None):
     """
     Add ion mass field to a yt dataset for the desired ion.
 
@@ -764,8 +764,8 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
                                  field_suffix=field_suffix,
                                  sampling_type=sampling_type,
                                  particle_type=particle_type,
-                                 metal_source = metal_source,
-                                 custom_metal_function = custom_metal_function)
+                                 metal_source=metal_source,
+                                 custom_metal_function=custom_metal_function)
 
     _add_field(ds, ("gas", field), function=_ion_mass, units=r"g",
                sampling_type=sampling_type)
@@ -814,6 +814,9 @@ def _determine_best_metal_source(atom, ftype, ds):
     what field to use.
     """
     if atom == 'H' or atom == 'He':
+        #note: if there is some important use case for getting
+        #a source for H and He, that could be added without too
+        #much difficulty
         return None
     if (ftype, "%s_nuclei_mass_density" % atom) in ds.derived_field_list:
         to_return = "nuclei_mass_density"
