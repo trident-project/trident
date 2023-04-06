@@ -134,7 +134,9 @@ def add_ion_fields(ds, ions, ftype='gas',
                    field_suffix=False,
                    line_database=None,
                    sampling_type='local',
-                   particle_type=None):
+                   particle_type=None,
+                   metal_source = 'best',
+                   custom_metal_function = None):
     """
     Preferred method for adding ion fields to a yt dataset.
 
@@ -224,6 +226,25 @@ def add_ion_fields(ds, ions, ftype='gas',
 
         This is deprecated and no longer necessary.
         Default: 'auto'
+        
+    :metal_source: string, optional
+    
+        Specifies what source to use for metal nucleus
+        abundances. Options are 'best', 'nuclei_mass_density',
+        'nuclei_density', 'species_metallicity', 'metallicity',
+        or 'custom'. 'best' finds most specific source available,
+        all others besides 'custom' require that source, and throw
+        FieldNotFound error if missing. 'custom' requires a
+        custom_metal_function to be specified instead.
+        Default: 'best'
+        
+    :custom_metal_function: func, optional
+    
+        if 'metal_source' is 'custom', this function will be used to
+        determine metal abundances. Args are 'field' and 'data', like
+        other function definitions (what ion is being created should be
+        accessed from 'field').
+        Default: None
 
     **Example**
 
@@ -269,19 +290,27 @@ def add_ion_fields(ds, ions, ftype='gas',
     # make sure ion list is unique
     ion_list = uniquify(ion_list)
 
-    # adding X_p#_ion_mass field triggers the addition of:
-    # - X_P#_ion_fraction
-    # - X_P#_number_density
-    # - X_P#_density
     for (atom, ion) in ion_list:
+        add_ion_fraction_field(atom, ion, ds, ftype, ionization_table,
+            field_suffix=field_suffix, sampling_type=sampling_type,
+            metal_source=metal_source, custom_metal_function=custom_metal_function)
+        add_ion_number_density_field(atom, ion, ds, ftype, ionization_table,
+            field_suffix=field_suffix, sampling_type=sampling_type,
+            metal_source=metal_source, custom_metal_function=custom_metal_function)
+        add_ion_density_field(atom, ion, ds, ftype, ionization_table,
+            field_suffix=field_suffix, sampling_type=sampling_type,
+            metal_source=metal_source, custom_metal_function=custom_metal_function)
         add_ion_mass_field(atom, ion, ds, ftype, ionization_table,
-            field_suffix=field_suffix, sampling_type=sampling_type)
+            field_suffix=field_suffix, sampling_type=sampling_type,
+            metal_source=metal_source, custom_metal_function=custom_metal_function)
 
 def add_ion_fraction_field(atom, ion, ds, ftype="gas",
                            ionization_table=None,
                            field_suffix=False,
                            sampling_type='local',
-                           particle_type=None):
+                           particle_type=None,
+                           metal_source = 'best',
+                           custom_metal_function = None):
     """
     Add ion fraction field to a yt dataset for the desired ion.
 
@@ -335,6 +364,16 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
 
         This is deprecated and no longer necessary.
         Default: 'auto'
+        
+    :metal_source: string, optional
+    
+        In this function, this is deprecated and just used 
+        for symmetry with the other calls.
+        
+    :custom_metal_function: func, optional
+    
+        In this function, this is deprecated and just used 
+        for symmetry with the other calls.
 
     **Example**
 
@@ -389,7 +428,9 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
                                  ionization_table=None,
                                  field_suffix=False,
                                  sampling_type='local',
-                                 particle_type=None):
+                                 particle_type=None,
+                                 metal_source = 'best',
+                                 custom_metal_function = None):
     """
     Add ion number density field to a yt dataset for the desired ion.
 
@@ -449,6 +490,25 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
         This is deprecated and no longer necessary.
         Default: 'auto'
 
+    :metal_source: string, optional
+    
+        Specifies what source to use for metal nucleus
+        abundances. Options are 'best', 'nuclei_mass_density',
+        'nuclei_density', 'species_metallicity', 'metallicity',
+        or 'custom'. 'best' finds most specific source available,
+        all others besides 'custom' require that source, and throw
+        FieldNotFound error if missing. 'custom' requires a
+        custom_metal_function to be specified instead.
+        Default: 'best'
+        
+    :custom_metal_function: func, optional
+    
+        if 'metal_source' is 'custom', this function will be used to
+        determine metal abundances. Args are 'field' and 'data', like
+        other function definitions (what ion is being created should be
+        accessed from 'field').
+        Default: None
+
     **Example**
 
     Add C IV (triply-ionized carbon) number density field to dataset
@@ -465,14 +525,25 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
     atom = atom.capitalize()
 
     field = "%s_p%d_number_density" % (atom, ion-1)
+    fraction_field = "%s_p%d_ion_fraction" % (atom, ion-1)
 
     if field_suffix:
         field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
+        fraction_field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
 
-    add_ion_fraction_field(atom, ion, ds, ftype, ionization_table,
-                           field_suffix=field_suffix,
-                           sampling_type=sampling_type)
-
+    if (ftype,fraction_field) not in ds.derived_field_list:
+        mylog.info("fraction field %s not in dataset. Adding now."%fraction_field)
+        add_ion_fraction_field(atom, ion, ds, ftype=ftype,
+                                 ionization_table=ionization_table,
+                                 field_suffix=field_suffix,
+                                 sampling_type=sampling_type,
+                                 particle_type=particle_type,
+                                 metal_source = metal_source,
+                                 custom_metal_function = custom_metal_function)
+    
+    _ion_number_density = _ion_number_density_wrapper(atom, ftype, ds, 
+                                                      metal_source,
+                                                      custom_metal_function)
     _add_field(ds, ("gas", field),function=_ion_number_density,
                units="cm**-3", sampling_type=sampling_type)
 
@@ -480,7 +551,9 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
                           ionization_table=None,
                           field_suffix=False,
                           sampling_type='local',
-                          particle_type=None):
+                          particle_type=None,
+                          metal_source = 'best',
+                          custom_metal_function = None):
     """
     Add ion mass density field to a yt dataset for the desired ion.
 
@@ -539,6 +612,16 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
 
         This is deprecated and no longer necessary.
         Default: 'auto'
+        
+    :metal_source: string, optional
+    
+        This is passed on to "add_ion_number_density" if that is called
+        (which happens if the number density field doesn't already exist)
+        
+    :custom_metal_function: func, optional
+    
+        This is passed on to "add_ion_number_density" if that is called
+        (which happens if the number density field doesn't already exist)
 
     **Example**
 
@@ -556,12 +639,21 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
     atom = atom.capitalize()
 
     field = "%s_p%d_density" % (atom, ion-1)
-
+    number_density_field = "%s_p%d_number_density" % (atom, ion-1)
+    
     if field_suffix:
         field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
-
-    add_ion_number_density_field(atom, ion, ds, ftype, ionization_table,
-                                 sampling_type=sampling_type)
+        number_density_field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
+        
+    if (ftype,number_density_field) not in ds.derived_field_list:
+        mylog.info("number density field %s not in dataset. Adding now."%number_density_field)
+        add_ion_number_density_field(atom, ion, ds, ftype=ftype,
+                                 ionization_table=ionization_table,
+                                 field_suffix=field_suffix,
+                                 sampling_type=sampling_type,
+                                 particle_type=particle_type,
+                                 metal_source = metal_source,
+                                 custom_metal_function = custom_metal_function)
 
     _add_field(ds, ("gas", field), function=_ion_density,
                units="g/cm**3", sampling_type=sampling_type)
@@ -570,7 +662,9 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
                        ionization_table=None,
                        field_suffix=False,
                        sampling_type='local',
-                       particle_type=None):
+                       particle_type=None,
+                       metal_source = 'best',
+                       custom_metal_function = None):
     """
     Add ion mass field to a yt dataset for the desired ion.
 
@@ -630,6 +724,16 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
 
         This is deprecated and no longer necessary.
         Default: 'auto'
+    
+    :metal_source: string, optional
+    
+        This is passed on to "add_ion_density" if that is called
+        (which happens if the density field doesn't already exist)
+        
+    :custom_metal_function: func, optional
+    
+        This is passed on to "add_ion_density" if that is called
+        (which happens if the density field doesn't already exist)
 
     **Example**
 
@@ -647,13 +751,21 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
     atom = atom.capitalize()
 
     field = "%s_p%s_mass" % (atom, ion-1)
-
+    density_field = "%s_p%s_density" % (atom, ion-1)
+    
     if field_suffix:
         field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
-
-    add_ion_density_field(atom, ion, ds, ftype, ionization_table,
-                          field_suffix=field_suffix,
-                          sampling_type=sampling_type)
+        density_field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
+           
+    if (ftype,density_field) not in ds.derived_field_list:
+        mylog.info("density field %s not in dataset. Adding now."%density_field)
+        add_ion_density_field(atom, ion, ds, ftype=ftype,
+                                 ionization_table=ionization_table,
+                                 field_suffix=field_suffix,
+                                 sampling_type=sampling_type,
+                                 particle_type=particle_type,
+                                 metal_source = metal_source,
+                                 custom_metal_function = custom_metal_function)
 
     _add_field(ds, ("gas", field), function=_ion_mass, units=r"g",
                sampling_type=sampling_type)
@@ -661,7 +773,7 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
 def _ion_mass(field, data):
     """
     Creates the function for a derived field for following the mass
-    of an ion over a dataset given that the specified ion's ion_fraction field
+    of an ion over a dataset given that the specified ion's ion_density field
     exists in the dataset.
     """
     if isinstance(field.name, tuple):
@@ -673,34 +785,8 @@ def _ion_mass(field, data):
     atom = field_name.split("_")[0]
     prefix = field_name.split("_mass")[0]
     suffix = field_name.split("_mass")[-1]
-    fraction_field_name = "%s_ion_fraction%s" % (prefix, suffix)
-
-    # try the atom-specific density field first
-    nuclei_field = "%s_nuclei_mass" % atom
-    if (ftype, nuclei_field) in data.ds.field_info:
-        return data[ftype,fraction_field_name] * \
-          data[ftype, nuclei_field]
-
-    # try the species metallicity
-    metallicity_field = "%s_metallicity" % atom
-    if (ftype, metallicity_field) in data.ds.field_info:
-        return data[ftype,fraction_field_name] * \
-          data[ftype, "mass"] * \
-          data[ftype, metallicity_field]
-
-    if atom == 'H' or atom == 'He':
-        mass_fraction = solar_abundance[atom] * data[ftype,fraction_field_name]
-    else:
-        mass_fraction = data.ds.quan(solar_abundance[atom], "1.0/Zsun") * \
-          data[ftype, fraction_field_name] * \
-          data[ftype, "metallicity"]
-    # convert to total mass
-    # use the on disk hydrogen mass if possible
-    if (ftype, "H_nuclei_mass") in data.ds.derived_field_list:
-        mass = mass_fraction * data[ftype, "H_nuclei_mass"]
-    else:
-        mass = mass_fraction * data[ftype, "mass"] * H_mass_fraction
-    return mass
+    effective_volume = data[ftype,'mass']/data[ftype,'density']
+    return data[ftype,'%s_density%s'%(prefix,suffix)]*effective_volume
 
 def _ion_density(field, data):
     """
@@ -721,50 +807,87 @@ def _ion_density(field, data):
     # the "mh" makes sure that the units work out
     return atomic_mass[atom] * data[ftype, number_density_field_name] * mh
 
-def _ion_number_density(field, data):
+def _determine_best_metal_source(atom, ftype, ds):
     """
-    Creates the function for a derived field for following the number_density
-    of an ion over a dataset given that the specified ion's ion_fraction field
-    exists in the dataset.
+    Decide on the most specific metal information available for 
+    a particular atom. Returns a string which tells _ion_number_density
+    what field to use.
     """
-    if isinstance(field.name, tuple):
-        ftype = field.name[0]
-        field_name = field.name[1]
-    else:
-        ftype = "gas"
-        field_name = field.name
-    atom = field_name.split("_")[0]
-    prefix = field_name.split("_number_density")[0]
-    suffix = field_name.split("_number_density")[-1]
-    fraction_field_name = "%s_ion_fraction%s" % (prefix, suffix)
-
-    # try the atom-specific density field first
-    nuclei_field = "%s_nuclei_mass_density" % atom
-    if (ftype, nuclei_field) in data.ds.field_info:
-        return data[ftype, fraction_field_name] * \
-          data[(ftype, nuclei_field)] / (atomic_mass[atom] * mh)
-
-    # try the species metallicity
-    metallicity_field = "%s_metallicity" % atom
-    if (ftype, metallicity_field) in data.ds.field_info:
-        return data[ftype, fraction_field_name] * \
-          data[ftype, "density"] * \
-          data[ftype, metallicity_field] / \
-          atomic_mass[atom] / mh
-
     if atom == 'H' or atom == 'He':
-        number_density = solar_abundance[atom] * data[ftype, fraction_field_name]
+        return None
+    if (ftype, "%s_nuclei_mass_density" % atom) in ds.derived_field_list:
+        to_return = "nuclei_mass_density"
+    elif (ftype, "%s_nuclei_density" % atom) in ds.derived_field_list:
+        to_return = "nuclei_density"
+    elif (ftype, "%s_metallicity" % atom) in ds.derived_field_list:
+        to_return = "species_metallicity"
     else:
-        number_density = data.ds.quan(solar_abundance[atom], "1.0/Zsun") * \
-          data[ftype, fraction_field_name] * \
-          data[ftype, "metallicity"]
-    # convert to number density
-    # use the on disk hydrogen number density if possible
-    if (ftype, "H_nuclei_density") in data.ds.derived_field_list:
-        number_density = number_density * data[ftype, "H_nuclei_density"]
-    else:
-        number_density = number_density * data[ftype, "density"] * to_nH
-    return number_density
+        assert (ftype, "metallicity") in ds.derived_field_list, \
+                    "No usable metal source found in dataset."
+        to_return = "metallicity"
+    mylog.info("using %s as 'best' metal source"%to_return)
+    return to_return
+
+def _ion_number_density_wrapper(atom, ftype, ds, metal_source, custom_metal_function):
+    """
+    This wrapper exists so that ion_number_density can know what
+    metal_source to use inside its local scope when it runs.
+    """
+    if metal_source == 'best':
+        metal_source = _determine_best_metal_source(atom, ftype, ds)
+    elif metal_source == 'custom':
+        assert custom_metal_function is not None, \
+            "custom metal function required if metal_source = 'custom'"
+    def _ion_number_density(field, data):
+        """
+        Creates the function for a derived field for following the number_density
+        of an ion over a dataset given that the specified ion's ion_fraction field
+        exists in the dataset.
+        """
+        if isinstance(field.name, tuple):
+            ftype = field.name[0]
+            field_name = field.name[1]
+        else:
+            ftype = "gas"
+            field_name = field.name
+        atom = field_name.split("_")[0]
+        prefix = field_name.split("_number_density")[0]
+        suffix = field_name.split("_number_density")[-1]
+        fraction_field_name = "%s_ion_fraction%s" % (prefix, suffix)
+        
+        if (ftype, "H_nuclei_density") in data.ds.derived_field_list:
+            H_density = data[ftype, "H_nuclei_density"]
+        else:
+            H_density = data[ftype, "density"] * to_nH
+        if atom == 'H' or atom == 'He':
+            relative_number_density = solar_abundance[atom] * data[ftype, fraction_field_name]
+            return relative_number_density * H_density
+        
+        mylog.info("generating metal fields using '%s' as metal_source"%metal_source)
+        if metal_source == "nuclei_mass_density":
+            nuclei_mass_density_field = "%s_nuclei_mass_density" % atom
+            return data[ftype, fraction_field_name] * \
+              data[(ftype, nuclei_mass_density_field)] / (atomic_mass[atom] * mh)
+        if metal_source == "nuclei_density":
+            nuclei_density_field = "%s_nuclei_density" % atom
+            return data[ftype, fraction_field_name] * \
+              data[(ftype, nuclei_density_field)]
+        if metal_source == "species_metallicity":
+            species_metallicity_field = "%s_metallicity" % atom
+            return data[ftype, fraction_field_name] * \
+              data[ftype, "density"] * \
+              data[ftype, species_metallicity_field] / \
+              (atomic_mass[atom] * mh)
+        if metal_source == 'metallicity':
+            relative_number_density = data.ds.quan(solar_abundance[atom], "1.0/Zsun") * \
+              data[ftype, fraction_field_name] * \
+              data[ftype, "metallicity"]
+            return relative_number_density * H_density
+        if metal_source == 'custom':
+            return custom_metal_function(field,data)
+        mylog.error('metal_source %s not understood.'%metal_source)
+        
+    return _ion_number_density
 
 def _ion_fraction_field(field, data):
     """
@@ -829,7 +952,8 @@ def _internal_ion_fraction_field(field, data):
     field_array = field_name.split('_')
     ion = '_'.join(field_array[:2])
     atom = field_array[0]
-    return data[(ftype, "%s_number_density" % ion)] / data[(ftype, "%s_nuclei_density" % atom)]
+    return data[(ftype, "%s_number_density" % ion)] / \
+            data[(ftype, "%s_nuclei_density" % atom)]
 
 
 def _add_field(ds, name, function, units, sampling_type):
