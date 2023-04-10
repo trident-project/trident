@@ -646,7 +646,7 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
         number_density_field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
         
     if (ftype,number_density_field) not in ds.derived_field_list:
-        mylog.info("number density field %s not in dataset. Adding now."%number_density_field)
+        mylog.info("Number density field %s not in dataset. Adding now."%number_density_field)
         add_ion_number_density_field(atom, ion, ds, ftype=ftype,
                                  ionization_table=ionization_table,
                                  field_suffix=field_suffix,
@@ -758,7 +758,7 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
         density_field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
            
     if (ftype,density_field) not in ds.derived_field_list:
-        mylog.info("density field %s not in dataset. Adding now."%density_field)
+        mylog.info("Density field %s not in dataset. Adding now."%density_field)
         add_ion_density_field(atom, ion, ds, ftype=ftype,
                                  ionization_table=ionization_table,
                                  field_suffix=field_suffix,
@@ -828,7 +828,7 @@ def _determine_best_metal_source(atom, ftype, ds):
         assert (ftype, "metallicity") in ds.derived_field_list, \
                     "No usable metal source found in dataset."
         to_return = "metallicity"
-    mylog.info("using %s as 'best' metal source"%to_return)
+    mylog.info("Using %s as 'best' metal source for %s"%(to_return,atom))
     return to_return
 
 def _ion_number_density_wrapper(atom, ftype, ds, metal_source, custom_metal_function):
@@ -866,7 +866,7 @@ def _ion_number_density_wrapper(atom, ftype, ds, metal_source, custom_metal_func
             relative_number_density = solar_abundance[atom] * data[ftype, fraction_field_name]
             return relative_number_density * H_density
         
-        mylog.info("generating metal fields using '%s' as metal_source"%metal_source)
+        mylog.info("Generating %s metal fields using '%s' as source"%(atom,metal_source))
         if metal_source == "nuclei_mass_density":
             nuclei_mass_density_field = "%s_nuclei_mass_density" % atom
             return data[ftype, fraction_field_name] * \
@@ -888,7 +888,7 @@ def _ion_number_density_wrapper(atom, ftype, ds, metal_source, custom_metal_func
             return relative_number_density * H_density
         if metal_source == 'custom':
             return custom_metal_function(field,data)
-        mylog.error('metal_source %s not understood.'%metal_source)
+        mylog.error('Metal_source %s not understood.'%metal_source)
         
     return _ion_number_density
 
