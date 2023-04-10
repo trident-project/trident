@@ -367,12 +367,12 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
         
     :metal_source: string, optional
     
-        In this function, this is deprecated and just used 
+        In this function, this is deprecated and just used
         for symmetry with the other calls.
         
     :custom_metal_function: func, optional
     
-        In this function, this is deprecated and just used 
+        In this function, this is deprecated and just used
         for symmetry with the other calls.
 
     **Example**
@@ -541,7 +541,7 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
                                  metal_source=metal_source,
                                  custom_metal_function=custom_metal_function)
     
-    _ion_number_density = _ion_number_density_wrapper(atom, ftype, ds, 
+    _ion_number_density = _ion_number_density_wrapper(atom, ftype, ds,
                                                       metal_source,
                                                       custom_metal_function)
     _add_field(ds, ("gas", field),function=_ion_number_density,
