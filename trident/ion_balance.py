@@ -782,7 +782,6 @@ def _ion_mass(field, data):
     else:
         ftype = "gas"
         field_name = field.name
-    atom = field_name.split("_")[0]
     prefix = field_name.split("_mass")[0]
     suffix = field_name.split("_mass")[-1]
     effective_volume = data[ftype,'mass']/data[ftype,'density']
@@ -809,7 +808,7 @@ def _ion_density(field, data):
 
 def _determine_best_metal_source(atom, ftype, ds):
     """
-    Decide on the most specific metal information available for 
+    Decide on the most specific metal information available for
     a particular atom. Returns a string which tells _ion_number_density
     what field to use.
     """
@@ -826,7 +825,7 @@ def _determine_best_metal_source(atom, ftype, ds):
         to_return = "species_metallicity"
     else:
         assert (ftype, "metallicity") in ds.derived_field_list, \
-                    "No usable metal source found in dataset."
+            "No usable metal source found in dataset."
         to_return = "metallicity"
     mylog.info("Using %s as 'best' metal source for %s"%(to_return,atom))
     return to_return
@@ -841,6 +840,7 @@ def _ion_number_density_wrapper(atom, ftype, ds, metal_source, custom_metal_func
     elif metal_source == 'custom':
         assert custom_metal_function is not None, \
             "custom metal function required if metal_source = 'custom'"
+
     def _ion_number_density(field, data):
         """
         Creates the function for a derived field for following the number_density
