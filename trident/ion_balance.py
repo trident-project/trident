@@ -887,7 +887,8 @@ def _ion_number_density_wrapper(atom, ftype, ds, metal_source, custom_metal_func
               data[ftype, "metallicity"]
             return relative_number_density * H_density
         if metal_source == 'custom':
-            return custom_metal_function(field,data)
+            nucleus_density = custom_metal_function(field,data)
+            return nucleus_density * data[ftype, fraction_field_name]
         mylog.error('Metal_source %s not understood.'%metal_source)
         
     return _ion_number_density
