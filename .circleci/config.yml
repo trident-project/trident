@@ -310,11 +310,6 @@ workflows:
            yttag: "YT_HEAD"
 
        - tests:
-           name: "Python 3.12 tests with yt tip"
-           tag: "3.12.0"
-           yttag: "YT_HEAD"
-
-       - tests:
            name: "Python 3.11 tests with yt gold"
            tag: "3.11.4"
 
