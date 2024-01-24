@@ -15,7 +15,8 @@ import numpy as np
 import os
 from yt.loaders import load
 from yt.testing import \
-    assert_allclose_units, \
+    assert_allclose_units
+from numpy.testing import \
     assert_almost_equal
 
 from trident.absorption_spectrum.absorption_line import \
