@@ -14,7 +14,7 @@ Tests to assure the code runs on example pipelines
 import h5py
 import os
 from yt.loaders import load
-from yt.testing import \
+from numpy.testing import \
     assert_almost_equal
 
 from trident import \
