@@ -24,7 +24,7 @@ from trident.roman import \
     from_roman
 from yt.data_objects.static_output import \
     Dataset
-from trident.ion_balance import \
+from trident.constants import \
     atomic_number
 
 def make_simple_ray(dataset_file, start_position, end_position,
