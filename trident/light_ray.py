@@ -470,27 +470,27 @@ class LightRay(CosmologySplice):
 
         assumed_units = "code_length"
         if left_edge is None:
-            left_edge = domain.domain_left_edge
+            left_edge = domain.domain_left_edge.copy()
         elif not hasattr(left_edge, 'units'):
             left_edge = domain.arr(left_edge, assumed_units)
         left_edge.convert_to_units('unitary')
 
         if right_edge is None:
-            right_edge = domain.domain_right_edge
+            right_edge = domain.domain_right_edge.copy()
         elif not hasattr(right_edge, 'units'):
             right_edge = domain.arr(right_edge, assumed_units)
         right_edge.convert_to_units('unitary')
 
         if start_position is not None:
             if hasattr(start_position, 'units'):
-                start_position = start_position
+                start_position = start_position.copy()
             else:
                 start_position = self.ds.arr(start_position, assumed_units)
             start_position.convert_to_units('unitary')
 
         if end_position is not None:
             if hasattr(end_position, 'units'):
-                end_position = end_position
+                end_position = end_position.copy()
             else:
                 end_position = self.ds.arr(end_position, assumed_units)
             end_position.convert_to_units('unitary')
