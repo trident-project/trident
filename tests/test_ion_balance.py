@@ -16,7 +16,8 @@ from trident.ion_balance import \
     add_ion_number_density_field, \
     add_ion_density_field, \
     add_ion_mass_field, \
-    add_ion_fields
+    add_ion_fields, \
+    calculate_ion_fraction
 from yt import \
     load, \
     SlicePlot
@@ -330,4 +331,23 @@ def test_to_not_overwrite_fields_for_particle():
     val_gas_after = ds.r[('gas', 'H_p0_number_density')][0]
     assert val_sph_before == val_sph_after
     assert val_gas_before == val_gas_after
+
+def test_calculate_ion_fraction():
+    """
+    Test to ensure calculate_ion_fraction() works
+    """
+    temp = np.logspace(4, 7, 100)
+    dens = np.ones_like(temp) * 1e-2
+    reds = np.ones_like(temp) * 0.25
+    # Does it work for arrays?
+    calculate_ion_fraction('H I', dens, temp, reds)
+
+    # Does it work for single values?
+    calculate_ion_fraction('Mg II', dens[0], temp[0], reds[0])
+
+    # Does it work for other ions?
+    calculate_ion_fraction('O VI', dens[0], temp[0], reds[0])
+
+    # Does it return all hydrogen being ionized at 1e7 K?
+    assert calculate_ion_fraction('H II', 1e-2, 1e7, 0) == 1
 

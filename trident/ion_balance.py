@@ -29,6 +29,8 @@ from trident.line_database import \
     uniquify
 from trident.roman import \
     from_roman
+from scipy.interpolate import \
+    interpn
 
 H_mass_fraction = 0.76
 to_nH = H_mass_fraction / mh
@@ -863,7 +865,100 @@ def _alias_field(ds, alias_name, name):
     return
 
 
+def calculate_ion_fraction(ion, density, temperature, redshift, ionization_table=None):
+    """
+    Calculate ion fraction at specified density, temperature, and redshift
+
+    This simple function interpolates ion fraction values from the relevant
+    ion_balance data table for arrays of density, temperature, and redshift values.
+
+    Users can specify individual coordinates in density, temperature, and redshift
+    or N-sized arrays to derived values in parallel.
+
+    Ion fractions are calculated assuming collisional ionization and
+    photoionization in the optically thin limit from a redshift-dependent
+    metagalactic ionizing background using the ionization_table specified.
+
+    Trilinear interpolation is assumed across density, temperature, and redshift.
+
+    **Parameters**
+
+    :ion: string
+
+            The desired ion following the form: "<element> <ionization_state>"
+            Examples: "H I", "C II", "Mg II"
+
+    :density: float or array of floats
+
+            Gas density in the form of hydrogen number density cm$**{-3}$
+
+    :temperature: float or array of floats
+
+            Gas temperature in kelvin
+
+    :redshift: float or array of floats
+
+            Redshift at which to assume the metagalactic UV background
+
+    :ionization_table: string, optional
+
+        Path to an appropriately formatted HDF5 table that can be used to
+        compute the ion fraction as a function of density, temperature,
+        metallicity, and redshift.  When set to None, it uses the table
+        specified in ~/.trident/config
+        Default: None
+
+    **Example**
+
+    To calculate the ion fraction of Mg II for gas with hydrogen number
+    density 1e-2 cm**-3 and redshift 0.25 and temperatures 1e4K:
+
+    >>> import trident
+    >>> trident.calculate_ion_fraction('Mg II', 1e-2, 1e4, 0.25)
+"""
+    if ionization_table is None:
+        ionization_table = ion_table_filepath
+
+    ionn = ion.split()
+    atom = ionn[0]
+    ion_state = from_roman(ionn[1])
+
+    field = "%s_p%d_ion_fraction" % (atom, ion_state-1)
+    field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
+    if field not in table_store:
+        ionTable = IonBalanceTable(ionization_table, atom)
+        table_store[field] = {'fraction': copy.deepcopy(ionTable.ion_fraction[ion_state-1]),
+                              'parameters': copy.deepcopy(ionTable.parameters)}
+        del ionTable
+
+    ion_fraction = table_store[field]['fraction']
+    n_param = table_store[field]['parameters'][0]
+    z_param = table_store[field]['parameters'][1]
+    t_param = table_store[field]['parameters'][2]
+
+    # x,y,z coordinates for all ion_fractions from table
+    coords = (n_param, z_param, t_param)
+
+    # Convert values from user into log space to match table
+    dens = np.log10(density)
+    temp = np.log10(temperature)
+    reds = np.array(redshift)
+
+    if not dens.shape == temp.shape == reds.shape:
+        raise RuntimeError("density, temperature, and redshift array sizes must be equal.")
+
+    # user supplied values
+    arr = (dens, reds, temp)
+
+    # Actually interpolate the ion fraction from the user-supplied values
+    fraction = interpn(coords, ion_fraction, arr)
+    fraction = np.power(10, fraction)
+    fraction = np.clip(fraction, 0.0, 1.0)
+    return fraction
+
+
 # Taken from Cloudy documentation.
+
 solar_abundance = {
     'H' : 1.00e+00, 'He': 1.00e-01, 'Li': 2.04e-09,
     'Be': 2.63e-11, 'B' : 6.17e-10, 'C' : 2.45e-04,
