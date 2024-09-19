@@ -50,6 +50,7 @@ Adding Ion Fields
    ~trident.ion_balance.add_ion_number_density_field
    ~trident.ion_balance.add_ion_density_field
    ~trident.ion_balance.add_ion_mass_field
+   ~trident.ion_balance.calculate_ion_fraction
 
 Miscellaneous Utilities
 -----------------------
