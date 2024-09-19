@@ -956,7 +956,9 @@ def calculate_ion_fraction(ion, density, temperature, redshift, ionization_table
     fraction = np.clip(fraction, 0.0, 1.0)
     return fraction
 
+
 # Taken from Cloudy documentation.
+
 solar_abundance = {
     'H' : 1.00e+00, 'He': 1.00e-01, 'Li': 2.04e-09,
     'Be': 2.63e-11, 'B' : 6.17e-10, 'C' : 2.45e-04,
