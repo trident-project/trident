@@ -870,21 +870,19 @@ def calculate_ion_fraction(ion, density, temperature, redshift, ionization_table
     if ionization_table is None:
         ionization_table = ion_table_filepath
 
-    # Identify ion
-    ion_list = []
     ionn = ion.split()
-    if len(ion) >= 2:
-        ion_list.append((ionn[0], from_roman(ionn[1])))
+    atom = ionn[0]
+    ion_state = from_roman(ionn[1])
 
-    field = "%s_p%d_ion_fraction" % (atom, ion-1)
+    field = "%s_p%d_ion_fraction" % (atom, ion_state-1)
     field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
     if field not in table_store:
         ionTable = IonBalanceTable(ionization_table, atom)
-        table_store[field] = {'fraction': copy.deepcopy(ionTable.ion_fraction[ion-1]),
+        table_store[field] = {'fraction': copy.deepcopy(ionTable.ion_fraction[ion_state-1]),
                               'parameters': copy.deepcopy(ionTable.parameters)}
         del ionTable
 
-    ionFraction = table_store[field]['fraction']
+    ion_fraction = table_store[field]['fraction']
     n_param = table_store[field]['parameters'][0]
     z_param = table_store[field]['parameters'][1]
     t_param = table_store[field]['parameters'][2]
@@ -895,10 +893,16 @@ def calculate_ion_fraction(ion, density, temperature, redshift, ionization_table
     # Convert values from user into log space to match table
     dens = np.log10(density)
     temp = np.log10(temperature)
-    point = (dens, redshift, temp)
+    reds = np.array(redshift)
+
+    if not dens.shape == temp.shape == reds.shape:
+        raise RuntimeError("density, temperature, and redshift array sizes must be equal.")
+
+    # user supplied values
+    arr = (dens, reds, temp)
 
     # Actually interpolate the ion fraction from the user-supplied values
-    fraction = interpn(coords, ionFraction, point)
+    fraction = interpn(coords, ion_fraction, arr)
     fraction = np.power(10, fraction)
     fraction = np.clip(fraction, 0.0, 1.0)
     return fraction
