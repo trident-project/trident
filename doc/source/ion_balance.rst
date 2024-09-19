@@ -38,11 +38,12 @@ Calculating ion fractions
 -------------------------
 
 In its simplest form, one may wish to calculate a single (or multiple) ion fraction
-for some arbitrary ion as a function of the thermodynamic properties of the gas, by
-interpolating over the ion table referenced above.  This is best achieved using the
-function :class:`~trident.ion_balance.calculate_ion_fraction`.  In the following
-example, we'll calculate the fraction of magnesium that is in its 1st ionized state
-(Mg II) for gas at two densities and temperatures at redshift 0::
+for some arbitrary ion as a function of the thermodynamic properties of the gas.
+This can be calculated without any simulation dataset output at all, simply by
+linearly interpolating over the ion table referenced above.  This is best achieved
+using the function :class:`~trident.ion_balance.calculate_ion_fraction`.  In the
+following example, we'll calculate the fraction of magnesium that is in its 1st
+ionized state (Mg II) for gas at two densities and temperatures at redshift 0::
 
     import trident
     density = [1e-2, 1e-4] # as n_H in cm**-3
