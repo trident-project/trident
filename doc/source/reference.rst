@@ -45,6 +45,7 @@ Adding Ion Fields
    :toctree: generated/
    :nosignatures:
 
+   ~trident.ion_balance.calculate_ion_fraction
    ~trident.ion_balance.add_ion_fields
    ~trident.ion_balance.add_ion_fraction_field
    ~trident.ion_balance.add_ion_number_density_field

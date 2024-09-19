@@ -3,11 +3,15 @@
 Adding Ion Fields
 =================
 
-In addition to being able to create absorption spectra, 
-Trident can be used to postprocess datasets to add fields for ions not
+In addition to being able to create absorption spectra,
+Trident can be used to calculate the ionization states for different metal species
+present in different thermodynamic states of the CGM and IGM.  There are several
+tools you can use to access this functionality. You can simply obtain
+ion fractions as a function of density, temperature, and redshift, or you can
+postprocess whole simulation outputs to add fields for ions not
 explicitly tracked in the simulation.  These can later be analyzed
 using the standard yt analysis packages.  This page provides some examples
-as to how these fields can be generated and analyzed.
+on how to utilize this functionality.
 
 How does it work?
 -----------------
@@ -30,9 +34,32 @@ dataset based on the above assumptions using the dataset's redshift, and
 the values of density, temperature, and metallicity found for each gas parcel
 in your dataset.
 
+Calculating ion fractions
+-------------------------
+
+In its simplest form, one may wish to calculate a single (or multiple) ion fraction
+for some arbitrary ion as a function of the thermodynamic properties of the gas.
+This can be calculated without any simulation dataset output at all, simply by
+linearly interpolating over the ion table referenced above.  This is best achieved
+using the function :class:`~trident.ion_balance.calculate_ion_fraction`.  In the
+following example, we'll calculate the fraction of magnesium that is in its 1st
+ionized state (Mg II) for gas at two densities and temperatures at redshift 0::
+
+    import trident
+    density = [1e-2, 1e-4] # as n_H in cm**-3
+    temperature = [1e4, 1e6] # in K
+    redshift = [0, 0]
+    trident.calculate_ion_fraction('Mg II', density, temperature, redshift)
+    [5.30884437e-01 1.00000000e-30]
+
+The result indicates that Mg II is a dominant ion of magnesium in cool dense gas,
+whereas it is totally absent in hot, tenuous gas.
+
 Generating species fields
 -------------------------
 
+One may wish to post-process an entire dataset to include the ion information for some
+arbitrary ion as an additional scalar field that can be accessed by yt.
 As always, we first need to import yt and Trident and then we load up a
 dataset::
 
