@@ -864,6 +864,7 @@ def _alias_field(ds, alias_name, name):
         ds.derived_field_list.append(alias_name)
     return
 
+
 def calculate_ion_fraction(ion, density, temperature, redshift, ionization_table=None):
     """
     Calculate ion fraction at specified density, temperature, and redshift
