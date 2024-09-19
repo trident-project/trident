@@ -871,9 +871,14 @@ def calculate_ion_fraction(ion, density, temperature, redshift, ionization_table
     This simple function interpolates ion fraction values from the relevant
     ion_balance data table for arrays of density, temperature, and redshift values.
 
+    Users can specify individual coordinates in density, temperature, and redshift
+    or N-sized arrays to derived values in parallel.
+
     Ion fractions are calculated assuming collisional ionization and
     photoionization in the optically thin limit from a redshift-dependent
     metagalactic ionizing background using the ionization_table specified.
+
+    Trilinear interpolation is assumed across density, temperature, and redshift.
 
     **Parameters**
 
