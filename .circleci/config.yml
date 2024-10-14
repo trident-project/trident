@@ -294,28 +294,28 @@ workflows:
    normal-tests:
      jobs:
        - tests:
-           name: "Python 3.9 tests with yt tip"
-           tag: "3.9.13"
-           yttag: "YT_HEAD"
-
-       - tests:
            name: "Python 3.10 tests with yt tip"
-           tag: "3.10.13"
+           tag: "3.10.15"
            yttag: "YT_HEAD"
            coverage: 1
 
        - tests:
            name: "Python 3.11 tests with yt tip"
-           tag: "3.11.4"
+           tag: "3.11.10"
            yttag: "YT_HEAD"
 
        - tests:
            name: "Python 3.11 tests with yt gold"
-           tag: "3.11.4"
+           tag: "3.11.10"
+
+       - tests:
+           name: "Python 3.12 tests with yt tip"
+           tag: "3.12.7"
+           yttag: "YT_HEAD"
 
        - docs-test:
            name: "Test docs build"
-           tag: "3.11.4"
+           tag: "3.11.10"
 
    weekly:
      triggers:
@@ -327,21 +327,27 @@ workflows:
                 - main
      jobs:
        - tests:
-           name: "Python 3.9 tests with yt gold"
-           tag: "3.9.13"
+           name: "Python 3.10 tests with yt gold"
+           tag: "3.10.15"
 
        - tests:
-           name: "Python 3.9 tests with yt tip"
-           tag: "3.9.13"
+           name: "Python 3.10 tests with yt tip"
+           tag: "3.10.15"
            yttag: "YT_HEAD"
            coverage: 0
 
        - tests:
            name: "Python 3.11 tests with yt tip"
-           tag: "3.11.4"
+           tag: "3.11.10"
+           yttag: "YT_HEAD"
+           coverage: 0
+
+       - tests:
+           name: "Python 3.12 tests with yt tip"
+           tag: "3.12.7"
            yttag: "YT_HEAD"
            coverage: 0
 
        - docs-test:
            name: "Test docs build"
-           tag: "3.11.4"
+           tag: "3.11.10"
