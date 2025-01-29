@@ -170,6 +170,13 @@ def make_simple_ray(dataset_file, start_position, end_position,
         it uses the table specified in ~/.trident/config
         Default: None
 
+    :fail_empty: optional, bool
+
+        If True, Trident will fail when it tries to create an empty Ray
+        that does not pass through any valud fluid elements. When
+        False, it will merely return a warning.
+        Default: True
+
     **Example**
 
     Generate a simple ray passing from the lower left corner to the upper
@@ -244,7 +251,8 @@ def make_compound_ray(parameter_filename, simulation_type,
                       find_outputs=False, seed=None,
                       setup_function=None, load_kwargs=None,
                       line_database=None, ionization_table=None,
-                      field_parameters = None):
+                      field_parameters = None,
+                      fail_empty=True):
     """
     Create a yt LightRay object for multiple consecutive datasets (eg IGM).
     This is a wrapper function around yt's LightRay interface to reduce some
@@ -441,6 +449,13 @@ def make_compound_ray(parameter_filename, simulation_type,
         accordingly.
         Default: None.
 
+    :fail_empty: optional, bool
+
+        If True, Trident will fail when it tries to create an empty Ray
+        that does not pass through any valud fluid elements. When
+        False, it will merely return a warning.
+        Default: True
+
     **Example**
 
     Generate a compound ray passing from the redshift 0 to redshift 0.05
@@ -519,7 +534,8 @@ def make_compound_ray(parameter_filename, simulation_type,
                              solution_filename=solution_filename,
                              data_filename=data_filename,
                              redshift=None, njobs=-1,
-                             field_parameters = field_parameters)
+                             field_parameters = field_parameters,
+                             fail_empty=fail_empty)
 
 def _determine_ions_from_lines(line_database, lines):
     """

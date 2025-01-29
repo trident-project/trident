@@ -431,7 +431,7 @@ class LightRay(CosmologySplice):
 
         :fail_empty: optional, bool
 
-            If True, Trident will fail when it tries to create a Ray
+            If True, Trident will fail when it tries to create an empty Ray
             that does not pass through any valud fluid elements. When
             False, it will merely return a warning.
             Default: True
