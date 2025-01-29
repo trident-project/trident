@@ -32,7 +32,8 @@ def make_simple_ray(dataset_file, start_position, end_position,
                     solution_filename=None, data_filename=None,
                     trajectory=None, redshift=None, field_parameters=None,
                     setup_function=None, load_kwargs=None,
-                    line_database=None, ionization_table=None):
+                    line_database=None, ionization_table=None,
+                    empty_ray_fail=True):
     """
     Create a yt LightRay object for a single dataset (eg CGM).  This is a
     wrapper function around yt's LightRay interface to reduce some of the
@@ -68,7 +69,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
     **Parameters**
 
     :dataset_file: string or yt Dataset object
-    
+
         Either a yt dataset or the filename of a dataset on disk.  If you are
         passing it a filename, consider usage of the ``load_kwargs`` and
         ``setup_function`` kwargs.
@@ -110,7 +111,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
         Default: None
 
     :data_filename: string, optional
-    
+
         Output filename for ray data stored as an HDF5 file.  Note that
         at present, you *must* save a ray to disk in order for it to be
         returned by this function.  If set to None, defaults to 'ray.h5'.
@@ -231,7 +232,8 @@ def make_simple_ray(dataset_file, start_position, end_position,
                              solution_filename=solution_filename,
                              data_filename=data_filename,
                              field_parameters=field_parameters,
-                             redshift=redshift)
+                             redshift=redshift,
+                             empty_ray_fail=empty_ray_fail)
 
 def make_compound_ray(parameter_filename, simulation_type,
                       near_redshift, far_redshift,
@@ -284,7 +286,7 @@ def make_compound_ray(parameter_filename, simulation_type,
     in the dataset volume, the compound ray requires the near_redshift and
     far_redshift to determine which datasets to use to get full coverage
     in redshift space as the ray propagates from near_redshift to far_redshift.
-    
+
     Like the simple ray produced by :class:`~trident.make_simple_ray`,
     each gas cell intersected by the LightRay is sampled for the desired
     fields and stored.  Several additional fields are created and stored
