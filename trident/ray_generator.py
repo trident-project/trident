@@ -33,7 +33,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
                     trajectory=None, redshift=None, field_parameters=None,
                     setup_function=None, load_kwargs=None,
                     line_database=None, ionization_table=None,
-                    empty_ray_fail=True):
+                    fail_empty=True):
     """
     Create a yt LightRay object for a single dataset (eg CGM).  This is a
     wrapper function around yt's LightRay interface to reduce some of the
@@ -233,7 +233,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
                              data_filename=data_filename,
                              field_parameters=field_parameters,
                              redshift=redshift,
-                             empty_ray_fail=empty_ray_fail)
+                             fail_empty=fail_empty)
 
 def make_compound_ray(parameter_filename, simulation_type,
                       near_redshift, far_redshift,
