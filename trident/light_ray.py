@@ -813,6 +813,7 @@ class LightRay(CosmologySplice):
                     raise RuntimeError(err)
                 else:
                     mylog.warning(err)
+                extra_attrs["empty"] = True
             for key in data.keys():
                 data[key] = data[key][mask]
         save_as_dataset(ds, filename, data, field_types=field_types,
