@@ -364,6 +364,9 @@ class SpectrumGenerator(AbsorptionSpectrum):
         if isinstance(ray, str):
             ray = load(ray)
         if isinstance(ray, Dataset):
+            if 'empty' in ray.parameters and ray.parameters['empty']:
+                mylog.warning("LightRay is empty. Not generating spectrum.")
+                return
             ad = ray.all_data()
         elif isinstance(ray, YTDataContainer):
             ad = ray

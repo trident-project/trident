@@ -19,7 +19,16 @@ from trident.spectrum_generator import \
 import tempfile
 import shutil
 import os
+from yt.loaders import \
+    load
+from trident import \
+    make_simple_ray
+from trident.testing import \
+    answer_test_data_dir
+import numpy as np
 
+GIZMO_SINGLE = os.path.join(answer_test_data_dir,
+                            "FIRE_M12i_ref11/snapshot_600.hdf5")
 def test_save_load_spectrum_ascii():
     """
     Test that we can save and load spectra in the ASCII format
@@ -134,4 +143,23 @@ def test_input_types():
 
     plot_spectrum(sg.lambda_field, spectra,
                   filename=os.path.join(dirpath, 'spec.png'))
+    shutil.rmtree(dirpath)
+
+def test_empty_ray_spectrum():
+
+    dirpath = tempfile.mkdtemp()
+    filename = os.path.join(dirpath, 'ray.h5')
+    ds = load(GIZMO_SINGLE)
+    ray_start = ds.domain_right_edge
+    ray_end = ds.domain_right_edge - ds.arr([1, 1, 1], 'kpc')
+    line_list = ['H', 'C', 'N', 'O', 'Mg']
+
+    ray = make_simple_ray(ds, start_position=ray_start,
+                          end_position=ray_end, data_filename=filename,
+                          lines=line_list, fail_empty=False)
+
+    sg = SpectrumGenerator('COS')
+    sg.make_spectrum(ray, lines=line_list)
+    # Should be a flat spectrum
+    assert (sg.flux_field[:] == np.ones_like(sg.flux_field)).all()
     shutil.rmtree(dirpath)
