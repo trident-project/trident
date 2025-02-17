@@ -62,6 +62,14 @@ def test_line_database_from_input():
     assert ld.lines_all[0].identifier == HI.identifier
     print(ld)
 
+def test_line_database_add_line_linetools():
+    ld = LineDatabase()
+    HI = Line('H', 'I', 1216, 626500000.0, 2.3, identifier='Ly a')
+    ld.add_line('H', 'I', 1216, use_linetools=True, identifier='Ly a')
+    np.testing.assert_allclose( ld.lines_all[0].gamma, HI.gamma )
+    assert ld.lines_all[0].identifier == HI.identifier
+    print(ld)
+
 def test_select_lines_from_line_database():
     ld = LineDatabase('lines.txt')
     assert len(ld.select_lines('Ne')) == 8 # 8 listed Ne lines

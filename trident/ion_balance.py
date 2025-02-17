@@ -247,7 +247,8 @@ def add_ion_fields(ds, ions, ftype='gas',
     # If line_database is set, then use the underlying file as the line list
     # to select ions from.
     if line_database is not None:
-        line_database = LineDatabase(line_database)
+        if not isinstance( line_database, LineDatabase ):
+            line_database = LineDatabase(line_database)
         ion_list = line_database.parse_subset_to_ions(ions)
 
     # Otherwise, any ion can be selected (not just ones in the line list).
