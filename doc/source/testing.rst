@@ -135,7 +135,7 @@ The Tests Failed -- What Do I Do?
 ---------------------------------
 
 If the tests have failed (either locally, or through the automatically generated
-test from Travis), you want to figure out what caused the breakage.  It was
+test from CircleCI), you want to figure out what caused the breakage.  It was
 either a change in trident or a change in one of Trident's dependencies
 (e.g., yt).  So first examine the output from `py.test` to see if you can
 deduce what went wrong.  You can also use the pdb flag with py.test to help
@@ -168,8 +168,8 @@ tests to fail.  The first thing to do
 is to identify the most accurate version of the code (e.g., changesets for
 yt and trident that give the desired behavior).  Tag the Trident changeset with
 the next gold standard iteration.  You can see the current iteration by looking
-in the ``.travis.yml`` file at the ``TRIDENT_GOLD`` entry--increment this and
-tag the changeset.  Update the ``.travis.yml`` file so that the ``YT_GOLD`` and
+in the ``.circleci/config.yml`` file at the ``TRIDENT_GOLD`` entry--increment this and
+tag the changeset.  Update the ``config.yml`` file so that the ``YT_GOLD`` and
 ``TRIDENT_GOLD`` entries point to your desired changeset and tag.  You have to
 explicitly push the new tag (hereafter ``test-standard-v3``) to your repository
 (here: ``origin``.  Issue a pull request.
@@ -179,7 +179,7 @@ explicitly push the new tag (hereafter ``test-standard-v3``) to your repository
    $ git tag test-standard-v3 <trident-changeset>
    $ ... edit .circleci/config.yml files to update YT_GOLD=<yt changeset>
    $ ... and TRIDENT_GOLD=test-standard-v3
-   $ git add .travis.yml
+   $ git add .circleci/config.yml
    $ git commit
    $ git push origin test-standard-v3
    $ <MAKE PULL REQUEST>
@@ -192,6 +192,6 @@ tag.
 
    $ git push upstream test-standard-v3
 
-Afterwards, you may need to clear the caches for CircleCI by iterating saved
+Afterwards, you may need to clear the caches for CircleCI by enumerating saved
 and restored cache names in the `.circleci/config.yml` file.  See:
 https://circleci.com/docs/caching/#clearing-cache
