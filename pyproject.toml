@@ -1,0 +1,54 @@
+[build-system]
+requires = [
+  "setuptools>=61.2",
+  "numpy>=2.0.0",
+]
+
+[project]
+name = "trident"
+dynamic = "1.4"
+requires-python = ">=3.9"
+description = "Package for simulating UV observations from astrophysical sources"
+authors = [
+    { name = "Cameron Hummels", email = "chummels@gmail.com" },
+]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "Topic :: Scientific/Engineering :: Astronomy",
+    "Topic :: Scientific/Engineering :: Physics",
+    "License :: OSI Approved :: BSD License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+keywords = [
+    "astronomy astrophysics cgm",
+]
+dependencies = [
+    "numpy",
+    "astropy",
+    "matplotlib",
+    "h5py",
+    "scipy",
+    "tqdm",
+    "yt>=4.4",
+    "yt_astro_analysis>=1.1.0",
+]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.license]
+text = "BSD 3-Clause"
+
+[project.urls]
+Homepage = "https://trident-project.org/"
+Documentation = "https://trident.readthedocs.io"
+Source = "https://github.com/trident-project/trident/"
+Tracker = "https://github.com/trident-project/trident/issues"
