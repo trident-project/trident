@@ -191,3 +191,7 @@ tag.
 .. code-block:: bash
 
    $ git push upstream test-standard-v3
+
+Afterwards, you may need to clear the caches for CircleCI by iterating saved
+and restored cache names in the `.circleci/config.yml` file.  See:
+https://circleci.com/docs/caching/#clearing-cache
