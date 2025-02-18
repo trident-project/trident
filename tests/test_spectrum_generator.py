@@ -117,12 +117,16 @@ def test_create_spectrum_H_lines_no_continuum():
 def test_input_types():
     """
     Test that spectra can be generated from ray file, dataset, or
-    data container.
+    data container. Edited to use gizmo to generate ray. Will not work
+    with onezone_ray framework.
     """
 
     dirpath = tempfile.mkdtemp()
+    ds = load(GIZMO_SINGLE)
+    ray_start = ds.domain_left_edge
+    ray_end = ds.domain_right_edge
     filename = os.path.join(dirpath, 'ray.h5')
-    ray = make_onezone_ray(filename=filename)
+    ray = make_simple_ray(ds, start_position=ray_start, end_position=ray_end, data_filename=filename)
 
     sg = SpectrumGenerator(lambda_min=1200, lambda_max=1300, dlambda=0.5)
     spectra = []

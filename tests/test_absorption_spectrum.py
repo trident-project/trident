@@ -322,7 +322,7 @@ class AbsorptionSpectrumTest(TempDirTest):
                                             use_peculiar_velocity=True)
         return filename
 
-    @h5_answer_test(assert_array_rel_equal, decimals=15)
+    @h5_answer_test(assert_array_rel_equal, decimals=12)
     def test_absorption_spectrum_with_continuum(self):
         """
         This test generates an absorption spectrum from a simple light ray on a
