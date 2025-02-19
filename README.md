@@ -21,4 +21,4 @@ please see the documentation.
 
  * The Trident project homepage: http://trident-project.org
 
- * For questions, comments, and announcements, please join our low-volume mailing list: https://groups.google.com/forum/#!forum/trident-project-users
+ * For questions, comments, and announcements, please join our [low-volume mailing list](https://groups.google.com/forum/#!forum/trident-project-users), or [Slack channel](https://join.slack.com/t/trident-project/shared_invite/zt-42h0uuwy-fBggZbeymnq2cB9ivtWloA).
