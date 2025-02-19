@@ -54,3 +54,16 @@ Homepage = "https://trident-project.org/"
 Documentation = "https://trident.readthedocs.io"
 Source = "https://github.com/trident-project/trident/"
 Tracker = "https://github.com/trident-project/trident/issues"
+
+[project.optional-dependencies]
+dev = [
+    "coveralls",
+    "flake8",
+    "gitpython",
+    "pytest-cov",
+    "pytest>=3.6",
+    "sphinx",
+    "sphinx_rtd_theme",
+    "twine",
+    "wheel",
+]
