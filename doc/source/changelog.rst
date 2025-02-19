@@ -11,6 +11,48 @@ Contributors
 The `CREDITS file <https://github.com/trident-project/trident/blob/main/CREDITS>`_
 has an updated list of contributors to the codebase.
 
+Version 1.4.2 (February 19, 2025)
+---------------------------------
+
+There were some bugfixes that were adopted in this new version and a few
+new features. Most notably, two related bugs were discovered in our primary
+dependency, yt, in terms of how particle-based datasets were being treated.
+For datasets involving SPH or SPH-like frontends (e.g., Gadget, Gizmo,
+AREPO, EAGLE), yt was underestimating the contribution of some fluid elements.
+The primary outcome for users of Trident
+is that if you were using Trident to generate absorption line spectra on
+particle-based datasets, the absorption features may have been underestimated
+by a factor of two to three.  A minor related issue impacted the
+`ProjectionPlot` interface for particle-based codes in underresolved regions
+leading to less significant inaccuracies.  Consequently, we highly recommend
+updating to the latest stable version of trident (1.4.2)
+and yt (4.4.0) to incorporate the fixes for these bugs.
+For more details on these yt bugs and their solutions, as well as the other
+changes to trident, please see the links below.
+
+Enhancements
+^^^^^^^^^^^^
+
+- Add calculate_ion_fraction() function for simple values and arrays.
+  (`PR 204 <https://github.com/trident-project/trident/pull/204>`__)
+- Allow option for empty rays to not raise errors.
+  (`PR 208 <https://github.com/trident-project/trident/pull/208>`__)
+
+Bug Fixes
+^^^^^^^^^
+
+- Fix yt ray bug for particle-based datasets.
+  (`yt issue 4781 <https://github.com/yt-project/yt/issues/4781>`__)
+  (`yt PR 4783 <https://github.com/yt-project/yt/pull/4783>`__)
+- Fix yt `ProjectionPlot` bug for particle-based datasets.
+  (`yt issue 4788 <https://github.com/yt-project/yt/issues/4788>`__)
+  (`yt PR 4939 <https://github.com/yt-project/yt/pull/4939>`__)
+- Do not limit number of components detected in absorption_spectrum_fit.
+  (`PR 195 <https://github.com/trident-project/trident/pull/195>`__)
+- Update commands to address yt deprecations.
+  (`PR 201 <https://github.com/trident-project/trident/pull/201>`__)
+- Fix "output array is read-only" bug.
+  (`PR 202 <https://github.com/trident-project/trident/pull/202>`__)
 
 Version 1.3 (August 23, 2022)
 ------------------------------
