@@ -236,10 +236,10 @@ def get_datafiles(datadir=None, url=None):
 
     # User chooses which file
     print("")
-    print("Which number would you like to download and use? [1]")
+    print("Which number would you like to download and use? [2]")
     value = input().rstrip()
     if value == '':
-        value = '1'
+        value = '2'
     while 1:
         try:
             filename = filenames[int(value)-1]

@@ -23,6 +23,8 @@ from trident.utilities import \
     ensure_directory, \
     get_datafiles, \
     make_onezone_dataset
+from trident import \
+    __version__
 
 def trident():
     """
@@ -261,6 +263,8 @@ def verify(save=False):
     print("")
     print("Congratulations, you have verified that Trident is installed correctly.")
     print("Now let's science!")
+    print("")
+    print("For reference, you are using Trident version %s" % __version__)
     print("")
 
 # Each time Trident is imported, we determine the settings from the config

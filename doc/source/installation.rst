@@ -12,38 +12,18 @@ Versions of Trident
 
 There are currently two versions of Trident: a `stable version
 <http://trident.readthedocs.io/en/stable>`_ and a `development version
-<http://trident.readthedocs.io/en/latest>`_.  Make sure you are reading the
-correct docs for the version you are using!
-
-The stable version is tried
-and tested and easy to install with pip.  The development version is actively
-being updated with new features.  Note that the stable version
-of trident requires the stable version of yt, and the development version of
-trident requires the development version of yt.
-
+<http://trident.readthedocs.io/en/latest>`_.
+The stable version is tried and tested and easy to install with pip.
+The development version is actively being updated with new features.
 Thus, the installation steps are slightly different for stable and development,
 so pay attention in the steps below.  Don't worry if you want to change later,
 you can always switch between the two versions easily enough by following the
 directions in :ref:`uninstallation`.
 
-Trident's Major Dependency: yt
-------------------------------
-
-`yt <http://yt-project.org>`_ is a python-based software package for the
-analysis and visualization of a different numerical datasets, including
-astrophysical hydrodynamical data.  yt is the primary dependency of Trident,
-so it must be present for Trident to work.  There are several methods
-for installing yt, which are all discussed in detail in the `yt installation
-documentation <http://yt-project.org/doc/installing.html>`_.  Use the one
-that is appropriate for you.  We find that using
-`conda <https://docs.conda.io/en/latest/>`_ is the most streamlined and
-reliable for the development install, whereas pip does it automatically for
-stable install.
-
 .. _stable-trident:
 
-Installing the Stable Version of yt and Trident
------------------------------------------------
+Installing the Stable Version of Trident
+----------------------------------------
 
 Installation of the stable versions of yt and Trident is quite simple::
 
@@ -59,8 +39,8 @@ Follow the instructions to download the ion_balance table and then verify that
 everything is working correctly.  You should now be ready to do some
 :ref:`step-4`
 
-Installing the Development Version of yt and Trident
-----------------------------------------------------
+Installing the Development Version of Trident
+---------------------------------------------
 
 Step 0: Ensure Conda is Installed
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -74,7 +54,7 @@ You can see if conda is already installed by running::
 
     $ conda -h
 
-If conda is installed, move to the next step.  Otherwise install Mini-conda.
+If conda is installed, move to the next step.  Otherwise install `Miniconda`.
 
 Use the appropriate conda install script for your architecture.  We recommend
 getting the latest version of conda for Python3 for your architecture here:
@@ -82,8 +62,8 @@ https://repo.continuum.io/miniconda/
 
 For modern macs::
 
-    $ curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
-    $ bash Miniconda3-latest-MacOSX-x86_64.sh
+    $ curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh
+    $ bash Miniconda3-latest-MacOSX-arm64.sh
 
 For modern linux machines::
 
@@ -98,24 +78,23 @@ directory to the $PATH.
 Step 1: Install yt
 ^^^^^^^^^^^^^^^^^^
 
+`yt <http://yt-project.org>`_ is a python-based software package for the
+analysis and visualization of a different numerical datasets, including
+astrophysical hydrodynamical data.  yt is the primary dependency of Trident,
+so it must be present for Trident to work.  There are several methods
+for installing yt, which are all discussed in detail in the `yt installation
+documentation <http://yt-project.org/doc/installing.html>`_.  We recommend
+the one below for getting the development version.
+
 First you need yt's major dependencies::
 
-    $ conda install numpy cython mpi4py git
+    $ conda install numpy cython git
 
 Now you pull directly from the yt github repository to access
 the up-to-date version of the source code and build it::
 
     $ git clone https://github.com/yt-project/yt.git yt
     $ cd yt
-    $ pip install -e .
-    $ cd ..
-
-Note, you'll also need a separate library,
-`yt_astro_analysis <https://github.com/yt-project/yt_astro_analysis.git>`_,
-to get some of the functionality necessary for Trident to work correctly::
-
-    $ git clone https://github.com/yt-project/yt_astro_analysis.git yt_astro_analysis
-    $ cd yt_astro_analysis
     $ pip install -e .
     $ cd ..
 
