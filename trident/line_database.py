@@ -12,6 +12,7 @@ Line, LineDatabase class and member functions.
 #-----------------------------------------------------------------------------
 
 import os
+import warnings
 from yt.funcs import \
     mylog
 from trident.config import \
@@ -147,8 +148,8 @@ class LineDatabase:
         else:
             self.input_file = 'Manually Entered'
 
-    def add_line(self, element, ion_state, wavelength, gamma,
-                 f_value, field=None, identifier=None):
+    def add_line(self, element, ion_state, wavelength, gamma=None,
+                 f_value=None, field=None, identifier=None, use_linetools=False):
         """
         Manually add a line to the :class:`~trident.LineDatabase`.
 
@@ -188,6 +189,10 @@ class LineDatabase:
             An optional identifier for the transition
             Example: 'Ly a' for Lyman alpha
 
+        :use_linetools: bool
+
+            If True retrieve the values for wavelength, gamma, and f_value
+            from the linetools python package (linetools.readthedocs.io).
 
         **Example**
 
@@ -199,6 +204,32 @@ class LineDatabase:
         >>> ldb.add_line('H', 'I', 1215.67, 469860000, 0.41641, 'Ly a')
         >>> print(ldb.lines_all)
         """
+
+        if use_linetools:
+            # Retrieve
+            def linetools_id( wrest ):
+                return '%s%s %d' % (element, ion_state, round(float(wrest), 0))
+            line = self.linetools_linelist[ linetools_id(wavelength) ]
+
+            # Check for rounding differences
+            if line is None:
+                warnings.warn( 'Line ' + linetools_id(wavelength) + \
+                    ' not found in linetools database. Checking adjacent wavelengths.')
+                line = self.linetools_linelist[ linetools_id(wavelength-1) ]
+                if line is None:
+                    line = self.linetools_linelist[ linetools_id(wavelength+1) ]
+                    if line is None:
+                        raise KeyError( 'No line found in linetools database.' )
+                        
+            # Format
+            wavelength = line['wrest'].value
+            gamma = line['gamma'].value
+            f_value = line['f']
+
+        else:
+            assert gamma is not None
+            assert f_value is not None
+
         self.lines_all.append(Line(element, ion_state, wavelength, gamma,
                                    f_value, field, identifier))
 
@@ -450,6 +481,21 @@ class LineDatabase:
             ions.append((line.element, from_roman(line.ion_state)))
         ions = uniquify(ions)
         return ions
+
+    @property
+    def linetools_linelist(self):
+        '''Handler for a linetools LineList class.
+        '''
+
+        if not hasattr( self, '_linetools_linelist' ):
+
+            # Only doing the import here so rest of the class doesn't 
+            # break if the feature isn't enabled.
+            from linetools.lists.linelist import LineList
+
+            self._linetools_linelist = LineList('ISM')
+
+        return self._linetools_linelist
 
     def __repr__(self):
         disp = ""
