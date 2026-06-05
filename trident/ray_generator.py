@@ -32,7 +32,7 @@ def make_simple_ray(dataset_file, start_position, end_position,
                     solution_filename=None, data_filename=None,
                     trajectory=None, redshift=None, field_parameters=None,
                     setup_function=None, load_kwargs=None,
-                    line_database=None, ionization_table=None,
+                    line_database=None, ionization_table=None, abundance_dict=None,
                     fail_empty=True):
     """
     Create a yt LightRay object for a single dataset (eg CGM).  This is a
@@ -170,6 +170,15 @@ def make_simple_ray(dataset_file, start_position, end_position,
         it uses the table specified in ~/.trident/config
         Default: None
 
+    :abundance_dict: dictionary, optional
+
+        Dictionary of elemental abundances normalized to hydrogen. Keys should
+        be elemental symbols, e.g., 'He'. By default, Trident assumes the solar
+        abundances of REF. Entries in this dictionary will replace the default
+        solar values. To completely replace the default solar abundances, specify
+        the dictionary should include all elements up through zinc.
+        Default: None
+
     :fail_empty: optional, bool
 
         If True, Trident will fail when it tries to create an empty Ray
@@ -251,6 +260,7 @@ def make_compound_ray(parameter_filename, simulation_type,
                       find_outputs=False, seed=None,
                       setup_function=None, load_kwargs=None,
                       line_database=None, ionization_table=None,
+                      abundance_dict=None,
                       field_parameters = None,
                       fail_empty=True):
     """
@@ -440,6 +450,15 @@ def make_compound_ray(parameter_filename, simulation_type,
         HDF5 table that can be used to compute the ion fraction as a function
         of density, temperature, metallicity, and redshift.  When set to None,
         it uses the table specified in ~/.trident/config
+        Default: None
+
+    :abundance_dict: dictionary, optional
+
+        Dictionary of elemental abundances normalized to hydrogen. Keys should
+        be elemental symbols, e.g., 'He'. By default, Trident assumes the solar
+        abundances of REF. Entries in this dictionary will replace the default
+        solar values. To completely replace the default solar abundances, specify
+        the dictionary should include all elements up through zinc.
         Default: None
 
     :field_parameters: optional, dict

@@ -163,6 +163,15 @@ class SpectrumGenerator(AbsorptionSpectrum):
         file.
         Default: None
 
+    :abundance_dict: dictionary, optional
+
+        Dictionary of elemental abundances normalized to hydrogen. Keys should
+        be elemental symbols, e.g., 'He'. By default, Trident assumes the solar
+        abundances of REF. Entries in this dictionary will replace the default
+        solar values. To completely replace the default solar abundances, specify
+        the dictionary should include all elements up through zinc.
+        Default: None
+
     **Example**
 
     Create a one-zone ray, and generate a COS spectrum from that ray.
@@ -192,7 +201,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
     def __init__(self, instrument=None, lambda_min=None, lambda_max=None,
                  n_lambda=None, dlambda=None, lsf_kernel=None,
                  line_database='lines.txt', ionization_table=None,
-                 bin_space='wavelength'):
+                 abundance_dict=None, bin_space='wavelength'):
         if instrument is None and \
           ((lambda_min is None or lambda_max is None) or \
            (dlambda is None and n_lambda is None)):
@@ -240,6 +249,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
                                     ion_table_dir))
         else:
             self.ionization_table = None
+
+        self.abundance_dict = abundance_dict
 
     def make_spectrum(self, ray, lines='all',
                       output_file=None,
@@ -400,7 +411,8 @@ class SpectrumGenerator(AbsorptionSpectrum):
                 my_lev = int(on_ion[1][1:]) + 1
                 mylog.info("Creating %s from ray's fields." % (line.field[1]))
                 add_ion_number_density_field(on_ion[0], my_lev, ray,
-                                 ionization_table=self.ionization_table)
+                                 ionization_table=self.ionization_table,
+                                 abundance_dict=self.abundance_dict)
 
             self.add_line(line.identifier, line.field,
                           float(line.wavelength),
@@ -1044,7 +1056,7 @@ class SpectrumGenerator(AbsorptionSpectrum):
         return disp
 
 def load_spectrum(filename, format='auto', instrument=None, lsf_kernel=None,
-                  line_database='lines.txt', ionization_table=None):
+                  line_database='lines.txt', ionization_table=None, abundance_dict=None):
     """
     Load a previously saved spectrum from disk.
 
@@ -1083,6 +1095,15 @@ def load_spectrum(filename, format='auto', instrument=None, lsf_kernel=None,
 
         An HDF5 file used for computing the ionization fraction of the gas
         based on its density, temperature, metallicity, and redshift.
+        Default: None
+
+    :abundance_dict: dictionary, optional
+
+        Dictionary of elemental abundances normalized to hydrogen. Keys should
+        be elemental symbols, e.g., 'He'. By default, Trident assumes the solar
+        abundances of REF. Entries in this dictionary will replace the default
+        solar values. To completely replace the default solar abundances, specify
+        the dictionary should include all elements up through zinc.
         Default: None
 
     **Example**
@@ -1132,7 +1153,8 @@ def load_spectrum(filename, format='auto', instrument=None, lsf_kernel=None,
     sg = SpectrumGenerator(instrument=instrument, lambda_min=lambda_min,
                            lambda_max=lambda_max, n_lambda=n_lambda,
                            lsf_kernel=lsf_kernel, line_database=line_database,
-                           ionization_table=ionization_table)
+                           ionization_table=ionization_table,
+                           abundance_dict=abundance_dict)
     if tau_field is not None:
         sg.load_spectrum(lambda_field=lambda_field, tau_field=tau_field,
                          flux_field=flux_field)

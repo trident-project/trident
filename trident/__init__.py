@@ -37,7 +37,8 @@ from trident.ion_balance import \
     add_ion_mass_field, \
     solar_abundance, \
     atomic_mass, \
-    calculate_ion_fraction
+    calculate_ion_fraction, \
+    update_abundances
 
 from trident.instrument import \
     Instrument

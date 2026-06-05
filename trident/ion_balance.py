@@ -40,7 +40,9 @@ to_nH = H_mass_fraction / mh
 fraction_zero_point = 1.e-9
 zero_out_value = -30.
 
-table_store = {}
+# Global variables for altering elemental abundance & ionization fractions
+abundance_store = {}
+ion_table_store = {}
 
 class IonBalanceTable(object):
     def __init__(self, filename=None, atom=None):
@@ -133,6 +135,7 @@ def _log_T(field, data):
 
 def add_ion_fields(ds, ions, ftype='gas',
                    ionization_table=None,
+                   abundance_dict=None,
                    field_suffix=False,
                    line_database=None,
                    sampling_type='local',
@@ -180,16 +183,16 @@ def add_ion_fields(ds, ions, ftype='gas',
 
     :ions: list of strings
 
-            List of strings matching possible lines.  Strings can be of the
-            form:
-            * Atom - Examples: "H", "C", "Mg"
-            * Ion - Examples: "H I", "H II", "C IV", "Mg II"
-            * Line - Examples: "H I 1216", "C II 1336", "Mg II 1240"
+        List of strings matching possible lines.  Strings can be of the
+        form:
+        * Atom - Examples: "H", "C", "Mg"
+        * Ion - Examples: "H I", "H II", "C IV", "Mg II"
+        * Line - Examples: "H I 1216", "C II 1336", "Mg II 1240"
 
-            If set to 'all', creates **all** ions for the first 30 elements:
-            (ie hydrogen to zinc).  If set to 'all' with ``line_database``
-            keyword set, then creates **all** ions associated with the lines
-            specified in the equivalent :class:`~trident.LineDatabase`.
+        If set to 'all', creates **all** ions for the first 30 elements:
+        (ie hydrogen to zinc).  If set to 'all' with ``line_database``
+        keyword set, then creates **all** ions associated with the lines
+        specified in the equivalent :class:`~trident.LineDatabase`.
 
     :ionization_table: string, optional
 
@@ -198,6 +201,15 @@ def add_ion_fields(ds, ions, ftype='gas',
         metallicity, and redshift.  When set to None, it uses the table
         specified in ~/.trident/config
         Default: None
+
+    :abundance_dict: dictionary, optional
+
+        Dictionary of elemental abundances normalized to hydrogen. Keys should
+        be elemental symbols, e.g., 'He'. By default, Trident assumes the solar
+        abundances from CLOUDY (Ferland et al. 2017).
+        Entries in this dictionary will replace the default
+        solar values. To completely replace the default solar abundances,
+        the dictionary should include all elements up through zinc.
 
     :field_suffix: boolean, optional
 
@@ -277,7 +289,9 @@ def add_ion_fields(ds, ions, ftype='gas',
     # - X_P#_density
     for (atom, ion) in ion_list:
         add_ion_mass_field(atom, ion, ds, ftype, ionization_table,
-            field_suffix=field_suffix, sampling_type=sampling_type)
+                           abundance_dict=abundance_dict,
+                           field_suffix=field_suffix,
+                           sampling_type=sampling_type)
 
 def add_ion_fraction_field(atom, ion, ds, ftype="gas",
                            ionization_table=None,
@@ -371,9 +385,9 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
     if field_suffix:
         field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
 
-    if field not in table_store:
+    if field not in ion_table_store:
         ionTable = IonBalanceTable(ionization_table, atom)
-        table_store[field] = {'fraction': copy.deepcopy(ionTable.ion_fraction[ion-1]),
+        ion_table_store[field] = {'fraction': copy.deepcopy(ionTable.ion_fraction[ion-1]),
                               'parameters': copy.deepcopy(ionTable.parameters)}
         del ionTable
 
@@ -389,6 +403,7 @@ def add_ion_fraction_field(atom, ion, ds, ftype="gas",
 
 def add_ion_number_density_field(atom, ion, ds, ftype="gas",
                                  ionization_table=None,
+                                 abundance_dict=None,
                                  field_suffix=False,
                                  sampling_type='local',
                                  particle_type=None):
@@ -436,6 +451,15 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
         metallicity, and redshift.  By default, it uses the table specified in
         ~/.trident/config
 
+    :abundance_dict: dictionary, optional
+
+        Dictionary of elemental abundances normalized to hydrogen. Keys should
+        be elemental symbols, e.g., 'He'. By default, Trident assumes the solar
+        abundances from CLOUDY (Ferland et al. 2017).
+        Entries in this dictionary will replace the default
+        solar values. To completely replace the default solar abundances,
+        the dictionary should include all elements up through zinc.
+
     :field_suffix: boolean, optional
 
         Determines whether or not to append a suffix to the field
@@ -464,6 +488,13 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
 
     if ionization_table is None:
         ionization_table = ion_table_filepath
+
+    global abundance_store
+    if abundance_dict is None:
+        abundance_store = solar_abundance
+    else:
+        abundance_store = update_abundances(abundance_dict)
+
     atom = atom.capitalize()
 
     field = "%s_p%d_number_density" % (atom, ion-1)
@@ -480,6 +511,7 @@ def add_ion_number_density_field(atom, ion, ds, ftype="gas",
 
 def add_ion_density_field(atom, ion, ds, ftype="gas",
                           ionization_table=None,
+                          abundance_dict=None,
                           field_suffix=False,
                           sampling_type='local',
                           particle_type=None):
@@ -527,6 +559,15 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
         metallicity, and redshift.  By default, it uses the table specified in
         ~/.trident/config
 
+    :abundance_dict: dictionary, optional
+
+        Dictionary of elemental abundances normalized to hydrogen. Keys should
+        be elemental symbols, e.g., 'He'. By default, Trident assumes the solar
+        abundances from CLOUDY (Ferland et al. 2017).
+        Entries in this dictionary will replace the default
+        solar values. To completely replace the default solar abundances,
+        the dictionary should include all elements up through zinc.
+
     :field_suffix: boolean, optional
 
         Determines whether or not to append a suffix to the field
@@ -555,6 +596,7 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
 
     if ionization_table is None:
         ionization_table = ion_table_filepath
+
     atom = atom.capitalize()
 
     field = "%s_p%d_density" % (atom, ion-1)
@@ -563,6 +605,8 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
         field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
 
     add_ion_number_density_field(atom, ion, ds, ftype, ionization_table,
+                                 abundance_dict=abundance_dict,
+                                 field_suffix=field_suffix,
                                  sampling_type=sampling_type)
 
     _add_field(ds, ("gas", field), function=_ion_density,
@@ -570,6 +614,7 @@ def add_ion_density_field(atom, ion, ds, ftype="gas",
 
 def add_ion_mass_field(atom, ion, ds, ftype="gas",
                        ionization_table=None,
+                       abundance_dict=None,
                        field_suffix=False,
                        sampling_type='local',
                        particle_type=None):
@@ -618,6 +663,15 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
         metallicity, and redshift.  By default, it uses the table specified in
         ~/.trident/config
 
+    :abundance_dict: dictionary, optional
+
+        Dictionary of elemental abundances normalized to hydrogen. Keys should
+        be elemental symbols, e.g., 'He'. By default, Trident assumes the solar
+        abundances from CLOUDY (Ferland et al. 2017).
+        Entries in this dictionary will replace the default
+        solar values. To completely replace the default solar abundances,
+        the dictionary should include all elements up through zinc.
+
     :field_suffix: boolean, optional
 
         Determines whether or not to append a suffix to the field
@@ -646,6 +700,7 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
 
     if ionization_table is None:
         ionization_table = ion_table_filepath
+
     atom = atom.capitalize()
 
     field = "%s_p%s_mass" % (atom, ion-1)
@@ -654,6 +709,7 @@ def add_ion_mass_field(atom, ion, ds, ftype="gas",
         field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
 
     add_ion_density_field(atom, ion, ds, ftype, ionization_table,
+                          abundance_dict=abundance_dict,
                           field_suffix=field_suffix,
                           sampling_type=sampling_type)
 
@@ -770,11 +826,12 @@ def _ion_number_density(field, data):
           atomic_mass[atom] / mh
 
     if atom == 'H' or atom == 'He':
-        number_density = solar_abundance[atom] * data[ftype, fraction_field_name]
+        number_density = abundance_store[atom] * data[ftype, fraction_field_name]
     else:
-        number_density = data.ds.quan(solar_abundance[atom], "1.0/Zsun") * \
+        number_density = data.ds.quan(abundance_store[atom], "1.0/Zsun") * \
           data[ftype, fraction_field_name] * \
           data[ftype, "metallicity"]
+
     # convert to number density
     # use the on disk hydrogen number density if possible
     if (ftype, "H_nuclei_density") in data.ds.derived_field_list:
@@ -789,26 +846,27 @@ def _ion_fraction_field(field, data):
     of an ion over a dataset by plugging in the density, temperature,
     metallicity and redshift of the output into the ionization table.
     """
+
     if isinstance(field.name, tuple):
         ftype = field.name[0]
         field_name = field.name[1]
     else:
         ftype = "gas"
         field_name = field.name
-    n_parameters = len(table_store[field_name]['parameters'])
+    n_parameters = len(ion_table_store[field_name]['parameters'])
 
     if n_parameters == 1:
-        ionFraction = table_store[field_name]['fraction']
-        t_param = table_store[field_name]['parameters'][0]
+        ionFraction = ion_table_store[field_name]['fraction']
+        t_param = ion_table_store[field_name]['parameters'][0]
         bds = t_param.astype("=f8")
 
         interp = UnilinearFieldInterpolator(ionFraction, bds, 'log_T', truncate=True)
 
     elif n_parameters == 3:
-        ionFraction = table_store[field_name]['fraction']
-        n_param = table_store[field_name]['parameters'][0]
-        z_param = table_store[field_name]['parameters'][1]
-        t_param = table_store[field_name]['parameters'][2]
+        ionFraction = ion_table_store[field_name]['fraction']
+        n_param = ion_table_store[field_name]['parameters'][0]
+        z_param = ion_table_store[field_name]['parameters'][1]
+        t_param = ion_table_store[field_name]['parameters'][2]
         bds = [n_param.astype("=f8"), z_param.astype("=f8"), t_param.astype("=f8")]
 
         interp = TrilinearFieldInterpolator(ionFraction, bds,
@@ -940,16 +998,16 @@ def calculate_ion_fraction(ion, density, temperature, redshift, ionization_table
 
     field = "%s_p%d_ion_fraction" % (atom, ion_state-1)
     field += "_%s" % ionization_table.split(os.sep)[-1].split(".h5")[0]
-    if field not in table_store:
+    if field not in ion_table_store:
         ionTable = IonBalanceTable(ionization_table, atom)
-        table_store[field] = {'fraction': copy.deepcopy(ionTable.ion_fraction[ion_state-1]),
+        ion_table_store[field] = {'fraction': copy.deepcopy(ionTable.ion_fraction[ion_state-1]),
                               'parameters': copy.deepcopy(ionTable.parameters)}
         del ionTable
 
-    ion_fraction = table_store[field]['fraction']
-    n_param = table_store[field]['parameters'][0]
-    z_param = table_store[field]['parameters'][1]
-    t_param = table_store[field]['parameters'][2]
+    ion_fraction = ion_table_store[field]['fraction']
+    n_param = ion_table_store[field]['parameters'][0]
+    z_param = ion_table_store[field]['parameters'][1]
+    t_param = ion_table_store[field]['parameters'][2]
 
     # x,y,z coordinates for all ion_fractions from table
     coords = (n_param, z_param, t_param)
@@ -971,9 +1029,23 @@ def calculate_ion_fraction(ion, density, temperature, redshift, ionization_table
     fraction = np.clip(fraction, 0.0, 1.0)
     return fraction
 
+def update_abundances(abundance_replacements):
+    
+    # Start with solar abundances as a "base"
+    abundances = solar_abundance.copy()
+
+    # Modify the provided elements. Could be all of them!
+    # Validate element keys using existing solar_abundance dict
+    for key, val in abundance_replacements.items():
+        if key in solar_abundance:
+            abundances[key] = val
+        else:
+            raise RuntimeError(f"Unrecognized element {key} provided to abundance_dict. Only elements up through Zn supported.")
+
+    return abundances
+
 
 # Taken from Cloudy documentation.
-
 solar_abundance = {
     'H' : 1.00e+00, 'He': 1.00e-01, 'Li': 2.04e-09,
     'Be': 2.63e-11, 'B' : 6.17e-10, 'C' : 2.45e-04,

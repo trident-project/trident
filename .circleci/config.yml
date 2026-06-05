@@ -113,6 +113,11 @@ commands:
                gunzip hm2012_lr.h5.gz
                mv hm2012_lr.h5 $TRIDENT_ION_DATA
             fi
+            if [ ! -f $TRIDENT_ION_DATA/fg2009_lr.h5 ]; then
+               wget http://trident-project.org/data/ion_table/fg2009_lr.h5.gz
+               gunzip fg2009_lr.h5.gz
+               mv fg2009_lr.h5 $TRIDENT_ION_DATA
+            fi
             # download answer test data
             if [ ! -f $TRIDENT_ANSWER_DATA/enzo_small/AMRCosmology.enzo ]; then
                pushd tests

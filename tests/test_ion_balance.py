@@ -26,12 +26,14 @@ from yt import \
 from yt.testing import \
     fake_random_ds, \
     fake_amr_ds
+from yt.utilities.physical_constants import mh
 import tempfile
 import shutil
 from trident.testing import \
     answer_test_data_dir, \
     assert_array_rel_equal
 import os
+import os.path as path
 
 import numpy as np
 
@@ -282,6 +284,26 @@ def test_add_ion_fields_to_enzo():
         SlicePlot(ds, 'x', field).save(dirpath)
     shutil.rmtree(dirpath)
 
+def test_add_ion_fields_to_enzo_with_nonsolar_abundances():
+    """
+    Test adding a non-tracked metal to an Enzo dataset with nonsolar abundance
+    """
+    abun = {"O": 5e-3}
+
+    ds = load(ISO_GALAXY)
+    ad = ds.all_data()
+    add_ion_number_density_field('O', 6, ds, abundance_dict=abun)
+    field = ('gas', 'O_p5_number_density')
+    assert field in ds.derived_field_list
+    assert isinstance(ad[field], np.ndarray)
+
+    # Test values of added field
+    num_dens = ds.quan(abun["O"], "1/Zsun") \
+            * ad[("gas","metallicity")] \
+            * ad[("gas","O_p5_ion_fraction")] \
+            * ad[("gas","H_nuclei_density")]
+    assert np.allclose(num_dens, ad[field])
+
 def test_add_ion_fields_to_gizmo():
     """
     Test to add various ion fields to gizmo dataset and slice on them
@@ -298,6 +320,26 @@ def test_add_ion_fields_to_gizmo():
         assert isinstance(ad[field], np.ndarray)
         SlicePlot(ds, 'x', field).save(dirpath)
     shutil.rmtree(dirpath)
+
+def test_add_ion_fields_to_gizmo_with_nonsolar_abundances():
+    """
+    Test adding a non-tracked metal to an Enzo dataset with nonsolar abundance
+    """
+    abun = {"Na": 2e-5}
+
+    ds = load(FIRE_SIM)
+    ad = ds.all_data()
+    add_ion_number_density_field('Na', 2, ds, abundance_dict=abun)
+    field = ('gas', 'Na_p1_number_density')
+    assert field in ds.derived_field_list
+    assert isinstance(ad[field], np.ndarray)
+
+    # Test values of added field
+    num_dens = ds.quan(abun["Na"], "1.0/Zsun") \
+            * ad[("gas","metallicity")] \
+            * ad[("gas","Na_p1_ion_fraction")] \
+            * ad[("gas","H_nuclei_density")]
+    assert np.allclose(num_dens, ad[field])
 
 def test_ion_fraction_field_is_from_on_disk_fields():
     """
@@ -352,6 +394,21 @@ def test_calculate_ion_fraction():
 
     # Does it return all hydrogen being ionized at 1e7 K?
     assert calculate_ion_fraction('H II', 1e-2, 1e7, 0) == 1
+
+    # Can it swap ionization tables?
+    ion_filepath = os.environ.get("TRIDENT_ION_DATA", 
+                                  path.join(path.expanduser("~"), ".trident"))
+    ionfile_hm12 = path.join(ion_filepath, "hm2012_lr.h5")
+    ionfile_fg09 = path.join(ion_filepath, "fg2009_lr.h5")
+
+    # O VI shows the biggest difference between "model families";
+    # Taira et al. 2025 https://ui.adsabs.harvard.edu/abs/2025ApJ...991..221T/abstract
+    frac_hm12 = calculate_ion_fraction("O VI", dens, temp, reds,
+                                       ionfile_hm12)
+    frac_fg09 = calculate_ion_fraction("O VI", dens, temp, reds,
+                                       ionfile_fg09)
+
+    assert not np.allclose(frac_hm12, frac_fg09)
 
 def test_species_fraction_field_is_used_for_ion_mass_and_number_density():
     """
